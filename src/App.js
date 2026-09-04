@@ -1,9 +1,19 @@
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import { ThemeProvider } from 'styled-components/native';
 import styled from 'styled-components/native';
 
 import ButtonClick from './components/ButtonClick';
 import CategoryTag, { CATEGORY_LABELS } from './components/CategoryTag';
+import Navbar from './components/Navbar';
 import theme from './theme';
+
+const AppContainer = styled(SafeAreaView)`
+  flex: 1;
+  background-color: ${({ theme }) => theme.colors.white[100]};
+`;
 
 const Screen = styled.View`
   flex: 1;
@@ -42,21 +52,26 @@ const TagList = styled.View`
 
 export default function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <Screen>
-        <Title>Falta o que?</Title>
-        <Subtitle>Tokens do Figma conectados ao app.</Subtitle>
-        <TagList>
-          {Object.keys(CATEGORY_LABELS).map((category) => (
-            <CategoryTag key={category} category={category} />
-          ))}
-        </TagList>
-        <ButtonList>
-          <ButtonClick title="Button" onPress={() => {}} />
-          <ButtonClick title="Button" variant="secondary" onPress={() => {}} />
-          <ButtonClick title="Button" variant="danger" onPress={() => {}} />
-        </ButtonList>
-      </Screen>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider theme={theme}>
+        <AppContainer edges={['top', 'right', 'left']}>
+          <Screen>
+            <Title>Falta o que?</Title>
+            <Subtitle>Tokens do Figma conectados ao app.</Subtitle>
+            <TagList>
+              {Object.keys(CATEGORY_LABELS).map((category) => (
+                <CategoryTag key={category} category={category} />
+              ))}
+            </TagList>
+            <ButtonList>
+              <ButtonClick title="Button" onPress={() => {}} />
+              <ButtonClick title="Button" variant="secondary" onPress={() => {}} />
+              <ButtonClick title="Button" variant="danger" onPress={() => {}} />
+            </ButtonList>
+          </Screen>
+          <Navbar />
+        </AppContainer>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
