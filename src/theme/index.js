@@ -10,6 +10,15 @@ const readValue = (token) => token?.['$value'];
 const readScale = (scale) =>
   Object.fromEntries(Object.entries(scale).map(([key, token]) => [key, readValue(token)]));
 
+const tagColors = Object.fromEntries(
+  Object.entries(tags).map(([key, token]) => [
+    key,
+    readValue(token) === '{Green.Green}'
+      ? readValue(primitive.Green.Green)
+      : readValue(token),
+  ]),
+);
+
 export const theme = {
   colors: {
     primary: readScale(primitive.Green),
@@ -24,7 +33,7 @@ export const theme = {
     danger: readScale(semantic.Danger),
     success: readScale(semantic.Success),
     pantry: Object.fromEntries(Object.entries(pantry).map(([key, token]) => [key, readValue(token)])),
-    tags: Object.fromEntries(Object.entries(tags).map(([key, token]) => [key, readValue(token)])),
+    tags: tagColors,
   },
   fonts: {
     families: {
