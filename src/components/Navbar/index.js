@@ -7,7 +7,7 @@ import {
   PantryIcon,
   ShoppingListIcon,
   UserIcon,
-} from '../../assets/icons';
+} from '../../assets/icons/export';
 
 export const DEFAULT_NAV_ITEMS = [
   { key: 'profile', label: 'Perfil', icon: UserIcon },
