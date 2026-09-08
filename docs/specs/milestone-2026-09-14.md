@@ -2,6 +2,10 @@
 
 Status: rascunho executável.
 
+## Execução por agentes
+
+Aplicar a política vigente de `../agents/workflow.md`, registrada em `../project/decisions.md`: Astra/leve coordena, Luna/médio executa escopos delimitados e Sol assume trabalho independente de maior complexidade quando indicado pelo orquestrador. A escolha pode ser feita antes de qualquer tentativa com Luna. O orquestrador recomenda ao usuário elevar o Astra para médio quando a etapa exigir. Essa distribuição não altera os requisitos nem os critérios de aceite abaixo.
+
 ## Objetivo
 
 Entregar no Android um fluxo mobile funcional, persistido localmente e alinhado ao Figma para cadastro, login, despensas, produtos e importação real de uma NFC-e de São Paulo. O código deve permanecer compatível com iOS, embora o grupo não possua dispositivo iOS para validação física.

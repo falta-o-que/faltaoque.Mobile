@@ -6,12 +6,24 @@ Use subagents to reduce elapsed time and context usage while keeping one account
 
 ## Model policy
 
-- Orchestrator: `gpt-5.6-sol`.
+- Orchestrator: `gpt-6-astra`, reasoning effort `low` by default.
 - Default worker: `gpt-5.6-luna`, reasoning effort `medium`.
-- Normal concurrency limit: three workers.
-- The orchestrator may exceed the limit when tasks are independent, have disjoint write scopes, and the expected gain justifies the additional token usage.
+- Intermediate worker: `gpt-5.6-sol`, reasoning effort `medium`, or `high` for demanding bounded work.
+- Concurrency limit: three workers across the whole tree, including descendants, and never beyond runtime capacity. The current runtime supports four agents including the root.
 
-The model setting of the current root task is controlled by Codex. These rules describe the required project workflow: work should begin from a Sol task, and spawned workers should receive the explicit Luna/medium override by default.
+The user controls the root model and reasoning setting in Codex. These instructions do not change that setting. Workers must receive explicit model/effort overrides with only the relevant context. Smaller workers here are available Codex models; do not assume a local inference runtime exists.
+
+## Routing and root reasoning
+
+Astra owns macro planning, SDD decisions, architectural boundaries, final integration and acceptance. Low is the routine starting point for clear requests, triage, delegation and small reviews.
+
+Use Luna/medium for closed scopes with clear acceptance criteria. Use Sol/medium for medium-complexity implementations spanning a few related modules, substantive documentation, structured-data work, investigations or independent technical reviews. Sol is an optional execution lead, not a mandatory management layer. Simple text work may remain with the root or Luna.
+
+Prefer Astra directly assigning Luna or Sol. Sol may delegate a genuinely independent subtask only within its assigned scope, exclusive file ownership and the global concurrency budget; it must not expand the task. Do not introduce an Astra-to-Sol-to-Luna chain without a concrete benefit.
+
+Recommend raising the root Astra to medium when unresolved ambiguity, cross-module integration, data migration, authentication/security decisions, fiscal extraction or difficult debugging requires deeper reasoning. Explain the actual issue and expected benefit in Portuguese, for example: "Recomendo subir o Astra para médio nesta etapa porque a migração precisa preservar os dados de todas as contas." Do not repeat the recommendation for the same unchanged condition. High or higher is exceptional and needs a concrete difficult problem.
+
+Continue useful independent work while the user adjusts the setting. A recommendation alone is not a blocker, and elapsed time is not confirmation that the setting changed. Report any actual blocker separately. After the demanding stage, suggest returning to low when appropriate.
 
 ## Delegation rules
 
@@ -22,6 +34,8 @@ Delegate work when it is concrete, bounded, and can proceed without blocking the
 - Writing tests for an already stable module.
 - Researching one external integration and returning evidence.
 - Auditing one screen against a specific Figma node.
+
+At the beginning of substantial implementation work, briefly state what stays with Astra and what is delegated. If there is no useful independent work, explain that briefly instead of spawning an idle worker.
 
 Keep work with the orchestrator when it involves:
 
@@ -44,6 +58,8 @@ The orchestrator may replace Luna with a stronger available model when at least 
 
 Escalation is a judgment call, not an automatic retry ladder. Prefer improving the task boundary and context before spending more tokens on a stronger model.
 
+Choose Sol or another stronger available worker before starting when the complexity is already evident. When escalating an active assignment, stop or finish the previous worker, inspect its changes, and transfer exclusive file ownership along with findings, attempted checks and unresolved issues. Never let the replacement edit files while the original worker still owns them. Keep high-risk architecture and security decisions with Astra; a worker can investigate or review bounded evidence independently.
+
 ## Context and token discipline
 
 - Give each worker only the relevant specification, file paths, Figma node IDs, constraints, and acceptance criteria.
@@ -63,3 +79,5 @@ Escalation is a judgment call, not an automatic retry ladder. Prefer improving t
 ## Completion rule
 
 The orchestrator must inspect worker output, resolve integration issues, run proportionate verification, and report remaining uncertainty. A worker saying that a task is complete is not sufficient by itself.
+
+For substantial changes, use an independent review or meaningful test subtask when a suitable independent scope exists. Do not force redundant reviews for trivial edits. Reviewers should receive acceptance criteria and evidence, not instructions to approve a predetermined conclusion.

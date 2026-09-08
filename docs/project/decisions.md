@@ -112,6 +112,20 @@ As duas pessoas do front-end trabalham em branches individuais. Alterações pro
 
 ## 2026-09-07 - Modelos e subagentes
 
+Decisão histórica, substituída pela política de 8 de setembro de 2026 abaixo.
+
 O orquestrador deve operar com GPT-5.6 Sol. Subagentes usam GPT-5.6 Luna com raciocínio médio por padrão. O limite normal é de três subagentes simultâneos; o Sol pode excedê-lo quando houver tarefas independentes suficientes e benefício claro.
 
 O Sol pode escolher um modelo mais forte para tarefas que excedam a capacidade adequada do Luna.
+
+## 2026-09-08 - Astra como orquestrador e escalonamento por complexidade
+
+Por escolha do usuário, o orquestrador passa a ser GPT-6 Astra com raciocínio leve (`low`) por padrão. O objetivo é concentrar planejamento, arquitetura, integração e revisão final no Astra, distribuindo trabalho independente conforme sua complexidade.
+
+GPT-5.6 Luna com raciocínio médio executa escopos delimitados. GPT-5.6 Sol com raciocínio médio, ou alto quando justificado, assume tarefas intermediárias com maior síntese, documentação substancial, investigação ou implementação em poucos módulos relacionados. O orquestrador pode escolher diretamente um agente mais forte quando Luna for inadequado; não precisa esperar uma tentativa falhar.
+
+Sol é opcional: não há cadeia obrigatória Astra → Sol → Luna. O limite é de três subagentes simultâneos em toda a árvore, respeitando a capacidade do ambiente. Arquitetura de alto risco, segurança, autenticação, migração de dados, decisões fiscais e integração final permanecem sob responsabilidade do Astra, com apoio independente quando útil.
+
+Quando a dificuldade justificar, o orquestrador deve recomendar ao usuário subir o Astra para médio e explicar o motivo concreto. O ajuste do modelo e do raciocínio da tarefa principal é feito pelo usuário no Codex. Uma recomendação não bloqueia trabalho independente nem significa que a configuração foi alterada. Ao encerrar a etapa exigente, pode recomendar retornar ao leve.
+
+O procedimento operacional, inclusive transferência de escopo entre agentes, está em `docs/agents/workflow.md`.
