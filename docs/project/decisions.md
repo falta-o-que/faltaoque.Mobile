@@ -12,6 +12,12 @@ O projeto continuará em JavaScript porque nem todas as pessoas responsáveis pe
 
 A estilização da aplicação deve usar `styled-components/native`. Novos componentes devem consumir o tema compartilhado e evitar cores, tipografia e espaçamentos literais quando houver tokens correspondentes.
 
+## 2026-09-08 - Organização dos estilos
+
+Cada componente e tela que usar `styled-components/native` deve manter as declarações `styled.*` em um arquivo irmão chamado `styles.js`. O arquivo `index.js` fica responsável pela lógica, estado, handlers e JSX, importando os elementos estilizados de `./styles`.
+
+Helpers usados exclusivamente para resolver propriedades visuais podem permanecer em `styles.js`. Regras de domínio, constantes funcionais e decisões de comportamento permanecem fora dele.
+
 ## 2026-09-07 - Plataformas
 
 O aplicativo deve suportar Android e iOS. Expo Web não faz parte do escopo. Somente Android poderá ser validado fisicamente pelo grupo durante a entrega atual.

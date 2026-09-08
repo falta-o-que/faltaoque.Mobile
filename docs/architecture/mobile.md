@@ -83,6 +83,7 @@ camera -> QR validator -> state router -> SP extractor
 ## Styled Components
 
 - Usar `styled-components/native` em componentes e telas.
+- Manter os componentes estilizados no arquivo irmão `styles.js`; `index.js` concentra lógica e JSX.
 - Consumir cores e tipografia pelo `ThemeProvider`.
 - Evitar valores literais quando existir token equivalente.
 - Usar propriedades transitórias, como `$variant`, para impedir encaminhamento indevido ao componente nativo.

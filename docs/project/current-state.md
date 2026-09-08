@@ -28,8 +28,10 @@ Funcionalidades exigidas para essa entrega:
 - `styled-components/native` é o padrão obrigatório para novos componentes e deve consumir o tema compartilhado.
 - Tokens do Figma exportados em `src/theme/tokens.json` e adaptados em `src/theme/index.js`.
 - Componentes existentes: `ButtonClick`, `CategoryTag` e `Navbar`.
-- React Navigation está instalado, mas a estrutura de rotas ainda não foi montada.
-- Ainda não existem camadas consolidadas de telas, serviços, persistência, mocks ou testes.
+- React Navigation está instalado e a estrutura inicial separa o fluxo público (`Login` e `Register`) do fluxo autenticado (`Home`).
+- As telas-base de login, cadastro e home foram criadas a partir dos nós atuais de alta fidelidade do Figma.
+- A troca entre os navegadores já depende de um estado de autenticação explícito, ainda fixado como não autenticado até a implementação da persistência local.
+- Ainda não existem camadas consolidadas de serviços, persistência, mocks ou testes.
 
 ## Trabalho humano em andamento
 
@@ -53,7 +55,7 @@ Funcionalidades exigidas para essa entrega:
 
 ## Próxima etapa
 
-Executar a fundação em fatias pequenas: navegação, armazenamento versionado e autenticação local. Em paralelo, validar o spike fiscal com o conteúdo de um QR Code real de NFC-e de São Paulo.
+Executar a próxima fatia da fundação: armazenamento versionado e autenticação local, conectando cadastro, login, restauração de sessão e logout à navegação já criada. Em paralelo, validar o spike fiscal com o conteúdo de um QR Code real de NFC-e de São Paulo.
 
 ## Riscos conhecidos
 

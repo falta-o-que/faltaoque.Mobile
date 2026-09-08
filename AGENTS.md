@@ -14,6 +14,7 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before 
 - Review and verify every subagent result before accepting it.
 - Leave changes uncommitted unless the user explicitly requests a commit, push, merge, or pull request.
 - Treat `src/components/Navbar/` and `src/assets/icons/` as active human work areas. Do not modify them unless the user explicitly assigns that work.
+- Keep component and screen styling in a sibling `styles.js` file. `index.js` must contain component logic and JSX, not `styled.*` declarations.
 - Follow `docs/agents/workflow.md` for delegation and escalation details.
 - Before planning project work, read `docs/project/overview.md`, `docs/project/decisions.md`, and `docs/project/current-state.md`. Read only the task-relevant specifications after that.
 - Keep agent-facing operational instructions in English and human-facing project documentation in Portuguese.
