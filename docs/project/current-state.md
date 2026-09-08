@@ -35,8 +35,7 @@ Funcionalidades exigidas para essa entrega:
 
 ## Trabalho humano em andamento
 
-- Exportação de ícones SVG.
-- Conversão posterior dos SVGs em componentes React Native.
+- Biblioteca de ícones convertida para componentes React Native SVG e centralizada em `src/assets/icons/export.js`.
 - Ajustes na navbar.
 
 Áreas temporariamente protegidas contra alterações não solicitadas:

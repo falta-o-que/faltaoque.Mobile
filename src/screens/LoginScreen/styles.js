@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { Pressable } from 'react-native';
 
 export const Form = styled.View`
   gap: 20px;
@@ -10,13 +11,18 @@ export const Actions = styled.View`
   margin-top: 30px;
 `;
 
-export const PrimaryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })`
+export const PrimaryButton = styled(Pressable).attrs(({ $active }) => ({
+  style: {
+    transform: [{ scale: $active ? 0.98 : 1 }],
+  },
+}))`
   width: 100%;
   height: 47px;
   align-items: center;
   justify-content: center;
   border-radius: 20px;
-  background-color: ${({ theme }) => theme.colors.primary[200]};
+  background-color: ${({ $active, theme }) =>
+    $active ? theme.colors.primary[300] : theme.colors.primary[200]};
 `;
 
 export const PrimaryLabel = styled.Text`
