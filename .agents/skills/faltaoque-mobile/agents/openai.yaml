@@ -1,0 +1,4 @@
+interface:
+  display_name: "FaltaOquê Mobile"
+  short_description: "Implementação mobile orientada pelo SDD"
+  default_prompt: "Use $faltaoque-mobile para implementar a próxima fatia do aplicativo conforme o SDD e o Figma."
