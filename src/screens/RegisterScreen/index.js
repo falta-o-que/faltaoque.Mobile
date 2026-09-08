@@ -7,6 +7,7 @@ import {
   AngleIcon,
   CheckIcon,
   EmailIcon,
+  EyeClosedIcon,
   EyeIcon,
   UserIcon,
 } from '../../assets/icons/export';
@@ -224,7 +225,7 @@ export function RegisterScreen({ navigation }) {
           placeholder="Senha"
           secureTextEntry={!isPasswordVisible}
           value={password}
-          Icon={EyeIcon}
+          Icon={isPasswordVisible ? EyeIcon : EyeClosedIcon}
           iconAccessibilityLabel={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
           onIconPress={() => setIsPasswordVisible((value) => !value)}
         />
@@ -237,7 +238,7 @@ export function RegisterScreen({ navigation }) {
           placeholder="Confirmar senha"
           secureTextEntry={!isConfirmationVisible}
           value={passwordConfirmation}
-          Icon={EyeIcon}
+          Icon={isConfirmationVisible ? EyeIcon : EyeClosedIcon}
           iconAccessibilityLabel={isConfirmationVisible ? 'Ocultar confirmação de senha' : 'Mostrar confirmação de senha'}
           onIconPress={() => setIsConfirmationVisible((value) => !value)}
         />

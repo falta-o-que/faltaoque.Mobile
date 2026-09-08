@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 
 import AuthScreenLayout from '../../components/AuthScreenLayout';
 import FormField from '../../components/FormField';
-import { EmailIcon, EyeIcon } from '../../assets/icons/export';
+import { EmailIcon, EyeClosedIcon, EyeIcon } from '../../assets/icons/export';
 import { hasValidationErrors, validateLogin } from '../../domain/authValidation';
 import { PUBLIC_ROUTES } from '../../navigation/routes';
 import {
@@ -72,7 +72,7 @@ export function LoginScreen({ navigation }) {
           value={password}
           onChangeText={handlePasswordChange}
           error={errors.password}
-          Icon={EyeIcon}
+          Icon={isPasswordVisible ? EyeIcon : EyeClosedIcon}
           iconAccessibilityLabel={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
           onIconPress={() => setIsPasswordVisible((value) => !value)}
         />

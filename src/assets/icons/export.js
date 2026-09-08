@@ -7,6 +7,7 @@ export { default as ColorProdutoCategoryIcon } from './ColorProdutoCategoryIcon'
 export { default as DashboardIcon } from './DashboardIcon';
 export { default as EmailIcon } from './EmailIcon';
 export { default as EyeIcon } from './EyeIcon';
+export { default as EyeClosedIcon } from './EyeClosedIcon';
 export { default as FilterIcon } from './FilterIcon';
 export { default as InfoIcon } from './InfoIcon';
 export { default as PantryIcon } from './PantryIcon';
