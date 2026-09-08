@@ -6,6 +6,7 @@ import FormField from '../../components/FormField';
 import { EmailIcon, EyeClosedIcon, EyeIcon } from '../../assets/icons/export';
 import { hasValidationErrors, validateLogin } from '../../domain/authValidation';
 import { PUBLIC_ROUTES } from '../../navigation/routes';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   Actions,
   Form,
@@ -22,6 +23,8 @@ export function LoginScreen({ navigation }) {
   const [errors, setErrors] = useState({});
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isSubmitActive, setIsSubmitActive] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
 
   const handleEmailChange = (value) => {
     setEmail(value);
@@ -33,11 +36,25 @@ export function LoginScreen({ navigation }) {
     setErrors((currentErrors) => ({ ...currentErrors, password: undefined }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validationErrors = validateLogin({ email, password });
 
     if (hasValidationErrors(validationErrors)) {
       setErrors(validationErrors);
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await login({ email, password });
+    } catch (error) {
+      const message = error.message === 'INVALID_CREDENTIALS'
+        ? 'E-mail ou senha inválidos.'
+        : 'Não foi possível entrar. Tente novamente.';
+
+      Alert.alert('Não foi possível entrar', message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -81,13 +98,14 @@ export function LoginScreen({ navigation }) {
         <PrimaryButton
           $active={isSubmitActive}
           accessibilityRole="button"
+          disabled={isSubmitting}
           onHoverIn={() => setIsSubmitActive(true)}
           onHoverOut={() => setIsSubmitActive(false)}
           onPress={handleSubmit}
           onPressIn={() => setIsSubmitActive(true)}
           onPressOut={() => setIsSubmitActive(false)}
         >
-          <PrimaryLabel>Entrar</PrimaryLabel>
+          <PrimaryLabel>{isSubmitting ? 'Entrando...' : 'Entrar'}</PrimaryLabel>
         </PrimaryButton>
         <Link accessibilityRole="button" onPress={handleForgotPassword}>
           <LinkText>Esqueci a Senha</LinkText>

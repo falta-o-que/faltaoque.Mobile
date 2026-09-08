@@ -1,6 +1,6 @@
 # Estado atual
 
-Última atualização: 7 de setembro de 2026.
+Última atualização: 8 de setembro de 2026.
 
 ## Marco imediato
 
@@ -30,8 +30,11 @@ Funcionalidades exigidas para essa entrega:
 - Componentes existentes: `ButtonClick`, `CategoryTag` e `Navbar`.
 - React Navigation está instalado e a estrutura inicial separa o fluxo público (`Login` e `Register`) do fluxo autenticado (`Home`).
 - As telas-base de login, cadastro e home foram criadas a partir dos nós atuais de alta fidelidade do Figma.
-- A troca entre os navegadores já depende de um estado de autenticação explícito, ainda fixado como não autenticado até a implementação da persistência local.
-- Ainda não existem camadas consolidadas de serviços, persistência, mocks ou testes.
+- A troca entre os navegadores depende da sessão restaurada pelo contexto de autenticação.
+- Contas locais são persistidas em um esquema versionado por meio de repositório substituível; senhas são armazenadas somente como hash com salt.
+- A sessão ativa usa armazenamento seguro e é restaurada após reiniciar o aplicativo.
+- Cadastro, login, login automático após cadastro e logout estão conectados às telas existentes.
+- Ainda não existem mocks ou testes automatizados consolidados.
 
 ## Trabalho humano em andamento
 
@@ -54,7 +57,7 @@ Funcionalidades exigidas para essa entrega:
 
 ## Próxima etapa
 
-Executar a próxima fatia da fundação: armazenamento versionado e autenticação local, conectando cadastro, login, restauração de sessão e logout à navegação já criada. Em paralelo, validar o spike fiscal com o conteúdo de um QR Code real de NFC-e de São Paulo.
+Executar a próxima fatia funcional: CRUD local de despensas com isolamento por conta. Em paralelo, validar o spike fiscal com o conteúdo de um QR Code real de NFC-e de São Paulo.
 
 ## Riscos conhecidos
 

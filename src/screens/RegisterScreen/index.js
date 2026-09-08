@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing } from 'react-native';
+import { Alert, Animated, Easing } from 'react-native';
 
 import AuthScreenLayout from '../../components/AuthScreenLayout';
 import FormField from '../../components/FormField';
@@ -15,6 +15,7 @@ import {
   hasValidationErrors,
   validateRegistration,
 } from '../../domain/authValidation';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   BackLink,
   BackText,
@@ -60,6 +61,8 @@ export function RegisterScreen({ navigation }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
   const [isSubmitActive, setIsSubmitActive] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { completeRegistration, register } = useAuth();
   const avatarColorMenuProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -147,12 +150,39 @@ export function RegisterScreen({ navigation }) {
     return value;
   };
 
-  const handleCreateAccount = () => {
+  const handleCreateAccount = async () => {
     const validationErrors = validateRegistration(formValues);
     setErrors(validationErrors);
 
     if (hasValidationErrors(validationErrors)) {
       return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const account = await register({ name, email, avatarColor, password });
+
+      Alert.alert(
+        'Conta criada!',
+        'Sua conta foi criada. Você será direcionado para o aplicativo.',
+        [{ text: 'Continuar', onPress: () => completeRegistration(account) }],
+        { cancelable: false },
+      );
+    } catch (error) {
+      if (error.message === 'EMAIL_ALREADY_EXISTS') {
+        setErrors((currentErrors) => ({
+          ...currentErrors,
+          email: 'Este e-mail já está cadastrado.',
+        }));
+        return;
+      }
+
+      Alert.alert(
+        'Não foi possível criar a conta',
+        'Verifique os dados e tente novamente.',
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -257,13 +287,14 @@ export function RegisterScreen({ navigation }) {
       <PrimaryButton
         $active={isSubmitActive}
         accessibilityRole="button"
+        disabled={isSubmitting}
         onHoverIn={() => setIsSubmitActive(true)}
         onHoverOut={() => setIsSubmitActive(false)}
         onPress={handleCreateAccount}
         onPressIn={() => setIsSubmitActive(true)}
         onPressOut={() => setIsSubmitActive(false)}
       >
-        <PrimaryLabel>Criar conta</PrimaryLabel>
+        <PrimaryLabel>{isSubmitting ? 'Criando...' : 'Criar conta'}</PrimaryLabel>
       </PrimaryButton>
       <BackLink accessibilityRole="button" onPress={() => navigation.goBack()}>
         <BackText><Muted>Já possui conta?</Muted> Logar</BackText>
