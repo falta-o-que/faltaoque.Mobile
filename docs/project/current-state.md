@@ -1,6 +1,6 @@
 # Estado atual
 
-Última atualização: 8 de setembro de 2026.
+Última atualização: 9 de setembro de 2026.
 
 ## Marco imediato
 
@@ -49,7 +49,7 @@ Funcionalidades exigidas para essa entrega:
 ## Preparação concluída
 
 - Fluxo de agentes e política de modelos registrados.
-- Política vigente: Astra/leve como orquestrador, Luna/médio para execução delimitada e Sol/médio ou alto para maior complexidade. Escalonamento e recomendações de raciocínio seguem `docs/agents/workflow.md` e a decisão de 8 de setembro de 2026.
+- Política vigente: Terra/leve como orquestrador para economizar tokens, Luna/médio para execução delimitada e Sol/médio ou alto para maior complexidade. Escalonamento e recomendações de raciocínio seguem `docs/agents/workflow.md` e a decisão de 9 de setembro de 2026.
 - Memória operacional do projeto criada em `docs/project`.
 - Especificação executável do marco criada em `docs/specs/milestone-2026-09-14.md`.
 - Arquitetura substituível entre armazenamento local e backend registrada.

@@ -37,8 +37,16 @@ export const theme = {
   },
   fonts: {
     families: {
-      poppins: readValue(primitive.fontFamilies.poppins),
-      inter: readValue(primitive.fontFamilies.inter),
+      poppins: {
+        regular: 'Poppins_400Regular',
+        medium: 'Poppins_500Medium',
+        bold: 'Poppins_700Bold',
+      },
+      inter: {
+        regular: 'Inter_400Regular',
+        medium: 'Inter_500Medium',
+        bold: 'Inter_700Bold',
+      },
     },
     weights: {
       regular: 400,

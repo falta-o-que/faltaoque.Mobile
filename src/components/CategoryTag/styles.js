@@ -29,7 +29,6 @@ export const Label = styled.Text`
     lightTextCategories.has($category)
       ? theme.colors.white[100]
       : theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter};
+  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
   font-size: ${({ theme }) => theme.fonts.sizes[0]}px;
-  font-weight: ${({ theme }) => theme.fonts.weights.bold};
 `;

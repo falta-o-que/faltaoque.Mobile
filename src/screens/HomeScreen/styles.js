@@ -22,16 +22,15 @@ export const Avatar = styled.View`
 export const Greeting = styled.Text`
   margin-top: 10px;
   color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.poppins};
-  font-size: 24px;
-  font-weight: ${({ theme }) => theme.fonts.weights.medium};
+  font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
+  font-size: ${({ theme }) => theme.fonts.sizes['4']}px;
 `;
 
 export const Subtitle = styled.Text`
   margin-top: 4px;
   color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter};
-  font-size: 14px;
+  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
+  font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
 `;
 
 export const Section = styled.View`
@@ -42,42 +41,28 @@ export const Section = styled.View`
 export const Question = styled.Text`
   margin-bottom: 10px;
   color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter};
+  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
   font-size: 16px;
-  font-weight: ${({ theme }) => theme.fonts.weights.bold};
   text-align: center;
 `;
 
 export const QuickActions = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
-export const QuickAction = styled.TouchableOpacity`
-  width: 60px;
-  height: 60px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 21px;
-  background-color: ${({ theme }) => theme.colors.primary.Green};
-`;
-
-export const QuickLabel = styled.Text`
-  color: ${({ theme }) => theme.colors.white[100]};
-  font-family: ${({ theme }) => theme.fonts.families.inter};
-  font-size: 10px;
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 26px;
 `;
 
 export const PantryTitle = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.poppins};
+  font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
   font-size: 20px;
-  font-weight: ${({ theme }) => theme.fonts.weights.medium};
 `;
 
 export const EmptyText = styled.Text`
   margin-top: 16px;
   color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter};
+  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: 16px;
 `;

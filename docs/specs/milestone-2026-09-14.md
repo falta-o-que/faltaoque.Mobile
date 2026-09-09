@@ -4,7 +4,7 @@ Status: rascunho executável.
 
 ## Execução por agentes
 
-Aplicar a política vigente de `../agents/workflow.md`, registrada em `../project/decisions.md`: Astra/leve coordena, Luna/médio executa escopos delimitados e Sol assume trabalho independente de maior complexidade quando indicado pelo orquestrador. A escolha pode ser feita antes de qualquer tentativa com Luna. O orquestrador recomenda ao usuário elevar o Astra para médio quando a etapa exigir. Essa distribuição não altera os requisitos nem os critérios de aceite abaixo.
+Aplicar a política vigente de `../agents/workflow.md`, registrada em `../project/decisions.md`: Terra/leve coordena, Luna/médio executa escopos delimitados e Sol assume trabalho independente de maior complexidade quando indicado pelo orquestrador. A escolha pode ser feita antes de qualquer tentativa com Luna. O orquestrador recomenda ao usuário elevar o Terra para médio ou trocar para Sol/Astra quando a etapa exigir. Essa distribuição não altera os requisitos nem os critérios de aceite abaixo.
 
 ## Objetivo
 

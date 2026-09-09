@@ -21,7 +21,7 @@ export const Input = styled.TextInput.attrs(({ theme }) => ({
   flex: 1;
   padding: 0;
   color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter};
+  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: 14px;
 `;
 
@@ -46,6 +46,6 @@ export const ErrorText = styled.Text`
   margin-top: 6px;
   margin-left: 4px;
   color: ${({ theme }) => theme.colors.danger[600]};
-  font-family: ${({ theme }) => theme.fonts.families.inter};
+  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: 11px;
 `;
