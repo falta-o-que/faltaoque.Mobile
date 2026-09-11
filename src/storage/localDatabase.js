@@ -1,23 +1,42 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DATABASE_KEY = '@faltaoque/database';
-const CURRENT_SCHEMA_VERSION = 1;
+const CURRENT_SCHEMA_VERSION = 2;
 
 const createEmptyDatabase = () => ({
   version: CURRENT_SCHEMA_VERSION,
   accounts: [],
+  pantries: [],
 });
+
+function migrateDatabase(value) {
+  if (value.version === 1 && Array.isArray(value.accounts)) {
+    return {
+      version: CURRENT_SCHEMA_VERSION,
+      accounts: value.accounts,
+      pantries: [],
+    };
+  }
+
+  return value;
+}
 
 function normalizeDatabase(value) {
   if (!value || typeof value !== 'object') {
     return createEmptyDatabase();
   }
 
-  if (value.version !== CURRENT_SCHEMA_VERSION || !Array.isArray(value.accounts)) {
+  const migratedDatabase = migrateDatabase(value);
+
+  if (
+    migratedDatabase.version !== CURRENT_SCHEMA_VERSION ||
+    !Array.isArray(migratedDatabase.accounts) ||
+    !Array.isArray(migratedDatabase.pantries)
+  ) {
     throw new Error('A versão dos dados locais não é compatível com o aplicativo.');
   }
 
-  return value;
+  return migratedDatabase;
 }
 
 export async function readDatabase() {

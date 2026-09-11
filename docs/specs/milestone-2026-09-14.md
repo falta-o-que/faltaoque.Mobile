@@ -100,6 +100,15 @@ Entregar no Android um fluxo mobile funcional, persistido localmente e alinhado 
 - Compartilhamento permanece desativado.
 - A despensa pertence à conta que a criou.
 
+### Home e criação
+
+- A Home deve exibir um estado vazio quando a conta ainda não possuir despensas.
+- O botão `Criar` abre um modal com nome e cor obrigatórios e permanece flutuante acima da Navbar.
+- A lista deve rolar por trás do botão `Criar` e ser recortada ao alcançar a Navbar, sem invadir o título `Suas despensas`.
+- Os cards devem manter 16 px entre si, exibir a cor escolhida para a despensa e truncar nomes longos em uma linha com reticências.
+- O envio do modal deve ser bloqueado enquanto a criação estiver em andamento, evitando registros duplicados.
+- Ações ainda não implementadas da Home, da configuração do card e da Navbar devem informar `Em breve`, sem alterar a seleção ou os dados persistidos.
+
 ### Exclusão
 
 - Pedir confirmação explícita.
@@ -109,6 +118,9 @@ Entregar no Android um fluxo mobile funcional, persistido localmente e alinhado 
 ### Critérios de aceite
 
 - Uma conta não enxerga despensas de outra conta.
+- Uma despensa criada aparece imediatamente na Home e permanece disponível após reiniciar o aplicativo.
+- Nome vazio ou cor não selecionada mantém o modal aberto e apresenta o erro junto ao campo correspondente.
+- Falha de leitura ou gravação apresenta uma mensagem clara e não remove despensas existentes.
 - Cancelar a confirmação mantém todos os dados.
 - Falha durante a exclusão não pode deixar produtos órfãos.
 

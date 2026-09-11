@@ -25,6 +25,7 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
   const [name, setName] = useState('');
   const [color, setColor] = useState(null);
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
       setColor(null);
       setErrors({});
       setIsColorPickerOpen(false);
+      setIsSubmitting(false);
     }
   }, [visible]);
 
@@ -40,7 +42,7 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
     onRequestClose();
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     const nextErrors = {
       name: name.trim() ? undefined : 'Informe o nome da despensa.',
       color: color ? undefined : 'Escolha uma cor para a despensa.',
@@ -52,7 +54,12 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
       return;
     }
 
-    onCreate({ color, name: name.trim() });
+    try {
+      setIsSubmitting(true);
+      await onCreate({ color, name: name.trim() });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -118,12 +125,14 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
           <Actions>
             <ModalActionButton
               accessibilityLabel="Cancelar criação da despensa"
+              disabled={isSubmitting}
               Icon={CancelCircleIcon}
               onPress={handleClose}
               variant="cancel"
             />
             <ModalActionButton
               accessibilityLabel="Criar despensa"
+              disabled={isSubmitting}
               Icon={CheckIcon}
               onPress={handleConfirm}
               variant="confirm"

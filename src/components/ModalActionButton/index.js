@@ -2,6 +2,7 @@ import { IconContainer, Touchable } from './styles';
 
 export function ModalActionButton({
   accessibilityLabel,
+  disabled = false,
   Icon,
   onPress,
   rotated = false,
@@ -12,6 +13,8 @@ export function ModalActionButton({
       $variant={variant}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
     >
       <IconContainer $rotated={rotated}>

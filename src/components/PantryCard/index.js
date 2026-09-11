@@ -7,7 +7,6 @@ import {
   Details,
   DetailRow,
   Footer,
-  Header,
   IconButton,
   Label,
   QuantityBadge,
@@ -55,7 +54,7 @@ export function PantryCard({
           accessibilityRole="button"
           onPress={onSettingsPress}
         >
-          <SettingsIcon color={theme.colors.primary.Green} size={24} />
+          <SettingsIcon color={theme.colors.black[400]} size={24} />
         </IconButton>
       </Footer>
     </Card>

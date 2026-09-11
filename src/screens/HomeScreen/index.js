@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 
 import Navbar from '../../components/Navbar';
 import CreatePantryModal from '../../components/CreatePantryModal';
+import PantryCard from '../../components/PantryCard';
 import QuickActionButton from '../../components/QuickActionButton';
 import {
   AddCircleIcon,
@@ -12,12 +13,15 @@ import {
   UserIcon,
 } from '../../assets/icons/export';
 import { useAuth } from '../../contexts/AuthContext';
+import * as pantryService from '../../services/pantryService';
 import {
   Avatar,
   Content,
   CreateAction,
   EmptyText,
   Greeting,
+  LoadError,
+  PantryList,
   PantryTitle,
   Question,
   QuickActions,
@@ -34,10 +38,39 @@ const QUICK_ACTIONS = [
   { key: 'settings', label: 'Configurações', text: 'Config.', icon: SettingsIcon },
 ];
 
+const showComingSoon = (feature) => {
+  Alert.alert('Em breve', `${feature} estará disponível em breve.`);
+};
+
 export function HomeScreen() {
   const { account } = useAuth();
   const [selectedAction, setSelectedAction] = useState('pantry');
   const [isCreatePantryModalOpen, setIsCreatePantryModalOpen] = useState(false);
+  const [pantries, setPantries] = useState([]);
+  const [pantriesError, setPantriesError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    pantryService
+      .listPantries(account?.id)
+      .then((storedPantries) => {
+        if (isMounted) {
+          setPantries(storedPantries);
+          setPantriesError(null);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setPantries([]);
+          setPantriesError('Não foi possível carregar suas despensas.');
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [account?.id]);
 
   const handleActionPress = (key, label) => {
     if (key === 'pantry') {
@@ -45,15 +78,40 @@ export function HomeScreen() {
       return;
     }
 
-    Alert.alert('Em breve', `${label} estará disponível em breve.`);
+    showComingSoon(label);
+  };
+
+  const handleNavbarItemChange = (key, item) => {
+    if (key !== 'profile') {
+      showComingSoon(item.label);
+    }
+  };
+
+  const handlePantrySettingsPress = (pantryName) => {
+    showComingSoon(`A configuração de ${pantryName}`);
   };
 
   const handleCreatePantryPress = () => {
     setIsCreatePantryModalOpen(true);
   };
 
-  const handleCreatePantry = () => {
-    setIsCreatePantryModalOpen(false);
+  const handleCreatePantry = async ({ color, name }) => {
+    try {
+      const pantry = await pantryService.createPantry({
+        accountId: account?.id,
+        color,
+        name,
+      });
+
+      setPantries((currentPantries) => [...currentPantries, pantry]);
+      setPantriesError(null);
+      setIsCreatePantryModalOpen(false);
+    } catch (error) {
+      Alert.alert(
+        'Não foi possível criar a despensa',
+        'Tente novamente em alguns instantes.',
+      );
+    }
   };
 
   return (
@@ -80,7 +138,22 @@ export function HomeScreen() {
         {selectedAction === 'pantry' ? (
           <PantrySection>
             <PantryTitle>Suas despensas</PantryTitle>
-            <EmptyText>Você ainda não possui despensas...</EmptyText>
+            {pantriesError ? <LoadError>{pantriesError}</LoadError> : null}
+            {pantries.length === 0 && !pantriesError ? (
+              <EmptyText>Você ainda não possui despensas...</EmptyText>
+            ) : null}
+            {pantries.length > 0 ? (
+              <PantryList>
+                {pantries.map((pantry) => (
+                  <PantryCard
+                    key={pantry.id}
+                    color={pantry.color}
+                    name={pantry.name}
+                    onSettingsPress={() => handlePantrySettingsPress(pantry.name)}
+                  />
+                ))}
+              </PantryList>
+            ) : null}
             <CreateAction>
               <QuickActionButton
                 Icon={AddCircleIcon}
@@ -97,7 +170,7 @@ export function HomeScreen() {
         onRequestClose={() => setIsCreatePantryModalOpen(false)}
         visible={isCreatePantryModalOpen}
       />
-      <Navbar activeItem="profile" />
+      <Navbar activeItem="profile" onItemChange={handleNavbarItemChange} />
     </Screen>
   );
 }
