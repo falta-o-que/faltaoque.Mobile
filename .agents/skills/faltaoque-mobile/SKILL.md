@@ -37,6 +37,14 @@ For functional behavior, the relevant SDD and confirmed entries in `docs/project
 
 When translating approved Figma nodes into repository code, also use `figma-implement-design`. Convert Figma output to the project's React Native conventions; never copy web/Tailwind output literally. Use `figma-use` only when the user asks to modify or programmatically inspect the Figma file itself.
 
+## Validate responsive mobile lists
+
+- Check list screens with empty, one-card, multi-card, overflow, small-screen, and long-label states.
+- Keep scroll extent independent from floating-action placement. Do not use page padding to position an overlay when that padding would shorten the scroll viewport; give the floating action its own offset.
+- Reserve internal scroll space around card shadows so clipping does not affect the first card or horizontal edges, while keeping the viewport clipped below section headings and above fixed navigation.
+- On Android, do not assume iOS shadow properties or `boxShadow` render in the active build. Prefer a stable `elevation` plus a subtle outline when the approved uniform shadow cannot be reproduced, and verify the result on the target runtime before adding compensating layers.
+- Constrain card titles and similar dynamic labels with flex shrink, one line, and tail ellipsis instead of allowing them to expand the card.
+
 ## Protect ownership and verify
 
 Inspect the working tree before editing and preserve unrelated human changes. Treat the protected paths listed in `docs/project/current-state.md` and `AGENTS.md` as read-only unless the user explicitly assigns them.

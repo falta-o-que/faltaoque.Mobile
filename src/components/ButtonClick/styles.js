@@ -31,7 +31,6 @@ export const Container = styled.TouchableOpacity.attrs(({ disabled }) => ({
 
 export const Label = styled.Text`
   color: ${({ theme, $variant }) => textColorByVariant[$variant](theme)};
-  font-family: ${({ theme }) => theme.fonts.families.inter};
+  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
   font-size: ${({ theme }) => theme.fonts.sizes[2]}px;
-  font-weight: ${({ theme }) => theme.fonts.weights.bold};
 `;
