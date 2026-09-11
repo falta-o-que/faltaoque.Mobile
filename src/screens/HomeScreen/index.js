@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 
 import Navbar from '../../components/Navbar';
+import CreatePantryModal from '../../components/CreatePantryModal';
 import QuickActionButton from '../../components/QuickActionButton';
 import {
   AddCircleIcon,
@@ -36,7 +37,7 @@ const QUICK_ACTIONS = [
 export function HomeScreen() {
   const { account } = useAuth();
   const [selectedAction, setSelectedAction] = useState('pantry');
-  const [, setIsCreatePantryModalOpen] = useState(false);
+  const [isCreatePantryModalOpen, setIsCreatePantryModalOpen] = useState(false);
 
   const handleActionPress = (key, label) => {
     if (key === 'pantry') {
@@ -49,6 +50,10 @@ export function HomeScreen() {
 
   const handleCreatePantryPress = () => {
     setIsCreatePantryModalOpen(true);
+  };
+
+  const handleCreatePantry = () => {
+    setIsCreatePantryModalOpen(false);
   };
 
   return (
@@ -87,6 +92,11 @@ export function HomeScreen() {
           </PantrySection>
         ) : null}
       </Content>
+      <CreatePantryModal
+        onCreate={handleCreatePantry}
+        onRequestClose={() => setIsCreatePantryModalOpen(false)}
+        visible={isCreatePantryModalOpen}
+      />
       <Navbar activeItem="profile" />
     </Screen>
   );

@@ -16,6 +16,7 @@ import {
   validateRegistration,
 } from '../../domain/authValidation';
 import { useAuth } from '../../contexts/AuthContext';
+import { COLOR_OPTION_ROWS } from '../../constants/colorOptions';
 import {
   BackLink,
   BackText,
@@ -37,16 +38,6 @@ import {
   Terms,
   TermsText,
 } from './styles';
-
-const AVATAR_COLORS = [
-  '#00F0FF', '#75C1E0', '#1E2B5E', '#0031F5', '#470419', '#7115C2',
-  '#B666B2', '#36B83F', '#97F7CD', '#FF0505', '#FFB405', '#00DD00',
-];
-
-const AVATAR_COLOR_ROWS = [
-  AVATAR_COLORS.slice(0, 6),
-  AVATAR_COLORS.slice(6, 12),
-];
 
 export function RegisterScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -226,7 +217,7 @@ export function RegisterScreen({ navigation }) {
           {shouldRenderAvatarColorPanel ? (
             <ColorPanel style={avatarColorPanelStyle}>
               <ColorGrid>
-                {AVATAR_COLOR_ROWS.map((row, rowIndex) => (
+                {COLOR_OPTION_ROWS.map((row, rowIndex) => (
                   <ColorRow key={`avatar-color-row-${rowIndex + 1}`}>
                     {row.map((color) => (
                       <ColorOption

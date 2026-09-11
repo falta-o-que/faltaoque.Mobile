@@ -1,6 +1,6 @@
 import Svg, { Path } from 'react-native-svg';
 
-export default function CheckIcon({ width = 17, height = 18, color = '#00B83E' }) {
+export default function aCheckIcon({ width = 17, height = 18, color = '#00B83E' }) {
   return (
     <Svg width={width} height={height} viewBox="0 0 17 18" fill="none">
       <Path d="M5.375 9.375L6.875 10.875L10.625 7.125" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
