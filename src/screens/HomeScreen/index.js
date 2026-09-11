@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 import Navbar from '../../components/Navbar';
 import QuickActionButton from '../../components/QuickActionButton';
 import {
+  AddCircleIcon,
   PantryIcon,
   SettingsIcon,
   SinoIcon,
@@ -13,12 +14,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import {
   Avatar,
   Content,
+  CreateAction,
   EmptyText,
   Greeting,
   PantryTitle,
   Question,
   QuickActions,
   Screen,
+  PantrySection,
   Section,
   Subtitle,
 } from './styles';
@@ -33,6 +36,7 @@ const QUICK_ACTIONS = [
 export function HomeScreen() {
   const { account } = useAuth();
   const [selectedAction, setSelectedAction] = useState('pantry');
+  const [, setIsCreatePantryModalOpen] = useState(false);
 
   const handleActionPress = (key, label) => {
     if (key === 'pantry') {
@@ -41,6 +45,10 @@ export function HomeScreen() {
     }
 
     Alert.alert('Em breve', `${label} estará disponível em breve.`);
+  };
+
+  const handleCreatePantryPress = () => {
+    setIsCreatePantryModalOpen(true);
   };
 
   return (
@@ -65,10 +73,18 @@ export function HomeScreen() {
           </QuickActions>
         </Section>
         {selectedAction === 'pantry' ? (
-          <Section>
+          <PantrySection>
             <PantryTitle>Suas despensas</PantryTitle>
             <EmptyText>Você ainda não possui despensas...</EmptyText>
-          </Section>
+            <CreateAction>
+              <QuickActionButton
+                Icon={AddCircleIcon}
+                accessibilityLabel="Criar despensa"
+                onPress={handleCreatePantryPress}
+                text="Criar"
+              />
+            </CreateAction>
+          </PantrySection>
         ) : null}
       </Content>
       <Navbar activeItem="profile" />

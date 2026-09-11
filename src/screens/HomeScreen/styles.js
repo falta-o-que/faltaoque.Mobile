@@ -38,6 +38,17 @@ export const Section = styled.View`
   margin-top: 30px;
 `;
 
+export const PantrySection = styled.View`
+  width: 100%;
+  flex: 1;
+  margin-top: 30px;
+`;
+
+export const CreateAction = styled.View`
+  align-items: flex-end;
+  margin-top: auto;
+`;
+
 export const Question = styled.Text`
   margin-bottom: 10px;
   color: ${({ theme }) => theme.colors.black.Black};
