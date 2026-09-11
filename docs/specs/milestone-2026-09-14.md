@@ -26,6 +26,7 @@ Entregar no Android um fluxo mobile funcional, persistido localmente e alinhado 
 - Expo SDK 57.
 - `styled-components/native` e tema compartilhado.
 - Figma atualizado como fonte de verdade visual.
+- Após converter um SVG fornecido para um componente React Native, o arquivo-fonte `.svg` pode ser removido; o componente JavaScript passa a ser a representação mantida pelo aplicativo.
 - Persistência acessada somente por serviços ou repositórios substituíveis.
 - Dados de contas diferentes não podem se misturar.
 - Erros devem aparecer em linguagem clara e não podem apagar dados existentes.
