@@ -10,16 +10,16 @@ export const ActionButton = styled.TouchableOpacity.attrs({
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-color: ${({ theme }) => theme.colors.black[400]};
-  border-width: ${({ $selected }) => ($selected ? 2 : 0)}px;
+  border-color: #0b8c0b;
+  border-width: ${({$selected}) => ($selected ? 2 : 0)}px;
   border-radius: 21px;
-  background-color: ${({ theme }) => theme.colors.primary.Green};
+  background-color: ${({theme}) => theme.colors.primary.Green};
 `;
 
 export const TextButton = styled.Text`
   color: ${({ theme }) => theme.colors.white[100]};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 12px;
+  font-size: 10px;
   font-style: normal;
   font-weight: 500;
   line-height: 12px;

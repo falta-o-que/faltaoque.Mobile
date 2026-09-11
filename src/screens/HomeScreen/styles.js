@@ -16,7 +16,7 @@ export const Avatar = styled.View`
   width: 100px;
   height: 100px;
   border-radius: 50px;
-  background-color: #202e67;
+  background-color: ${({ $color }) => $color ?? '#202e67'};
 `;
 
 export const Greeting = styled.Text`
@@ -49,9 +49,9 @@ export const Question = styled.Text`
 export const QuickActions = styled.View`
     width: 100%;
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    gap: 26px;
+    padding-inline: 16px;
 `;
 
 export const PantryTitle = styled.Text`

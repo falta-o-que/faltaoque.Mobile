@@ -46,7 +46,7 @@ export function HomeScreen() {
   return (
     <Screen edges={['top', 'right', 'left']}>
       <Content>
-        <Avatar />
+        <Avatar $color={account?.avatarColor} />
         <Greeting>Oi, {account?.name ?? 'pessoa viva'}</Greeting>
         <Subtitle>Sua casa está no ritmo.</Subtitle>
         <Section>
