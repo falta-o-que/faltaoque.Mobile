@@ -37,6 +37,9 @@ function loader() {
 async function main() {
   const load = loader();
   const { normalizeProduct, validateProduct } = load('src/domain/productValidation.js');
+  const { suggestCategory, confirmFiscalPurchase } = load('src/services/nfceImportService.js');
+  const { groupFiscalItems } = load('src/domain/fiscalItems.js');
+  const { extractPackageMeasure } = load('src/domain/packageMeasure.js');
   const { addProduct, deleteProduct, listProducts, updateProduct, updateProductQuantity } = load('src/services/productService.js');
   const { readDatabase } = load('src/storage/localDatabase.js');
   const { createPantry, listPantriesByAccountId } = load('src/repositories/pantryRepository.js');
@@ -59,15 +62,22 @@ async function main() {
   assert.equal(normalizeProduct({ ...draft, expirationDate: '2026-12-31' }).expirationDate, '2026-12-31');
   assert.equal(normalizeProduct({ ...draft, expirationDate: '' }).expirationDate, null);
   assert.equal(normalizeProduct({ ...draft, weight: '', unit: 'kg' }).weight, null);
+  assert.equal(suggestCategory('Café em pó'), 'bebidas');
+  assert.equal(suggestCategory('Produto sem regra'), 'outros');
+  assert.equal(normalizeProduct({ ...draft, category: 'outros' }).category, 'outros');
 
   const accounts = [{ id: 'a', email: 'a@example.test' }, { id: 'b', email: 'b@example.test' }];
   persisted = JSON.stringify({ version: 1, accounts });
-  assert.equal((await readDatabase()).version, 3);
+  assert.equal((await readDatabase()).version, 4);
   assert.deepEqual((await readDatabase()).accounts, accounts);
   const original = JSON.stringify({ version: 2, accounts, pantries: [{ id: 'p', accountId: 'a', name: 'Casa', color: '#00dd00' }] });
   persisted = original;
   assert.equal((await readDatabase()).pantries[0].id, 'p');
   assert.equal(persisted, original, 'Reading a migration must not overwrite storage');
+  persisted = JSON.stringify({ version: 3, accounts, pantries: [], products: [], purchases: [] });
+  assert.equal((await readDatabase()).version, 4);
+  assert.deepEqual((await readDatabase()).importedQrFingerprints, []);
+  persisted = original;
 
   await assert.rejects(addProduct({ ...draft, accountId: 'b', pantryId: 'p' }));
   assert.equal(persisted, original);
@@ -127,7 +137,52 @@ async function main() {
   assert.equal((await listProducts('b', 'p2')).length, 0);
   const reloaded = loader()('src/services/productService.js');
   assert.equal((await reloaded.listProducts('a', 'p')).length, 1);
-  for (const invalid of ['{bad json', 'null', '{"version":999}', '{"version":3,"accounts":[],"pantries":[]}']) {
+  const fiscalLine = { sourceDescription: 'CAFE MARCA A 500G', quantity: 1, unitLabel: 'UN', unitPrice: 12.35, totalPrice: 12.35 };
+  const grouped = groupFiscalItems([fiscalLine, { ...fiscalLine, sourceDescription: ' Café  marca A 500g ', unitLabel: 'un' }]);
+  assert.equal(grouped.length, 1);
+  assert.equal(grouped[0].quantity, 2);
+  assert.equal(grouped[0].totalPrice, 24.7);
+  assert.equal(grouped[0].unitPrice, 12.35);
+  assert.equal(grouped[0].sourceItems.length, 2);
+  for (const different of [{ sourceDescription: 'CAFE MARCA A 1KG' }, { sourceDescription: 'CAFE MARCA B 500G' }, { unitLabel: 'kg' }]) {
+    assert.equal(groupFiscalItems([fiscalLine, { ...fiscalLine, ...different }]).length, 2);
+  }
+  const discounted = groupFiscalItems([fiscalLine, { ...fiscalLine, unitPrice: 10, totalPrice: 9 }])[0];
+  assert.equal(discounted.totalPrice, 21.35);
+  assert.equal(discounted.unitPrice, 11.175);
+  assert.equal(discounted.sourceItems[1].totalPrice, 9);
+  assert.equal(discounted.hasDifferentPrices, true);
+  const fractional = groupFiscalItems([{ ...fiscalLine, quantity: 0.1 }, { ...fiscalLine, quantity: 0.2 }])[0];
+  assert.equal(fractional.quantity, 0.3);
+  const fiscalDraft = { accountId: 'a', pantryId: 'p', purchase: { purchasedAt: '2026-09-12T12:00:00-03:00', merchantName: 'Mercado Teste', totalAmount: 24.7, qrFingerprint: 'synthetic-fingerprint' },
+    items: [...grouped.map((item) => ({ ...item, ...extractPackageMeasure(item.sourceDescription), selected: true, category: 'outros' })), { ...fiscalLine, sourceDescription: 'Ignorado', selected: false, category: 'outros' }] };
+  const beforeFiscal = persisted;
+  failWrite = true;
+  await assert.rejects(confirmFiscalPurchase(fiscalDraft));
+  assert.equal(persisted, beforeFiscal);
+  failWrite = false;
+  const imported = await confirmFiscalPurchase(fiscalDraft);
+  assert.equal(imported.length, 1);
+  assert.equal(imported[0].quantity, 2);
+  assert.equal(imported[0].totalPrice, 24.7);
+  assert.equal(imported[0].category, 'outros');
+  assert.equal(imported[0].name, 'CAFE MARCA A');
+  assert.equal(imported[0].weight, 500);
+  assert.equal(imported[0].unit, 'g');
+  const fiscalHistory = (await readDatabase()).purchases.at(-1);
+  assert.deepEqual(fiscalHistory.items[0].sourceItems, grouped[0].sourceItems);
+  assert.equal(fiscalHistory.items[0].productId, imported[0].id);
+  const afterFiscal = persisted;
+  await assert.rejects(confirmFiscalPurchase(fiscalDraft), /DUPLICATE_FISCAL_NOTE/);
+  assert.equal(persisted, afterFiscal);
+  const editMeasure = { ...fiscalDraft, purchase: { ...fiscalDraft.purchase, qrFingerprint: 'synthetic-edit' }, items: [{ ...fiscalDraft.items[0], weight: 0.5, unit: 'kg' }] };
+  const corrected = await confirmFiscalPurchase(editMeasure);
+  assert.equal(corrected[0].weight, 0.5);
+  assert.equal(corrected[0].unit, 'kg');
+  await assert.rejects(confirmFiscalPurchase({ ...editMeasure, items: [{ ...editMeasure.items[0], weight: -1 }] }), /INVALID_FISCAL_ITEM/);
+  await assert.rejects(confirmFiscalPurchase({ ...editMeasure, items: [{ ...editMeasure.items[0], unit: '' }] }), /INVALID_FISCAL_ITEM/);
+  console.log('PASS: repeated fiscal lines, presentation separation, prices, originals, deselection, atomic import and Others.');
+  for (const invalid of ['{bad json', 'null', '{"version":999}', '{"version":4,"accounts":[],"pantries":[]}']) {
     persisted = invalid;
     await assert.rejects(addProduct({ ...draft, accountId: 'a', pantryId: 'p' }));
     assert.equal(persisted, invalid, 'Invalid storage must not be reset');

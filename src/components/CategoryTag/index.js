@@ -8,6 +8,7 @@ export const CATEGORY_LABELS = {
   carnes: 'Carnes',
   bebidas: 'Bebidas',
   organicos: 'Orgânicos',
+  outros: 'Outros',
 };
 
 export function CategoryTag({

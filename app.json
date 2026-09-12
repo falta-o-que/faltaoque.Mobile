@@ -14,7 +14,14 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permita que o FaltaOquê use a câmera para ler o QR Code da nota fiscal.",
+          "barcodeScannerEnabled": true
+        }
+      ]
     ]
   }
 }
