@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { Alert } from 'react-native';
 
 import Navbar from '../../components/Navbar';
@@ -13,6 +14,7 @@ import {
   UserIcon,
 } from '../../assets/icons/export';
 import { useAuth } from '../../contexts/AuthContext';
+import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import * as pantryService from '../../services/pantryService';
 import {
   Avatar,
@@ -42,14 +44,14 @@ const showComingSoon = (feature) => {
   Alert.alert('Em breve', `${feature} estará disponível em breve.`);
 };
 
-export function HomeScreen() {
+export function HomeScreen({ navigation }) {
   const { account } = useAuth();
   const [selectedAction, setSelectedAction] = useState('pantry');
   const [isCreatePantryModalOpen, setIsCreatePantryModalOpen] = useState(false);
   const [pantries, setPantries] = useState([]);
   const [pantriesError, setPantriesError] = useState(null);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     let isMounted = true;
 
     pantryService
@@ -70,7 +72,7 @@ export function HomeScreen() {
     return () => {
       isMounted = false;
     };
-  }, [account?.id]);
+  }, [account?.id]));
 
   const handleActionPress = (key, label) => {
     if (key === 'pantry') {
@@ -149,6 +151,8 @@ export function HomeScreen() {
                     key={pantry.id}
                     color={pantry.color}
                     name={pantry.name}
+                    productCount={pantry.productCount}
+                    onPress={() => navigation.navigate(AUTHENTICATED_ROUTES.PANTRY, { pantryId: pantry.id })}
                     onSettingsPress={() => handlePantrySettingsPress(pantry.name)}
                   />
                 ))}

@@ -156,7 +156,7 @@ Entregar no Android um fluxo mobile funcional, persistido localmente e alinhado 
 
 - Buscar somente por nome.
 - Ignorar caixa e acentos.
-- Filtrar por uma categoria fixa.
+- Filtrar por uma ou mais categorias fixas; com várias selecionadas, incluir produtos de qualquer uma delas. Sem seleção, incluir todas.
 - Permitir combinação de busca e categoria.
 
 ### Critérios de aceite

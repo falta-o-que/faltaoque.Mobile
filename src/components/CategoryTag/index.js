@@ -17,6 +17,7 @@ export function CategoryTag({
   defaultSelected = false,
   onPress,
   onSelectionChange,
+  variant = 'default',
   ...props
 }) {
   const [internalSelected, setInternalSelected] = useState(defaultSelected);
@@ -42,9 +43,10 @@ export function CategoryTag({
       onPress={handlePress}
       $category={resolvedCategory}
       $selected={isSelected}
+      $variant={variant}
       {...props}
     >
-      <Label $category={resolvedCategory}>
+      <Label $category={resolvedCategory} $variant={variant}>
         {label ?? CATEGORY_LABELS[resolvedCategory]}
       </Label>
     </Container>

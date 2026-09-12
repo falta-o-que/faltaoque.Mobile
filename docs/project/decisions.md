@@ -52,13 +52,13 @@ As despensas devem permitir criar, visualizar, editar e excluir. Nome e cor são
 
 Ao excluir uma despensa que contenha produtos, o aplicativo deve solicitar confirmação explícita. Após a confirmação, a despensa e todos os produtos vinculados a ela serão removidos do armazenamento local.
 
-Os produtos devem permitir criar, visualizar, editar e excluir. Nome, quantidade e preço são obrigatórios. Peso e categoria são opcionais na entrega atual. O modal de adição do Figma ainda não exibe o preço e precisa ser revisado para refletir essa regra.
+Os produtos devem permitir criar, visualizar, editar e excluir. Nome, quantidade e preço são obrigatórios. Peso e categoria são opcionais na entrega atual. Atualização de 12 de setembro de 2026: o modal do Figma `824:4634` já inclui o preço; na adição manual, esse campo representa o preço unitário, e o total é calculado pela quantidade.
 
 A exclusão de um produto exige confirmação explícita. Após a confirmação, somente o produto selecionado será removido da despensa.
 
 A tela da despensa deve oferecer busca e filtros por categoria funcionais na entrega de 14 de setembro. Ambos operam sobre os produtos persistidos localmente.
 
-A busca considera somente o nome do produto e ignora diferenças de maiúsculas, minúsculas e acentos. A busca pode ser combinada com um filtro de categoria selecionado.
+A busca considera somente o nome do produto e ignora diferenças de maiúsculas, minúsculas e acentos. Conforme ajuste de 12 de setembro de 2026 solicitado pelo usuário, a busca pode ser combinada com múltiplas categorias selecionadas. Produtos de qualquer categoria selecionada são incluídos; sem seleção, todas são incluídas.
 
 A quantidade do produto aceita somente números inteiros positivos. O peso pode aceitar valores fracionados e deve ser interpretado junto de sua unidade de medida.
 

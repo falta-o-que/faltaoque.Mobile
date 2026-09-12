@@ -1,4 +1,7 @@
 export { default as AddCircleIcon } from './AddCircleIcon';
+export { default as AddUserIcon } from './AddUserIcon';
+export { default as DeliveryIcon } from './DeliveryIcon';
+export { default as BoxIcon } from './BoxIcon';
 export { default as AngleIcon } from './AngleIcon';
 export { default as CartAddIcon } from './CartAddIcon';
 export { default as CartRemoveIcon } from './CartRemoveIcon';

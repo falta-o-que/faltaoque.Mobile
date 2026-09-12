@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Modal } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Modal } from 'react-native';
 
 import { COLOR_OPTION_ROWS } from '../../constants/colorOptions';
 import { AngleIcon, CancelCircleIcon, CheckIcon, PantryIcon, PenIcon } from '../../assets/icons/export';
@@ -8,6 +8,7 @@ import ModalActionButton from '../ModalActionButton';
 import {
   Actions,
   Card,
+  ColorChevron,
   ColorField,
   ColorGrid,
   ColorHeader,
@@ -25,8 +26,10 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
   const [name, setName] = useState('');
   const [color, setColor] = useState(null);
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const [shouldRenderColorPicker, setShouldRenderColorPicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const colorPickerProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!visible) {
@@ -34,9 +37,66 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
       setColor(null);
       setErrors({});
       setIsColorPickerOpen(false);
+      setShouldRenderColorPicker(false);
       setIsSubmitting(false);
     }
   }, [visible]);
+
+  useEffect(() => {
+    if (isColorPickerOpen) {
+      setShouldRenderColorPicker(true);
+    }
+  }, [isColorPickerOpen]);
+
+  useEffect(() => {
+    if (!shouldRenderColorPicker) {
+      return undefined;
+    }
+
+    const animation = Animated.timing(colorPickerProgress, {
+      toValue: isColorPickerOpen ? 1 : 0,
+      duration: 180,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+
+    animation.start(({ finished }) => {
+      if (finished && !isColorPickerOpen) {
+        setShouldRenderColorPicker(false);
+      }
+    });
+
+    return () => animation.stop();
+  }, [colorPickerProgress, isColorPickerOpen, shouldRenderColorPicker]);
+
+  const colorPickerPanelStyle = {
+    opacity: colorPickerProgress,
+    transform: [
+      {
+        scaleY: colorPickerProgress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.92, 1],
+        }),
+      },
+      {
+        translateY: colorPickerProgress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-8, 0],
+        }),
+      },
+    ],
+  };
+
+  const colorPickerChevronStyle = {
+    transform: [
+      {
+        rotate: colorPickerProgress.interpolate({
+          inputRange: [0, 1],
+          outputRange: ['0deg', '180deg'],
+        }),
+      },
+    ],
+  };
 
   const handleClose = () => {
     onRequestClose();
@@ -94,10 +154,12 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
               $hasError={Boolean(errors.color)}
             >
               <FieldLabel>Cor da despensa</FieldLabel>
-              <AngleIcon direction={isColorPickerOpen ? 'up' : 'down'} />
+              <ColorChevron style={colorPickerChevronStyle}>
+                <AngleIcon />
+              </ColorChevron>
             </ColorHeader>
-            {isColorPickerOpen ? (
-              <ColorPanel>
+            {shouldRenderColorPicker ? (
+              <ColorPanel style={colorPickerPanelStyle}>
                 <ColorGrid>
                   {COLOR_OPTION_ROWS.map((row, rowIndex) => (
                     <ColorRow key={`pantry-color-row-${rowIndex + 1}`}>
