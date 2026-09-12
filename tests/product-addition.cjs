@@ -37,19 +37,28 @@ function loader() {
 async function main() {
   const load = loader();
   const { normalizeProduct, validateProduct } = load('src/domain/productValidation.js');
-  const { addProduct, listProducts } = load('src/services/productService.js');
+  const { addProduct, deleteProduct, listProducts, updateProduct, updateProductQuantity } = load('src/services/productService.js');
   const { readDatabase } = load('src/storage/localDatabase.js');
   const { createPantry, listPantriesByAccountId } = load('src/repositories/pantryRepository.js');
   const { createAccount } = load('src/repositories/accountRepository.js');
-  const draft = { name: ' Café ', price: '12,35', quantity: '3', weight: '0,5', unit: 'kg', category: 'bebidas' };
+  const draft = { name: ' Café ', price: '12,35', quantity: '3', weight: '0,5', unit: 'kg', category: 'bebidas', expirationDate: '31/12/2026' };
   assert.equal(normalizeProduct(draft).totalPrice, 37.05);
+  assert.deepEqual(normalizeProduct({ ...draft, price: '100,00', quantity: '3', priceType: 'total' }), {
+    name: 'Café', quantity: 3, unitPrice: 100 / 3, totalPrice: 100, priceType: 'total',
+    weight: 0.5, unit: 'kg', category: 'bebidas', expirationDate: '2026-12-31',
+  });
   assert.equal(normalizeProduct({ ...draft, price: '1.234,56' }).unitPrice, 1234.56);
   for (const quantity of ['0', '-1', '1.5', '1e2', '']) assert.ok(validateProduct({ ...draft, quantity }).quantity);
   for (const price of ['0', '-2', '1,234', '1e2', 'Infinity']) assert.ok(validateProduct({ ...draft, price }).price);
   assert.ok(validateProduct({ ...draft, unit: '' }).unit);
   assert.ok(validateProduct({ ...draft, category: 'inventada' }).category);
+  assert.ok(validateProduct({ ...draft, category: null }).category);
   assert.ok(validateProduct({ ...draft, name: ' ' }).name);
-  assert.equal(normalizeProduct({ ...draft, weight: '', unit: 'kg', category: null }).weight, null);
+  for (const expirationDate of ['29/02/2026', '31/13/2026', '31-12-2026']) assert.ok(validateProduct({ ...draft, expirationDate }).expirationDate);
+  assert.equal(validateProduct({ ...draft, expirationDate: '01/01/2020' }).expirationDate, 'A validade deve ser hoje ou uma data futura.');
+  assert.equal(normalizeProduct({ ...draft, expirationDate: '2026-12-31' }).expirationDate, '2026-12-31');
+  assert.equal(normalizeProduct({ ...draft, expirationDate: '' }).expirationDate, null);
+  assert.equal(normalizeProduct({ ...draft, weight: '', unit: 'kg' }).weight, null);
 
   const accounts = [{ id: 'a', email: 'a@example.test' }, { id: 'b', email: 'b@example.test' }];
   persisted = JSON.stringify({ version: 1, accounts });
@@ -84,10 +93,40 @@ async function main() {
   assert.equal(saved.purchases[0].location, '');
   assert.ok(!Number.isNaN(Date.parse(saved.purchases[0].purchasedAt)));
   assert.equal(saved.purchases[0].items[0].productId, saved.products[0].id);
+  assert.equal(saved.products[0].expirationDate, '2026-12-31');
   assert.equal((await listPantriesByAccountId('a'))[0].productCount, 2);
+  const changed = await updateProductQuantity({ accountId: 'a', pantryId: 'p', productId: saved.products[0].id, quantity: 7 });
+  assert.equal(changed.quantity, 7);
+  assert.equal((await listProducts('a', 'p')).find((product) => product.id === changed.id).quantity, 7);
+  const edited = await updateProduct({
+    ...changed,
+    accountId: 'a',
+    pantryId: 'p',
+    productId: changed.id,
+    name: 'Café em grãos',
+    price: '14,50',
+    quantity: '4',
+    weight: '1',
+    unit: 'kg',
+    category: 'integraisCereais',
+    expirationDate: '31/12/2026',
+  });
+  assert.equal(edited.name, 'Café em grãos');
+  assert.equal(edited.quantity, 4);
+  assert.equal(edited.unitPrice, 14.5);
+  assert.equal(edited.totalPrice, 58);
+  assert.equal(edited.category, 'integraisCereais');
+  assert.equal((await readDatabase()).purchases[0].items[0].name, 'Café', 'Editar o estoque não reescreve a compra original.');
+  await assert.rejects(updateProduct({ ...changed, accountId: 'a', pantryId: 'p', productId: changed.id, name: '', price: '1', quantity: '1', category: 'bebidas' }));
+  await assert.rejects(updateProductQuantity({ accountId: 'a', pantryId: 'p', productId: changed.id, quantity: 0 }));
+  await assert.rejects(updateProductQuantity({ accountId: 'b', pantryId: 'p', productId: changed.id, quantity: 2 }));
+  await assert.rejects(deleteProduct({ accountId: 'b', pantryId: 'p', productId: changed.id }));
+  await deleteProduct({ accountId: 'a', pantryId: 'p', productId: changed.id });
+  assert.equal((await listProducts('a', 'p')).length, 1);
+  assert.equal((await readDatabase()).purchases.length, 2, 'Excluir o estoque preserva o histórico de compras.');
   assert.equal((await listProducts('b', 'p2')).length, 0);
   const reloaded = loader()('src/services/productService.js');
-  assert.equal((await reloaded.listProducts('a', 'p')).length, 2);
+  assert.equal((await reloaded.listProducts('a', 'p')).length, 1);
   for (const invalid of ['{bad json', 'null', '{"version":999}', '{"version":3,"accounts":[],"pantries":[]}']) {
     persisted = invalid;
     await assert.rejects(addProduct({ ...draft, accountId: 'a', pantryId: 'p' }));

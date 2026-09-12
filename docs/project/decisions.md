@@ -52,11 +52,11 @@ As despensas devem permitir criar, visualizar, editar e excluir. Nome e cor são
 
 Ao excluir uma despensa que contenha produtos, o aplicativo deve solicitar confirmação explícita. Após a confirmação, a despensa e todos os produtos vinculados a ela serão removidos do armazenamento local.
 
-Os produtos devem permitir criar, visualizar, editar e excluir. Nome, quantidade e preço são obrigatórios. Peso e categoria são opcionais na entrega atual. Atualização de 12 de setembro de 2026: o modal do Figma `824:4634` já inclui o preço; na adição manual, esse campo representa o preço unitário, e o total é calculado pela quantidade.
+Os produtos devem permitir criar, visualizar, editar e excluir. Nome, quantidade, preço e categoria são obrigatórios; peso é opcional. Atualização de 12 de setembro de 2026: o modal do Figma `824:4634` já inclui o preço; na adição manual, o usuário escolhe se informou o preço por unidade ou o total do lote. O aplicativo calcula e armazena o valor complementar pela quantidade, preservando o tipo de preço informado.
 
 A exclusão de um produto exige confirmação explícita. Após a confirmação, somente o produto selecionado será removido da despensa.
 
-A tela da despensa deve oferecer busca e filtros por categoria funcionais na entrega de 14 de setembro. Ambos operam sobre os produtos persistidos localmente.
+A tela da despensa deve oferecer busca e filtros por categoria funcionais na entrega de 14 de setembro. Ambos operam sobre os produtos persistidos localmente. Atualização de 12 de setembro de 2026: as tags de categoria continuam aceitando seleção múltipla diretamente na tela; o modal de filtros oferece ordenação por nome, preço ou quantidade e só aplica a ordenação quando o usuário confirma.
 
 A busca considera somente o nome do produto e ignora diferenças de maiúsculas, minúsculas e acentos. Conforme ajuste de 12 de setembro de 2026 solicitado pelo usuário, a busca pode ser combinada com múltiplas categorias selecionadas. Produtos de qualquer categoria selecionada são incluídos; sem seleção, todas são incluídas.
 
@@ -64,7 +64,11 @@ A quantidade do produto aceita somente números inteiros positivos. O peso pode 
 
 As unidades aceitas inicialmente são `g`, `kg`, `ml` e `L`. O valor da medida e sua unidade devem ser armazenados separadamente.
 
-As categorias de produto são fixas: Bebidas, Orgânicos, Integrais/Cereais, Frescos, Limpeza/Higiene e Carnes. Usuários não podem criar, editar ou excluir categorias. A categoria permanece opcional para cada produto.
+As categorias de produto são fixas: Bebidas, Orgânicos, Integrais/Cereais, Frescos, Limpeza/Higiene e Carnes. Usuários não podem criar, editar ou excluir categorias. Atualização de 12 de setembro de 2026: categoria é obrigatória ao adicionar um produto manualmente.
+
+Produtos adicionados manualmente podem registrar uma data de validade opcional. A interface aplica a máscara `DD/MM/AAAA` durante a digitação, valida uma data real igual ou posterior ao dia atual do aparelho e persiste em `AAAA-MM-DD`. A categoria aparece no próprio card quando nenhuma tag de filtro estiver selecionada; com uma ou mais tags ativas, a lista é agrupada por categoria como no Figma.
+
+Os controles `-` e `+` do card alteram somente a quantidade atual do produto na despensa. A quantidade nunca fica abaixo de 1, e o histórico da compra manual original não é reescrito por esses ajustes de estoque.
 
 Na importação de nota fiscal, o aplicativo deve tentar sugerir uma categoria para cada produto a partir de seu nome. A sugestão deve ser exibida na etapa de revisão e permanecer editável antes da confirmação.
 

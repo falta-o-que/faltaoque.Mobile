@@ -42,17 +42,25 @@ export const Categories = styled.ScrollView.attrs({
 })`
   flex-grow: 0;
 `;
-export const ProductList = styled.FlatList.attrs({
-  contentContainerStyle: { padding: 8, paddingBottom: 24, gap: 20 },
-  showsVerticalScrollIndicator: false,
-})`
-  flex: 1;
-  margin: 32px -4px 0;
+export const CategorySection = styled.View`
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 6px 0;
+  border-bottom-width: 1px;
+  border-bottom-color: ${({ theme }) => theme.colors.white[400]};
 `;
 export const EmptyText = styled.Text`
+  max-width: 260px;
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: 16px;
   color: ${({ theme }) => theme.colors.black.Black};
+  text-align: center;
+`;
+export const EmptyState = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 120px;
 `;
 export const StatusArea = styled.View`
   flex: 1;

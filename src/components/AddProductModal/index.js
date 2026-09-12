@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Modal, Platform } from 'react-native';
+import { Animated, Easing, Modal, Platform } from 'react-native';
 
 import {
   AngleIcon,
@@ -11,6 +11,7 @@ import {
 } from '../../assets/icons/export';
 import {
   PRODUCT_CATEGORIES,
+  PRODUCT_PRICE_TYPES,
   PRODUCT_UNITS,
   validateProduct,
 } from '../../domain/productValidation';
@@ -37,6 +38,9 @@ import {
   InlineError,
   Overlay,
   ProductName,
+  PriceTypeLabel,
+  PriceTypeOption,
+  PriceTypeOptions,
   Scroller,
   SubmitError,
   TitleGroup,
@@ -49,7 +53,9 @@ import {
 const EMPTY_DRAFT = {
   name: '',
   price: '',
+  priceType: 'unit',
   quantity: '',
+  expirationDate: '',
   weight: '',
   unit: '',
   category: null,
@@ -58,19 +64,49 @@ const EMPTY_DRAFT = {
 export function AddProductModal({ onCreate, onRequestClose, visible }) {
   const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [errors, setErrors] = useState({});
-  const [isCategoryOpen, setIsCategoryOpen] = useState(true);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [shouldRenderCategoryOptions, setShouldRenderCategoryOptions] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const categoryMenuProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!visible) {
       setDraft(EMPTY_DRAFT);
       setErrors({});
-      setIsCategoryOpen(true);
+      setIsCategoryOpen(false);
+      setShouldRenderCategoryOptions(false);
       setIsSubmitting(false);
       submittingRef.current = false;
     }
   }, [visible]);
+
+  useEffect(() => {
+    if (isCategoryOpen) {
+      setShouldRenderCategoryOptions(true);
+    }
+  }, [isCategoryOpen]);
+
+  useEffect(() => {
+    if (!shouldRenderCategoryOptions) {
+      return undefined;
+    }
+
+    const animation = Animated.timing(categoryMenuProgress, {
+      toValue: isCategoryOpen ? 1 : 0,
+      duration: 180,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+
+    animation.start(({ finished }) => {
+      if (finished && !isCategoryOpen) {
+        setShouldRenderCategoryOptions(false);
+      }
+    });
+
+    return () => animation.stop();
+  }, [categoryMenuProgress, isCategoryOpen, shouldRenderCategoryOptions]);
 
   function updateField(field, value) {
     setDraft((currentDraft) => ({ ...currentDraft, [field]: value }));
@@ -93,6 +129,16 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
       unit: value.trim() ? currentErrors.unit : undefined,
       submit: undefined,
     }));
+  }
+
+  function handleExpirationDateChange(value) {
+    const digits = value.replace(/\D/g, '').slice(0, 8);
+    const formatted = digits.length > 4
+      ? `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+      : digits.length > 2
+        ? `${digits.slice(0, 2)}/${digits.slice(2)}`
+        : digits;
+    updateField('expirationDate', formatted);
   }
 
   function handleClose() {
@@ -133,6 +179,31 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
   }
 
   const hasWeight = draft.weight.trim() !== '';
+  const categoryPanelStyle = {
+    opacity: categoryMenuProgress,
+    transform: [
+      {
+        scaleY: categoryMenuProgress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.92, 1],
+        }),
+      },
+      {
+        translateY: categoryMenuProgress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-8, 0],
+        }),
+      },
+    ],
+  };
+  const categoryChevronStyle = {
+    transform: [{
+      rotate: categoryMenuProgress.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '180deg'],
+      }),
+    }],
+  };
 
   return (
     <Modal
@@ -175,8 +246,24 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                   returnKeyType="next"
                   value={draft.name}
                 />
+                  <PriceTypeOptions accessibilityRole="radiogroup">
+                    {PRODUCT_PRICE_TYPES.map((priceType) => (
+                      <PriceTypeOption
+                        key={priceType}
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: draft.priceType === priceType }}
+                        disabled={isSubmitting}
+                        onPress={() => updateField('priceType', priceType)}
+                        $selected={draft.priceType === priceType}
+                      >
+                        <PriceTypeLabel $selected={draft.priceType === priceType}>
+                          {priceType === 'unit' ? 'Por unidade' : 'Total do lote'}
+                        </PriceTypeLabel>
+                      </PriceTypeOption>
+                    ))}
+                  </PriceTypeOptions>
                   <FormField
-                  accessibilityLabel="Preço unitário do produto, obrigatório"
+                  accessibilityLabel={draft.priceType === 'total' ? 'Preço total do lote, obrigatório' : 'Preço unitário do produto, obrigatório'}
                   editable={!isSubmitting}
                   error={errors.price}
                   Icon={DeliveryIcon}
@@ -184,7 +271,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                   keyboardType="decimal-pad"
                   maxLength={16}
                   onChangeText={(value) => updateField('price', value)}
-                  placeholder="Preço *"
+                  placeholder={draft.priceType === 'total' ? 'Total do lote *' : 'Preço por unidade *'}
                   value={draft.price}
                 />
                   <FormField
@@ -197,8 +284,19 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                   maxLength={9}
                   onChangeText={(value) => updateField('quantity', value)}
                   placeholder="Quantidade *"
-                  value={draft.quantity}
-                />
+                    value={draft.quantity}
+                  />
+                  <FormField
+                    accessibilityLabel="Data de validade, opcional, no formato dia-mês-ano"
+                    editable={!isSubmitting}
+                    error={errors.expirationDate}
+                    inputMode="numeric"
+                    keyboardType="numbers-and-punctuation"
+                    maxLength={10}
+                    onChangeText={handleExpirationDateChange}
+                    placeholder="Validade (DD/MM/AAAA)"
+                    value={draft.expirationDate}
+                  />
                   <WeightGroup>
                     <FormField
                     accessibilityLabel="Peso ou volume do produto, opcional"
@@ -245,13 +343,13 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                   onPress={() => setIsCategoryOpen((currentValue) => !currentValue)}
                   $hasError={Boolean(errors.category)}
                 >
-                  <AccordionLabel>Categoria</AccordionLabel>
-                  <Chevron style={{ transform: [{ rotate: isCategoryOpen ? '180deg' : '0deg' }] }}>
+                  <AccordionLabel>Categoria *</AccordionLabel>
+                  <Chevron style={categoryChevronStyle}>
                     <AngleIcon />
                   </Chevron>
                 </AccordionHeader>
-                {isCategoryOpen ? (
-                  <CategoryOptions $disabled={isSubmitting}>
+                {shouldRenderCategoryOptions ? (
+                  <CategoryOptions $disabled={isSubmitting} style={categoryPanelStyle}>
                     {PRODUCT_CATEGORIES.map((category) => (
                       <CategoryTag
                         key={category}

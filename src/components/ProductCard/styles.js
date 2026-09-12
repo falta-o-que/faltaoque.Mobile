@@ -30,6 +30,22 @@ export const ProductHeader = styled.View`
   align-items: baseline;
 `;
 
+export const CategoryIndicator = styled.View`
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  margin-right: 7px;
+  border-radius: 999px;
+  background-color: ${({ theme, $category }) => theme.colors.tags[$category]};
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.white[100]};
+  shadow-color: ${({ theme }) => theme.colors.black.Black};
+  shadow-offset: 0px 1px;
+  shadow-opacity: 0.16;
+  shadow-radius: 2px;
+  elevation: 2;
+`;
+
 export const ProductImage = styled.Image`
   width: 50px;
   height: 50px;
@@ -61,6 +77,14 @@ export const ProductMeasure = styled.Text.attrs({
   font-weight: ${({ theme }) => theme.fonts.weights.regular};
 `;
 
+export const ProductPrice = styled.Text`
+  margin-top: 4px;
+  color: ${({ theme }) => theme.colors.primary.Green};
+  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
+  font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
+  font-weight: ${({ theme }) => theme.fonts.weights.bold};
+`;
+
 export const Expiration = styled.Text.attrs({
   ellipsizeMode: 'tail',
   numberOfLines: 1,
@@ -78,7 +102,7 @@ export const InfoButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })
   align-self: flex-start;
   flex-direction: row;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 8px;
 `;
 
 export const InfoLabel = styled.Text`

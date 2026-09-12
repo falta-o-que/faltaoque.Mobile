@@ -32,15 +32,15 @@ export const Content = styled.View`
   padding: 20px;
 `;
 
+export const TitleGroup = styled.View`
+  align-items: center;
+  gap: 6px;
+`;
+
 export const Header = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-`;
-
-export const TitleGroup = styled.View`
-  align-items: center;
   gap: 6px;
 `;
 
@@ -57,6 +57,52 @@ export const ProductName = styled.Text.attrs({ numberOfLines: 2 })`
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
   font-size: 24px;
   line-height: 31px;
+`;
+
+export const ReadonlyPanel = styled.View`
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.black[50] ?? theme.colors.white[100]};
+  border: 1px solid ${({ theme }) => theme.colors.black[200]};
+`;
+
+export const DetailRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+export const DetailLabel = styled.Text`
+  flex: 1;
+  color: ${({ theme }) => theme.colors.black[400]};
+  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
+  font-size: 12px;
+`;
+
+export const DetailValue = styled.Text`
+  flex: 1.5;
+  text-align: right;
+  color: ${({ theme }) => theme.colors.black.Black};
+  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
+  font-size: 14px;
+`;
+
+export const DeleteButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })`
+  width: 100%;
+  height: 45px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background-color: ${({ theme }) => theme.colors.danger[600]};
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+`;
+
+export const DeleteLabel = styled.Text`
+  color: ${({ theme }) => theme.colors.white[100]};
+  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
+  font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
+  font-weight: ${({ theme }) => theme.fonts.weights.bold};
 `;
 
 export const FormContent = styled.View`
@@ -83,17 +129,14 @@ export const UnitOption = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
   align-items: center;
   justify-content: center;
   padding: 5px 10px;
-  border: 1px solid ${({ $selected, theme }) =>
-    $selected ? theme.colors.primary.Green : theme.colors.black[200]};
+  border: 1px solid ${({ $selected, theme }) => $selected ? theme.colors.primary.Green : theme.colors.black[200]};
   border-radius: 999px;
-  background-color: ${({ $selected, theme }) =>
-    $selected ? theme.colors.primary.Green : theme.colors.white[100]};
+  background-color: ${({ $selected, theme }) => $selected ? theme.colors.primary.Green : theme.colors.white[100]};
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 `;
 
 export const UnitLabel = styled.Text`
-  color: ${({ $selected, theme }) =>
-    $selected ? theme.colors.black.Black : theme.colors.primary.Green};
+  color: ${({ $selected, theme }) => $selected ? theme.colors.black.Black : theme.colors.primary.Green};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
   font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
 `;
@@ -116,10 +159,8 @@ export const AccordionHeader = styled.TouchableOpacity.attrs({ activeOpacity: 0.
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border: 1px solid ${({ $hasError, theme }) =>
-    $hasError ? theme.colors.danger[600] : theme.colors.black[200]};
+  border: 1px solid ${({ $hasError, theme }) => $hasError ? theme.colors.danger[600] : theme.colors.black[200]};
   border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.white[100]};
 `;
 
 export const AccordionLabel = styled.Text`
@@ -142,8 +183,6 @@ export const CategoryOptions = styled(Animated.View)`
   padding: 16px;
   border: 1px solid ${({ theme }) => theme.colors.black[200]};
   border-radius: 12px;
-  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
-  background-color: ${({ theme }) => theme.colors.white[100]};
 `;
 
 export const InlineError = styled.Text`
@@ -166,10 +205,7 @@ export const BusyStatus = styled.View`
   gap: 8px;
 `;
 
-export const BusyIndicator = styled.ActivityIndicator.attrs(({ theme }) => ({
-  color: theme.colors.primary.Green,
-  size: 'small',
-}))``;
+export const BusyIndicator = styled.ActivityIndicator.attrs(({ theme }) => ({ color: theme.colors.primary.Green, size: 'small' }))``;
 
 export const BusyText = styled.Text`
   color: ${({ theme }) => theme.colors.black[400]};

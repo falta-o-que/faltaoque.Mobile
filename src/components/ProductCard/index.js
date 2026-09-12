@@ -1,8 +1,10 @@
 import { useTheme } from 'styled-components/native';
 
 import { InfoIcon } from '../../assets/icons/export';
+import CategoryTag, { CATEGORY_LABELS } from '../CategoryTag';
 import {
   Card,
+  CategoryIndicator,
   Expiration,
   InfoButton,
   InfoLabel,
@@ -11,6 +13,7 @@ import {
   ProductImage,
   ProductMeasure,
   ProductName,
+  ProductPrice,
   Quantity,
   QuantityButton,
   QuantityButtonLabel,
@@ -22,9 +25,12 @@ const productImage = require('../../assets/grocery/legumesGrocery.png');
 export function ProductCard({
   name,
   quantity = 0,
+  unitPrice,
   weight,
   unit,
   expirationLabel,
+  category,
+  showCategory = false,
   onInfoPress,
   onIncrement,
   onDecrement,
@@ -35,16 +41,22 @@ export function ProductCard({
   const canDecrement = !disabled && quantity > 1 && typeof onDecrement === 'function';
   const canIncrement = !disabled && typeof onIncrement === 'function';
   const measure = [weight, unit].filter(Boolean).join(' ');
+  const categoryKey = CATEGORY_LABELS[category] ? category : 'organicos';
+  const price = Number(unitPrice);
+  const priceLabel = Number.isFinite(price) ? `R$ ${price.toFixed(2).replace('.', ',')}` : null;
 
   return (
     <Card>
       <ProductDetails>
         <ProductImage accessibilityLabel={`Imagem de ${name}`} source={productImage} />
         <ProductHeader>
+          <CategoryIndicator accessibilityLabel={`Categoria: ${CATEGORY_LABELS[categoryKey]}`} $category={categoryKey} />
           <ProductName>{name}</ProductName>
           {measure ? <ProductMeasure>{measure}</ProductMeasure> : null}
         </ProductHeader>
+        {priceLabel ? <ProductPrice>{priceLabel}</ProductPrice> : null}
         {expirationLabel ? <Expiration>{expirationLabel}</Expiration> : null}
+        {showCategory && category ? <CategoryTag category={categoryKey} disabled variant="product" /> : null}
         <InfoButton
           accessibilityLabel={`Informações sobre ${name}`}
           accessibilityRole="button"
