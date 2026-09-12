@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { Animated } from 'react-native';
 
 export const Overlay = styled.View`
   flex: 1;
@@ -65,11 +66,18 @@ export const InlineError = styled.Text`
   font-size: 11px;
 `;
 
-export const ColorPanel = styled.View`
+export const ColorPanel = styled(Animated.View)`
   padding: 16px;
   border: 1px solid ${({ theme }) => theme.colors.black[200]};
   border-radius: 12px;
   background-color: ${({ theme }) => theme.colors.white[100]};
+`;
+
+export const ColorChevron = styled(Animated.View)`
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const ColorGrid = styled.View`

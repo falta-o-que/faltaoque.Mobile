@@ -5,4 +5,5 @@ export const PUBLIC_ROUTES = {
 
 export const AUTHENTICATED_ROUTES = {
   HOME: 'Home',
+  PANTRY: 'Pantry',
 };

@@ -1,4 +1,4 @@
-import { readDatabase, writeDatabase } from '../storage/localDatabase';
+import { readDatabase, updateDatabase } from '../storage/localDatabase';
 
 export function normalizeEmail(email) {
   return email.trim().toLocaleLowerCase('pt-BR');
@@ -17,15 +17,11 @@ export async function findAccountById(accountId) {
 }
 
 export async function createAccount(account) {
-  const database = await readDatabase();
-
-  if (database.accounts.some((item) => item.email === account.email)) {
-    throw new Error('EMAIL_ALREADY_EXISTS');
-  }
-
-  await writeDatabase({
-    ...database,
-    accounts: [...database.accounts, account],
+  await updateDatabase((database) => {
+    if (database.accounts.some((item) => item.email === account.email)) {
+      throw new Error('EMAIL_ALREADY_EXISTS');
+    }
+    return { ...database, accounts: [...database.accounts, account] };
   });
 
   return account;

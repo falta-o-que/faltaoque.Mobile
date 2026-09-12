@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { Alert } from 'react-native';
 
 import Navbar from '../../components/Navbar';
 import CreatePantryModal from '../../components/CreatePantryModal';
 import PantryCard from '../../components/PantryCard';
+import PantryDestinationModal from '../../components/PantryDestinationModal';
 import QuickActionButton from '../../components/QuickActionButton';
 import {
   AddCircleIcon,
@@ -13,6 +15,7 @@ import {
   UserIcon,
 } from '../../assets/icons/export';
 import { useAuth } from '../../contexts/AuthContext';
+import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import * as pantryService from '../../services/pantryService';
 import {
   Avatar,
@@ -42,14 +45,15 @@ const showComingSoon = (feature) => {
   Alert.alert('Em breve', `${feature} estará disponível em breve.`);
 };
 
-export function HomeScreen() {
+export function HomeScreen({ navigation }) {
   const { account } = useAuth();
   const [selectedAction, setSelectedAction] = useState('pantry');
   const [isCreatePantryModalOpen, setIsCreatePantryModalOpen] = useState(false);
+  const [selectedPantry, setSelectedPantry] = useState(null);
   const [pantries, setPantries] = useState([]);
   const [pantriesError, setPantriesError] = useState(null);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     let isMounted = true;
 
     pantryService
@@ -70,7 +74,7 @@ export function HomeScreen() {
     return () => {
       isMounted = false;
     };
-  }, [account?.id]);
+  }, [account?.id]));
 
   const handleActionPress = (key, label) => {
     if (key === 'pantry') {
@@ -89,6 +93,24 @@ export function HomeScreen() {
 
   const handlePantrySettingsPress = (pantryName) => {
     showComingSoon(`A configuração de ${pantryName}`);
+  };
+
+  const handlePantryPress = (pantry) => {
+    setSelectedPantry(pantry);
+  };
+
+  const handleOpenPantry = () => {
+    const pantryId = selectedPantry?.id;
+    setSelectedPantry(null);
+
+    if (pantryId) {
+      navigation.navigate(AUTHENTICATED_ROUTES.PANTRY, { pantryId });
+    }
+  };
+
+  const handleOpenShoppingList = () => {
+    setSelectedPantry(null);
+    showComingSoon('A lista de compras desta despensa');
   };
 
   const handleCreatePantryPress = () => {
@@ -149,6 +171,8 @@ export function HomeScreen() {
                     key={pantry.id}
                     color={pantry.color}
                     name={pantry.name}
+                    productCount={pantry.productCount}
+                    onPress={() => handlePantryPress(pantry)}
                     onSettingsPress={() => handlePantrySettingsPress(pantry.name)}
                   />
                 ))}
@@ -169,6 +193,13 @@ export function HomeScreen() {
         onCreate={handleCreatePantry}
         onRequestClose={() => setIsCreatePantryModalOpen(false)}
         visible={isCreatePantryModalOpen}
+      />
+      <PantryDestinationModal
+        onOpenPantry={handleOpenPantry}
+        onOpenShoppingList={handleOpenShoppingList}
+        onRequestClose={() => setSelectedPantry(null)}
+        pantryName={selectedPantry?.name}
+        visible={Boolean(selectedPantry)}
       />
       <Navbar activeItem="profile" onItemChange={handleNavbarItemChange} />
     </Screen>

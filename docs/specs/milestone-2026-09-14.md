@@ -134,7 +134,8 @@ Entregar no Android um fluxo mobile funcional, persistido localmente e alinhado 
 - Preço total: valor monetário positivo obrigatório ou calculado quando houver dados suficientes.
 - Peso ou volume: valor decimal positivo opcional.
 - Unidade: `g`, `kg`, `ml` ou `L`, obrigatória quando houver peso ou volume.
-- Categoria: opcional e limitada às categorias fixas.
+- Categoria: obrigatória e limitada às categorias fixas.
+- Data de validade: opcional, mas, quando informada, deve ser igual ou posterior ao dia atual do aparelho.
 
 ### Categorias fixas
 
@@ -156,7 +157,7 @@ Entregar no Android um fluxo mobile funcional, persistido localmente e alinhado 
 
 - Buscar somente por nome.
 - Ignorar caixa e acentos.
-- Filtrar por uma categoria fixa.
+- Filtrar por uma ou mais categorias fixas; com várias selecionadas, incluir produtos de qualquer uma delas. Sem seleção, incluir todas.
 - Permitir combinação de busca e categoria.
 
 ### Critérios de aceite
