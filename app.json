@@ -1,14 +1,16 @@
 {
   "expo": {
-    "name": "FaltaOQueFront",
+    "name": "Falta Oquê?",
     "slug": "FaltaOQueFront",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./src/assets/branding/logo.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "icon": "./src/assets/branding/logo.png",
       "package": "com.faltaoque.front"
     },
     "web": {
