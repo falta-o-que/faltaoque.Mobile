@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DATABASE_KEY = '@faltaoque/database';
-const CURRENT_SCHEMA_VERSION = 3;
+const CURRENT_SCHEMA_VERSION = 4;
 
 const createEmptyDatabase = () => ({
   version: CURRENT_SCHEMA_VERSION,
@@ -9,6 +9,7 @@ const createEmptyDatabase = () => ({
   pantries: [],
   products: [],
   purchases: [],
+  importedQrFingerprints: [],
 });
 
 function migrateDatabase(value) {
@@ -20,11 +21,15 @@ function migrateDatabase(value) {
       pantries: [],
       products: [],
       purchases: [],
+      importedQrFingerprints: [],
     };
   }
 
   if (value.version === 2 && Array.isArray(value.accounts) && Array.isArray(value.pantries)) {
-    return { ...value, version: CURRENT_SCHEMA_VERSION, products: [], purchases: [] };
+    return { ...value, version: CURRENT_SCHEMA_VERSION, products: [], purchases: [], importedQrFingerprints: [] };
+  }
+  if (value.version === 3 && Array.isArray(value.products) && Array.isArray(value.purchases)) {
+    return { ...value, version: CURRENT_SCHEMA_VERSION, importedQrFingerprints: [] };
   }
 
   return value;
@@ -42,7 +47,8 @@ function normalizeDatabase(value) {
     !Array.isArray(migratedDatabase.accounts) ||
     !Array.isArray(migratedDatabase.pantries) ||
     !Array.isArray(migratedDatabase.products) ||
-    !Array.isArray(migratedDatabase.purchases)
+    !Array.isArray(migratedDatabase.purchases) ||
+    !Array.isArray(migratedDatabase.importedQrFingerprints)
   ) {
     throw new Error('A versão dos dados locais não é compatível com o aplicativo.');
   }

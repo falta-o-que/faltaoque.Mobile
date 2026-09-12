@@ -18,6 +18,7 @@ const tagColors = Object.fromEntries(
       : readValue(token),
   ]),
 );
+tagColors.outros = readValue(standard.White[200]);
 
 export const theme = {
   colors: {

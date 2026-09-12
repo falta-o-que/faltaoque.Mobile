@@ -10,16 +10,18 @@ import ProductCard from '../../components/ProductCard';
 import AddProductModal from '../../components/AddProductModal';
 import ProductInfoModal from '../../components/ProductInfoModal';
 import ProductFilterModal from '../../components/ProductFilterModal';
+import AddProductMethodModal from '../../components/AddProductMethodModal';
+import NfceScannerModal from '../../components/NfceScannerModal';
 import { useAuth } from '../../contexts/AuthContext';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import { listPantries } from '../../services/pantryService';
 import { addProduct, deleteProduct, listProducts, updateProduct, updateProductQuantity } from '../../services/productService';
+import { PRODUCT_CATEGORIES } from '../../domain/productValidation';
 import {
   Screen, Content, Header, TitleRow, ColorCircle, Title, Actions,
   Categories, CategorySection, EmptyState, EmptyText, StatusArea, ErrorText, Retry, RetryText,
 } from './styles';
 
-const CATEGORIES = ['bebidas', 'organicos', 'limpezaHigiene', 'integraisCereais', 'frescos', 'carnes'];
 const normalize = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
 const formatExpirationDate = (value) => {
@@ -37,6 +39,8 @@ export default function PantryScreen({ route, navigation }) {
   const [query, setQuery] = useState('');
   const [storedProducts, setStoredProducts] = useState([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isAddMethodOpen, setIsAddMethodOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortOption, setSortOption] = useState(null);
@@ -51,6 +55,8 @@ export default function PantryScreen({ route, navigation }) {
     setError(null);
       setStoredProducts([]);
       setIsAddOpen(false);
+      setIsAddMethodOpen(false);
+      setIsScannerOpen(false);
       setIsFilterOpen(false);
       setSelectedProduct(null);
     Promise.all([listPantries(account?.id), listProducts(account?.id, pantryId)]).then(([pantries, items]) => {
@@ -124,6 +130,7 @@ export default function PantryScreen({ route, navigation }) {
     setIsAddOpen(false);
   };
 
+
   const handleUpdate = async (draft) => {
     if (!selectedProduct) return;
     const updated = await updateProduct({
@@ -184,12 +191,12 @@ export default function PantryScreen({ route, navigation }) {
               </TitleRow>
               <Actions>
                 <ModalActionButton Icon={AddUserIcon} accessibilityLabel="Compartilhar despensa" onPress={() => Alert.alert('Compartilhamento indisponível', 'O compartilhamento de despensas estará disponível em uma próxima atualização.')} />
-                <ModalActionButton Icon={AddCircleIcon} accessibilityLabel="Adicionar produto" onPress={() => setIsAddOpen(true)} />
+                <ModalActionButton Icon={AddCircleIcon} accessibilityLabel="Adicionar produto" onPress={() => setIsAddMethodOpen(true)} />
                 <ModalActionButton Icon={FilterIcon} accessibilityLabel="Filtrar produtos" onPress={() => setIsFilterOpen(true)} />
               </Actions>
               <SearchField value={query} onChangeText={setQuery} />
               <Categories horizontal showsHorizontalScrollIndicator={false}>
-                {CATEGORIES.map((key) => (
+                {PRODUCT_CATEGORIES.map((key) => (
                   <CategoryTag key={key} category={key} variant="product" selected={selectedCategories.includes(key)} onSelectionChange={() => toggleCategory(key)} />
                 ))}
               </Categories>
@@ -213,6 +220,22 @@ export default function PantryScreen({ route, navigation }) {
         )}
       </Content>
       <AddProductModal visible={isAddOpen} onCreate={handleCreate} onRequestClose={() => setIsAddOpen(false)} />
+      <AddProductMethodModal
+        visible={isAddMethodOpen}
+        onRequestClose={() => setIsAddMethodOpen(false)}
+        onManual={() => { setIsAddMethodOpen(false); setIsAddOpen(true); }}
+        onQrCode={() => { setIsAddMethodOpen(false); setIsScannerOpen(true); }}
+      />
+      <NfceScannerModal
+        visible={isScannerOpen}
+        onRequestClose={() => setIsScannerOpen(false)}
+        onPurchaseLoaded={(purchase) => {
+          setIsScannerOpen(false);
+          setQuery('');
+          setSelectedCategories([]);
+          navigation.navigate(AUTHENTICATED_ROUTES.NFCE_REVIEW, { purchase, pantryId, pantryName: pantry?.name, pantryColor: pantry?.color });
+        }}
+      />
       <ProductInfoModal
         visible={Boolean(selectedProduct)}
         product={selectedProduct}

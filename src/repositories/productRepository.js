@@ -70,3 +70,18 @@ export async function deleteProduct({ accountId, pantryId, productId }) {
     };
   });
 }
+
+export async function importFiscalPurchase({ accountId, pantryId, products, purchase, qrFingerprint }) {
+  await updateDatabase((database) => {
+    assertPantry(database, accountId, pantryId);
+    if (database.importedQrFingerprints.some((item) => item.accountId === accountId && item.qrFingerprint === qrFingerprint)) {
+      throw new Error('DUPLICATE_FISCAL_NOTE');
+    }
+    return {
+      ...database,
+      products: [...database.products, ...products],
+      purchases: [...database.purchases, purchase],
+      importedQrFingerprints: [...database.importedQrFingerprints, { accountId, qrFingerprint, importedAt: new Date().toISOString() }],
+    };
+  });
+}

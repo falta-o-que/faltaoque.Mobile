@@ -50,6 +50,7 @@ Funcionalidades exigidas para essa entrega:
 - A adição manual persiste produto e compra numa única gravação, com origem `manual`, data/hora atual, local vazio e valores unitário/total. As operações de criação de contas, despensas e produtos usam uma fila de gravação para evitar perda por concorrência. Após adicionar, a tela limpa busca e filtros para mostrar o novo produto.
 - Testes com armazenamento simulado em `tests/product-addition.cjs` cobrem validação de validade, migração, isolamento por conta, falha de gravação, concorrência, histórico, alteração de quantidade e releitura; executar com `node tests/product-addition.cjs`.
 - A fatia da tela da despensa compilou no bundle Android. A comparação foi feita entre código e referência do Figma; a validação visual/interativa no aplicativo e os testes físicos de Android e iOS seguem pendentes.
+- O botão de adicionar produto agora abre a escolha entre cadastro manual e leitura de QR Code, seguindo o mesmo padrão visual do modal de destino da despensa. A leitura usa `expo-camera`, pede permissão quando necessária, restringe a QR Code e impede leituras concorrentes durante a consulta. A consulta atual aceita URLs HTTPS de domínios `fazenda.sp.gov.br`, normaliza itens extraídos e abre uma revisão editável antes da confirmação. A confirmação grava itens, compra de origem `nota_fiscal` e a impressão digital técnica do QR Code em uma única operação; a mesma nota é bloqueada para a mesma conta. O esquema local está na versão 4, com migração da versão 3. O extrator precisa de validação com uma NFC-e paulista real no Android físico; não há amostra fiscal armazenada no repositório.
 - A cobertura automatizada inicial se concentra na adição de produtos e persistência; ainda não há suíte de interface consolidada.
 
 ## Trabalho humano em andamento
@@ -74,6 +75,18 @@ Funcionalidades exigidas para essa entrega:
 
 ## Próxima etapa
 
+- A tela de leitura de QR Code foi reestilizada com a linguagem da despensa: fundo claro, cabeçalho com ação circular de cancelamento, painel explicativo, moldura verde no preview e botão principal reutilizado para a permissão. Estados de carregamento, consulta e erro seguem a tipografia e as cores do tema. Bundle Android compilado; validar a aparência e a câmera no Expo Go.
+
+- Reconhecimento de medidas ampliado para abreviações coladas à medida por ponto, hífen ou dois-pontos (ex.: `ALMOF.500G`, `TRAD.300G`). Validado contra a segunda nota fornecida pelo usuário sem gravar HTML ou URL em arquivo, com testes sintéticos de regressão; o molho dessa nota registra 300 g.
+
+- A importação extrai medidas explícitas da embalagem do nome (`500g`, `1 kg`, `350 ml`, `1,5 L`), remove o trecho do nome de revisão e persiste peso/unidade separados. A revisão oferece campo editável e seletor reutilizado do cadastro manual. A quantidade e o histórico fiscal original são preservados; multipacks e múltiplas medidas permanecem para revisão manual. Testes de persistência cobrem extração, correção da medida e unidade inválida; teste físico no Expo Go pendente.
+
+- Revisão fiscal agrupa linhas repetidas da mesma descrição/unidade, mostra a quantidade somada e preserva as linhas originais no histórico. A seleção usa estado explícito “Será adicionado” / “Não será adicionado”, com ação textual para excluir da seleção ou incluir novamente. Categoria `Outros` implementada em todos os seletores e filtros, com sugestão automática para itens não reconhecidos. Testes cobrem agrupamento, separação por apresentação, preços, exclusão da seleção e gravação atômica; reteste visual no Expo Go pendente.
+
+- Refinamento visual da revisão fiscal: título “Guardar compras”, identificação da despensa por nome/cor, cards com a imagem já usada na despensa, sombra e preço verde, seleção explícita para inclusão, categoria editável diretamente e atalho para resolver categorias pendentes. Reutiliza `ModalActionButton` para editar/concluir/cancelar e `ButtonClick` para guardar. Bundle Android aprovado; validação visual no Expo Go permanece pendente.
+
+- Revisão de NFC-e convertida em uma rota própria (`NfceReview`) por solicitação do usuário. A página reutiliza `FormField`, `CategoryTag` e `ButtonClick`, apresenta resumo da nota, cards selecionáveis com edição expansível e rodapé fixo com contagem e valor selecionados. Nome, quantidade, preço unitário, total e categoria possuem validação antes da importação; vírgula decimal é aceita. Ao salvar, volta à despensa e recarrega seus produtos. O modal antigo foi removido. Bundle Android compilado; aparência e interação no Expo Go aguardam validação física, assim como iOS.
+
 Iniciar a próxima funcionalidade definida pelo usuário. A página da despensa, seus modais de adição e consulta/edição, busca, filtros por tags e controles de quantidade foram aprovados pelo usuário como base visual e funcional; ajustes futuros devem ser tratados como novo escopo ou feedback concreto.
 
 ## Ponto de parada — 12 de setembro de 2026
@@ -87,6 +100,8 @@ Iniciar a próxima funcionalidade definida pelo usuário. A página da despensa,
 - A exclusão do produto está disponível no modal Info, exige confirmação explícita e remove apenas o produto da despensa; o histórico de compra é preservado. Ao retomar: aguardar a definição da próxima funcionalidade. A edição/exclusão de despensas e o spike fiscal SP continuam pendentes; este último requer validação com QR Code real.
 
 ## Riscos conhecidos
+
+- Em 12/09, o extrator foi corrigido e validado por consulta HTTP de uma NFC-e SP fornecida pelo usuário: reconhece os campos `txtTit`, `Rqtd`, `RUN`, `RvlUnit`, `valor`, `u20` e `txtMax`, incluindo quantidade fracionada, preço sem símbolo de moeda e emissão. A amostra real não foi gravada em arquivo; o teste `node tests/nfce-extraction.cjs` usa dados sintéticos. O reteste no Expo Go continua pendente. Essa validação cobre a extração, não conclui os requisitos de revisão completa, aliases e conversão de produtos vendidos por peso para o estoque de quantidade inteira.
 
 - Prazo curto para o escopo obrigatório.
 - Ausência de dispositivo iOS para teste físico.

@@ -1,4 +1,4 @@
-export const PRODUCT_CATEGORIES = ['bebidas', 'organicos', 'limpezaHigiene', 'integraisCereais', 'frescos', 'carnes'];
+export const PRODUCT_CATEGORIES = ['bebidas', 'organicos', 'limpezaHigiene', 'integraisCereais', 'frescos', 'carnes', 'outros'];
 export const PRODUCT_UNITS = ['g', 'kg', 'ml', 'L'];
 export const PRODUCT_PRICE_TYPES = ['unit', 'total'];
 

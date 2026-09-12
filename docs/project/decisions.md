@@ -1,5 +1,15 @@
 # Decisões do projeto
 
+## 2026-09-12 - Medida da embalagem no nome fiscal
+
+Na importação por QR Code, uma medida única e explícita (`g`, `kg`, `ml` ou `L`) no nome será transferida para peso/volume e unidade, removendo esse trecho do nome exibido. A revisão permite corrigir ou limpar a medida. A quantidade comprada permanece independente; as descrições fiscais originais são preservadas no histórico. Agrupamento ocorre antes da remoção, preservando a separação de embalagens diferentes. Multipacks e descrições com múltiplas medidas não são interpretados automaticamente.
+
+## 2026-09-12 - Categoria Outros e repetições na mesma nota
+
+Por solicitação do usuário, a lista fixa passa a incluir `Outros`, disponível no cadastro manual, revisão fiscal e filtros da despensa. Na importação, itens sem correspondência no dicionário recebem essa categoria, permanecendo editáveis; isso substitui a decisão anterior de deixá-los sem categoria.
+
+Linhas da mesma nota com descrição e unidade iguais após normalização de caixa, acentos e espaços são agrupadas antes da revisão. Quantidades e totais são somados; marcas e apresentações descritas permanecem distintas. Havendo preços unitários diferentes, a revisão informa o preço médio ponderado pela quantidade. As linhas fiscais originais ficam preservadas em `sourceItems` no histórico, independentemente das edições na revisão. Esse agrupamento não equivale à reconciliação com produtos de compras anteriores na despensa.
+
 Este arquivo registra decisões confirmadas. Alterações devem incluir data e motivo.
 
 ## 2026-09-07 - Escopo do repositório

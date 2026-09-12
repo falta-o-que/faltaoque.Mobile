@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from '../screens/HomeScreen';
 import PantryScreen from '../screens/PantryScreen';
+import NfceReviewScreen from '../screens/NfceReviewScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import { AUTHENTICATED_ROUTES, PUBLIC_ROUTES } from './routes';
@@ -38,6 +39,7 @@ function AuthenticatedNavigator() {
     >
       <Stack.Screen name={AUTHENTICATED_ROUTES.HOME} component={HomeScreen} />
       <Stack.Screen name={AUTHENTICATED_ROUTES.PANTRY} component={PantryScreen} />
+      <Stack.Screen name={AUTHENTICATED_ROUTES.NFCE_REVIEW} component={NfceReviewScreen} />
     </Stack.Navigator>
   );
 }
