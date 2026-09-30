@@ -66,7 +66,7 @@ Funcionalidades exigidas para essa entrega:
 ## Preparação concluída
 
 - Fluxo de agentes e política de modelos registrados.
-- Política vigente: Terra/leve como orquestrador para economizar tokens, Luna/médio para execução delimitada e Sol/médio ou alto para maior complexidade. Escalonamento e recomendações de raciocínio seguem `docs/agents/workflow.md` e a decisão de 9 de setembro de 2026.
+- Política vigente: GPT-6 Sol/leve como orquestrador, GPT-5.6 Luna/médio para execução delimitada e GPT-5.6 Sol/médio ou alto para maior complexidade. Escalonamento e recomendações de raciocínio seguem `docs/agents/workflow.md` e a decisão de 30 de setembro de 2026.
 - Memória operacional do projeto criada em `docs/project`.
 - Especificação executável do marco criada em `docs/specs/milestone-2026-09-14.md`.
 - Arquitetura substituível entre armazenamento local e backend registrada.

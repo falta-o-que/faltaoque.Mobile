@@ -148,8 +148,16 @@ O procedimento operacional, inclusive transferência de escopo entre agentes, es
 
 ## 2026-09-09 - Terra no leve para economia de tokens
 
+Decisão histórica, substituída pela política de 30 de setembro de 2026 abaixo.
+
 Por solicitação do usuário, GPT-5.6 Terra com raciocínio leve (`low`) passa a ser o orquestrador padrão. O usuário selecionará esse modelo no novo chat. A documentação orienta a execução, mas não altera a configuração do modelo no Codex.
 
 Permanecem Luna/médio para execução delimitada, Sol/médio ou alto para trabalho independente de maior complexidade, escolha direta de um agente mais forte quando necessário, limite global de três subagentes e revisão final pelo orquestrador. Não há cadeia obrigatória entre modelos.
 
 Para dificuldades concretas, recomendar elevar Terra para médio ou trocar o orquestrador para Sol/Astra, explicando o motivo. Priorizar contexto relevante, relatórios concisos e delegações com benefício real. Os demais requisitos, critérios de aceite e regras de colaboração permanecem vigentes.
+
+## 2026-09-30 - GPT-6 Sol como orquestrador
+
+Por solicitação do usuário, GPT-6 Sol com raciocínio leve (`low`) passa a ser o orquestrador padrão. A documentação orienta os chats do projeto, mas a seleção do modelo e do raciocínio da tarefa principal é feita pelo usuário no Codex.
+
+Permanecem GPT-5.6 Luna/médio para execução delimitada, GPT-5.6 Sol/médio ou alto para trabalho independente de maior complexidade, escolha direta do agente adequado, limite global de três subagentes e revisão final pelo orquestrador. Para dificuldades concretas, recomendar elevar o raciocínio do orquestrador para médio ou alto com justificativa.

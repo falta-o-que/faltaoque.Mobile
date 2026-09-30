@@ -6,7 +6,7 @@ O desenvolvimento seguirá fatias verticais pequenas e verificáveis. Antes de c
 
 As instruções técnicas dadas aos agentes ficam em inglês. Decisões, especificações e entregas destinadas à equipe ficam em português.
 
-O Terra opera no leve por padrão para economizar tokens e escolhe diretamente o executor adequado: Luna/médio para escopos fechados, Sol/médio ou alto para trabalhos de maior complexidade. Não há passagem obrigatória pelo Sol. O limite de três subagentes inclui toda a árvore. Quando necessário, o orquestrador recomenda ao usuário elevar seu raciocínio para médio ou trocar para Sol/Astra, com justificativa concreta. A política completa está em `docs/agents/workflow.md` e `docs/project/decisions.md`.
+O GPT-6 Sol opera no leve por padrão como orquestrador e escolhe diretamente o executor adequado: Luna/médio para escopos fechados, GPT-5.6 Sol/médio ou alto para trabalhos de maior complexidade. Não há passagem obrigatória por outro modelo. O limite de três subagentes inclui toda a árvore. Quando necessário, o orquestrador recomenda ao usuário elevar seu raciocínio para médio ou alto, com justificativa concreta. A política completa está em `docs/agents/workflow.md` e `docs/project/decisions.md`.
 
 ## Trilhas
 
