@@ -99,6 +99,10 @@ Iniciar a próxima funcionalidade definida pelo usuário. A página da despensa,
 - O modal Info permite consulta e edição de nome, preço por unidade ou total do lote, quantidade, validade, peso/volume, unidade e categoria. A edição atualiza somente o produto; a compra manual original no histórico permanece imutável.
 - A exclusão do produto está disponível no modal Info, exige confirmação explícita e remove apenas o produto da despensa; o histórico de compra é preservado. Ao retomar: aguardar a definição da próxima funcionalidade. A edição/exclusão de despensas e o spike fiscal SP continuam pendentes; este último requer validação com QR Code real.
 
+## Banco hospedado de referência — 30 de setembro de 2026
+
+O esquema SQL oficial vigente, fornecido pelo usuário, está em `docs/architecture/hosted-database.sql`. Ele substitui qualquer esquema anterior do banco hospedado usado como referência em análises futuras. A persistência local do MVP permanece no modelo JSON versionado de `src/storage/localDatabase.js`; nenhuma migração ou integração com o backend foi implementada nesta atualização.
+
 ## Riscos conhecidos
 
 - Em 12/09, o extrator foi corrigido e validado por consulta HTTP de uma NFC-e SP fornecida pelo usuário: reconhece os campos `txtTit`, `Rqtd`, `RUN`, `RvlUnit`, `valor`, `u20` e `txtMax`, incluindo quantidade fracionada, preço sem símbolo de moeda e emissão. A amostra real não foi gravada em arquivo; o teste `node tests/nfce-extraction.cjs` usa dados sintéticos. O reteste no Expo Go continua pendente. Essa validação cobre a extração, não conclui os requisitos de revisão completa, aliases e conversão de produtos vendidos por peso para o estoque de quantidade inteira.
