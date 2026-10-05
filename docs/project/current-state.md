@@ -23,6 +23,8 @@ Funcionalidades exigidas para essa entrega:
 
 ## Implementação atual
 
+- Em 5 de outubro, `CategoryTag` recebeu o ícone de tag do SVG fornecido pelo usuário, convertido ao padrão `react-native-svg`; o ícone usa a mesma cor calculada para o texto. O espaçamento da variante de produto foi ajustado ao nó Figma `654:2312`. A verificação por bundle permanece pendente porque as dependências locais não estão instaladas neste checkout e a consulta ao registro npm foi bloqueada.
+
 - Projeto Expo SDK 57 com React Native e JavaScript.
 - Estilização com `styled-components`.
 - `styled-components/native` é o padrão obrigatório para novos componentes e deve consumir o tema compartilhado.

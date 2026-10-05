@@ -21,5 +21,6 @@ export { default as SearchIcon } from './SearchIcon';
 export { default as SelectIcon } from './SelectIcon';
 export { default as SettingsIcon } from './SettingsIcon';
 export { default as SinoIcon } from './SinoIcon';
+export { default as TagIcon } from './TagIcon';
 export { default as ShoppingListIcon } from './ShoppingListIcon';
 export { default as UserIcon } from './UserIcon';
