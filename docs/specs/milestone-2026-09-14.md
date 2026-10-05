@@ -2,6 +2,8 @@
 
 Status: rascunho executável.
 
+Este documento registra o marco original do MVP local. Para decisões posteriores de integração, estoque, listas locais e Configurações, consultar `integracao-e-fluxos-2026-10-05.md` e as decisões datadas em `../project/decisions.md`.
+
 ## Execução por agentes
 
 Aplicar a política vigente de `../agents/workflow.md`, registrada em `../project/decisions.md`: GPT-6 Sol/leve coordena, GPT-5.6 Luna/médio executa escopos delimitados e GPT-5.6 Sol assume trabalho independente de maior complexidade quando indicado pelo orquestrador. A escolha pode ser feita antes de qualquer tentativa com Luna. O orquestrador recomenda ao usuário elevar seu raciocínio para médio ou alto quando a etapa exigir. Essa distribuição não altera os requisitos nem os critérios de aceite abaixo.

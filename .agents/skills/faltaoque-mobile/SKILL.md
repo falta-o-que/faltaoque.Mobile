@@ -16,7 +16,7 @@ Before planning project work, read these files in order:
 3. `docs/project/current-state.md`
 4. `docs/agents/workflow.md`
 
-Then read only the specification and architecture documents relevant to the requested slice. For the current delivery, use `docs/specs/milestone-2026-09-14.md`. For fiscal work, also read `docs/specs/nfce-sp-spike.md` and `docs/architecture/mobile.md`.
+Then read only the specification and architecture documents relevant to the requested slice. Use `docs/specs/milestone-2026-09-14.md` for the original local MVP and `docs/specs/integracao-e-fluxos-2026-10-05.md` for the later backend and front-end decisions. For fiscal work, also read `docs/specs/nfce-sp-spike.md` and `docs/architecture/mobile.md`. For hosted data work, compare the dated model snapshot in `docs/architecture/hosted-database-model-2026-10-05.json` with `docs/architecture/hosted-database.sql`; the snapshot is not proof of a deployed migration.
 
 When a task changes a durable decision or completed project state, update the appropriate memory-bank file in Portuguese.
 
@@ -25,6 +25,8 @@ When a task changes a durable decision or completed project state, update the ap
 For visual decisions, follow the precedence recorded in `docs/project/overview.md`. Preserve the approved Figma direction; do not introduce a new aesthetic or reinterpret the product branding.
 
 For functional behavior, the relevant SDD and confirmed entries in `docs/project/decisions.md` prevail over incomplete UI behavior. Surface unresolved conflicts instead of silently choosing a new requirement.
+
+Later dated decisions override conflicting descriptions of earlier flows. In particular, local grocery lists and hosted purchases have different persistence scopes; do not infer that the hosted grocery-list tables are active in the newer flow.
 
 ## Implement mobile code
 

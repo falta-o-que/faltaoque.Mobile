@@ -8,7 +8,7 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before 
 
 - Use the repository-local skill at `.agents/skills/faltaoque-mobile/SKILL.md` for work in this project. Follow its instructions and read the repository files it references rather than copying their contents into chat instructions.
 - The project memory bank is `docs/project/overview.md`, `docs/project/decisions.md`, and `docs/project/current-state.md`. Read these files before planning project work.
-- The current SDD is `docs/specs/milestone-2026-09-14.md`. Read the task-relevant parts before implementation. For NFC-e work, also read `docs/specs/nfce-sp-spike.md` and `docs/architecture/mobile.md`.
+- Read `docs/specs/milestone-2026-09-14.md` for the original local MVP and `docs/specs/integracao-e-fluxos-2026-10-05.md` for later backend and front-end decisions. Read the task-relevant parts before implementation. For NFC-e work, also read `docs/specs/nfce-sp-spike.md` and `docs/architecture/mobile.md`. For hosted data work, inspect the dated model snapshot in `docs/architecture/hosted-database-model-2026-10-05.json`; it does not confirm the deployed schema.
 - Keep this context in the repository so every new chat opened for this local project uses the same maintained sources.
 
 - The root agent is the orchestrator and should use `gpt-6-sol` with `low` reasoning by default.

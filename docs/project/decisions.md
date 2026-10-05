@@ -1,5 +1,77 @@
 # Decisões do projeto
 
+As decisões mais recentes prevalecem quando uma proposta ou anotação anterior descreve outro fluxo. O SDD `../specs/integracao-e-fluxos-2026-10-05.md` consolida o estado atual das decisões posteriores ao MVP, sem afirmar implementação no app ou no banco hospedado.
+
+## 2026-10-05 - Listas de compras locais sugeridas ao zerar estoque
+
+No fluxo descrito pelo usuário, uma NFC-e pode ser a primeira compra de uma despensa sem listas. Quando um produto chegar a zero no estoque, o aplicativo perguntará se o usuário deseja colocá-lo em uma lista; não fará a inclusão sem essa escolha. Se ainda não houver lista, sugerirá criar uma com nome e data planejada para a compra. Uma despensa poderá ter várias listas, organizadas conforme onde ou quando o usuário pretende comprar. O usuário escolherá a lista de destino e poderá incluir o mesmo produto em mais de uma lista.
+
+Nesse fluxo, o item exibido e salvo na lista terá somente o nome do produto, sem marca ou demais atributos de compra. O aplicativo deverá lembrar a associação entre produto e lista anterior para sugerir essa lista quando o produto voltar a acabar, sem impedir que o usuário escolha outra. A lista estimará valores com base no histórico de preços e locais das compras realizadas. As listas de compras permanecerão apenas na persistência local do aplicativo; somente compras efetivamente realizadas, por NFC-e ou adição manual, serão enviadas ao banco hospedado. Esta decisão posterior substitui, para esse fluxo, as anotações anteriores que pressupunham listas persistidas no banco hospedado ou listas históricas remotas. A sincronização de listas entre aparelhos e participantes da despensa não foi definida.
+
+## 2026-10-05 - Escopo da tela de Configurações
+
+A tela de Configurações deverá oferecer seleção de idioma, ajuste para aumentar ou diminuir o tamanho da fonte, controle para habilitar ou desabilitar notificações, acesso a um guia de uso do aplicativo, seção Sobre com versão, nomes da equipe e link do projeto, e acesso à Política de Privacidade e aos Termos de Uso. A opção de modo claro/escuro também é desejada, condicionada ao tempo disponível. A organização sugerida para a página é: preferências de leitura e idioma; notificações; ajuda; Sobre; documentos legais. Essa ordem é de apresentação, não de prioridade de implementação. Permanecem para definição os idiomas disponíveis, o alcance do ajuste de fonte, o comportamento das notificações e os conteúdos ou endereços dos links.
+
+## 2026-10-05 - Mercado identificado na compra sem tabela própria
+
+O grupo decidiu não criar uma tabela de mercados neste momento. Na importação fiscal, o CNPJ virá dos dados da nota e o usuário poderá alterar o nome do mercado exibido. Na adição manual, o front oferecerá sugestões de nomes de mercados. O contrato da API ainda deverá esclarecer onde ficam salvos o CNPJ, o nome escolhido e as sugestões, pois a modelagem compartilhada até esta data não explicita esses campos.
+
+## 2026-10-05 - Automações adiadas
+
+A funcionalidade de automações de listas de compras não será implementada agora. A proposta de regras recorrentes e registro de execuções fica fora do escopo atual.
+
+## 2026-10-05 - Quantidade comprada e saldo atual separados
+
+O modelo de banco compartilhado em 5 de outubro inclui `pantry_products.quantity` para a quantidade comprada e `pantry_products.current_quantity` para o saldo atual. Essa separação preserva a quantidade original da compra quando o estoque é consumido e permite calcular o preço unitário a partir do total pago e da quantidade comprada. Conforme esclarecimento do usuário, valores fracionados de produtos comprados por peso, como carne, serão armazenados em `pantry_products.content_value` (`DOUBLE`) junto de `unit_of_measure`. `quantity` e `current_quantity` permanecem `INTEGER` no modelo recebido e representam contagens. A forma de reduzir parcialmente uma medida fracionada no estoque ainda não foi definida.
+
+## 2026-10-05 - Atualização concorrente do estoque no backend
+
+O grupo informou que o backend será ajustado para aplicar as alterações de estoque de forma consistente quando participantes da mesma despensa agirem simultaneamente. O front exibirá o saldo retornado pela API após a operação.
+
+## 2026-10-05 - Desativação lógica de usuários e produtos
+
+O grupo confirmou que haverá um indicador de atividade para usuários e para produtos da despensa. No produto, ele será usado quando o usuário escolher “deletar”: o registro permanecerá no banco para preservar sua ligação com a compra e o histórico, mas deixará de aparecer como produto ativo no front. No modelo recebido em 5 de outubro, os nomes são `users.is_active` e `pantry_products.is_in_pantry`; a nomenclatura definitiva do indicador no produto depende da próxima atualização do esquema.
+
+## 2026-10-05 - Unidade de medida como enum
+
+O grupo confirmou que a unidade de medida do produto será representada por um enum no banco hospedado. A lista exata de valores e o mapeamento com as unidades usadas pelo aplicativo deverão constar do contrato atualizado.
+
+## 2026-10-01 - Compra obrigatória para produto no banco hospedado
+
+Após discussão com o grupo, todo produto no banco hospedado deve estar vinculado a uma compra. A hierarquia funcional definida é compra vinculada à despensa e produto vinculado à compra. No fluxo de adição manual, o aplicativo consumirá a rota de compras; cada produto adicionado manualmente gerará uma nova compra. Essa decisão substitui a proposta de permitir produto de estoque independente de compra. O campo `purchases.finish_products` passará a aceitar `NULL`; a equipe responsável ainda corrigirá o banco hospedado. Até essa correção, o script de referência permanece com `NOT NULL`. O contrato da API e as regras de preservação do histórico ainda precisam ser definidos com o backend antes da integração.
+
+## 2026-10-01 - Preservação do histórico após retirada da interface
+
+O grupo definiu que produtos não serão apagados fisicamente: `pantry_products.is_in_pantry = false` retira o produto da exibição no front. A despensa receberá um campo booleano equivalente para controlar sua exibição sem apagar o registro. Uma lista de compras sairá da tela de listas ativas quando uma compra for realizada, mas permanecerá no banco como histórico. Compras na tabela `purchases` não serão apagadas e servirão ao histórico e aos dashboards. Para repetir uma lista em outro mês, o sistema criará uma nova versão por cópia. O usuário poderá alterar itens e preços apenas nessa nova versão; a lista histórica original e a compra anterior permanecerão intactas.
+
+## 2026-10-01 - Bloqueio de importação duplicada por despensa
+
+O grupo aprovou impedir que a mesma NFC-e seja importada mais de uma vez na mesma despensa, permitindo sua importação em despensas diferentes. A forma de identificar e armazenar a nota ainda será estudada em conversa aprofundada com o usuário ao final da revisão dos demais pontos. Antes de definir chave, impressão digital ou outra representação, é necessário verificar quais dados únicos podem ser extraídos com confiabilidade das notas suportadas; o link do QR Code pode mudar e não deve ser presumido como identidade estável.
+
+## 2026-10-01 - Marca e visualização de produtos equivalentes
+
+O campo `pantry_products.brand` já atende ao armazenamento da marca; não é necessária uma nova coluna para isso. Produtos com o mesmo nome e marcas diferentes, como dois cafés, são registros distintos no banco. No front, o usuário poderá escolher se deseja visualizá-los juntos ou separados por marca. Essa escolha de apresentação não funde nem apaga os registros dos produtos. Embalagens ou apresentações diferentes são produtos diferentes na despensa e não devem ter suas quantidades somadas. A forma de persistir a preferência de visualização será detalhada posteriormente.
+
+## 2026-10-01 - Compras e histórico no modelo hospedado
+
+O grupo definiu que `purchases` representa as compras no funcionamento do sistema, não apenas uma tabela de histórico. Os registros de compras permanecerão no banco e também serão usados para compor o histórico e os dashboards, junto dos produtos vinculados por `pantry_products.purchase_id` e das demais relações existentes. Não foi aprovada, neste ponto, a criação de uma tabela separada de itens históricos. As regras de edição dos dados vinculados à compra deverão ser conferidas antes da integração para preservar a leitura das compras anteriores.
+
+## 2026-10-01 - Saldo agregado por produto e consumo por antiguidade
+
+Quando o mesmo produto com a mesma embalagem ou apresentação aparecer em compras diferentes, cada registro em `pantry_products` manterá seu próprio ID e vínculo com a respectiva compra. O front exibirá a soma das quantidades desses registros equivalentes na despensa. Produtos em embalagens ou apresentações diferentes permanecem separados e não são somados. Ao reduzir uma unidade do estoque agregado, o sistema deverá reduzir primeiro o saldo do registro da compra mais antiga que ainda tenha unidades. Ao aumentar pelo controle de estoque, deverá acrescentar a unidade ao registro da compra mais recente. Se duas compras tiverem a mesma data, qualquer uma delas poderá ser escolhida no desempate. Saldo zero não altera `is_in_pantry`; esse campo só passa a `false` quando o usuário remove o produto manualmente. Um registro com saldo zero poderá voltar a receber unidades. A preservação da quantidade originalmente comprada e o tratamento de atualizações simultâneas por participantes da despensa permanecem para discussão.
+
+## 2026-10-01 - Unidade de medida no banco hospedado
+
+O grupo informou que a unidade de medida do produto será armazenada no banco hospedado; em 5 de outubro confirmou o uso de enum, conforme decisão posterior neste arquivo. Não haverá colunas distintas para preço unitário e preço total do item: `pantry_products.price` armazenará o preço total do item na compra, e o front calculará o preço unitário quando necessário. `purchases.total_price` continuará representando o total da compra. O cálculo precisará considerar a quantidade originalmente comprada, que pode diferir do saldo atual após consumo ou ajuste de estoque.
+
+## 2026-10-01 - Relação entre listas e produtos existentes
+
+O grupo apontou que `grocery_lists_pantry_products` já associa listas de compras a produtos cadastrados em `pantry_products`. A despensa desse produto pode ser identificada indiretamente por `pantry_products.purchase_id` e `purchases.pantry_id`. Essa relação corrige a afirmação anterior de que listas não poderiam referenciar produtos da despensa. Conforme o fluxo definido pelo grupo, uma adição manual cria automaticamente uma compra e o respectivo produto, que então pode ser associado à lista. A garantia de que todos os itens de uma lista pertençam à mesma despensa permanece para análise de implementação.
+
+## 2026-10-01 - Permissões dos participantes da despensa
+
+Conforme esclarecimento do usuário, todos os usuários convidados para uma despensa poderão realizar as mesmas ações nela. Não há necessidade de papéis ou permissões individuais por participante em `users_pantries` para o escopo discutido. O tópico anterior sobre níveis de permissão por despensa fica encerrado com essa regra.
+
 ## 2026-09-12 - Medida da embalagem no nome fiscal
 
 Na importação por QR Code, uma medida única e explícita (`g`, `kg`, `ml` ou `L`) no nome será transferida para peso/volume e unidade, removendo esse trecho do nome exibido. A revisão permite corrigir ou limpar a medida. A quantidade comprada permanece independente; as descrições fiscais originais são preservadas no histórico. Agrupamento ocorre antes da remoção, preservando a separação de embalagens diferentes. Multipacks e descrições com múltiplas medidas não são interpretados automaticamente.

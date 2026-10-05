@@ -1,6 +1,6 @@
 # Estado atual
 
-Última atualização: 12 de setembro de 2026.
+Última atualização da memória de planejamento: 5 de outubro de 2026. A descrição da implementação abaixo registra o estado do MVP local observado anteriormente e não afirma que as novas decisões já foram implementadas.
 
 ## Marco imediato
 
@@ -99,9 +99,11 @@ Iniciar a próxima funcionalidade definida pelo usuário. A página da despensa,
 - O modal Info permite consulta e edição de nome, preço por unidade ou total do lote, quantidade, validade, peso/volume, unidade e categoria. A edição atualiza somente o produto; a compra manual original no histórico permanece imutável.
 - A exclusão do produto está disponível no modal Info, exige confirmação explícita e remove apenas o produto da despensa; o histórico de compra é preservado. Ao retomar: aguardar a definição da próxima funcionalidade. A edição/exclusão de despensas e o spike fiscal SP continuam pendentes; este último requer validação com QR Code real.
 
-## Banco hospedado de referência — 30 de setembro de 2026
+## Modelo hospedado e novos fluxos — 5 de outubro de 2026
 
-O esquema SQL oficial vigente, fornecido pelo usuário, está em `docs/architecture/hosted-database.sql`. Ele substitui qualquer esquema anterior do banco hospedado usado como referência em análises futuras. A persistência local do MVP permanece no modelo JSON versionado de `src/storage/localDatabase.js`; nenhuma migração ou integração com o backend foi implementada nesta atualização.
+O último script SQL recebido, de 1º de outubro, está em `docs/architecture/hosted-database.sql`; o script de 30 de setembro estava incorreto. Um retrato posterior da modelagem, recebido em 5 de outubro, foi salvo em `docs/architecture/hosted-database-model-2026-10-05.json`. Ele inclui `quantity` e `current_quantity`, `content_value` e `unit_of_measure`, além de `purchases.is_finished` e `finish_date` opcional. O usuário informou que uma alteração adicional do banco ainda será enviada. Não há confirmação de que o retrato corresponda ao banco implantado ou ao contrato da API.
+
+As decisões funcionais recentes e os pontos em aberto estão consolidados em `docs/specs/integracao-e-fluxos-2026-10-05.md` e nas entradas datadas de `docs/project/decisions.md`. As listas de compras do fluxo mais recente serão locais; somente compras realizadas serão enviadas ao banco hospedado. A tela de Configurações foi definida em escopo, sem implementação. A persistência local do MVP permanece no modelo JSON versionado de `src/storage/localDatabase.js`; nenhuma migração ou integração com o backend foi implementada nesta atualização.
 
 ## Riscos conhecidos
 
