@@ -76,7 +76,7 @@ export function ProductCard({
           disabled={!canDecrement}
           onPress={canDecrement ? onDecrement : undefined}
         >
-          <QuantityButtonLabel>-</QuantityButtonLabel>
+          <QuantityButtonLabel $disabled={!canDecrement}>-</QuantityButtonLabel>
         </QuantityButton>
         <Quantity accessibilityLabel={`Quantidade: ${quantity}`}>{String(quantity)}</Quantity>
         <QuantityButton
@@ -87,7 +87,7 @@ export function ProductCard({
           disabled={!canIncrement}
           onPress={canIncrement ? onIncrement : undefined}
         >
-          <QuantityButtonLabel>+</QuantityButtonLabel>
+          <QuantityButtonLabel $disabled={!canIncrement}>+</QuantityButtonLabel>
         </QuantityButton>
       </QuantityControl>
     </Card>
