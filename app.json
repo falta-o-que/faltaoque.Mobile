@@ -4,13 +4,13 @@
     "slug": "FaltaOQueFront",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/branding/logo.png",
+    "icon": "./src/assets/branding/app-icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
     },
     "android": {
-      "icon": "./src/assets/branding/logo.png",
+      "icon": "./src/assets/branding/app-icon.png",
       "package": "com.faltaoque.front"
     },
     "web": {
