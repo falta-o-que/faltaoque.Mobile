@@ -1,3 +1,4 @@
+import { Animated } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native';
 import styled from 'styled-components/native';
 
@@ -107,12 +108,11 @@ export const AccordionLabel = styled.Text`
   font-size: ${({ theme }) => theme.fonts.sizes[1]}px;
 `;
 
-export const Chevron = styled.View`
+export const Chevron = styled(Animated.View)`
   width: 24px;
   height: 24px;
   align-items: center;
   justify-content: center;
-  transform: ${({ $open }) => ($open ? 'rotate(0deg)' : 'rotate(180deg)')};
 `;
 
 export const CategoryOptions = styled.View`

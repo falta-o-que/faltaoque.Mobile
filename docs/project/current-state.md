@@ -128,6 +128,8 @@ Outra correção de 6 de outubro: a Navbar de listas abre uma tela intermediári
 
 Na continuação da página, os cards dos produtos usam a cor da categoria na barrinha lateral; `Limpeza/Higiene`, cujo fundo é branco puro, recebe contorno cinza. Foi incluído um atalho de lápis para abrir o modal de edição do produto, que permite alterar nome, quantidade, peso/volume, unidade e categoria na lista ativa. O serviço mantém o estado de marcação do item.
 
+Os dropdowns com seta da página de listas e do seletor de categoria animam a mudança de layout e a rotação da seta, preservando as alturas naturais definidas pelo conteúdo.
+
 ## Riscos conhecidos
 
 - Em 12/09, o extrator foi corrigido e validado por consulta HTTP de uma NFC-e SP fornecida pelo usuário: reconhece os campos `txtTit`, `Rqtd`, `RUN`, `RvlUnit`, `valor`, `u20` e `txtMax`, incluindo quantidade fracionada, preço sem símbolo de moeda e emissão. A amostra real não foi gravada em arquivo; o teste `node tests/nfce-extraction.cjs` usa dados sintéticos. O reteste no Expo Go continua pendente. Essa validação cobre a extração, não conclui os requisitos de revisão completa, aliases e conversão de produtos vendidos por peso para o estoque de quantidade inteira.

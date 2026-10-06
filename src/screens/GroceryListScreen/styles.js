@@ -1,3 +1,4 @@
+import { Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -116,9 +117,7 @@ export const IconButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
   justify-content: center;
 `;
 
-export const Chevron = styled.View`
-  transform: rotate(${({ $expanded }) => ($expanded ? '0deg' : '180deg')});
-`;
+export const Chevron = styled(Animated.View)``;
 
 export const ItemStack = styled.View`
   gap: 9px;

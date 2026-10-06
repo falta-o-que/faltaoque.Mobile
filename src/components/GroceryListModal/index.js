@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Alert, Modal, Platform } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Animated, Easing, Modal, Platform } from 'react-native';
 
 import {
   AngleIcon,
@@ -15,6 +15,7 @@ import {
 import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../../domain/productValidation';
 import { ProductCartIcon } from '../AddProductModal/icons';
 import CategoryTag from '../CategoryTag';
+import AnimatedDropdown from '../AnimatedDropdown';
 import FormField from '../FormField';
 import ModalActionButton from '../ModalActionButton';
 import {
@@ -24,6 +25,22 @@ import {
   FilterSectionTitle, Header, Heading, HelpText, KeyboardFrame, Overlay,
   SortOption, SortOptionLabel, SortOptions, UnitLabel, UnitOption, UnitOptions, WeightGroup,
 } from './styles';
+
+function CategoryChevron({ expanded }) {
+  const rotation = useRef(new Animated.Value(expanded ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(rotation, {
+      toValue: expanded ? 1 : 0,
+      duration: 180,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [expanded, rotation]);
+
+  const style = { transform: [{ rotate: rotation.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '0deg'] }) }] };
+  return <Chevron style={style}><AngleIcon /></Chevron>;
+}
 
 const SORT_OPTIONS = [
   { key: 'nameAsc', label: 'A - Z' },
@@ -102,6 +119,7 @@ export default function GroceryListModal({
     : mode === 'filter' ? FilterIcon : ShoppingListIcon;
 
   const clearError = () => setError('');
+  const toggleCategoryOptions = () => setIsCategoryOpen((open) => !open);
   const handleDateChange = (value) => {
     const digits = value.replace(/\D/g, '').slice(0, 8);
     const formatted = digits.length > 4
@@ -226,16 +244,16 @@ export default function GroceryListModal({
                       ) : null}
                     </WeightGroup>
                     <Accordion>
-                      <AccordionHeader accessibilityRole="button" accessibilityState={{ expanded: isCategoryOpen }} disabled={busy} onPress={() => setIsCategoryOpen((open) => !open)}>
-                        <AccordionLabel>Categoria</AccordionLabel><Chevron $open={isCategoryOpen}><AngleIcon /></Chevron>
+                      <AccordionHeader accessibilityRole="button" accessibilityState={{ expanded: isCategoryOpen }} disabled={busy} onPress={toggleCategoryOptions}>
+                        <AccordionLabel>Categoria</AccordionLabel><CategoryChevron expanded={isCategoryOpen} />
                       </AccordionHeader>
-                      {isCategoryOpen ? (
+                      <AnimatedDropdown open={isCategoryOpen}>
                         <CategoryOptions>
                           {PRODUCT_CATEGORIES.map((option) => (
                             <CategoryTag key={option} category={option} disabled={busy} onSelectionChange={(selected) => { setCategory(selected ? option : null); clearError(); }} selected={category === option} variant="product" />
                           ))}
                         </CategoryOptions>
-                      ) : null}
+                      </AnimatedDropdown>
                     </Accordion>
                   </Fields>
                 ) : null}

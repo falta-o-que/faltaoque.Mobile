@@ -1,11 +1,12 @@
-import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Animated, Easing } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import {
   AddCircleIcon, AngleIcon, CartAddIcon, CartRemoveIcon, FilterIcon, HistoryIcon, SettingsIcon,
 } from '../../assets/icons/export';
 import CategoryTag from '../../components/CategoryTag';
+import AnimatedDropdown from '../../components/AnimatedDropdown';
 import GroceryListItemCard from '../../components/GroceryListItemCard';
 import GroceryListHistoryModal from '../../components/GroceryListHistoryModal';
 import GroceryListModal from '../../components/GroceryListModal';
@@ -22,6 +23,22 @@ import {
   PantryIndicator, RetryButton, RetryText, RoundButton, Screen, SelectionBar, SelectionButton,
   SelectionButtonText, SelectionHint, StatusText, Title, TitleBlock, TitleRow,
 } from './styles';
+
+function ListChevron({ expanded }) {
+  const rotation = useRef(new Animated.Value(expanded ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(rotation, {
+      toValue: expanded ? 1 : 0,
+      duration: 180,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [expanded, rotation]);
+
+  const style = { transform: [{ rotate: rotation.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '0deg'] }) }] };
+  return <Chevron style={style}><AngleIcon width={21} height={13} color="#303030" /></Chevron>;
+}
 
 export default function GroceryListScreen({ navigation, route }) {
   const { account } = useAuth();
@@ -225,7 +242,7 @@ export default function GroceryListScreen({ navigation, route }) {
                       </>
                     ) : null}
                     <IconButton accessibilityRole="button" accessibilityLabel={expanded ? `Recolher ${list.name}` : `Expandir ${list.name}`} onPress={() => toggleCollapsed(list.id)}>
-                      <Chevron $expanded={expanded}><AngleIcon width={21} height={13} color="#303030" /></Chevron>
+                      <ListChevron expanded={expanded} />
                     </IconButton>
                     <IconButton accessibilityRole="button" accessibilityLabel={`Configurar ${list.name}`} onPress={() => openModal('settings', list.id)}>
                       <SettingsIcon size={24} color="#494949" />
@@ -239,7 +256,7 @@ export default function GroceryListScreen({ navigation, route }) {
                     <SelectionButton accessibilityRole="button" onPress={() => confirmRemoval(list)} $confirm><SelectionButtonText $confirm>Remover</SelectionButtonText></SelectionButton>
                   </SelectionBar>
                 ) : null}
-                {expanded ? (
+                <AnimatedDropdown open={expanded}>
                   <ItemStack>
                     {items.length ? items.map((item) => (
                       <GroceryListItemCard
@@ -255,7 +272,7 @@ export default function GroceryListScreen({ navigation, route }) {
                       />
                     )) : <EmptyText>Esta lista ainda não tem itens.</EmptyText>}
                   </ItemStack>
-                ) : null}
+                </AnimatedDropdown>
               </ListSection>
             );
           })}
