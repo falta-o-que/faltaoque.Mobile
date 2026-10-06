@@ -128,7 +128,7 @@ Outra correção de 6 de outubro: a Navbar de listas abre uma tela intermediári
 
 Na continuação da página, os cards dos produtos usam a cor da categoria na barrinha lateral; `Limpeza/Higiene`, cujo fundo é branco puro, recebe contorno cinza. Foi incluído um atalho de lápis para abrir o modal de edição do produto, que permite alterar nome, quantidade, peso/volume, unidade e categoria na lista ativa. O serviço mantém o estado de marcação do item.
 
-Os dropdowns com seta da página de listas e do seletor de categoria animam a mudança de layout e a rotação da seta, preservando as alturas naturais definidas pelo conteúdo.
+Os dropdowns com seta da página de listas e do seletor de categoria animam a mudança de layout e a rotação da seta, preservando as alturas naturais definidas pelo conteúdo. A entrada e a saída do conteúdo usam 180 ms de opacidade, escala vertical e deslocamento, seguindo o padrão dos seletores de avatar/cor.
 
 ## Riscos conhecidos
 
