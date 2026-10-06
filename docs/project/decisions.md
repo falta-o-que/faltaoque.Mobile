@@ -10,6 +10,10 @@ O QR Code da NFC-e contém um link cujo parâmetro `p` começa com o código ún
 
 As listas de compras do fluxo atual serão persistidas no banco hospedado, usando `grocery_lists` e suas relações, incluindo `grocery_lists_pantry_products`; não ficarão apenas no armazenamento local do aplicativo. Mantêm-se as regras funcionais de sugestão ao zerar estoque, escolha explícita do usuário, múltiplas listas e histórico de listas. O retrato de modelagem de 5 de outubro contém essas duas tabelas, mas não explicita todos os campos necessários para despensa, data planejada, estado/histórico e sugestão de lista anterior; essas relações e o contrato da API devem ser confirmados com o backend antes da integração. Esta decisão substitui a persistência local indicada na entrada de 5 de outubro abaixo.
 
+## 2026-10-06 - Ocorrências distintas do mesmo produto em listas diferentes
+
+Se um produto de mesmo nome aparecer em duas listas de compras, cada lista terá uma entidade `pantry_products` distinta, com ID próprio. As duas ocorrências não devem compartilhar o mesmo registro nem ser fundidas por coincidência de nome. A interface pode reconhecer e apresentar produtos semelhantes, conforme a regra já definida para marcas e apresentações, preservando a identidade e o vínculo de cada ocorrência com sua lista. O contrato do backend ainda deve esclarecer a criação dessas entidades e sua relação obrigatória com `purchases` antes de uma compra ser realizada.
+
 ## 2026-10-05 - Listas de compras sugeridas ao zerar estoque (persistência substituída em 6/10)
 
 No fluxo descrito pelo usuário, uma NFC-e pode ser a primeira compra de uma despensa sem listas. Quando um produto chegar a zero no estoque, o aplicativo perguntará se o usuário deseja colocá-lo em uma lista; não fará a inclusão sem essa escolha. Se ainda não houver lista, sugerirá criar uma com nome e data planejada para a compra. Uma despensa poderá ter várias listas, organizadas conforme onde ou quando o usuário pretende comprar. O usuário escolherá a lista de destino e poderá incluir o mesmo produto em mais de uma lista.
@@ -72,9 +76,9 @@ Quando o mesmo produto com a mesma embalagem ou apresentação aparecer em compr
 
 O grupo informou que a unidade de medida do produto será armazenada no banco hospedado; em 5 de outubro confirmou o uso de enum, conforme decisão posterior neste arquivo. Não haverá colunas distintas para preço unitário e preço total do item: `pantry_products.price` armazenará o preço total do item na compra, e o front calculará o preço unitário quando necessário. `purchases.total_price` continuará representando o total da compra. O cálculo precisará considerar a quantidade originalmente comprada, que pode diferir do saldo atual após consumo ou ajuste de estoque.
 
-## 2026-10-01 - Relação entre listas e produtos existentes
+## 2026-10-01 - Relação entre listas e produtos existentes (identidade por lista definida em 6/10)
 
-O grupo apontou que `grocery_lists_pantry_products` já associa listas de compras a produtos cadastrados em `pantry_products`. A despensa desse produto pode ser identificada indiretamente por `pantry_products.purchase_id` e `purchases.pantry_id`. Essa relação corrige a afirmação anterior de que listas não poderiam referenciar produtos da despensa. Conforme o fluxo definido pelo grupo, uma adição manual cria automaticamente uma compra e o respectivo produto, que então pode ser associado à lista. A garantia de que todos os itens de uma lista pertençam à mesma despensa permanece para análise de implementação.
+O grupo apontou que `grocery_lists_pantry_products` associa listas de compras a registros em `pantry_products`. A despensa de um produto comprado pode ser identificada indiretamente por `pantry_products.purchase_id` e `purchases.pantry_id`. A decisão posterior de 6 de outubro exige registros `pantry_products` diferentes para ocorrências do mesmo produto em listas diferentes. Como `purchase_id` é obrigatório no modelo recebido, o vínculo de itens planejados antes da compra ainda depende de definição do backend. A garantia de que todos os itens de uma lista pertençam à mesma despensa permanece para análise de implementação.
 
 ## 2026-10-01 - Permissões dos participantes da despensa
 
