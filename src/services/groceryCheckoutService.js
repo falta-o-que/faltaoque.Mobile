@@ -1,8 +1,10 @@
 import * as Crypto from 'expo-crypto';
 
 import { normalizeProduct } from '../domain/productValidation';
-import { updateDatabase } from '../storage/localDatabase';
-import { finishGroceryList, listGroceryLists } from './groceryListService';
+import { getCategoryId, updateDatabase } from '../storage/localDatabase';
+import { listGroceryLists } from './groceryListService';
+
+const UNIT_ID = { g: 1, kg: 2, ml: 3, L: 4 };
 
 export async function finishListAndStock({ accountId, pantryId, listId, pricesByItemId }) {
   if (!accountId || !pantryId || !listId) throw new Error('Lista indisponível.');
@@ -12,42 +14,40 @@ export async function finishListAndStock({ accountId, pantryId, listId, pricesBy
   const selectedItems = list.items.filter((item) => item.checked);
   if (selectedItems.length === 0) throw new Error('Marque os itens comprados antes de finalizar.');
 
-  // Validate every draft before touching local purchase history.
   const products = selectedItems.map((item) => normalizeProduct({
-    name: item.name,
-    quantity: String(item.quantity),
-    price: pricesByItemId?.[item.id],
-    priceType: 'unit',
-    weight: item.weight == null ? '' : String(item.weight),
-    unit: item.unit || '',
-    category: item.category || 'outros',
-    expirationDate: '',
+    name: item.name, quantity: String(item.quantity), price: pricesByItemId?.[item.id], priceType: 'unit',
+    weight: item.weight == null ? '' : String(item.weight), unit: item.unit || '',
+    category: item.category || 'outros', expirationDate: '',
   }));
-
   const purchasedAt = new Date().toISOString();
+  const purchaseId = Crypto.randomUUID();
   await updateDatabase((database) => {
-    if (!database.pantries.some((pantry) => pantry.id === pantryId && pantry.accountId === accountId)) {
+    if (!database.users_pantries.some((row) => row.user_id === accountId && row.pantry_id === pantryId)) {
       throw new Error('Esta despensa não está disponível para sua conta.');
     }
-    if (database.purchases.some((purchase) => purchase.accountId === accountId && purchase.pantryId === pantryId && purchase.groceryListId === listId)) {
-      return database;
-    }
-
-    const entries = products.map((values) => {
-      const product = { ...values, id: Crypto.randomUUID(), accountId, pantryId, createdAt: purchasedAt };
-      const purchase = {
-        id: Crypto.randomUUID(), accountId, pantryId, source: 'manual', groceryListId: listId,
-        purchasedAt, location: '', totalPrice: values.totalPrice,
-        items: [{ ...values, productId: product.id }],
-      };
-      return { product, purchase };
-    });
+    const storedList = database.grocery_lists.find((entry) => entry.id === listId && entry.pantry_id === pantryId);
+    if (!storedList) throw new Error('Lista não encontrada.');
+    if (storedList.is_finished) return database;
+    const purchase = {
+      id: purchaseId, title: list.name,
+      location: list.location && list.location.length <= 8 ? list.location : null,
+      purchase_date: purchasedAt.slice(0, 10),
+      total_price: products.reduce((total, product) => total + product.totalPrice, 0),
+      total_products: products.length,
+      is_finished: true, finish_date: purchasedAt.slice(0, 10), qr_code_id: null, pantry_id: pantryId,
+    };
+    const pantry_products = products.map((values) => ({
+      id: Crypto.randomUUID(), name: values.name, quantity: values.quantity, current_quantity: values.quantity,
+      is_in_pantry: true, content_value: values.weight, unit_of_measure: UNIT_ID[values.unit] ?? null,
+      price: values.totalPrice, brand: null, expiration_date: values.expirationDate, finish_date: null,
+      is_deleted: false, purchase_id: purchaseId, category_id: getCategoryId(database, values.category),
+    }));
     return {
       ...database,
-      products: [...database.products, ...entries.map((entry) => entry.product)],
-      purchases: [...database.purchases, ...entries.map((entry) => entry.purchase)],
+      purchases: [...database.purchases, purchase],
+      pantry_products: [...database.pantry_products, ...pantry_products],
+      grocery_lists: database.grocery_lists.map((entry) => entry.id === listId
+        ? { ...entry, is_finished: true } : entry),
     };
   });
-
-  await finishGroceryList({ accountId, pantryId, listId });
 }

@@ -36,6 +36,7 @@ export function validateProduct(draft = {}) {
   const priceType = draft.priceType ?? 'unit';
   const hasWeight = String(draft.weight ?? '').trim() !== '';
   if (typeof draft.name !== 'string' || !draft.name.trim()) errors.name = 'Informe o nome do produto.';
+  else if (draft.name.trim().length > 100) errors.name = 'O nome do produto deve ter até 100 caracteres.';
   if (!(price > 0) || !Number.isSafeInteger(Math.round(price * 100))) errors.price = 'Informe um preço positivo com até duas casas decimais.';
   if (!PRODUCT_PRICE_TYPES.includes(priceType)) errors.priceType = 'Escolha como o preço foi informado.';
   if (!/^\d+$/.test(String(draft.quantity ?? '').trim()) || !Number.isSafeInteger(quantity) || quantity <= 0) errors.quantity = 'Informe uma quantidade inteira maior que zero.';

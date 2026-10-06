@@ -21,6 +21,9 @@ export async function createPantry({ accountId, color, name }) {
   if (!normalizedName) {
     throw new Error('INVALID_PANTRY_NAME');
   }
+  if (normalizedName.length > 150) {
+    throw new Error('INVALID_PANTRY_NAME');
+  }
 
   if (!color) {
     throw new Error('INVALID_PANTRY_COLOR');

@@ -55,7 +55,7 @@ repository contracts
 - `purchaseRepository`.
 - `productAliasRepository`.
 
-As assinaturas públicas devem permanecer estáveis durante a troca de armazenamento local por API. Não é necessário reproduzir localmente o futuro esquema do backend.
+As assinaturas públicas devem permanecer estáveis durante a troca de armazenamento local por API. A pedido do usuário em 6 de outubro de 2026, a chave principal de armazenamento espelha as tabelas e os campos do JSON final do grupo, acrescidos de `grocery_lists.is_finished` e `grocery_list_products.category_id`, confirmados como campos esquecidos no desenho. Somente a versão do esquema é mantida em chave separada.
 
 ## Estado e persistência
 
@@ -112,6 +112,6 @@ Não será adicionada uma biblioteca global de estado, formulário ou banco rela
 
 ## Decisões ainda técnicas
 
-- Formato exato do esquema local e suas migrações.
+- Contrato da API para incluir os campos `grocery_lists.is_finished` e `grocery_list_products.category_id`, ainda ausentes da implantação hospedada confirmada.
 - Estratégia final do extrator da SEFAZ-SP após teste com uma nota real.
 - Biblioteca e configuração de testes compatíveis com a base atual.

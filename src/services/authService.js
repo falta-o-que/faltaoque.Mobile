@@ -14,9 +14,6 @@ import {
 
 const HASH_ITERATIONS = 4096;
 
-const toHex = (bytes) =>
-  Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
-
 async function hashPassword(password, salt) {
   let digest = `${salt}:${password}`;
 
@@ -49,9 +46,10 @@ export async function register({ name, email, avatarColor, password }) {
     throw new Error('EMAIL_ALREADY_EXISTS');
   }
 
-  const salt = toHex(await Crypto.getRandomBytesAsync(16));
+  const id = Crypto.randomUUID();
+  const salt = id;
   const account = {
-    id: Crypto.randomUUID(),
+    id,
     name: name.trim(),
     email: normalizedEmail,
     avatarColor,
