@@ -97,6 +97,48 @@ export const ListHeading = styled.View`
   gap: 8px;
 `;
 
+export const EstimateBox = styled.View`
+  min-height: 58px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.white[200]};
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.white[100]};
+  shadow-color: ${({ theme }) => theme.colors.black.Black};
+  shadow-offset: 0px 0px;
+  shadow-opacity: 0.18;
+  shadow-radius: 3px;
+  elevation: 1;
+`;
+
+export const EstimateCopy = styled.View`
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
+`;
+
+export const EstimateTitle = styled.Text`
+  color: ${({ theme }) => theme.colors.black.Black};
+  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
+  font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
+`;
+
+export const EstimatePrice = styled.Text`
+  color: ${({ theme }) => theme.colors.black.Black};
+  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
+  font-size: ${({ theme }) => theme.fonts.sizes['2']}px;
+`;
+
+export const EstimateDetail = styled.Text`
+  color: ${({ theme }) => theme.colors.black[300]};
+  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
+  font-size: ${({ theme }) => theme.fonts.sizes['0']}px;
+`;
+
 export const ListName = styled.Text`
   flex: 1;
   color: ${({ theme }) => theme.colors.black.Black};

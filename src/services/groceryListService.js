@@ -1,7 +1,9 @@
 // Local API simulator. The service contract stays independent from the storage
 // adapter so it can later call the hosted grocery-list endpoints.
 import * as Crypto from 'expo-crypto';
+import { isWithinThreeMonthDateRange, normalizeDateOnly } from '../domain/dateValidation';
 import { getCategoryId, readDatabase, updateDatabase } from '../storage/localDatabase';
+import { estimateGroceryListPrices } from './groceryPriceEstimateService';
 
 const scopeKey = (accountId, pantryId) => {
   if (!accountId || !pantryId) throw new Error('Conta e despensa são obrigatórias.');
@@ -11,20 +13,35 @@ const scopeKey = (accountId, pantryId) => {
 const copy = (value) => JSON.parse(JSON.stringify(value));
 const makeId = () => Crypto.randomUUID();
 
+function normalizePlannedDate(value) {
+  if (!value) return null;
+  const normalized = normalizeDateOnly(value);
+  if (!normalized || !isWithinThreeMonthDateRange(normalized)) {
+    throw new Error('A data planejada deve ser real e estar nos últimos 3 meses ou no futuro.');
+  }
+  return normalized;
+}
+
 function readScope(database, accountId, pantryId) {
   const member = database.users_pantries.some((row) => row.user_id === accountId && row.pantry_id === pantryId);
   if (!member) return [];
   const lists = database.grocery_lists.filter((list) => list.pantry_id === pantryId);
-  return lists.map((list) => ({
-    id: list.id, accountId, pantryId, name: list.name, plannedDate: list.date,
-    location: list.location, estimatedPrice: list.estimated_price,
-    status: list.is_finished ? 'finished' : 'active',
-    items: database.grocery_list_products.filter((item) => item.grocery_list_id === list.id).map((item) => ({
+  return lists.map((list) => {
+    const view = {
+      id: list.id, accountId, pantryId, name: list.name, plannedDate: list.date,
+      location: list.location, estimatedPrice: list.estimated_price,
+      status: list.is_finished ? 'finished' : 'active',
+      items: database.grocery_list_products.filter((item) => item.grocery_list_id === list.id).map((item) => ({
       id: item.id, name: item.name, category: database.categories.find((category) => category.id === item.category_id)?.name ?? 'outros', quantity: item.quantity ?? 1,
       weight: item.content_value, unit: ({ 1: 'g', 2: 'kg', 3: 'ml', 4: 'L' })[item.unit_of_measure] ?? null,
       checked: item.is_taken,
-    })),
-  }));
+      })),
+    };
+    const estimate = view.status === 'active'
+      ? estimateGroceryListPrices(database, view)
+      : { estimatedPrice: view.estimatedPrice, matchedItems: 0, totalItems: view.items.length };
+    return { ...view, ...estimate };
+  });
 }
 
 function writeScope(database, pantryId, lists) {
@@ -37,9 +54,12 @@ function writeScope(database, pantryId, lists) {
   const itemRows = [];
   lists.forEach((list) => {
     const { items = [], ...values } = list;
+    const estimate = values.status === 'finished'
+      ? { estimatedPrice: values.estimatedPrice ?? null }
+      : estimateGroceryListPrices(database, { ...list, pantryId });
     listRows.push({
       id: values.id, name: values.name, date: values.plannedDate || null, location: values.location || null,
-      suggestion: null, estimated_price: values.estimatedPrice ?? null, pantry_id: pantryId,
+      suggestion: null, estimated_price: estimate.estimatedPrice, pantry_id: pantryId,
       is_finished: values.status === 'finished',
     });
     items.forEach((item) => itemRows.push({
@@ -69,6 +89,19 @@ async function mutateScope(accountId, pantryId, mutate) {
 
 export async function listGroceryLists(accountId, pantryId) {
   const scope = scopeKey(accountId, pantryId);
+  await updateDatabase((database) => {
+    if (!database.users_pantries.some((row) => row.user_id === scope.accountId && row.pantry_id === scope.pantryId)) return database;
+    const views = readScope(database, scope.accountId, scope.pantryId);
+    const estimates = new Map(views
+      .filter((list) => list.status === 'active')
+      .map((list) => [list.id, estimateGroceryListPrices(database, list).estimatedPrice]));
+    if ([...estimates].every(([id, price]) => database.grocery_lists.find((list) => list.id === id)?.estimated_price === price)) return database;
+    return {
+      ...database,
+      grocery_lists: database.grocery_lists.map((list) => estimates.has(list.id)
+        ? { ...list, estimated_price: estimates.get(list.id) } : list),
+    };
+  });
   const database = await readDatabase();
   return copy(readScope(database, scope.accountId, scope.pantryId));
 }
@@ -76,7 +109,7 @@ export async function listGroceryLists(accountId, pantryId) {
 export async function createGroceryList({ accountId, pantryId, name, plannedDate }) {
   const cleanName = name?.trim();
   if (!cleanName || cleanName.length > 100) throw new Error('Informe um nome de lista com até 100 caracteres.');
-  const list = { id: makeId(), accountId, pantryId, name: cleanName, plannedDate: plannedDate || null, status: 'active', items: [], createdAt: new Date().toISOString() };
+  const list = { id: makeId(), accountId, pantryId, name: cleanName, plannedDate: normalizePlannedDate(plannedDate), status: 'active', items: [], createdAt: new Date().toISOString() };
   await mutateScope(accountId, pantryId, (lists) => ({ lists: [...lists, list], result: list }));
   return copy(list);
 }
@@ -84,12 +117,13 @@ export async function createGroceryList({ accountId, pantryId, name, plannedDate
 export async function updateGroceryList({ accountId, pantryId, listId, name, plannedDate }) {
   const cleanName = name?.trim();
   if (!cleanName || cleanName.length > 100) throw new Error('Informe um nome de lista com até 100 caracteres.');
+  const normalizedPlannedDate = normalizePlannedDate(plannedDate);
   return mutateScope(accountId, pantryId, (lists) => {
     let updated;
     const next = lists.map((list) => {
       if (list.id !== listId) return list;
       if (list.status !== 'active') throw new Error('Lista concluída não pode ser editada.');
-      updated = { ...list, name: cleanName, plannedDate: plannedDate || null };
+      updated = { ...list, name: cleanName, plannedDate: normalizedPlannedDate };
       return updated;
     });
     if (!updated) throw new Error('Lista não encontrada.');
@@ -209,12 +243,17 @@ export async function finishGroceryList({ accountId, pantryId, listId }) {
   });
 }
 
-export async function repeatGroceryList({ accountId, pantryId, listId }) {
+export async function repeatGroceryList({ accountId, pantryId, listId, name, plannedDate }) {
+  if (!plannedDate) throw new Error('Informe uma nova data para esta compra.');
+  const normalizedPlannedDate = normalizePlannedDate(plannedDate);
   return mutateScope(accountId, pantryId, (lists) => {
     const source = lists.find((list) => list.id === listId);
     if (!source) throw new Error('Lista não encontrada.');
     if (source.status !== 'finished') throw new Error('Conclua a lista antes de repeti-la.');
-    const repeated = { ...source, id: makeId(), status: 'active', createdAt: new Date().toISOString(), finishedAt: undefined,
+    const cleanName = name?.trim() || source.name;
+    if (cleanName.length > 100) throw new Error('O nome da lista deve ter até 100 caracteres.');
+    const repeated = { ...source, id: makeId(), name: cleanName, plannedDate: normalizedPlannedDate,
+      status: 'active', createdAt: new Date().toISOString(), finishedAt: undefined,
       items: source.items.map((item) => ({ ...item, id: makeId(), checked: false })) };
     return { lists: [...lists, repeated], result: repeated };
   });

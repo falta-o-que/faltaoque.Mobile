@@ -12,6 +12,7 @@ import {
   PenIcon,
   ShoppingListIcon,
 } from '../../assets/icons/export';
+import { isWithinThreeMonthDateRange, normalizeDateOnly } from '../../domain/dateValidation';
 import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../../domain/productValidation';
 import { ProductCartIcon } from '../AddProductModal/icons';
 import CategoryTag from '../CategoryTag';
@@ -50,18 +51,7 @@ const SORT_OPTIONS = [
   { key: 'quantityDesc', label: 'Maior quantidade' },
 ];
 
-const isDateValid = (value) => {
-  if (!value) return true;
-  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
-  if (!match) return false;
-  const [, day, month, year] = match.map(Number);
-  const date = new Date(year, month - 1, day);
-  return date.getFullYear() === year
-    && date.getMonth() === month - 1
-    && date.getDate() === day;
-};
-
-const dateToIso = (value) => value ? value.split('/').reverse().join('-') : null;
+const dateToIso = (value) => value ? normalizeDateOnly(value) : null;
 const dateToBr = (value) => value ? value.split('-').reverse().join('/') : '';
 
 const parseBrl = (value) => {
@@ -91,7 +81,7 @@ export default function GroceryListModal({
 
   useEffect(() => {
     if (!visible) return;
-    setName(mode === 'settings' ? list?.name ?? '' : mode === 'editItem' ? item?.name ?? '' : '');
+    setName(mode === 'settings' || mode === 'repeat' ? list?.name ?? '' : mode === 'editItem' ? item?.name ?? '' : '');
     setPlannedDate(mode === 'settings' ? dateToBr(list?.plannedDate) : '');
     setQuantity(mode === 'editItem' ? String(item?.quantity ?? 1) : '1');
     setWeight(mode === 'editItem' && item?.weight != null ? String(item.weight).replace('.', ',') : '');
@@ -106,11 +96,12 @@ export default function GroceryListModal({
   if (!mode) return null;
 
   const checkedItems = list?.items?.filter((item) => item.checked) ?? [];
-  const isListForm = mode === 'create' || mode === 'settings';
+  const isListForm = mode === 'create' || mode === 'settings' || mode === 'repeat';
   const isItemForm = mode === 'item' || mode === 'editItem';
   const isCheckout = mode === 'checkout';
   const isFinished = mode === 'settings' && list?.status === 'finished';
   const title = mode === 'create' ? 'Criar Lista de Compras'
+    : mode === 'repeat' ? 'Repetir Lista de Compras'
     : mode === 'item' ? 'Adicionar produtos'
       : mode === 'editItem' ? 'Editar produto'
       : mode === 'settings' ? 'Editar Lista de Compras'
@@ -133,8 +124,12 @@ export default function GroceryListModal({
     const cleanName = name.trim();
     if (isListForm) {
       if (!cleanName) return setError('Informe o nome da lista.');
-      if (!isDateValid(plannedDate)) return setError('Informe uma data válida no formato DD/MM/AAAA.');
+      if (mode === 'repeat' && !plannedDate) return setError('Informe uma nova data para esta compra.');
+      if (plannedDate && !isWithinThreeMonthDateRange(plannedDate)) {
+        return setError('Informe uma data real dos últimos 3 meses ou futura, no formato DD/MM/AAAA.');
+      }
       const draft = { name: cleanName, plannedDate: dateToIso(plannedDate) };
+      if (mode === 'repeat') return onRepeat(draft);
       return mode === 'create' ? onCreate(draft) : onUpdate(draft);
     }
     if (isItemForm) {
@@ -203,7 +198,7 @@ export default function GroceryListModal({
                       value={name}
                     />
                     <FormField
-                      accessibilityLabel="Data planejada para a compra"
+                      accessibilityLabel={mode === 'repeat' ? 'Nova data planejada para a compra, obrigatória' : 'Data planejada para a compra'}
                       editable={!busy && !isFinished}
                       error={error.toLowerCase().includes('data') ? error : undefined}
                       Icon={CalendarIcon}
@@ -211,7 +206,7 @@ export default function GroceryListModal({
                       keyboardType="number-pad"
                       maxLength={10}
                       onChangeText={handleDateChange}
-                      placeholder="Data da compra (DD/MM/AAAA)"
+                      placeholder={mode === 'repeat' ? 'Nova data da compra (DD/MM/AAAA) *' : 'Data da compra (DD/MM/AAAA)'}
                       value={plannedDate}
                     />
                   </Fields>

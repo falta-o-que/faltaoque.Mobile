@@ -28,6 +28,12 @@ O armazenamento principal local contém as dez tabelas e os campos do arquivo re
 
 Enquanto a API não estiver disponível, o app deve simular suas operações de listas com persistência local durável, isolada por conta e despensa. O adaptador mantém coleções locais para listas e itens planejados, sem criar compras ou produtos fictícios só para satisfazer `pantry_products.purchase_id`. A interface continua chamando `groceryListService`, cuja implementação poderá ser trocada pelo adaptador hospedado quando o contrato for confirmado. Essa persistência local é temporária e não substitui o destino hospedado definido acima.
 
+## 2026-10-06 - Estimativa de preço da lista
+
+`grocery_lists.estimated_price` guarda a soma das estimativas disponíveis para uma lista ativa, usando compras da mesma despensa. A busca do histórico é pelo nome normalizado; unidade e conteúdo, quando informados, ajudam a priorizar observações da mesma apresentação, mas não são obrigatórios. Categoria não é chave de correspondência. O preço unitário de cada observação usa `pantry_products.price / quantity`; a estimativa do item usa a mediana das até três observações mais recentes, e o total soma os itens cobertos. Itens sem histórico ficam fora dessa soma e a tela indica quantos entraram no total; se nenhum tiver histórico, o total permanece nulo. A estimativa ativa é recalculada ao alterar a lista e ao recarregar as listas, incluindo após mudanças no histórico; listas concluídas preservam o valor final.
+
+Para permitir validar a interface antes de haver histórico real, em desenvolvimento o app inclui três compras históricas sintéticas na despensa caso ainda não existam fixtures demonstrativas. Se ela não tiver listas, também cria uma lista demonstrativa. Os itens dessas compras ficam excluídos do estoque visível. Esses mocks existem apenas em desenvolvimento; sugestão por proximidade de mercados permanece fora deste escopo.
+
 ## 2026-10-06 - Ocorrências distintas do mesmo produto em listas diferentes
 
 O registro comprado em estoque permanece distinto por compra em `pantry_products`. No modelo final recebido em 6 de outubro, cada item ainda planejado em uma lista tem seu próprio registro em `grocery_list_products`, mesmo que o nome se repita em outras listas. Esses itens não são `pantry_products` até uma compra ser realizada e não compartilham identidade por coincidência de nome.

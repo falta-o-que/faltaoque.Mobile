@@ -15,11 +15,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { PRODUCT_CATEGORIES } from '../../domain/productValidation';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import * as groceryListService from '../../services/groceryListService';
+import { seedGroceryEstimateDemoData } from '../../services/groceryEstimateDemoData';
 import { finishListAndStock } from '../../services/groceryCheckoutService';
 import { listPantries } from '../../services/pantryService';
 import {
   CategoryScroll, Chevron, ColorCircle, Content, EmptyText, Header, HeaderActions,
-  IconButton, ItemStack, ListActions, ListHeading, ListName, ListScroll, ListSection,
+  EstimateBox, EstimateCopy, EstimateDetail, EstimatePrice, EstimateTitle, IconButton, ItemStack, ListActions, ListHeading, ListName, ListScroll, ListSection,
   PantryIndicator, RetryButton, RetryText, RoundButton, Screen, SelectionBar, SelectionButton,
   SelectionButtonText, SelectionHint, StatusText, Title, TitleBlock, TitleRow,
 } from './styles';
@@ -38,6 +39,10 @@ function ListChevron({ expanded }) {
 
   const style = { transform: [{ rotate: rotation.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '0deg'] }) }] };
   return <Chevron style={style}><AngleIcon width={21} height={13} color="#303030" /></Chevron>;
+}
+
+function formatEstimatedPrice(value) {
+  return `R$ ${Number(value).toFixed(2).replace('.', ',')}`;
 }
 
 export default function GroceryListScreen({ navigation, route }) {
@@ -73,7 +78,10 @@ export default function GroceryListScreen({ navigation, route }) {
     let active = true;
     setLoading(true);
     setPantry(null);
-    Promise.all([listPantries(account?.id), groceryListService.listGroceryLists(account?.id, pantryId)])
+    (async () => {
+      if (__DEV__) await seedGroceryEstimateDemoData(pantryId);
+      return Promise.all([listPantries(account?.id), groceryListService.listGroceryLists(account?.id, pantryId)]);
+    })()
       .then(([pantries, storedLists]) => {
         if (!active) return;
         const found = pantries.find((entry) => entry.id === pantryId);
@@ -249,6 +257,30 @@ export default function GroceryListScreen({ navigation, route }) {
                     </IconButton>
                   </ListActions>
                 </ListHeading>
+                {list.items.length > 0 ? (
+                  <EstimateBox accessibilityLabel={list.estimatedPrice == null
+                    ? `Histórico disponível para ${list.matchedItems} de ${list.totalItems} itens`
+                    : `${list.matchedItems < list.totalItems ? 'Estimativa parcial' : 'Total estimado'}: ${formatEstimatedPrice(list.estimatedPrice)}; histórico para ${list.matchedItems} de ${list.totalItems} itens`}>
+                    {list.estimatedPrice == null ? (
+                      <>
+                        <EstimateCopy>
+                          <EstimateTitle>Estimativa parcial</EstimateTitle>
+                          <EstimateDetail>Histórico disponível para {list.matchedItems} de {list.totalItems} itens.</EstimateDetail>
+                        </EstimateCopy>
+                      </>
+                    ) : (
+                      <>
+                        <EstimateCopy>
+                          <EstimateTitle>{list.matchedItems < list.totalItems ? 'Estimativa parcial' : 'Total estimado'}</EstimateTitle>
+                          <EstimateDetail>{list.matchedItems < list.totalItems
+                            ? `Soma de ${list.matchedItems} de ${list.totalItems} itens com histórico.`
+                            : 'Com base no histórico de compras.'}</EstimateDetail>
+                        </EstimateCopy>
+                        <EstimatePrice>{formatEstimatedPrice(list.estimatedPrice)}</EstimatePrice>
+                      </>
+                    )}
+                  </EstimateBox>
+                ) : null}
                 {removalListId === list.id ? (
                   <SelectionBar>
                     <SelectionHint>Selecione os produtos ({removalItemIds.length})</SelectionHint>
@@ -290,9 +322,9 @@ export default function GroceryListScreen({ navigation, route }) {
         onAddItem={(draft) => perform(() => groceryListService.addGroceryItem({ ...draft, accountId: account?.id, pantryId, listId: activeListId }))}
         onUpdateItem={(draft) => perform(() => groceryListService.updateGroceryItem({ ...draft, accountId: account?.id, pantryId, listId: activeListId, itemId: activeItem?.id }))}
         onUpdate={(draft) => perform(() => groceryListService.updateGroceryList({ ...draft, accountId: account?.id, pantryId, listId: activeListId }))}
+        onRepeat={(draft) => perform(() => groceryListService.repeatGroceryList({ ...draft, accountId: account?.id, pantryId, listId: activeListId }))}
         onStartCheckout={handleStartCheckout}
         onCheckout={(pricesByItemId) => perform(() => finishListAndStock({ accountId: account?.id, pantryId, listId: activeListId, pricesByItemId }))}
-        onRepeat={() => perform(() => groceryListService.repeatGroceryList({ accountId: account?.id, pantryId, listId: activeListId }))}
         onDelete={() => perform(() => groceryListService.deleteGroceryList({ accountId: account?.id, pantryId, listId: activeListId }))}
         onSortChange={setSortOption}
       />
@@ -301,9 +333,9 @@ export default function GroceryListScreen({ navigation, route }) {
         lists={lists.filter((list) => list.status === 'finished')}
         busy={busy}
         onClose={() => setHistoryOpen(false)}
-        onRepeat={async (list) => {
-          const succeeded = await perform(() => groceryListService.repeatGroceryList({ accountId: account?.id, pantryId, listId: list.id }));
-          if (succeeded) setHistoryOpen(false);
+        onRepeat={(list) => {
+          setHistoryOpen(false);
+          openModal('repeat', list.id);
         }}
       />
       <Navbar activeItem="shopping-list" onItemChange={handleNavbar} />
