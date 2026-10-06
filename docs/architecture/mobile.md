@@ -74,6 +74,7 @@ camera -> QR validator -> state router -> SP extractor
 ```
 
 - O scanner retorna o conteúdo do QR Code.
+- Na integração hospedada, o identificador da NFC-e é o código entre `p=` e o primeiro `|` do link; o backend deve armazená-lo e verificar duplicidade por despensa. A impressão digital do QR Code pertence ao fluxo local anterior.
 - O validador aceita apenas endereços fiscais reconhecidos.
 - O roteador identifica o estado e seleciona o extrator disponível.
 - O extrator de São Paulo converte a resposta externa em dados intermediários.
@@ -101,7 +102,7 @@ camera -> QR validator -> state router -> SP extractor
 
 - `@react-native-async-storage/async-storage`: entidades locais versionadas, separadas por conta e acessadas apenas pelos adaptadores de armazenamento.
 - `expo-secure-store`: somente sessão e segredos pequenos; não será usado como banco de dados.
-- `expo-crypto`: hash de senha local com salt e impressão digital técnica do QR Code.
+- `expo-crypto`: hash de senha local com salt e impressão digital técnica do QR Code no MVP local; a integração hospedada usará o código do parâmetro `p` conforme a decisão posterior.
 - `expo-camera`: leitura do QR Code dentro da despensa.
 - `react-native-webview`: alternativa controlada para páginas fiscais que não entreguem HTML utilizável por `fetch`.
 

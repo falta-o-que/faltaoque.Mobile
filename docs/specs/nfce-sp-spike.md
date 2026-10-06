@@ -2,6 +2,8 @@
 
 Status: pronto para execução quando houver uma amostra real.
 
+Nota de 6 de outubro: este spike registra a estratégia técnica original. Para a integração hospedada, a decisão posterior em `../project/decisions.md` define como identidade da nota o código entre `p=` e o primeiro `|` do link do QR Code, armazenado no banco e verificado por despensa. A impressão digital abaixo descreve apenas o experimento/protótipo anterior.
+
 ## Objetivo
 
 Comprovar no Android físico que o aplicativo consegue ler o QR Code de uma NFC-e paulista, abrir ou consultar sua página pública e transformar os dados em um modelo fiscal normalizado, sem backend.

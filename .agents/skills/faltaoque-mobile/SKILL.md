@@ -26,7 +26,7 @@ For visual decisions, follow the precedence recorded in `docs/project/overview.m
 
 For functional behavior, the relevant SDD and confirmed entries in `docs/project/decisions.md` prevail over incomplete UI behavior. Surface unresolved conflicts instead of silently choosing a new requirement.
 
-Later dated decisions override conflicting descriptions of earlier flows. In particular, local grocery lists and hosted purchases have different persistence scopes; do not infer that the hosted grocery-list tables are active in the newer flow.
+Later dated decisions override conflicting descriptions of earlier flows. The 2026-10-06 correction makes grocery lists hosted through `grocery_lists` and related tables. For NFC-e identity, extract the code between `p=` and the first `|` in the QR URL; the backend field and API contract remain unconfirmed. Do not implement the older local-only list or QR fingerprint proposals as the target hosted behavior.
 
 ## Implement mobile code
 

@@ -2,11 +2,19 @@
 
 As decisões mais recentes prevalecem quando uma proposta ou anotação anterior descreve outro fluxo. O SDD `../specs/integracao-e-fluxos-2026-10-05.md` consolida o estado atual das decisões posteriores ao MVP, sem afirmar implementação no app ou no banco hospedado.
 
-## 2026-10-05 - Listas de compras locais sugeridas ao zerar estoque
+## 2026-10-06 - Identificador da NFC-e no parâmetro `p`
+
+O QR Code da NFC-e contém um link cujo parâmetro `p` começa com o código único da nota, seguido por `|` e outros dados. O aplicativo deverá extrair o trecho entre `p=` e o primeiro `|` e enviar esse código para armazenamento no banco hospedado. A duplicidade será verificada por código e despensa: a mesma nota não poderá ser importada duas vezes na mesma despensa, mas poderá ser importada em despensas diferentes. Esta decisão substitui a proposta de usar a impressão digital do QR Code como identidade definitiva; o campo do banco e o contrato da API ainda precisam ser confirmados.
+
+## 2026-10-06 - Listas de compras no banco hospedado
+
+As listas de compras do fluxo atual serão persistidas no banco hospedado, usando `grocery_lists` e suas relações, incluindo `grocery_lists_pantry_products`; não ficarão apenas no armazenamento local do aplicativo. Mantêm-se as regras funcionais de sugestão ao zerar estoque, escolha explícita do usuário, múltiplas listas e histórico de listas. O retrato de modelagem de 5 de outubro contém essas duas tabelas, mas não explicita todos os campos necessários para despensa, data planejada, estado/histórico e sugestão de lista anterior; essas relações e o contrato da API devem ser confirmados com o backend antes da integração. Esta decisão substitui a persistência local indicada na entrada de 5 de outubro abaixo.
+
+## 2026-10-05 - Listas de compras sugeridas ao zerar estoque (persistência substituída em 6/10)
 
 No fluxo descrito pelo usuário, uma NFC-e pode ser a primeira compra de uma despensa sem listas. Quando um produto chegar a zero no estoque, o aplicativo perguntará se o usuário deseja colocá-lo em uma lista; não fará a inclusão sem essa escolha. Se ainda não houver lista, sugerirá criar uma com nome e data planejada para a compra. Uma despensa poderá ter várias listas, organizadas conforme onde ou quando o usuário pretende comprar. O usuário escolherá a lista de destino e poderá incluir o mesmo produto em mais de uma lista.
 
-Nesse fluxo, o item exibido e salvo na lista terá somente o nome do produto, sem marca ou demais atributos de compra. O aplicativo deverá lembrar a associação entre produto e lista anterior para sugerir essa lista quando o produto voltar a acabar, sem impedir que o usuário escolha outra. A lista estimará valores com base no histórico de preços e locais das compras realizadas. As listas de compras permanecerão apenas na persistência local do aplicativo; somente compras efetivamente realizadas, por NFC-e ou adição manual, serão enviadas ao banco hospedado. Esta decisão posterior substitui, para esse fluxo, as anotações anteriores que pressupunham listas persistidas no banco hospedado ou listas históricas remotas. A sincronização de listas entre aparelhos e participantes da despensa não foi definida.
+Nesse fluxo, o item exibido na lista terá somente o nome do produto, sem marca ou demais atributos de compra. O aplicativo deverá lembrar a associação entre produto e lista anterior para sugerir essa lista quando o produto voltar a acabar, sem impedir que o usuário escolha outra. A lista estimará valores com base no histórico de preços e locais das compras realizadas. A definição original de persistência apenas local foi substituída pela decisão de 6 de outubro acima.
 
 ## 2026-10-05 - Escopo da tela de Configurações
 
@@ -44,9 +52,9 @@ Após discussão com o grupo, todo produto no banco hospedado deve estar vincula
 
 O grupo definiu que produtos não serão apagados fisicamente: `pantry_products.is_in_pantry = false` retira o produto da exibição no front. A despensa receberá um campo booleano equivalente para controlar sua exibição sem apagar o registro. Uma lista de compras sairá da tela de listas ativas quando uma compra for realizada, mas permanecerá no banco como histórico. Compras na tabela `purchases` não serão apagadas e servirão ao histórico e aos dashboards. Para repetir uma lista em outro mês, o sistema criará uma nova versão por cópia. O usuário poderá alterar itens e preços apenas nessa nova versão; a lista histórica original e a compra anterior permanecerão intactas.
 
-## 2026-10-01 - Bloqueio de importação duplicada por despensa
+## 2026-10-01 - Bloqueio de importação duplicada por despensa (identificador definido em 6/10)
 
-O grupo aprovou impedir que a mesma NFC-e seja importada mais de uma vez na mesma despensa, permitindo sua importação em despensas diferentes. A forma de identificar e armazenar a nota ainda será estudada em conversa aprofundada com o usuário ao final da revisão dos demais pontos. Antes de definir chave, impressão digital ou outra representação, é necessário verificar quais dados únicos podem ser extraídos com confiabilidade das notas suportadas; o link do QR Code pode mudar e não deve ser presumido como identidade estável.
+O grupo aprovou impedir que a mesma NFC-e seja importada mais de uma vez na mesma despensa, permitindo sua importação em despensas diferentes. A forma de identificação foi definida posteriormente, na decisão de 6 de outubro acima.
 
 ## 2026-10-01 - Marca e visualização de produtos equivalentes
 
@@ -184,7 +192,7 @@ Ao adicionar um produto manualmente, o aplicativo deve registrar automaticamente
 
 Para uma compra importada por nota fiscal, o histórico visível deve guardar somente a data da compra, o local da compra e o valor total, além dos itens associados. Chave de acesso, CNPJ e URL consultada não fazem parte dos dados funcionais preservados.
 
-Para impedir importações duplicadas, o aplicativo deve armazenar uma impressão digital técnica derivada do conteúdo do QR Code. Se a mesma nota já tiver sido importada pela conta, a nova importação deve ser bloqueada antes de alterar produtos ou quantidades. O identificador técnico não deve ser exibido ao usuário.
+Para o MVP local de 14 de setembro, a proposta era armazenar uma impressão digital técnica derivada do conteúdo do QR Code e bloquear duplicidade por conta. A decisão de 6 de outubro acima substitui essa proposta para a integração hospedada: código do parâmetro `p`, armazenado no banco e verificado por despensa. O identificador técnico não deve ser exibido ao usuário.
 
 A revisão deve procurar produtos equivalentes já existentes na despensa mesmo quando os nomes não forem idênticos. A comparação deve normalizar descrições comerciais e considerar termos relevantes, marca, peso, unidade e apresentação. Para cada correspondência provável, o aplicativo deve perguntar ao usuário se o item importado é o mesmo produto antes de somar a quantidade ou mesclar dados. Sem confirmação, nenhum item deve ser mesclado automaticamente.
 

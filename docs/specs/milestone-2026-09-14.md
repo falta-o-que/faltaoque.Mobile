@@ -2,7 +2,7 @@
 
 Status: rascunho executável.
 
-Este documento registra o marco original do MVP local. Para decisões posteriores de integração, estoque, listas locais e Configurações, consultar `integracao-e-fluxos-2026-10-05.md` e as decisões datadas em `../project/decisions.md`.
+Este documento registra o marco original do MVP local. Para decisões posteriores de integração, estoque, listas de compras e Configurações, consultar `integracao-e-fluxos-2026-10-05.md` e as decisões datadas em `../project/decisions.md`.
 
 ## Execução por agentes
 

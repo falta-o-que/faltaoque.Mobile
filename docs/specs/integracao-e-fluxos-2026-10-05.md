@@ -1,4 +1,4 @@
-# SDD — integração e fluxos definidos até 5 de outubro de 2026
+# SDD — integração e fluxos definidos até 6 de outubro de 2026
 
 Status: decisões funcionais em consolidação; não é confirmação de API implementada nem de migração aplicada no banco hospedado.
 
@@ -20,18 +20,18 @@ Status: decisões funcionais em consolidação; não é confirmação de API imp
 
 ## NFC-e e identificação da compra
 
-- A mesma NFC-e não poderá ser importada duas vezes na mesma despensa, mas poderá ser usada em despensas diferentes. A identidade técnica da nota e sua forma de armazenamento serão estudadas com notas reais; o link do QR Code não deve ser presumido como identificador estável.
+- A mesma NFC-e não poderá ser importada duas vezes na mesma despensa, mas poderá ser usada em despensas diferentes. O identificador será o código único no início do parâmetro `p` do link do QR Code: extrair o trecho após `p=` e antes do primeiro `|`, descartando os demais segmentos do parâmetro. Esse código será enviado para armazenamento no banco hospedado e usado com a despensa para impedir duplicidade. O nome do campo e o contrato da API ainda precisam ser confirmados.
 - Não haverá tabela de mercados no escopo atual. Na importação, o CNPJ virá da nota e o usuário poderá ajustar o nome do mercado. Na adição manual, o front oferecerá sugestões de nomes. O contrato ainda deve definir onde ficam CNPJ, nome escolhido e sugestões.
 - O modelo recebido usa `purchases.is_finished` e `finish_date` opcional. Esses campos substituem, no retrato da modelagem, o antigo `finish_products NOT NULL` do script SQL de 1º de outubro. A API e a migração efetiva precisam ser verificadas antes de integrar.
 
-## Listas de compras locais
+## Listas de compras hospedadas
 
-- Neste fluxo, listas ficam somente no dispositivo; compras realizadas por NFC-e ou adição manual vão ao banco hospedado. As tabelas hospedadas de listas permanecem no retrato do banco, mas não serão usadas para persistir esse fluxo local até nova decisão.
+- As listas deste fluxo serão persistidas no banco hospedado em `grocery_lists` e nas relações correspondentes, incluindo `grocery_lists_pantry_products`. Compras realizadas por NFC-e ou adição manual também serão enviadas ao banco hospedado. A modelagem recebida contém as tabelas, mas a API e o esquema implantado ainda precisam ser confirmados.
 - Quando um produto chegar a zero, o app pergunta se o usuário quer incluí-lo numa lista. Se não houver lista, sugere criar uma com nome e data planejada da compra. A inclusão depende de escolha explícita do usuário.
 - Uma despensa pode ter várias listas, para compras previstas em locais ou períodos diferentes. O usuário escolhe a lista de destino; o mesmo produto pode estar em mais de uma lista.
-- Neste fluxo, o item da lista apresenta somente o nome do produto, sem marca ou demais atributos. Uma associação técnica local poderá lembrar as listas usadas anteriormente e sugeri-las quando o produto voltar a acabar, sem impedir a escolha de outra lista. A forma dessa associação e o gatilho para produtos agregados ainda precisam ser definidos.
+- Neste fluxo, o item da lista apresenta somente o nome do produto, sem marca ou demais atributos. O sistema deverá lembrar as listas usadas anteriormente e sugeri-las quando o produto voltar a acabar, sem impedir a escolha de outra lista. A relação necessária para essa sugestão e o gatilho para produtos agregados ainda precisam ser definidos com o backend.
 - A lista estimará gastos e poderá comparar locais de compra usando o histórico de preços e locais disponíveis. O cálculo exato e o comportamento quando não houver histórico continuam abertos.
-- Listas concluídas podem deixar a tela ativa e continuar no histórico local. Repetir uma lista cria uma nova versão editável; a versão histórica fica intacta. Listas locais não são sincronizadas entre aparelhos pelo fluxo atual.
+- Listas concluídas podem deixar a tela ativa e continuar no histórico hospedado. Repetir uma lista cria uma nova versão editável; a versão histórica fica intacta. O modelo recebido não explicita os campos de despensa, data planejada e estado/histórico da lista; a representação desses dados e a sincronização entre participantes precisam constar do contrato do backend.
 
 ## Despensas e contas
 
@@ -48,5 +48,5 @@ Status: decisões funcionais em consolidação; não é confirmação de API imp
 
 - Automações recorrentes de listas não serão implementadas agora.
 - Confirmar o contrato da API, a versão realmente aplicada do banco, os valores do enum e os campos de mercado antes de integrar o backend.
-- Verificar com notas reais a identidade estável da NFC-e e o mapeamento de quantidades fiscais fracionadas.
-- Testar saldos agregados, consumo por antiguidade, atualizações simultâneas e isolamento de listas locais por conta e despensa quando esses fluxos forem implementados.
+- Validar com notas reais a extração do código do parâmetro `p` e o mapeamento de quantidades fiscais fracionadas.
+- Testar saldos agregados, consumo por antiguidade, atualizações simultâneas e o vínculo das listas hospedadas à despensa e aos participantes quando esses fluxos forem implementados.
