@@ -12,7 +12,7 @@ Status: decisões funcionais em consolidação; não é confirmação de API imp
 ## Compras, produtos e estoque
 
 - Todo produto hospedado pertence a uma compra, e toda compra pertence a uma despensa. A adição manual de um produto deverá consumir a rota de compras e criar uma compra com esse produto.
-- `purchases` representa compras operacionais; seus registros também alimentam histórico e dashboards. Compras não devem ser apagadas. Retirar um produto da visualização será uma desativação lógica; saldo zero, por si só, não desativa o produto. Um saldo zerado poderá voltar a receber unidades.
+- `purchases` representa compras operacionais; seus registros também alimentam histórico e dashboards. Compras não devem ser apagadas. Produtos novos iniciam com `pantry_products.is_deleted = false`; ao removê-los da visualização, o campo passa a `true`, sem apagar o registro. Saldo zero, por si só, não altera `is_deleted`. Um saldo zerado poderá voltar a receber unidades.
 - Cada ocorrência do produto em uma compra mantém ID próprio. O modelo de 5 de outubro separa `pantry_products.quantity` (quantidade comprada) de `current_quantity` (saldo). O histórico e o cálculo do preço unitário devem usar a quantidade comprada, nunca o saldo restante. `pantry_products.price` representa o preço total daquele item na compra; `purchases.total_price` representa o total da compra.
 - O front soma o saldo dos registros equivalentes da despensa. Ao reduzir o saldo agregado, o backend consome primeiro o registro da compra mais antiga que ainda tenha saldo; ao aumentar pelo controle de estoque, acrescenta ao registro da compra mais recente. Compras na mesma data podem ser escolhidas em qualquer ordem. Alterações simultâneas de participantes devem ser aplicadas de forma consistente pelo backend, e o front exibe o saldo confirmado pela API.
 - Produtos em embalagens ou apresentações diferentes não são somados. Marcas diferentes são registros distintos. O usuário poderá escolher visualizá-los juntos ou separados por marca sem fundir os registros. A persistência dessa preferência ainda não foi definida.
@@ -37,7 +37,7 @@ Status: decisões funcionais em consolidação; não é confirmação de API imp
 ## Despensas e contas
 
 - A despensa receberá um indicador para deixar de ser exibida sem apagar compras e histórico. Todos os participantes convidados terão as mesmas ações na despensa; não haverá papéis individuais por participante neste escopo.
-- O modelo recebido contém `users.is_active` e `pantry_products.is_in_pantry`. O usuário esclareceu que o indicador de atividade do produto servirá à remoção lógica; o nome final da coluna ainda depende do esquema atualizado.
+- O indicador do usuário permanece `users.is_active` no modelo recebido. Para produtos, a decisão de 6 de outubro define `pantry_products.is_deleted` como booleano, iniciado em `false` e alterado para `true` na remoção lógica. O retrato de 5 de outubro ainda mostra `is_in_pantry`, nome anterior à correção; confirmar o esquema implantado antes da integração.
 
 ## Tela de Configurações
 

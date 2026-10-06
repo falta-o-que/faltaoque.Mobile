@@ -2,6 +2,10 @@
 
 As decisões mais recentes prevalecem quando uma proposta ou anotação anterior descreve outro fluxo. O SDD `../specs/integracao-e-fluxos-2026-10-05.md` consolida o estado atual das decisões posteriores ao MVP, sem afirmar implementação no app ou no banco hospedado.
 
+## 2026-10-06 - Exclusão lógica de produto com `is_deleted`
+
+O campo do produto para exclusão lógica será `pantry_products.is_deleted`, iniciado como booleano `false`. Quando o usuário remover o produto, o campo passará a `true`; o registro permanecerá no banco para preservar sua compra e o histórico, mas deixará de aparecer entre os produtos ativos da despensa. Estoque zerado não altera `is_deleted`. Esta definição substitui o uso de `pantry_products.is_in_pantry` para exclusão lógica nas decisões anteriores. O retrato de modelagem de 5 de outubro e o SQL de 1º de outubro ainda exibem o nome antigo; não confirmam a migração implantada.
+
 ## 2026-10-06 - Identificador da NFC-e no parâmetro `p`
 
 O QR Code da NFC-e contém um link cujo parâmetro `p` começa com o código único da nota, seguido por `|` e outros dados. O aplicativo deverá extrair o trecho entre `p=` e o primeiro `|` e enviar esse código para armazenamento no banco hospedado. A duplicidade será verificada por código e despensa: a mesma nota não poderá ser importada duas vezes na mesma despensa, mas poderá ser importada em despensas diferentes. Esta decisão substitui a proposta de usar a impressão digital do QR Code como identidade definitiva; o campo do banco e o contrato da API ainda precisam ser confirmados.
@@ -42,7 +46,7 @@ O grupo informou que o backend será ajustado para aplicar as alterações de es
 
 ## 2026-10-05 - Desativação lógica de usuários e produtos
 
-O grupo confirmou que haverá um indicador de atividade para usuários e para produtos da despensa. No produto, ele será usado quando o usuário escolher “deletar”: o registro permanecerá no banco para preservar sua ligação com a compra e o histórico, mas deixará de aparecer como produto ativo no front. No modelo recebido em 5 de outubro, os nomes são `users.is_active` e `pantry_products.is_in_pantry`; a nomenclatura definitiva do indicador no produto depende da próxima atualização do esquema.
+O grupo confirmou que haverá um indicador de atividade para usuários e exclusão lógica para produtos da despensa. No produto, ele será usado quando o usuário escolher “deletar”: o registro permanecerá no banco para preservar sua ligação com a compra e o histórico, mas deixará de aparecer como produto ativo no front. O modelo recebido em 5 de outubro usava `pantry_products.is_in_pantry`; a decisão posterior de 6 de outubro define `pantry_products.is_deleted`. `users.is_active` refere-se ao usuário e não foi alterado por essa correção.
 
 ## 2026-10-05 - Unidade de medida como enum
 
@@ -54,7 +58,7 @@ Após discussão com o grupo, todo produto no banco hospedado deve estar vincula
 
 ## 2026-10-01 - Preservação do histórico após retirada da interface
 
-O grupo definiu que produtos não serão apagados fisicamente: `pantry_products.is_in_pantry = false` retira o produto da exibição no front. A despensa receberá um campo booleano equivalente para controlar sua exibição sem apagar o registro. Uma lista de compras sairá da tela de listas ativas quando uma compra for realizada, mas permanecerá no banco como histórico. Compras na tabela `purchases` não serão apagadas e servirão ao histórico e aos dashboards. Para repetir uma lista em outro mês, o sistema criará uma nova versão por cópia. O usuário poderá alterar itens e preços apenas nessa nova versão; a lista histórica original e a compra anterior permanecerão intactas.
+O grupo definiu que produtos não serão apagados fisicamente. A nomenclatura atual para a remoção lógica do produto é `pantry_products.is_deleted = true`, conforme decisão de 6 de outubro acima. A despensa receberá um campo booleano equivalente para controlar sua exibição sem apagar o registro. Uma lista de compras sairá da tela de listas ativas quando uma compra for realizada, mas permanecerá no banco como histórico. Compras na tabela `purchases` não serão apagadas e servirão ao histórico e aos dashboards. Para repetir uma lista em outro mês, o sistema criará uma nova versão por cópia. O usuário poderá alterar itens e preços apenas nessa nova versão; a lista histórica original e a compra anterior permanecerão intactas.
 
 ## 2026-10-01 - Bloqueio de importação duplicada por despensa (identificador definido em 6/10)
 
@@ -70,7 +74,7 @@ O grupo definiu que `purchases` representa as compras no funcionamento do sistem
 
 ## 2026-10-01 - Saldo agregado por produto e consumo por antiguidade
 
-Quando o mesmo produto com a mesma embalagem ou apresentação aparecer em compras diferentes, cada registro em `pantry_products` manterá seu próprio ID e vínculo com a respectiva compra. O front exibirá a soma das quantidades desses registros equivalentes na despensa. Produtos em embalagens ou apresentações diferentes permanecem separados e não são somados. Ao reduzir uma unidade do estoque agregado, o sistema deverá reduzir primeiro o saldo do registro da compra mais antiga que ainda tenha unidades. Ao aumentar pelo controle de estoque, deverá acrescentar a unidade ao registro da compra mais recente. Se duas compras tiverem a mesma data, qualquer uma delas poderá ser escolhida no desempate. Saldo zero não altera `is_in_pantry`; esse campo só passa a `false` quando o usuário remove o produto manualmente. Um registro com saldo zero poderá voltar a receber unidades. A preservação da quantidade originalmente comprada e o tratamento de atualizações simultâneas por participantes da despensa permanecem para discussão.
+Quando o mesmo produto com a mesma embalagem ou apresentação aparecer em compras diferentes, cada registro em `pantry_products` manterá seu próprio ID e vínculo com a respectiva compra. O front exibirá a soma das quantidades desses registros equivalentes na despensa. Produtos em embalagens ou apresentações diferentes permanecem separados e não são somados. Ao reduzir uma unidade do estoque agregado, o sistema deverá reduzir primeiro o saldo do registro da compra mais antiga que ainda tenha unidades. Ao aumentar pelo controle de estoque, deverá acrescentar a unidade ao registro da compra mais recente. Se duas compras tiverem a mesma data, qualquer uma delas poderá ser escolhida no desempate. Saldo zero não altera `is_deleted`; esse campo só passa a `true` quando o usuário remove o produto manualmente. Um registro com saldo zero poderá voltar a receber unidades. A preservação da quantidade originalmente comprada e o tratamento de atualizações simultâneas por participantes da despensa permanecem para discussão.
 
 ## 2026-10-01 - Unidade de medida no banco hospedado
 
