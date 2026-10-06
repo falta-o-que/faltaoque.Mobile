@@ -24,7 +24,9 @@ export const Accent = styled.View`
   margin-left: 16px;
   margin-right: 6px;
   border-radius: 2px;
-  background-color: ${({ theme }) => theme.colors.primary[300]};
+  border-width: ${({ $category }) => ($category === 'limpezaHigiene' ? '1px' : '0px')};
+  border-color: ${({ theme }) => theme.colors.black[300]};
+  background-color: ${({ theme, $category }) => theme.colors.tags[$category] || theme.colors.primary[300]};
 `;
 
 export const Content = styled.View`
@@ -66,6 +68,15 @@ export const Quantity = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
   font-weight: ${({ theme }) => theme.fonts.weights.medium};
+`;
+
+export const EditButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })`
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 `;
 
 export const Checkbox = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })`

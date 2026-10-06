@@ -1,9 +1,10 @@
-import { SimpleCheckIcon } from '../../assets/icons/export';
+import { PenIcon, SimpleCheckIcon } from '../../assets/icons/export';
 import {
   Accent,
   Card,
   Checkbox,
   Content,
+  EditButton,
   Metadata,
   ProductName,
   Quantity,
@@ -11,11 +12,13 @@ import {
 
 export function GroceryListItemCard({
   name,
+  category,
   weight,
   size,
   quantity = 1,
   checked = false,
   onToggle,
+  onEdit,
   disabled = false,
 }) {
   const metadata = [weight, size].filter(Boolean).join(' · ');
@@ -23,12 +26,17 @@ export function GroceryListItemCard({
 
   return (
     <Card $disabled={disabled} accessibilityRole="summary">
-      <Accent />
+      <Accent $category={category} />
       <Content>
         <ProductName $checked={checked}>{name}</ProductName>
         {metadata ? <Metadata>{metadata}</Metadata> : null}
         <Quantity accessibilityLabel={`Quantidade: ${quantity}`}>{quantity}</Quantity>
       </Content>
+      {onEdit ? (
+        <EditButton accessibilityRole="button" accessibilityLabel={`Editar ${name}`} disabled={disabled} onPress={onEdit}>
+          <PenIcon size={16} color="#494949" />
+        </EditButton>
+      ) : null}
       <Checkbox
         $checked={checked}
         accessibilityLabel={checked ? `Desmarcar ${name}` : `Marcar ${name}`}

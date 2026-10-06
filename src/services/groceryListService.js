@@ -65,6 +65,32 @@ export async function addGroceryItem({ accountId, pantryId, listId, name, catego
   return copy(added);
 }
 
+export async function updateGroceryItem({ accountId, pantryId, listId, itemId, name, category, quantity, weight, unit }) {
+  const cleanName = name?.trim();
+  const parsedQuantity = Number(quantity);
+  if (!cleanName || !Number.isInteger(parsedQuantity) || parsedQuantity < 1) {
+    throw new Error('Informe nome e quantidade válida.');
+  }
+  const cleanWeight = String(weight ?? '').trim();
+  const normalizedWeight = cleanWeight.replace(',', '.');
+  if (cleanWeight && (!/^\d+(\.\d+)?$/.test(normalizedWeight) || Number(normalizedWeight) <= 0 || !['g', 'kg', 'ml', 'L'].includes(unit))) {
+    throw new Error('Informe peso ou volume positivo e selecione a unidade.');
+  }
+  let changed = false;
+  const lists = readScope(accountId, pantryId).map((list) => {
+    if (list.id !== listId) return list;
+    if (list.status !== 'active') throw new Error('Lista concluída não pode ser editada.');
+    return { ...list, items: list.items.map((item) => {
+      if (item.id !== itemId) return item;
+      changed = true;
+      return { ...item, name: cleanName, category: category || 'outros', quantity: parsedQuantity,
+        weight: cleanWeight ? Number(normalizedWeight) : null, unit: cleanWeight ? unit : null };
+    }) };
+  });
+  if (!changed) throw new Error('Item não encontrado.');
+  writeScope(accountId, pantryId, lists);
+}
+
 export async function setGroceryItemChecked({ accountId, pantryId, listId, itemId, checked }) {
   let changed = false;
   const lists = readScope(accountId, pantryId).map((list) => {

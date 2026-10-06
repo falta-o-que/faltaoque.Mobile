@@ -2,6 +2,10 @@
 
 As decisões mais recentes prevalecem quando uma proposta ou anotação anterior descreve outro fluxo. O SDD `../specs/integracao-e-fluxos-2026-10-05.md` consolida o estado atual das decisões posteriores ao MVP, sem afirmar implementação no app ou no banco hospedado.
 
+## 2026-10-06 - Acesso, histórico e retirada em listas de compras
+
+Ao tocar em Lista de compras na Navbar, o usuário escolhe primeiro a despensa, mesmo que tenha apenas uma. A página da despensa exibe somente listas ativas; as concluídas ficam em um modal de histórico aberto por botão redondo verde com ícone de histórico. O modal de filtros trata apenas da ordenação, sem controle de histórico nem ícones de ticket nas opções. Para retirar produtos de uma lista, o usuário entra em um modo de seleção próprio e confirma a remoção; essa seleção não altera as marcações de itens comprados. Repetir uma lista histórica cria uma nova lista ativa e preserva a original.
+
 ## 2026-10-06 - Exclusão lógica de produto com `is_deleted`
 
 O campo do produto para exclusão lógica será `pantry_products.is_deleted`, iniciado como booleano `false`. Quando o usuário remover o produto, o campo passará a `true`; o registro permanecerá no banco para preservar sua compra e o histórico, mas deixará de aparecer entre os produtos ativos da despensa. Estoque zerado não altera `is_deleted`. Esta definição substitui o uso de `pantry_products.is_in_pantry` para exclusão lógica nas decisões anteriores. O retrato de modelagem de 5 de outubro e o SQL de 1º de outubro ainda exibem o nome antigo; não confirmam a migração implantada.

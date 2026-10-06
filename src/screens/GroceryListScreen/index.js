@@ -32,6 +32,7 @@ export default function GroceryListScreen({ navigation, route }) {
   const [error, setError] = useState(null);
   const [activeModal, setActiveModal] = useState(null);
   const [activeListId, setActiveListId] = useState(null);
+  const [activeItem, setActiveItem] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [removalListId, setRemovalListId] = useState(null);
@@ -93,8 +94,9 @@ export default function GroceryListScreen({ navigation, route }) {
     }
   };
 
-  const openModal = (mode, listId = null) => {
+  const openModal = (mode, listId = null, item = null) => {
     setActiveListId(listId);
+    setActiveItem(item);
     setActiveModal(mode);
   };
 
@@ -243,10 +245,12 @@ export default function GroceryListScreen({ navigation, route }) {
                       <GroceryListItemCard
                         key={item.id}
                         name={item.name}
+                        category={item.category}
                         weight={item.weight ? `${item.weight}${item.unit ?? ''}` : ''}
                         quantity={`${item.quantity}x`}
                         checked={removalListId === list.id ? removalItemIds.includes(item.id) : item.checked}
                         disabled={list.status !== 'active' || busy}
+                        onEdit={removalListId === list.id ? undefined : () => openModal('editItem', list.id, item)}
                         onToggle={removalListId === list.id ? () => toggleRemovalItem(item.id) : () => perform(() => groceryListService.setGroceryItemChecked({ accountId: account?.id, pantryId, listId: list.id, itemId: item.id, checked: !item.checked }))}
                       />
                     )) : <EmptyText>Esta lista ainda não tem itens.</EmptyText>}
@@ -261,11 +265,13 @@ export default function GroceryListScreen({ navigation, route }) {
         visible={Boolean(activeModal)}
         mode={activeModal}
         list={activeList}
+        item={activeItem}
         busy={busy}
         sortOption={sortOption}
         onRequestClose={() => setActiveModal(null)}
         onCreate={(draft) => perform(() => groceryListService.createGroceryList({ ...draft, accountId: account?.id, pantryId }))}
         onAddItem={(draft) => perform(() => groceryListService.addGroceryItem({ ...draft, accountId: account?.id, pantryId, listId: activeListId }))}
+        onUpdateItem={(draft) => perform(() => groceryListService.updateGroceryItem({ ...draft, accountId: account?.id, pantryId, listId: activeListId, itemId: activeItem?.id }))}
         onUpdate={(draft) => perform(() => groceryListService.updateGroceryList({ ...draft, accountId: account?.id, pantryId, listId: activeListId }))}
         onStartCheckout={handleStartCheckout}
         onCheckout={(pricesByItemId) => perform(() => finishListAndStock({ accountId: account?.id, pantryId, listId: activeListId, pricesByItemId }))}

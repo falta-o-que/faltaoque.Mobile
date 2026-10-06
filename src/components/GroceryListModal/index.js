@@ -57,8 +57,8 @@ const parseBrl = (value) => {
 };
 
 export default function GroceryListModal({
-  visible, mode, list, busy, sortOption, onRequestClose,
-  onCreate, onAddItem, onUpdate, onRepeat, onDelete,
+  visible, mode, list, item, busy, sortOption, onRequestClose,
+  onCreate, onAddItem, onUpdate, onUpdateItem, onRepeat, onDelete,
   onSortChange, onStartCheckout, onCheckout,
 }) {
   const [name, setName] = useState('');
@@ -74,30 +74,31 @@ export default function GroceryListModal({
 
   useEffect(() => {
     if (!visible) return;
-    setName(mode === 'settings' ? list?.name ?? '' : '');
+    setName(mode === 'settings' ? list?.name ?? '' : mode === 'editItem' ? item?.name ?? '' : '');
     setPlannedDate(mode === 'settings' ? dateToBr(list?.plannedDate) : '');
-    setQuantity('1');
-    setWeight('');
-    setUnit('');
-    setCategory(null);
+    setQuantity(mode === 'editItem' ? String(item?.quantity ?? 1) : '1');
+    setWeight(mode === 'editItem' && item?.weight != null ? String(item.weight).replace('.', ',') : '');
+    setUnit(mode === 'editItem' ? item?.unit ?? '' : '');
+    setCategory(mode === 'editItem' ? item?.category ?? 'outros' : null);
     setIsCategoryOpen(true);
     setSelectedSort(sortOption ?? null);
     setPrices({});
     setError('');
-  }, [visible, mode, list?.id, sortOption]);
+  }, [visible, mode, list?.id, item?.id, sortOption]);
 
   if (!mode) return null;
 
   const checkedItems = list?.items?.filter((item) => item.checked) ?? [];
   const isListForm = mode === 'create' || mode === 'settings';
-  const isItemForm = mode === 'item';
+  const isItemForm = mode === 'item' || mode === 'editItem';
   const isCheckout = mode === 'checkout';
   const isFinished = mode === 'settings' && list?.status === 'finished';
   const title = mode === 'create' ? 'Criar Lista de Compras'
     : mode === 'item' ? 'Adicionar produtos'
+      : mode === 'editItem' ? 'Editar produto'
       : mode === 'settings' ? 'Editar Lista de Compras'
         : isCheckout ? 'Finalizar compra' : 'Filtros';
-  const HeaderIcon = mode === 'item' || isCheckout ? ProductCartIcon
+  const HeaderIcon = mode === 'item' || mode === 'editItem' || isCheckout ? ProductCartIcon
     : mode === 'filter' ? FilterIcon : ShoppingListIcon;
 
   const clearError = () => setError('');
@@ -126,13 +127,14 @@ export default function GroceryListModal({
       if (hasWeight && (!(normalizedWeight > 0) || !Number.isFinite(normalizedWeight))) return setError('Informe um peso ou volume maior que zero.');
       if (hasWeight && !PRODUCT_UNITS.includes(unit)) return setError('Escolha a unidade de medida.');
       if (!PRODUCT_CATEGORIES.includes(category)) return setError('Escolha uma categoria.');
-      return onAddItem({
+      const draft = {
         name: cleanName,
         quantity: Number(quantity),
         weight: hasWeight ? normalizedWeight : null,
         unit: hasWeight ? unit : null,
         category,
-      });
+      };
+      return mode === 'editItem' ? onUpdateItem(draft) : onAddItem(draft);
     }
     if (isCheckout) {
       if (!checkedItems.length) return setError('Marque ao menos um produto para finalizar a compra.');
