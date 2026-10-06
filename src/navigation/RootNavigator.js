@@ -3,6 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from '../screens/HomeScreen';
 import PantryScreen from '../screens/PantryScreen';
+import GroceryListScreen from '../screens/GroceryListScreen';
+import GroceryPantryPickerScreen from '../screens/GroceryPantryPickerScreen';
 import NfceReviewScreen from '../screens/NfceReviewScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
@@ -39,6 +41,8 @@ function AuthenticatedNavigator() {
     >
       <Stack.Screen name={AUTHENTICATED_ROUTES.HOME} component={HomeScreen} />
       <Stack.Screen name={AUTHENTICATED_ROUTES.PANTRY} component={PantryScreen} />
+      <Stack.Screen name={AUTHENTICATED_ROUTES.GROCERY_LIST} component={GroceryListScreen} />
+      <Stack.Screen name={AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER} component={GroceryPantryPickerScreen} />
       <Stack.Screen name={AUTHENTICATED_ROUTES.NFCE_REVIEW} component={NfceReviewScreen} />
     </Stack.Navigator>
   );

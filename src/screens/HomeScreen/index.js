@@ -86,7 +86,9 @@ export function HomeScreen({ navigation }) {
   };
 
   const handleNavbarItemChange = (key, item) => {
-    if (key !== 'profile') {
+    if (key === 'shopping-list') {
+      navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
+    } else if (key !== 'profile') {
       showComingSoon(item.label);
     }
   };
@@ -109,8 +111,11 @@ export function HomeScreen({ navigation }) {
   };
 
   const handleOpenShoppingList = () => {
+    const pantryId = selectedPantry?.id;
     setSelectedPantry(null);
-    showComingSoon('A lista de compras desta despensa');
+    if (pantryId) {
+      navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_LIST, { pantryId });
+    }
   };
 
   const handleCreatePantryPress = () => {

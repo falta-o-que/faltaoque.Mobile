@@ -169,6 +169,7 @@ export default function PantryScreen({ route, navigation }) {
 
   const handleNavbar = (key, item) => {
     if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME);
+    else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
     else Alert.alert('Em breve', `${item.label} estará disponível em breve.`);
   };
 
