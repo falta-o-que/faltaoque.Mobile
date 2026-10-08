@@ -1,4 +1,4 @@
-# SDD — integração e fluxos definidos até 6 de outubro de 2026
+# SDD — integração e fluxos definidos até 8 de outubro de 2026
 
 Status: decisões funcionais em consolidação; não é confirmação de API implementada nem de migração aplicada no banco hospedado.
 
@@ -6,8 +6,8 @@ Status: decisões funcionais em consolidação; não é confirmação de API imp
 
 - O marco de 14 de setembro em `milestone-2026-09-14.md` descreve o MVP local e permanece como referência histórica de sua implementação.
 - Este SDD e as decisões datadas em `../project/decisions.md` descrevem os fluxos posteriores discutidos com o grupo. Decisões posteriores do usuário prevalecem quando divergem do marco antigo.
-- `../architecture/hosted-database-model-2026-10-05.json` é o retrato da modelagem MySQL recebido em 5 de outubro. `../architecture/hosted-database.sql` é o último script SQL recebido, de 1º de outubro, e já não representa todas as mudanças do retrato. Uma alteração adicional do banco foi anunciada, mas ainda não recebida.
-- Em 6 de outubro, o grupo enviou o modelo final `../architecture/hosted-database-model-2026-10-06.json`. Ele substitui os dois artefatos anteriores como referência de modelagem. Ainda não confirma o esquema implantado nem o contrato da API.
+- `../architecture/hosted-database-model-2026-10-05.json` é o retrato inicial da modelagem MySQL recebido em 5 de outubro. `../architecture/hosted-database.sql` é o último script SQL recebido, de 1º de outubro, e já não representa as mudanças dos retratos posteriores.
+- O modelo oficial fechado recebido em 8 de outubro está preservado em `../architecture/hosted-database-model-2026-10-08.json`; ele atualiza a referência recebida em 6 de outubro. Ainda não confirma o esquema implantado nem o contrato da API.
 - O backend e o banco são mantidos por outra parte da equipe. Este documento especifica comportamento do mobile e contratos a confirmar; não autoriza presumir que campos ou rotas já estejam disponíveis.
 
 ## Compras, produtos e estoque
@@ -36,7 +36,7 @@ Status: decisões funcionais em consolidação; não é confirmação de API imp
 - A entrada em listas de compras pela Navbar abre primeiro uma seleção da despensa. A página da despensa exibe apenas listas ativas; o histórico de listas concluídas é aberto por um botão próprio em modal. A retirada de itens de uma lista usa um modo de seleção com confirmação, separado da marcação de itens comprados.
 - O modelo final separa itens planejados (`grocery_list_products`) de produtos comprados (`pantry_products`, com `purchase_id` obrigatório), sem exigir compra fictícia para uma lista. O contrato da API ainda precisa definir como a conclusão converte os itens planejados em compra e estoque.
 
-## Atualização do modelo recebida em 6 de outubro
+## Atualização do modelo recebida em 8 de outubro
 
 O JSON oficial fechado recebido em 8 de outubro, preservado em `docs/architecture/hosted-database-model-2026-10-08.json`, define `grocery_lists.pantry_id`, `date`, `location`, `suggestion`, `estimated_price` e `is_active`. `is_active` é `true` para lista ativa e `false` para concluída; substitui o campo `is_finished` do aditivo de 6 de outubro. Cada item planejado fica em `grocery_list_products`, com nome, quantidade, medida, marcação de retirada, `category_id` (chave para `categories.id`) e chave da lista. `pantry_products` mantém `is_in_pantry` e também `is_deleted`; a remoção lógica usa `is_deleted`, conforme a decisão de 6 de outubro. `purchases.qr_code_id` é a coluna disponível para guardar o código da NFC-e extraído do parâmetro `p`.
 
@@ -49,6 +49,13 @@ Esta decisão substitui as regras anteriores de comparação e associação de h
 ### Regra posterior de embalagem para a estimativa — 8 de outubro de 2026
 
 Peso/volume de um item planejado é opcional; a categoria é obrigatória, conforme `grocery_list_products.category_id`. Sem peso/volume, o estimador escolhe a apresentação histórica mais recorrente dentro da categoria no mercado considerado, usando recência para desempatar, e calcula o preço do pacote pelas até três ocorrências mais recentes dessa apresentação. Se não houver histórico nessa categoria, o estimador usa as ocorrências compatíveis pelo nome em outras categorias. Com peso/volume informado, a apresentação exata tem prioridade; sem uma correspondência exata, o valor é normalizado por g/ml dentro da mesma unidade de medida para estimar o tamanho solicitado.
+
+### Sugestões de mercado e fixture local de desenvolvimento — 8 de outubro de 2026
+
+- Quando a lista ativa não tem mercado definido, o cartão oferece três tipos: **Mais perto**, **Melhor custo-benefício** e **Marcas mais compradas**. O usuário pode trocar o tipo de sugestão e ver o mercado e a estimativa correspondente. Se escolher um CEP/mercado na lista, esse mercado determina a estimativa e o histórico da compra; remover o mercado volta a habilitar as sugestões.
+- As candidatas vêm dos mercados vinculados a compras do histórico da mesma despensa (`purchases.market_id`). A proximidade compara a localização da despensa geocodificada pelo Google Maps com latitude/longitude dos mercados. Custo-benefício compara cobertura e total estimado por mercado. A preferência de marca é inferida de `pantry_products.brand` e da disponibilidade dessa marca no histórico de cada mercado; não se adiciona coluna de marca aos itens planejados.
+- Em desenvolvimento, a fixture usa três estabelecimentos reais da zona sul de São Paulo e produtos/marcas reais para uma lista com categoria obrigatória e embalagens definidas. Ela cria compras anteriores sintéticas para que as opções possam ser exercitadas sem recibos do usuário. Os preços são referências demonstrativas, não preços transacionais, ofertas válidas ou cotações ao vivo. A fixture não pode ser criada em produção nem sobrescrever compras/listas reais; sua limpeza fica limitada aos marcadores exatos de demonstração.
+- Na fixture de 8 de outubro, use a Estação São Judas, Av. Jabaquara, 2438, como endereço de teste da despensa. A validação por Maps/ADB no aparelho permanece pendente, mesmo após o bundle Android compilar.
 
 ## Despensas e contas
 

@@ -56,11 +56,11 @@ O GPT-6 Sol opera no leve por padrão como orquestrador e escolhe diretamente o 
 
 ## Ordem imediata recomendada
 
-Atualizada no encerramento da sessão de 12 de setembro de 2026. O ponto de parada detalhado está em `current-state.md`.
+Atualizada no encerramento da sessão de 8 de outubro de 2026. O ponto de parada detalhado está em `current-state.md`.
 
-1. Retomar os ajustes pendentes da página da despensa e do modal de adição conforme o retorno do usuário; a interface ainda não está aprovada.
-2. Validar visualmente e interativamente o fluxo implementado no aplicativo, inclusive teclado, rolagem, estados vazios, produtos adicionados e persistência após reiniciar.
-3. Concluir informações, alteração de quantidade, edição e exclusão de produtos e edição/exclusão de despensas.
-4. Continuar histórico, aliases e fluxo fiscal após validação do spike.
+1. No outro computador, sincronizar a branch `feature/page-grocery-list` e configurar `.env.local` localmente com uma chave Maps válida; nunca copiar esse arquivo para o Git.
+2. No Android, cadastrar/editar uma despensa usando a Estação São Judas, Av. Jabaquara, 2438, e reabrir a página de listas para criar a fixture em desenvolvimento.
+3. Conferir visualmente a lista `Lista demonstrativa — Indianópolis` e as três sugestões; validar nomes/CEPs selecionados pelo Places, mercado mais perto, estimativas por mercado e marcas preferidas. Registrar o resultado em `current-state.md`.
+4. Depois dessa verificação, seguir a próxima fatia funcional acordada; o contrato da API hospedada e a migração de `markets` ainda precisam de confirmação da equipe de backend.
 
-Fundação, autenticação, criação/listagem de despensas e adição/listagem local de produtos já possuem implementação. Não reiniciar essas etapas ao retomar. O spike fiscal deve ser validado em paralelo quando houver uma amostra real disponível.
+Fundação, autenticação, criação/listagem de despensas e adição/listagem local de produtos já possuem implementação. Não reiniciar essas etapas ao retomar. O teste visual pendente é específico da nova fixture e não invalida a validação anterior do fluxo básico de sugestões.

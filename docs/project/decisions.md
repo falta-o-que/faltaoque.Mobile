@@ -295,3 +295,9 @@ Para dificuldades concretas, recomendar elevar Terra para médio ou trocar o orq
 Por solicitação do usuário, GPT-6 Sol com raciocínio leve (`low`) passa a ser o orquestrador padrão. A documentação orienta os chats do projeto, mas a seleção do modelo e do raciocínio da tarefa principal é feita pelo usuário no Codex.
 
 Permanecem GPT-5.6 Luna/médio para execução delimitada, GPT-5.6 Sol/médio ou alto para trabalho independente de maior complexidade, escolha direta do agente adequado, limite global de três subagentes e revisão final pelo orquestrador. Para dificuldades concretas, recomendar elevar o raciocínio do orquestrador para médio ou alto com justificativa.
+
+## 2026-10-08 - Dados demonstrativos para sugestões de mercados
+
+Para validar as sugestões locais de listas de compras, a fixture de desenvolvimento deve usar estabelecimentos, produtos e marcas reais, com endereços, CEPs e coordenadas confirmados. Compras anteriores e seus preços permanecem sintéticos; não podem ser apresentados nem documentados como transações, cupons ou preços atuais garantidos. Os itens planejados precisam obedecer ao modelo local de inserção: nome, quantidade, categoria obrigatória e embalagem/unidade coerentes quando informadas.
+
+A fixture atual cobre três mercados da zona sul de São Paulo e cria uma lista ativa com arroz 5 kg, feijão 1 kg, leite 1 L, macarrão 500 g e óleo 900 ml. A geometria e a composição de histórico são montadas para exercitar as três opções (mais perto, custo-benefício e marcas mais compradas). Os mocks antigos de CEPs genéricos podem ser removidos apenas quando identificados pelos marcadores conhecidos; dados reais do usuário devem permanecer intactos.

@@ -8,8 +8,9 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before 
 
 - Use the repository-local skill at `.agents/skills/faltaoque-mobile/SKILL.md` for work in this project. Follow its instructions and read the repository files it references rather than copying their contents into chat instructions.
 - The project memory bank is `docs/project/overview.md`, `docs/project/decisions.md`, and `docs/project/current-state.md`. Read these files before planning project work.
-- Read `docs/specs/milestone-2026-09-14.md` for the original local MVP and `docs/specs/integracao-e-fluxos-2026-10-05.md` for later backend and front-end decisions. Read the task-relevant parts before implementation. For NFC-e work, also read `docs/specs/nfce-sp-spike.md` and `docs/architecture/mobile.md`. For hosted data work, inspect the dated model snapshot in `docs/architecture/hosted-database-model-2026-10-05.json`; it does not confirm the deployed schema.
+- Read `docs/specs/milestone-2026-09-14.md` for the original local MVP and `docs/specs/integracao-e-fluxos-2026-10-05.md` for later backend and front-end decisions. Read the task-relevant parts before implementation. For NFC-e work, also read `docs/specs/nfce-sp-spike.md` and `docs/architecture/mobile.md`. For hosted data work, inspect the latest dated model snapshot, currently `docs/architecture/hosted-database-model-2026-10-08.json`; it does not confirm the deployed schema.
 - Keep this context in the repository so every new chat opened for this local project uses the same maintained sources.
+- For a user-requested handoff to another computer, update the current-state memory, relevant decisions and SDD, and the repository skill when the handoff workflow itself changes. Commit/push only when the user explicitly asks to synchronize; never include `.env.local` or other local secrets.
 
 - The root agent is the orchestrator and should use `gpt-6-sol` with `low` reasoning by default.
 - Delegate bounded, independent work to subagents using `gpt-5.6-luna` with `medium` reasoning by default.
