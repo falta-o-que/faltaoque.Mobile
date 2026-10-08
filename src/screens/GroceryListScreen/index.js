@@ -13,14 +13,19 @@ import GroceryListModal from '../../components/GroceryListModal';
 import Navbar from '../../components/Navbar';
 import { useAuth } from '../../contexts/AuthContext';
 import { PRODUCT_CATEGORIES } from '../../domain/productValidation';
+import { GROCERY_SUGGESTION_OPTIONS, GROCERY_SUGGESTION_TYPES } from '../../domain/grocerySuggestionOptions';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import * as groceryListService from '../../services/groceryListService';
+import { getGroceryMarketSuggestions } from '../../services/groceryMarketSuggestionService';
 import { seedGroceryEstimateDemoData } from '../../services/groceryEstimateDemoData';
 import { finishListAndStock } from '../../services/groceryCheckoutService';
+import { getCollapsedGroceryListIds, saveCollapsedGroceryListIds } from '../../services/groceryListViewPreferenceService';
 import { listPantries } from '../../services/pantryService';
 import {
   CategoryScroll, Chevron, ColorCircle, Content, EmptyText, Header, HeaderActions,
-  EstimateBox, EstimateCopy, EstimateDetail, EstimateMissingAction, EstimateMissingText, EstimatePrice, EstimateTitle, IconButton, ItemStack, ListActions, ListHeading, ListName, ListScroll, ListSection,
+  EstimateBox, EstimateCopy, EstimateDetail, EstimateMissingAction, EstimateMissingText, EstimatePrice, EstimateTitle,
+  EstimateSuggestionOptions, EstimateSuggestionOption, EstimateSuggestionOptionTitle, EstimateSuggestionOptionDetail,
+  IconButton, ItemStack, ListActions, ListHeading, ListName, ListScroll, ListSection,
   PantryIndicator, RetryButton, RetryText, RoundButton, Screen, SelectionBar, SelectionButton,
   SelectionButtonText, SelectionHint, StatusText, Title, TitleBlock, TitleRow,
 } from './styles';
@@ -45,9 +50,9 @@ function formatEstimatedPrice(value) {
   return `R$ ${Number(value).toFixed(2).replace('.', ',')}`;
 }
 
-function formatCep(value) {
-  const digits = String(value ?? '').replace(/\D/g, '');
-  return digits.length === 8 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+function formatMarketLocation(market) {
+  if (!market) return '';
+  return market.local_name || 'Mercado não identificado';
 }
 
 export default function GroceryListScreen({ navigation, route }) {
@@ -66,7 +71,13 @@ export default function GroceryListScreen({ navigation, route }) {
   const [removalItemIds, setRemovalItemIds] = useState([]);
   const [sortOption, setSortOption] = useState(null);
   const [collapsedIds, setCollapsedIds] = useState([]);
+  const collapsedIdsRef = useRef([]);
+  const collapsedSaveQueueRef = useRef(Promise.resolve());
   const [busy, setBusy] = useState(false);
+  const [suggestionPanelListId, setSuggestionPanelListId] = useState(null);
+  const [suggestionOptionsByList, setSuggestionOptionsByList] = useState({});
+  const [selectedSuggestionByList, setSelectedSuggestionByList] = useState({});
+  const [loadingSuggestionListId, setLoadingSuggestionListId] = useState(null);
 
   const refresh = useCallback(async () => {
     const [pantries, storedLists] = await Promise.all([
@@ -77,19 +88,35 @@ export default function GroceryListScreen({ navigation, route }) {
     if (!found) throw new Error('Esta despensa não está disponível para sua conta.');
     setPantry(found);
     setLists(storedLists);
+    setSuggestionPanelListId(null);
+    setSuggestionOptionsByList({});
+    setSelectedSuggestionByList({});
+    setLoadingSuggestionListId(null);
   }, [account?.id, pantryId]);
 
   useFocusEffect(useCallback(() => {
     let active = true;
     setLoading(true);
     setPantry(null);
+    setSuggestionPanelListId(null);
+    setSuggestionOptionsByList({});
+    setSelectedSuggestionByList({});
+    setLoadingSuggestionListId(null);
     (async () => {
       if (__DEV__) await seedGroceryEstimateDemoData(pantryId);
-      return Promise.all([listPantries(account?.id), groceryListService.listGroceryLists(account?.id, pantryId)]);
+      return Promise.all([
+        listPantries(account?.id),
+        groceryListService.listGroceryLists(account?.id, pantryId),
+        getCollapsedGroceryListIds(account?.id, pantryId),
+      ]);
     })()
-      .then(([pantries, storedLists]) => {
+      .then(([pantries, storedLists, storedCollapsedIds]) => {
         if (!active) return;
         const found = pantries.find((entry) => entry.id === pantryId);
+        const activeListIds = new Set(storedLists.filter((list) => list.status === 'active').map((list) => list.id));
+        const validCollapsedIds = storedCollapsedIds.filter((id) => activeListIds.has(id));
+        collapsedIdsRef.current = validCollapsedIds;
+        setCollapsedIds(validCollapsedIds);
         setPantry(found ?? null);
         setLists(storedLists);
         setError(found ? null : 'Esta despensa não está disponível para sua conta.');
@@ -137,9 +164,44 @@ export default function GroceryListScreen({ navigation, route }) {
     ? current.filter((entry) => entry !== category)
     : [...current, category]);
 
-  const toggleCollapsed = (listId) => setCollapsedIds((current) => current.includes(listId)
-    ? current.filter((id) => id !== listId)
-    : [...current, listId]);
+  const toggleCollapsed = (listId) => {
+    const next = collapsedIdsRef.current.includes(listId)
+      ? collapsedIdsRef.current.filter((id) => id !== listId)
+      : [...collapsedIdsRef.current, listId];
+    collapsedIdsRef.current = next;
+    setCollapsedIds(next);
+    collapsedSaveQueueRef.current = collapsedSaveQueueRef.current
+      .catch(() => {})
+      .then(() => saveCollapsedGroceryListIds(account?.id, pantryId, next))
+      .catch((saveError) => {
+        console.error('[GroceryListScreen] Falha ao salvar estado das listas:', saveError);
+      });
+  };
+
+  const toggleSuggestionPanel = async (list) => {
+    if (suggestionPanelListId === list.id) {
+      setSuggestionPanelListId(null);
+      return;
+    }
+    setSuggestionPanelListId(list.id);
+    if (suggestionOptionsByList[list.id]) return;
+    setLoadingSuggestionListId(list.id);
+    try {
+      const options = await getGroceryMarketSuggestions({ pantryId, pantryCep: pantry?.location, list });
+      setSuggestionOptionsByList((current) => ({ ...current, [list.id]: options }));
+    } catch (suggestionError) {
+      console.error('[GroceryListScreen] Falha ao calcular sugestões:', suggestionError);
+      Alert.alert('Sugestões indisponíveis', suggestionError?.message || 'Não foi possível consultar os mercados agora.');
+      setSuggestionPanelListId(null);
+    } finally {
+      setLoadingSuggestionListId((current) => current === list.id ? null : current);
+    }
+  };
+
+  const selectSuggestion = (listId, type) => {
+    setSelectedSuggestionByList((current) => ({ ...current, [listId]: type }));
+    setSuggestionPanelListId(null);
+  };
 
   const sortItems = (items) => {
     if (!sortOption) return items;
@@ -154,7 +216,9 @@ export default function GroceryListScreen({ navigation, route }) {
   const startRemoval = (listId) => {
     setRemovalListId(listId);
     setRemovalItemIds([]);
-    setCollapsedIds((current) => current.filter((id) => id !== listId));
+    const next = collapsedIdsRef.current.filter((id) => id !== listId);
+    collapsedIdsRef.current = next;
+    setCollapsedIds(next);
   };
 
   const cancelRemoval = () => {
@@ -242,6 +306,14 @@ export default function GroceryListScreen({ navigation, route }) {
           ) : visibleLists.map((list) => {
             const expanded = !collapsedIds.includes(list.id);
             const items = sortItems(selectedCategories.length ? list.items.filter((item) => selectedCategories.includes(item.category)) : list.items);
+            const showsMarketSuggestions = !list.marketId && !list.location;
+            const suggestionOptions = suggestionOptionsByList[list.id] ?? [];
+            const selectedSuggestionType = selectedSuggestionByList[list.id];
+            const selectedSuggestion = suggestionOptions.find((option) => option.type === selectedSuggestionType);
+            const selectedCandidate = selectedSuggestion?.candidate;
+            const selectedEstimate = selectedCandidate?.estimate;
+            const selectedSuggestionLabel = GROCERY_SUGGESTION_OPTIONS.find((option) => option.type === selectedSuggestionType)?.label;
+            const selectedMarketLabel = formatMarketLocation(selectedCandidate?.market);
             return (
               <ListSection key={list.id}>
                 <ListHeading>
@@ -265,7 +337,67 @@ export default function GroceryListScreen({ navigation, route }) {
                     </IconButton>
                   </ListActions>
                 </ListHeading>
-                {expanded && (list.items.length > 0 ? (
+                {expanded && list.items.length > 0 && showsMarketSuggestions ? (
+                  <>
+                    <EstimateBox
+                      accessibilityRole="button"
+                      accessibilityLabel={selectedCandidate?.market
+                        ? `${selectedSuggestionLabel}: ${selectedMarketLabel}, ${selectedEstimate?.estimatedPrice == null ? 'sem estimativa de preço' : formatEstimatedPrice(selectedEstimate.estimatedPrice)}. Toque para trocar a sugestão.`
+                        : 'Sugestões de mercado. Toque para escolher Mais perto, Melhor custo-benefício ou Marcas mais compradas.'}
+                      disabled={loadingSuggestionListId === list.id}
+                      onPress={() => toggleSuggestionPanel(list)}
+                    >
+                      <EstimateCopy>
+                      <EstimateTitle>{selectedCandidate?.market ? selectedSuggestionLabel : 'Sugestões de mercado'}</EstimateTitle>
+                        {selectedCandidate?.market ? (
+                          <>
+                            <EstimateDetail>{selectedSuggestionType === GROCERY_SUGGESTION_TYPES.NEAREST
+                              ? `${selectedMarketLabel} · aprox. ${selectedCandidate.distanceKm.toFixed(1).replace('.', ',')} km`
+                              : selectedSuggestionType === GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS
+                                ? `${selectedMarketLabel} · marcas favoritas em ${selectedCandidate.brandCoverage.available} de ${selectedCandidate.brandCoverage.total} produtos`
+                                : `${selectedMarketLabel} · histórico para ${selectedEstimate.matchedItems} de ${selectedEstimate.totalItems} itens`}</EstimateDetail>
+                            {selectedEstimate.missingItems?.length ? (
+                              <EstimateMissingAction accessibilityRole="button" onPress={(event) => {
+                                event.stopPropagation();
+                                Alert.alert('Produtos sem histórico neste mercado', selectedEstimate.missingItems.join('\n'));
+                              }}>
+                                <EstimateMissingText>Ver produtos sem histórico</EstimateMissingText>
+                              </EstimateMissingAction>
+                            ) : null}
+                          </>
+                        ) : <EstimateDetail>Toque para comparar proximidade, preço e marcas.</EstimateDetail>}
+                      </EstimateCopy>
+                      {selectedEstimate?.estimatedPrice != null ? <EstimatePrice>{formatEstimatedPrice(selectedEstimate.estimatedPrice)}</EstimatePrice> : null}
+                    </EstimateBox>
+                    {suggestionPanelListId === list.id ? (
+                      <EstimateSuggestionOptions>
+                        {loadingSuggestionListId === list.id ? <EstimateDetail>Consultando histórico e localização…</EstimateDetail> : null}
+                        {suggestionOptions.map((option) => {
+                          const candidate = option.candidate;
+                          const detail = option.disabled ? option.message
+                            : option.type === GROCERY_SUGGESTION_TYPES.NEAREST
+                              ? `${formatMarketLocation(candidate.market)} · aprox. ${candidate.distanceKm.toFixed(1).replace('.', ',')} km`
+                              : option.type === GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS
+                                ? `${formatMarketLocation(candidate.market)} · marcas favoritas em ${candidate.brandCoverage.available} de ${candidate.brandCoverage.total} produtos`
+                                : `${formatMarketLocation(candidate.market)} · ${candidate.estimate.estimatedPrice == null ? 'sem preço estimado' : formatEstimatedPrice(candidate.estimate.estimatedPrice)}`;
+                          return (
+                            <EstimateSuggestionOption
+                              key={option.type}
+                              accessibilityRole="button"
+                              accessibilityState={{ disabled: option.disabled, selected: selectedSuggestionType === option.type }}
+                              disabled={option.disabled || loadingSuggestionListId === list.id}
+                              onPress={() => selectSuggestion(list.id, option.type)}
+                              $selected={selectedSuggestionType === option.type}
+                            >
+                              <EstimateSuggestionOptionTitle>{GROCERY_SUGGESTION_OPTIONS.find((entry) => entry.type === option.type)?.label}</EstimateSuggestionOptionTitle>
+                              <EstimateSuggestionOptionDetail>{detail}</EstimateSuggestionOptionDetail>
+                            </EstimateSuggestionOption>
+                          );
+                        })}
+                      </EstimateSuggestionOptions>
+                    ) : null}
+                  </>
+                ) : expanded && list.items.length > 0 ? (
                   <EstimateBox accessibilityLabel={list.estimatedPrice == null
                     ? `Histórico disponível para ${list.matchedItems} de ${list.totalItems} itens`
                     : `${list.matchedItems < list.totalItems ? 'Estimativa parcial' : 'Total estimado'}: ${formatEstimatedPrice(list.estimatedPrice)}; histórico para ${list.matchedItems} de ${list.totalItems} itens`}>
@@ -274,7 +406,7 @@ export default function GroceryListScreen({ navigation, route }) {
                         <EstimateCopy>
                           <EstimateTitle>{list.location ? 'Sem estimativa neste mercado' : 'Estimativa parcial'}</EstimateTitle>
                           <EstimateDetail>{list.location
-                            ? `CEP ${formatCep(list.location)} · histórico para ${list.matchedItems} de ${list.totalItems} itens.`
+                            ? `${list.market?.localName || 'Mercado selecionado'} · histórico para ${list.matchedItems} de ${list.totalItems} itens.`
                             : `Histórico disponível para ${list.matchedItems} de ${list.totalItems} itens.`}</EstimateDetail>
                           {list.missingItems?.length ? (
                             <EstimateMissingAction accessibilityRole="button" onPress={() => Alert.alert(
@@ -291,8 +423,8 @@ export default function GroceryListScreen({ navigation, route }) {
                         <EstimateCopy>
                           <EstimateTitle>{list.location ? 'Preço estimado neste mercado' : list.matchedItems < list.totalItems ? 'Estimativa parcial' : 'Total estimado'}</EstimateTitle>
                           <EstimateDetail>{list.matchedItems < list.totalItems
-                            ? `${list.location ? `CEP ${formatCep(list.location)} · ` : ''}Soma de ${list.matchedItems} de ${list.totalItems} itens com histórico.`
-                            : list.location ? `CEP ${formatCep(list.location)} · com base no histórico de compras.` : 'Com base no histórico de compras.'}</EstimateDetail>
+                            ? `${list.location ? `${list.market?.localName || 'Mercado selecionado'} · ` : ''}Soma de ${list.matchedItems} de ${list.totalItems} itens com histórico.`
+                            : list.location ? `${list.market?.localName || 'Mercado selecionado'} · com base no histórico de compras.` : 'Com base no histórico de compras.'}</EstimateDetail>
                           {list.missingItems?.length ? (
                             <EstimateMissingAction accessibilityRole="button" onPress={() => Alert.alert(
                               'Produtos sem histórico',
@@ -306,14 +438,14 @@ export default function GroceryListScreen({ navigation, route }) {
                       </>
                     )}
                   </EstimateBox>
-                ) : list.location ? (
-                  <EstimateBox accessibilityLabel={`Mercado selecionado, CEP ${formatCep(list.location)}; a estimativa aparecerá quando a lista tiver produtos.`}>
+                ) : expanded && list.location ? (
+                  <EstimateBox accessibilityLabel={`Mercado selecionado: ${list.market?.localName || 'mercado não identificado'}; a estimativa aparecerá quando a lista tiver produtos.`}>
                     <EstimateCopy>
                       <EstimateTitle>Mercado selecionado</EstimateTitle>
-                      <EstimateDetail>CEP {formatCep(list.location)} · adicione produtos para estimar o preço.</EstimateDetail>
+                      <EstimateDetail>{list.market?.localName || 'Mercado não identificado'} · adicione produtos para estimar o preço.</EstimateDetail>
                     </EstimateCopy>
                   </EstimateBox>
-                ) : null)}
+                ) : null}
                 {removalListId === list.id ? (
                   <SelectionBar>
                     <SelectionHint>Selecione os produtos ({removalItemIds.length})</SelectionHint>

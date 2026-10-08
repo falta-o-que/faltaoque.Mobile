@@ -89,7 +89,7 @@ export default function GroceryListModal({
     setPlannedDate(mode === 'settings' ? dateToBr(list?.plannedDate) : '');
     const existingMarket = mode === 'settings' || mode === 'repeat' ? list?.market ?? null : null;
     setSelectedMarket(existingMarket);
-    setMarketQuery(existingMarket?.localName || (mode === 'settings' || mode === 'repeat' ? list?.location ?? '' : ''));
+    setMarketQuery(existingMarket?.localName ?? '');
     setQuantity(mode === 'editItem' ? String(item?.quantity ?? 1) : '1');
     setWeight(mode === 'editItem' && item?.weight != null ? String(item.weight).replace('.', ',') : '');
     setUnit(mode === 'editItem' ? item?.unit ?? '' : '');
@@ -135,7 +135,7 @@ export default function GroceryListModal({
       if (plannedDate && !isWithinThreeMonthDateRange(plannedDate)) {
         return setError('Informe uma data real dos últimos 3 meses ou futura, no formato DD/MM/AAAA.');
       }
-      if (marketQuery.trim() && !selectedMarket) return setError('Escolha um mercado da lista de endereços.');
+      if (marketQuery.trim() && !selectedMarket) return setError('Escolha um mercado nas sugestões do Google Maps.');
       const draft = { name: cleanName, plannedDate: dateToIso(plannedDate), location: selectedMarket?.cep ?? null, market: selectedMarket };
       if (mode === 'repeat') return onRepeat(draft);
       return mode === 'create' ? onCreate(draft) : onUpdate(draft);
@@ -147,7 +147,8 @@ export default function GroceryListModal({
       const normalizedWeight = Number(weight.replace(',', '.'));
       if (hasWeight && (!(normalizedWeight > 0) || !Number.isFinite(normalizedWeight))) return setError('Informe um peso ou volume maior que zero.');
       if (hasWeight && !PRODUCT_UNITS.includes(unit)) return setError('Escolha a unidade de medida.');
-      if (category && !PRODUCT_CATEGORIES.includes(category)) return setError('Escolha uma categoria válida.');
+      if (!category) return setError('Escolha uma categoria para o produto.');
+      if (!PRODUCT_CATEGORIES.includes(category)) return setError('Escolha uma categoria válida.');
       const draft = {
         name: cleanName,
         quantity: Number(quantity),
@@ -264,7 +265,7 @@ export default function GroceryListModal({
                     </WeightGroup>
                     <Accordion>
                       <AccordionHeader accessibilityRole="button" accessibilityState={{ expanded: isCategoryOpen }} disabled={busy} onPress={toggleCategoryOptions}>
-                      <AccordionLabel>Categoria (opcional)</AccordionLabel><CategoryChevron expanded={isCategoryOpen} />
+                      <AccordionLabel>Categoria *</AccordionLabel><CategoryChevron expanded={isCategoryOpen} />
                       </AccordionHeader>
                       <AnimatedDropdown open={isCategoryOpen}>
                         <CategoryOptions>
@@ -272,7 +273,6 @@ export default function GroceryListModal({
                             <CategoryTag key={option} category={option} disabled={busy} onSelectionChange={(selected) => { setCategory(selected ? option : null); clearError(); }} selected={category === option} variant="product" />
                           ))}
                         </CategoryOptions>
-                        <HelpText>Sem categoria ou tamanho, a estimativa usa a apresentação mais recorrente no histórico deste mercado.</HelpText>
                       </AnimatedDropdown>
                     </Accordion>
                   </Fields>

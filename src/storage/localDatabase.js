@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const DATABASE_KEY = '@faltaoque/database';
 const VERSION_KEY = '@faltaoque/database-schema-version';
 const LEGACY_METADATA_KEY = '@faltaoque/database-ui-metadata';
-const CURRENT_SCHEMA_VERSION = 10;
+const CURRENT_SCHEMA_VERSION = 11;
 
 export const CATEGORY_NAMES = ['bebidas', 'organicos', 'limpezaHigiene', 'integraisCereais', 'frescos', 'carnes', 'outros'];
 const colorRows = [
@@ -24,7 +24,7 @@ const emptyTables = () => ({
 const TABLE_FIELDS = {
   users: ['id', 'name', 'email', 'password', 'avatar_id', 'role', 'is_active'],
   colors: ['id', 'name', 'hex_code'],
-  pantries: ['id', 'title', 'location', 'color_id', 'share_invite_id'],
+  pantries: ['id', 'title', 'location', 'location_name', 'color_id', 'share_invite_id'],
   users_pantries: ['user_id', 'pantry_id'],
   pantries_invites: ['id', 'share_invite', 'created_at', 'expires_at'],
   markets: ['id', 'cep', 'latitude', 'longitude', 'local_name'],
@@ -64,7 +64,8 @@ function normalizeDatabase(value) {
   const memberships = value.users_pantries.map((row) => `${row.user_id}:${row.pantry_id}`);
   if (duplicatePrimaryKey || new Set(memberships).size !== memberships.length || new Set(emails).size !== emails.length ||
     value.users.some((row) => !colorIds.has(row.avatar_id)) ||
-    value.pantries.some((row) => !colorIds.has(row.color_id) || (row.share_invite_id != null && !inviteIds.has(row.share_invite_id))) ||
+    value.pantries.some((row) => !colorIds.has(row.color_id) || (row.share_invite_id != null && !inviteIds.has(row.share_invite_id)) ||
+      (row.location_name != null && typeof row.location_name !== 'string')) ||
     value.markets.some((row) => !/^\d{8}$/.test(String(row.cep ?? '')) ||
       ((row.latitude == null) !== (row.longitude == null)) ||
       (row.latitude != null && (!Number.isFinite(row.latitude) || row.latitude < -90 || row.latitude > 90)) ||
@@ -95,6 +96,7 @@ function migrateV8ToV9(value) {
   const oldTableNames = Object.keys(TABLE_FIELDS).filter((name) => name !== 'markets');
   const oldFields = {
     ...TABLE_FIELDS,
+    pantries: TABLE_FIELDS.pantries.filter((field) => field !== 'location_name'),
     markets: undefined,
     purchases: TABLE_FIELDS.purchases.filter((field) => field !== 'market_id'),
     grocery_lists: TABLE_FIELDS.grocery_lists.filter((field) => field !== 'market_id'),
@@ -116,6 +118,7 @@ function migrateV8ToV9(value) {
   }]));
   return {
     ...value,
+    pantries: value.pantries.map((row) => ({ ...row, location_name: null })),
     markets: [...marketByCep.values()],
     purchases: value.purchases.map((row) => ({
       ...row,
@@ -145,12 +148,30 @@ export async function readDatabase() {
     }
     if (storedVersion === 9) {
       const oldMarketFields = TABLE_FIELDS.markets.filter((field) => field !== 'local_name');
+      const oldPantryFields = TABLE_FIELDS.pantries.filter((field) => field !== 'location_name');
       if (!parsed || Object.keys(parsed).sort().join('|') !== Object.keys(TABLE_FIELDS).sort().join('|') ||
         Object.keys(TABLE_FIELDS).some((table) => !Array.isArray(parsed[table]) || parsed[table].some((row) => {
-          const fields = table === 'markets' ? oldMarketFields : TABLE_FIELDS[table];
+          const fields = table === 'markets' ? oldMarketFields : table === 'pantries' ? oldPantryFields : TABLE_FIELDS[table];
           return !row || Object.keys(row).sort().join('|') !== [...fields].sort().join('|');
         }))) throw new Error('Não foi possível migrar o banco local para nomes de mercados. Os dados anteriores foram preservados.');
-      const migrated = { ...parsed, markets: parsed.markets.map((market) => ({ ...market, local_name: null })) };
+      const migrated = {
+        ...parsed,
+        pantries: parsed.pantries.map((pantry) => ({ ...pantry, location_name: null })),
+        markets: parsed.markets.map((market) => ({ ...market, local_name: null })),
+      };
+      const database = normalizeDatabase(migrated);
+      await AsyncStorage.setItem(DATABASE_KEY, JSON.stringify(database));
+      await AsyncStorage.setItem(VERSION_KEY, String(CURRENT_SCHEMA_VERSION));
+      return database;
+    }
+    if (storedVersion === 10) {
+      const oldPantryFields = TABLE_FIELDS.pantries.filter((field) => field !== 'location_name');
+      if (!parsed || Object.keys(parsed).sort().join('|') !== Object.keys(TABLE_FIELDS).sort().join('|') ||
+        Object.keys(TABLE_FIELDS).some((table) => !Array.isArray(parsed[table]) || parsed[table].some((row) => {
+          const fields = table === 'pantries' ? oldPantryFields : TABLE_FIELDS[table];
+          return !row || Object.keys(row).sort().join('|') !== [...fields].sort().join('|');
+        }))) throw new Error('Não foi possível migrar o cache de endereços locais. Os dados anteriores foram preservados.');
+      const migrated = { ...parsed, pantries: parsed.pantries.map((pantry) => ({ ...pantry, location_name: null })) };
       const database = normalizeDatabase(migrated);
       await AsyncStorage.setItem(DATABASE_KEY, JSON.stringify(database));
       await AsyncStorage.setItem(VERSION_KEY, String(CURRENT_SCHEMA_VERSION));

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Modal } from 'react-native';
 
 import { CancelCircleIcon, CheckIcon, LocationIcon, PantryIcon } from '../../assets/icons/export';
-import { formatCepInput } from '../../domain/locationValidation';
 import ModalActionButton from '../ModalActionButton';
 import PlaceSearchField from '../PlaceSearchField';
 import {
@@ -22,17 +21,22 @@ export default function PantryLocationModal({ visible, pantry, busy, onSave, onR
   useEffect(() => {
     if (!visible) return;
     const currentCep = pantry?.location ?? null;
-    setLocation(formatCepInput(currentCep));
-    setSelectedPlace(currentCep ? { cep: currentCep } : null);
+    const currentLocationName = pantry?.locationName ?? null;
+    setLocation(currentLocationName ?? '');
+    setSelectedPlace(currentCep ? {
+      cep: currentCep,
+      localName: currentLocationName,
+      displayName: currentLocationName ?? '',
+    } : null);
     setError('');
-  }, [visible, pantry?.id, pantry?.location]);
+  }, [visible, pantry?.id, pantry?.location, pantry?.locationName]);
 
   async function save() {
     if (location.trim() && !selectedPlace) {
       setError('Escolha um endereço da lista de sugestões.');
       return;
     }
-    await onSave(selectedPlace?.cep ?? null);
+    await onSave(selectedPlace?.cep ?? null, selectedPlace?.displayName ?? null);
   }
 
   return (
@@ -43,11 +47,12 @@ export default function PantryLocationModal({ visible, pantry, busy, onSave, onR
             <PantryIcon size={24} />
             <Heading>Localização da despensa</Heading>
           </Header>
-          <HelpText>Digite o endereço e escolha uma sugestão. O app salva o CEP para encontrar mercados próximos. Você pode deixar em branco ou remover depois.</HelpText>
+          <HelpText>Escolha o endereço da despensa para encontrar mercados próximos. Você pode alterar ou remover depois.</HelpText>
+          {pantry?.location && !pantry?.locationName ? <HelpText>Esse endereço foi salvo antes do nome do local. Selecione novamente uma sugestão para identificá-lo.</HelpText> : null}
           <PlaceSearchField
             accessibilityLabel="Endereço da despensa, opcional"
             value={location}
-            selected={Boolean(selectedPlace)}
+            selected={Boolean(selectedPlace?.displayName)}
             selectedPlace={selectedPlace}
             disabled={busy}
             error={error}
@@ -66,7 +71,7 @@ export default function PantryLocationModal({ visible, pantry, busy, onSave, onR
           />
           <Actions>
             <ModalActionButton accessibilityLabel="Cancelar" disabled={busy} Icon={CancelCircleIcon} onPress={onRequestClose} variant="cancel" />
-            <ModalActionButton accessibilityLabel="Salvar CEP da despensa" disabled={busy} Icon={CheckIcon} onPress={save} variant="confirm" />
+            <ModalActionButton accessibilityLabel="Salvar endereço da despensa" disabled={busy} Icon={CheckIcon} onPress={save} variant="confirm" />
           </Actions>
         </Card>
       </Overlay>

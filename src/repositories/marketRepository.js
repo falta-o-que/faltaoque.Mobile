@@ -21,7 +21,7 @@ export function findOrCreateLocalMarket(markets, marketInput) {
   }
 
   const cep = normalizeCep(marketInput.cep ?? marketInput.location);
-  if (!cep) throw new Error('Informe um CEP válido para o mercado.');
+  if (!cep) throw new Error('Escolha um mercado válido da lista de sugestões.');
   const { latitude, longitude } = normalizeCoordinates(marketInput.latitude, marketInput.longitude);
   const existing = markets.find((market) => market.cep === cep &&
     market.latitude === latitude && market.longitude === longitude);

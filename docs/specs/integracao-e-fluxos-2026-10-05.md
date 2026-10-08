@@ -48,7 +48,7 @@ Esta decisão substitui as regras anteriores de comparação e associação de h
 
 ### Regra posterior de embalagem para a estimativa — 8 de outubro de 2026
 
-Peso/volume e categoria de um item planejado são opcionais. Se o usuário deixar ambos em branco, o estimador escolhe a apresentação histórica mais recorrente (categoria, unidade e conteúdo) no mercado considerado, usando recência para desempatar, e calcula o preço do pacote pelas até três ocorrências mais recentes dessa apresentação. Uma categoria informada restringe a preferência ao histórico compatível quando ele existe. Se peso/volume for informado, a apresentação exata tem prioridade; sem uma correspondência exata, o valor é normalizado por g/ml dentro da mesma unidade de medida para estimar o tamanho solicitado. A persistência local continua gravando a categoria padrão `outros` quando não há escolha, pois `category_id` é obrigatório no modelo; o estimador interpreta esse padrão como categoria não informada.
+Peso/volume de um item planejado é opcional; a categoria é obrigatória, conforme `grocery_list_products.category_id`. Sem peso/volume, o estimador escolhe a apresentação histórica mais recorrente dentro da categoria no mercado considerado, usando recência para desempatar, e calcula o preço do pacote pelas até três ocorrências mais recentes dessa apresentação. Se não houver histórico nessa categoria, o estimador usa as ocorrências compatíveis pelo nome em outras categorias. Com peso/volume informado, a apresentação exata tem prioridade; sem uma correspondência exata, o valor é normalizado por g/ml dentro da mesma unidade de medida para estimar o tamanho solicitado.
 
 ## Despensas e contas
 

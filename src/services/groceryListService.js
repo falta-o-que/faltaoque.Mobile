@@ -4,6 +4,7 @@ import * as Crypto from 'expo-crypto';
 import { isWithinThreeMonthDateRange, normalizeDateOnly } from '../domain/dateValidation';
 import { normalizeCep } from '../domain/locationValidation';
 import { getCategoryId, readDatabase, updateDatabase } from '../storage/localDatabase';
+import { PRODUCT_CATEGORIES } from '../domain/productValidation';
 import { estimateGroceryListPrices } from './groceryPriceEstimateService';
 import { findOrCreateLocalMarket } from '../repositories/marketRepository';
 
@@ -28,7 +29,7 @@ function normalizeMarketLocation(value) {
   try {
     return normalizeCep(value);
   } catch {
-    throw new Error('Informe um CEP de mercado válido com 8 números.');
+    throw new Error('Escolha um mercado válido da lista de sugestões.');
   }
 }
 
@@ -44,8 +45,7 @@ function readScope(database, accountId, pantryId) {
       marketId: list.market_id ?? null, market: market ? { id: market.id, cep: market.cep, latitude: market.latitude, longitude: market.longitude, localName: market.local_name } : null, estimatedPrice: list.estimated_price,
       status: list.is_active ? 'active' : 'finished',
       items: database.grocery_list_products.filter((item) => item.grocery_list_id === list.id).map((item) => ({
-      id: item.id, name: item.name, category: database.categories.find((category) => category.id === item.category_id)?.name === 'outros'
-        ? null : database.categories.find((category) => category.id === item.category_id)?.name ?? null, quantity: item.quantity ?? 1,
+      id: item.id, name: item.name, category: database.categories.find((category) => category.id === item.category_id)?.name ?? null, quantity: item.quantity ?? 1,
       weight: item.content_value, unit: ({ 1: 'g', 2: 'kg', 3: 'ml', 4: 'L' })[item.unit_of_measure] ?? null,
       checked: item.is_taken,
       })),
@@ -128,7 +128,8 @@ export async function listGroceryLists(accountId, pantryId) {
 export async function createGroceryList({ accountId, pantryId, name, plannedDate, location, market }) {
   const cleanName = name?.trim();
   if (!cleanName || cleanName.length > 100) throw new Error('Informe um nome de lista com até 100 caracteres.');
-  const normalizedLocation = market ? normalizeMarketLocation(market.cep) : normalizeMarketLocation(location);
+  const normalizedLocation = market ? normalizeMarketLocation(market.cep)
+    : location ? normalizeMarketLocation(location) : null;
   const list = { id: makeId(), accountId, pantryId, name: cleanName, plannedDate: normalizePlannedDate(plannedDate),
     location: normalizedLocation, marketId: market?.id ?? null, market: market ?? null,
     status: 'active', items: [], createdAt: new Date().toISOString() };
@@ -146,7 +147,7 @@ export async function updateGroceryList({ accountId, pantryId, listId, name, pla
       if (list.id !== listId) return list;
       if (list.status !== 'active') throw new Error('Lista concluída não pode ser editada.');
       const nextLocation = market ? normalizeMarketLocation(market.cep)
-        : location === undefined ? list.location ?? null : normalizeMarketLocation(location);
+        : location === undefined ? list.location ?? null : location ? normalizeMarketLocation(location) : null;
       updated = { ...list, name: cleanName, plannedDate: normalizedPlannedDate,
         location: nextLocation,
         market: market ?? null,
@@ -162,6 +163,7 @@ export async function addGroceryItem({ accountId, pantryId, listId, name, catego
   const cleanName = name?.trim();
   const parsedQuantity = Number(quantity);
   if (!cleanName || cleanName.length > 100 || !Number.isInteger(parsedQuantity) || parsedQuantity < 1) throw new Error('Informe nome com até 100 caracteres e quantidade válida.');
+  if (!PRODUCT_CATEGORIES.includes(category)) throw new Error('Escolha uma categoria válida para o produto.');
   const cleanWeight = String(weight ?? '').trim();
   const normalizedWeight = cleanWeight.replace(',', '.');
   if (cleanWeight && (!/^\d+(\.\d+)?$/.test(normalizedWeight) || Number(normalizedWeight) <= 0 || !['g', 'kg', 'ml', 'L'].includes(unit))) {
@@ -173,7 +175,7 @@ export async function addGroceryItem({ accountId, pantryId, listId, name, catego
       if (list.id !== listId) return list;
       if (list.status !== 'active') throw new Error('Lista concluída não pode ser editada.');
       // Each occurrence has its own identifier, even when names are equal.
-      added = { id: makeId(), name: cleanName, category: category || 'outros', quantity: parsedQuantity,
+      added = { id: makeId(), name: cleanName, category, quantity: parsedQuantity,
         weight: cleanWeight ? Number(normalizedWeight) : null, unit: cleanWeight ? unit : null, checked: false };
       return { ...list, items: [...list.items, added] };
     });
@@ -186,6 +188,7 @@ export async function updateGroceryItem({ accountId, pantryId, listId, itemId, n
   const cleanName = name?.trim();
   const parsedQuantity = Number(quantity);
   if (!cleanName || cleanName.length > 100 || !Number.isInteger(parsedQuantity) || parsedQuantity < 1) throw new Error('Informe nome com até 100 caracteres e quantidade válida.');
+  if (!PRODUCT_CATEGORIES.includes(category)) throw new Error('Escolha uma categoria válida para o produto.');
   const cleanWeight = String(weight ?? '').trim();
   const normalizedWeight = cleanWeight.replace(',', '.');
   if (cleanWeight && (!/^\d+(\.\d+)?$/.test(normalizedWeight) || Number(normalizedWeight) <= 0 || !['g', 'kg', 'ml', 'L'].includes(unit))) {
@@ -199,7 +202,7 @@ export async function updateGroceryItem({ accountId, pantryId, listId, itemId, n
       return { ...list, items: list.items.map((item) => {
         if (item.id !== itemId) return item;
         changed = true;
-        return { ...item, name: cleanName, category: category || 'outros', quantity: parsedQuantity,
+        return { ...item, name: cleanName, category, quantity: parsedQuantity,
           weight: cleanWeight ? Number(normalizedWeight) : null, unit: cleanWeight ? unit : null };
       }) };
     });
@@ -281,7 +284,7 @@ export async function repeatGroceryList({ accountId, pantryId, listId, name, pla
     if (cleanName.length > 100) throw new Error('O nome da lista deve ter até 100 caracteres.');
     const repeated = { ...source, id: makeId(), name: cleanName, plannedDate: normalizedPlannedDate,
       location: market ? normalizeMarketLocation(market.cep)
-        : location === undefined ? source.location ?? null : normalizeMarketLocation(location),
+        : location === undefined ? source.location ?? null : location ? normalizeMarketLocation(location) : null,
       marketId: market ? market.id ?? null : location === undefined ? source.marketId ?? null : null,
       market: market ?? null,
       status: 'active', createdAt: new Date().toISOString(), finishedAt: undefined,

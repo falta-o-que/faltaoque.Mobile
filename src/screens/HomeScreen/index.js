@@ -125,12 +125,13 @@ export function HomeScreen({ navigation }) {
     setIsCreatePantryModalOpen(true);
   };
 
-  const handleCreatePantry = async ({ color, name, location }) => {
+  const handleCreatePantry = async ({ color, name, location, locationName }) => {
     try {
       const pantry = await pantryService.createPantry({
         accountId: account?.id,
         color,
         location,
+        locationName,
         name,
       });
 
@@ -145,7 +146,7 @@ export function HomeScreen({ navigation }) {
     }
   };
 
-  const handleSavePantryLocation = async (location) => {
+  const handleSavePantryLocation = async (location, locationName) => {
     if (isSavingPantryLocation) return;
     setIsSavingPantryLocation(true);
     try {
@@ -153,11 +154,12 @@ export function HomeScreen({ navigation }) {
         accountId: account?.id,
         pantryId: pantryForLocationEdit?.id,
         location,
+        locationName,
       });
       setPantries((current) => current.map((pantry) => pantry.id === updated.id ? updated : pantry));
       setPantryForLocationEdit(null);
     } catch {
-      Alert.alert('Não foi possível salvar o CEP', 'Confira o CEP e tente novamente.');
+      Alert.alert('Não foi possível salvar o endereço', 'Escolha um endereço sugerido e tente novamente.');
     } finally {
       setIsSavingPantryLocation(false);
     }

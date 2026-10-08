@@ -97,7 +97,7 @@ export const ListHeading = styled.View`
   gap: 8px;
 `;
 
-export const EstimateBox = styled.View`
+export const EstimateBox = styled.TouchableOpacity.attrs({ activeOpacity: 0.85 })`
   min-height: 58px;
   flex-direction: row;
   align-items: center;
@@ -134,6 +134,33 @@ export const EstimatePrice = styled.Text`
 `;
 
 export const EstimateDetail = styled.Text`
+  color: ${({ theme }) => theme.colors.black[300]};
+  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
+  font-size: ${({ theme }) => theme.fonts.sizes['0']}px;
+`;
+
+export const EstimateSuggestionOptions = styled.View`
+  gap: 8px;
+`;
+
+export const EstimateSuggestionOption = styled.TouchableOpacity.attrs({ activeOpacity: 0.75 })`
+  min-height: 48px;
+  justify-content: center;
+  padding: 9px 14px;
+  border: 1px solid ${({ $selected, theme }) => $selected ? theme.colors.primary.Green : theme.colors.white[200]};
+  border-radius: 12px;
+  opacity: ${({ disabled }) => disabled ? 0.55 : 1};
+  background-color: ${({ theme }) => theme.colors.white[100]};
+`;
+
+export const EstimateSuggestionOptionTitle = styled.Text`
+  color: ${({ theme }) => theme.colors.black.Black};
+  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
+  font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
+`;
+
+export const EstimateSuggestionOptionDetail = styled.Text`
+  margin-top: 2px;
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: ${({ theme }) => theme.fonts.sizes['0']}px;

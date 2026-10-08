@@ -9,6 +9,9 @@ const DEMO_MARKET_COORDINATES = [
   { latitude: -23.5614, longitude: -46.6559 },
   { latitude: -23.5432, longitude: -46.6292 },
 ];
+const DEPRECATED_DEMO_MARKET_NAMES = new Set([
+  'Mercado Exemplo Centro', 'Mercado Exemplo Oeste', 'Mercado Exemplo Leste',
+]);
 
 const DEMO_PRODUCTS = [
   { name: 'Leite integral 1L', categoryId: 1, contentValue: 1, unit: 'L', plannedQuantity: 2, prices: [5.49, 5.79, 5.35], brands: ['Tirol', 'Italac', 'Tirol'] },
@@ -33,7 +36,15 @@ export async function seedGroceryEstimateDemoData(pantryId) {
     const shouldAddHistory = !hasDemoHistory;
     const shouldAddMarketHistory = !hasMarketDemoHistory;
     const shouldAddDemoList = pantryLists.length === 0;
-    if (!shouldAddHistory && !shouldAddMarketHistory && !shouldAddDemoList) return database;
+    const demoMarketIds = new Set(pantryPurchases
+      .filter((purchase) => purchase.title === 'Compra demonstrativa por mercado' && purchase.market_id)
+      .map((purchase) => purchase.market_id));
+    const marketsWithDemoNames = database.markets.map((market) => {
+      if (!demoMarketIds.has(market.id) || !DEPRECATED_DEMO_MARKET_NAMES.has(market.local_name)) return market;
+      return { ...market, local_name: null };
+    });
+    const hasDeprecatedDemoNames = marketsWithDemoNames.some((market, index) => market !== database.markets[index]);
+    if (!shouldAddHistory && !shouldAddMarketHistory && !shouldAddDemoList && !hasDeprecatedDemoNames) return database;
 
     const marketRows = shouldAddMarketHistory ? DEMO_MARKET_CEPS.map((cep, index) => ({
       id: Crypto.randomUUID(), cep, ...DEMO_MARKET_COORDINATES[index], local_name: null,
@@ -123,7 +134,7 @@ export async function seedGroceryEstimateDemoData(pantryId) {
 
     return {
       ...database,
-      markets: [...database.markets, ...marketRows],
+      markets: [...marketsWithDemoNames, ...marketRows],
       purchases: [...database.purchases, ...historicalPurchases.map(({ purchase }) => purchase), ...marketPurchases.map(({ purchase }) => purchase)],
       pantry_products: [...database.pantry_products, ...historicalPurchases.flatMap(({ products }) => products), ...marketPurchases.flatMap(({ products }) => products)],
       grocery_lists: shouldAddDemoList ? [...database.grocery_lists, {

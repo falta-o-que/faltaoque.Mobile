@@ -51,7 +51,7 @@ function matchesProduct(plannedItem, observation) {
 }
 
 function comparableCategory(matches, item) {
-  if (!item.category || item.category === 'outros') return matches;
+  if (!item.category) return matches;
   const sameCategory = matches.filter(({ product }) => product.category_name === item.category);
   return sameCategory.length ? sameCategory : matches;
 }

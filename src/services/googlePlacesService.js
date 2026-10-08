@@ -49,7 +49,7 @@ export async function getPlaceDetails(placeId, sessionToken) {
   const place = await parseResponse(response);
   const cepComponent = place.addressComponents?.find((component) => component.types?.includes('postal_code'));
   let cep;
-  try { cep = normalizeCep(cepComponent?.longText); } catch { throw new Error('Esse local não tem CEP disponível. Escolha outro resultado.'); }
+  try { cep = normalizeCep(cepComponent?.longText); } catch { throw new Error('Não foi possível identificar o endereço desse local. Escolha outro resultado.'); }
   if (!Number.isFinite(place.location?.latitude) || !Number.isFinite(place.location?.longitude)) {
     throw new Error('O Google não retornou as coordenadas desse local. Escolha outro resultado.');
   }

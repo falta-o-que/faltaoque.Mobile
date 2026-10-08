@@ -20,7 +20,7 @@ export async function addProduct({ accountId, pantryId, location, market, ...dra
   try {
     normalizedLocation = normalizeCep(location);
   } catch {
-    const error = new Error('Informe um CEP válido com 8 números.');
+    const error = new Error('Escolha um mercado válido da lista de sugestões.');
     error.fields = { location: error.message };
     throw error;
   }

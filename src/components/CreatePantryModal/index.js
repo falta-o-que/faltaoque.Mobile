@@ -123,7 +123,12 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
 
     try {
       setIsSubmitting(true);
-      await onCreate({ color, name: name.trim(), location: selectedPlace?.cep ?? null });
+      await onCreate({
+        color,
+        name: name.trim(),
+        location: selectedPlace?.cep ?? null,
+        locationName: selectedPlace?.displayName ?? null,
+      });
     } finally {
       setIsSubmitting(false);
     }

@@ -13,7 +13,7 @@ export async function listPantries(accountId) {
   return listPantriesByAccountId(accountId);
 }
 
-export async function createPantry({ accountId, color, name, location }) {
+export async function createPantry({ accountId, color, name, location, locationName }) {
   const normalizedName = name?.trim();
 
   if (!accountId) {
@@ -35,7 +35,7 @@ export async function createPantry({ accountId, color, name, location }) {
   try {
     normalizedLocation = normalizeCep(location);
   } catch {
-    const error = new Error('Informe um CEP válido com 8 números.');
+    const error = new Error('Escolha um endereço válido da lista do Google Maps.');
     error.fields = { location: error.message };
     throw error;
   }
@@ -45,6 +45,7 @@ export async function createPantry({ accountId, color, name, location }) {
     accountId,
     name: normalizedName,
     location: normalizedLocation,
+    locationName: normalizedLocation ? locationName?.trim() || null : null,
     color,
     createdAt: new Date().toISOString(),
   };
@@ -52,16 +53,16 @@ export async function createPantry({ accountId, color, name, location }) {
   return savePantry(pantry);
 }
 
-export async function updatePantryLocation({ accountId, pantryId, location }) {
+export async function updatePantryLocation({ accountId, pantryId, location, locationName }) {
   if (!accountId || !pantryId) throw new Error('INVALID_PANTRY');
   let normalizedLocation;
   try {
     normalizedLocation = normalizeCep(location);
   } catch {
-    const error = new Error('Informe um CEP válido com 8 números.');
+    const error = new Error('Escolha um endereço válido da lista do Google Maps.');
     error.fields = { location: error.message };
     throw error;
   }
-  await savePantryLocation({ accountId, pantryId, location: normalizedLocation });
+  await savePantryLocation({ accountId, pantryId, location: normalizedLocation, locationName });
   return (await listPantriesByAccountId(accountId)).find((pantry) => pantry.id === pantryId);
 }
