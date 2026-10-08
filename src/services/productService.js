@@ -1,5 +1,6 @@
 import * as Crypto from 'expo-crypto';
 import { normalizeProduct } from '../domain/productValidation';
+import { normalizeCep } from '../domain/locationValidation';
 import {
   createProductWithPurchase,
   deleteProduct as removeProduct,
@@ -12,14 +13,22 @@ export function listProducts(accountId, pantryId) {
   return listProductsByPantry(accountId, pantryId);
 }
 
-export async function addProduct({ accountId, pantryId, ...draft }) {
+export async function addProduct({ accountId, pantryId, location, market, ...draft }) {
   if (!accountId) throw new Error('Entre na sua conta para adicionar produtos.');
   const values = normalizeProduct(draft);
+  let normalizedLocation;
+  try {
+    normalizedLocation = normalizeCep(location);
+  } catch {
+    const error = new Error('Informe um CEP válido com 8 números.');
+    error.fields = { location: error.message };
+    throw error;
+  }
   const createdAt = new Date().toISOString();
   const product = { ...values, id: Crypto.randomUUID(), accountId, pantryId, createdAt };
   const purchase = {
-    id: Crypto.randomUUID(), accountId, pantryId, source: 'manual',
-    purchasedAt: createdAt, location: '', totalPrice: values.totalPrice,
+    id: Crypto.randomUUID(), accountId, pantryId, source: 'manual', market,
+    purchasedAt: createdAt, location: normalizedLocation, totalPrice: values.totalPrice,
     items: [{ ...values, productId: product.id }],
   };
   return createProductWithPurchase(product, purchase);

@@ -2,8 +2,10 @@
 // adapter so it can later call the hosted grocery-list endpoints.
 import * as Crypto from 'expo-crypto';
 import { isWithinThreeMonthDateRange, normalizeDateOnly } from '../domain/dateValidation';
+import { normalizeCep } from '../domain/locationValidation';
 import { getCategoryId, readDatabase, updateDatabase } from '../storage/localDatabase';
 import { estimateGroceryListPrices } from './groceryPriceEstimateService';
+import { findOrCreateLocalMarket } from '../repositories/marketRepository';
 
 const scopeKey = (accountId, pantryId) => {
   if (!accountId || !pantryId) throw new Error('Conta e despensa são obrigatórias.');
@@ -22,24 +24,35 @@ function normalizePlannedDate(value) {
   return normalized;
 }
 
+function normalizeMarketLocation(value) {
+  try {
+    return normalizeCep(value);
+  } catch {
+    throw new Error('Informe um CEP de mercado válido com 8 números.');
+  }
+}
+
 function readScope(database, accountId, pantryId) {
   const member = database.users_pantries.some((row) => row.user_id === accountId && row.pantry_id === pantryId);
   if (!member) return [];
   const lists = database.grocery_lists.filter((list) => list.pantry_id === pantryId);
   return lists.map((list) => {
+    const market = database.markets.find((entry) => entry.id === list.market_id) ?? null;
     const view = {
       id: list.id, accountId, pantryId, name: list.name, plannedDate: list.date,
-      location: list.location, estimatedPrice: list.estimated_price,
-      status: list.is_finished ? 'finished' : 'active',
+      location: market?.cep ?? list.location,
+      marketId: list.market_id ?? null, market: market ? { id: market.id, cep: market.cep, latitude: market.latitude, longitude: market.longitude, localName: market.local_name } : null, estimatedPrice: list.estimated_price,
+      status: list.is_active ? 'active' : 'finished',
       items: database.grocery_list_products.filter((item) => item.grocery_list_id === list.id).map((item) => ({
-      id: item.id, name: item.name, category: database.categories.find((category) => category.id === item.category_id)?.name ?? 'outros', quantity: item.quantity ?? 1,
+      id: item.id, name: item.name, category: database.categories.find((category) => category.id === item.category_id)?.name === 'outros'
+        ? null : database.categories.find((category) => category.id === item.category_id)?.name ?? null, quantity: item.quantity ?? 1,
       weight: item.content_value, unit: ({ 1: 'g', 2: 'kg', 3: 'ml', 4: 'L' })[item.unit_of_measure] ?? null,
       checked: item.is_taken,
       })),
     };
     const estimate = view.status === 'active'
       ? estimateGroceryListPrices(database, view)
-      : { estimatedPrice: view.estimatedPrice, matchedItems: 0, totalItems: view.items.length };
+      : { estimatedPrice: view.estimatedPrice, matchedItems: 0, totalItems: view.items.length, missingItems: [] };
     return { ...view, ...estimate };
   });
 }
@@ -52,15 +65,21 @@ function writeScope(database, pantryId, lists) {
   const keptItems = database.grocery_list_products.filter((item) => !previousListIds.has(item.grocery_list_id));
   const listRows = [];
   const itemRows = [];
+  let markets = database.markets;
   lists.forEach((list) => {
     const { items = [], ...values } = list;
+    const marketInput = values.market ?? (values.marketId ? { id: values.marketId }
+      : values.location ? { cep: values.location } : null);
+    const resolvedMarket = findOrCreateLocalMarket(markets, marketInput);
+    markets = resolvedMarket.markets;
     const estimate = values.status === 'finished'
       ? { estimatedPrice: values.estimatedPrice ?? null }
-      : estimateGroceryListPrices(database, { ...list, pantryId });
+      : estimateGroceryListPrices({ ...database, markets }, { ...list, pantryId, marketId: resolvedMarket.marketId });
     listRows.push({
       id: values.id, name: values.name, date: values.plannedDate || null, location: values.location || null,
+      market_id: resolvedMarket.marketId,
       suggestion: null, estimated_price: estimate.estimatedPrice, pantry_id: pantryId,
-      is_finished: values.status === 'finished',
+      is_active: values.status !== 'finished',
     });
     items.forEach((item) => itemRows.push({
       id: item.id, name: item.name, quantity: item.quantity ?? null, content_value: item.weight ?? null,
@@ -69,7 +88,7 @@ function writeScope(database, pantryId, lists) {
       category_id: getCategoryId(database, item.category),
     }));
   });
-  return { ...database, grocery_lists: [...keptLists, ...listRows], grocery_list_products: [...keptItems, ...itemRows] };
+  return { ...database, markets, grocery_lists: [...keptLists, ...listRows], grocery_list_products: [...keptItems, ...itemRows] };
 }
 
 async function mutateScope(accountId, pantryId, mutate) {
@@ -106,15 +125,18 @@ export async function listGroceryLists(accountId, pantryId) {
   return copy(readScope(database, scope.accountId, scope.pantryId));
 }
 
-export async function createGroceryList({ accountId, pantryId, name, plannedDate }) {
+export async function createGroceryList({ accountId, pantryId, name, plannedDate, location, market }) {
   const cleanName = name?.trim();
   if (!cleanName || cleanName.length > 100) throw new Error('Informe um nome de lista com até 100 caracteres.');
-  const list = { id: makeId(), accountId, pantryId, name: cleanName, plannedDate: normalizePlannedDate(plannedDate), status: 'active', items: [], createdAt: new Date().toISOString() };
+  const normalizedLocation = market ? normalizeMarketLocation(market.cep) : normalizeMarketLocation(location);
+  const list = { id: makeId(), accountId, pantryId, name: cleanName, plannedDate: normalizePlannedDate(plannedDate),
+    location: normalizedLocation, marketId: market?.id ?? null, market: market ?? null,
+    status: 'active', items: [], createdAt: new Date().toISOString() };
   await mutateScope(accountId, pantryId, (lists) => ({ lists: [...lists, list], result: list }));
   return copy(list);
 }
 
-export async function updateGroceryList({ accountId, pantryId, listId, name, plannedDate }) {
+export async function updateGroceryList({ accountId, pantryId, listId, name, plannedDate, location, market }) {
   const cleanName = name?.trim();
   if (!cleanName || cleanName.length > 100) throw new Error('Informe um nome de lista com até 100 caracteres.');
   const normalizedPlannedDate = normalizePlannedDate(plannedDate);
@@ -123,7 +145,12 @@ export async function updateGroceryList({ accountId, pantryId, listId, name, pla
     const next = lists.map((list) => {
       if (list.id !== listId) return list;
       if (list.status !== 'active') throw new Error('Lista concluída não pode ser editada.');
-      updated = { ...list, name: cleanName, plannedDate: normalizedPlannedDate };
+      const nextLocation = market ? normalizeMarketLocation(market.cep)
+        : location === undefined ? list.location ?? null : normalizeMarketLocation(location);
+      updated = { ...list, name: cleanName, plannedDate: normalizedPlannedDate,
+        location: nextLocation,
+        market: market ?? null,
+        marketId: market ? market.id ?? null : nextLocation === list.location ? list.marketId : null };
       return updated;
     });
     if (!updated) throw new Error('Lista não encontrada.');
@@ -243,7 +270,7 @@ export async function finishGroceryList({ accountId, pantryId, listId }) {
   });
 }
 
-export async function repeatGroceryList({ accountId, pantryId, listId, name, plannedDate }) {
+export async function repeatGroceryList({ accountId, pantryId, listId, name, plannedDate, location, market }) {
   if (!plannedDate) throw new Error('Informe uma nova data para esta compra.');
   const normalizedPlannedDate = normalizePlannedDate(plannedDate);
   return mutateScope(accountId, pantryId, (lists) => {
@@ -253,6 +280,10 @@ export async function repeatGroceryList({ accountId, pantryId, listId, name, pla
     const cleanName = name?.trim() || source.name;
     if (cleanName.length > 100) throw new Error('O nome da lista deve ter até 100 caracteres.');
     const repeated = { ...source, id: makeId(), name: cleanName, plannedDate: normalizedPlannedDate,
+      location: market ? normalizeMarketLocation(market.cep)
+        : location === undefined ? source.location ?? null : normalizeMarketLocation(location),
+      marketId: market ? market.id ?? null : location === undefined ? source.marketId ?? null : null,
+      market: market ?? null,
       status: 'active', createdAt: new Date().toISOString(), finishedAt: undefined,
       items: source.items.map((item) => ({ ...item, id: makeId(), checked: false })) };
     return { lists: [...lists, repeated], result: repeated };

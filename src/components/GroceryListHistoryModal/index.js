@@ -49,6 +49,15 @@ const formatMeasure = (item) => {
   return parts.join(' · ');
 };
 
+const formatCep = (value) => {
+  const digits = String(value ?? '').replace(/\D/g, '');
+  return digits.length === 8 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : 'Não informado';
+};
+
+const formatPrice = (value) => value == null
+  ? 'Sem estimativa'
+  : `R$ ${Number(value).toFixed(2).replace('.', ',')}`;
+
 export default function GroceryListHistoryModal({
   visible,
   lists = [],
@@ -92,6 +101,14 @@ export default function GroceryListHistoryModal({
                     <DateRow>
                       <DateLabel>Concluída</DateLabel>
                       <DateText>{formatDate(list.finishedAt)}</DateText>
+                    </DateRow>
+                    <DateRow>
+                      <DateLabel>Mercado</DateLabel>
+                      <DateText>{formatCep(list.location)}</DateText>
+                    </DateRow>
+                    <DateRow>
+                      <DateLabel>Preço estimado</DateLabel>
+                      <DateText>{formatPrice(list.estimatedPrice)}</DateText>
                     </DateRow>
 
                     <SectionLabel>

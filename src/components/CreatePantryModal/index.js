@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Modal } from 'react-native';
 
 import { COLOR_OPTION_ROWS } from '../../constants/colorOptions';
-import { AngleIcon, CancelCircleIcon, CheckIcon, PantryIcon, PenIcon } from '../../assets/icons/export';
+import { AngleIcon, CancelCircleIcon, CheckIcon, LocationIcon, PantryIcon, PenIcon } from '../../assets/icons/export';
 import FormField from '../FormField';
 import ModalActionButton from '../ModalActionButton';
+import PlaceSearchField from '../PlaceSearchField';
 import {
   Actions,
   Card,
@@ -24,6 +25,8 @@ import {
 
 export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
   const [name, setName] = useState('');
+  const [location, setLocation] = useState('');
+  const [selectedPlace, setSelectedPlace] = useState(null);
   const [color, setColor] = useState(null);
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const [shouldRenderColorPicker, setShouldRenderColorPicker] = useState(false);
@@ -34,6 +37,8 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
   useEffect(() => {
     if (!visible) {
       setName('');
+      setLocation('');
+      setSelectedPlace(null);
       setColor(null);
       setErrors({});
       setIsColorPickerOpen(false);
@@ -106,17 +111,19 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
     const nextErrors = {
       name: name.trim() ? undefined : 'Informe o nome da despensa.',
       color: color ? undefined : 'Escolha uma cor para a despensa.',
+      location: location.trim() && !selectedPlace
+        ? 'Escolha um endereço da lista de sugestões.' : undefined,
     };
 
     setErrors(nextErrors);
 
-    if (nextErrors.name || nextErrors.color) {
+    if (nextErrors.name || nextErrors.color || nextErrors.location) {
       return;
     }
 
     try {
       setIsSubmitting(true);
-      await onCreate({ color, name: name.trim() });
+      await onCreate({ color, name: name.trim(), location: selectedPlace?.cep ?? null });
     } finally {
       setIsSubmitting(false);
     }
@@ -146,6 +153,26 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
               }}
               placeholder="Nome"
               value={name}
+            />
+            <PlaceSearchField
+              accessibilityLabel="Endereço da despensa, opcional"
+              value={location}
+              selected={Boolean(selectedPlace)}
+              selectedPlace={selectedPlace}
+              disabled={isSubmitting}
+              error={errors.location}
+              Icon={LocationIcon}
+              placeholder="Endereço da despensa (opcional)"
+              onChangeText={(value) => {
+                setLocation(value);
+                setSelectedPlace(null);
+                setErrors((currentErrors) => ({ ...currentErrors, location: undefined }));
+              }}
+              onSelect={(place) => {
+                setSelectedPlace(place);
+                setLocation(place.displayName);
+                setErrors((currentErrors) => ({ ...currentErrors, location: undefined }));
+              }}
             />
             <ColorHeader
               accessibilityRole="button"

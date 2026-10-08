@@ -7,6 +7,7 @@ import {
   CancelCircleIcon,
   CheckIcon,
   DeliveryIcon,
+  LocationIcon,
   PenIcon,
 } from '../../assets/icons/export';
 import {
@@ -18,6 +19,7 @@ import {
 import CategoryTag from '../CategoryTag';
 import FormField from '../FormField';
 import ModalActionButton from '../ModalActionButton';
+import PlaceSearchField from '../PlaceSearchField';
 import { ProductCartIcon } from './icons';
 import {
   Accordion,
@@ -59,11 +61,13 @@ const EMPTY_DRAFT = {
   weight: '',
   unit: '',
   category: null,
+  location: '',
 };
 
 export function AddProductModal({ onCreate, onRequestClose, visible }) {
   const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [errors, setErrors] = useState({});
+  const [selectedMarket, setSelectedMarket] = useState(null);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [shouldRenderCategoryOptions, setShouldRenderCategoryOptions] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,6 +77,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
   useEffect(() => {
     if (!visible) {
       setDraft(EMPTY_DRAFT);
+      setSelectedMarket(null);
       setErrors({});
       setIsCategoryOpen(false);
       setShouldRenderCategoryOptions(false);
@@ -109,6 +114,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
   }, [categoryMenuProgress, isCategoryOpen, shouldRenderCategoryOptions]);
 
   function updateField(field, value) {
+    if (field === 'location') setSelectedMarket(null);
     setDraft((currentDraft) => ({ ...currentDraft, [field]: value }));
     setErrors((currentErrors) => ({
       ...currentErrors,
@@ -153,6 +159,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
     }
 
     const nextErrors = validateProduct(draft);
+    if (draft.location.trim() && !selectedMarket) nextErrors.location = 'Escolha um mercado da lista de endereços.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
       return;
@@ -162,7 +169,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
     setIsSubmitting(true);
 
     try {
-      await onCreate({ ...draft });
+      await onCreate({ ...draft, location: selectedMarket?.cep ?? null, market: selectedMarket });
     } catch (error) {
       const fieldErrors = error?.fields && typeof error.fields === 'object'
         ? error.fields
@@ -284,7 +291,22 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                   maxLength={9}
                   onChangeText={(value) => updateField('quantity', value)}
                   placeholder="Quantidade *"
-                    value={draft.quantity}
+                  value={draft.quantity}
+                  />
+                  <PlaceSearchField
+                    value={draft.location}
+                    selected={Boolean(selectedMarket)}
+                    selectedPlace={selectedMarket}
+                    disabled={isSubmitting}
+                    error={errors.location}
+                    Icon={LocationIcon}
+                    placeholder="Mercado da compra (opcional)"
+                    onChangeText={(value) => updateField('location', value)}
+                    onSelect={(market) => {
+                      setSelectedMarket(market);
+                      setDraft((current) => ({ ...current, location: market.displayName }));
+                      setErrors((current) => ({ ...current, location: undefined, submit: undefined }));
+                    }}
                   />
                   <FormField
                     accessibilityLabel="Data de validade, opcional, no formato dia-mês-ano"

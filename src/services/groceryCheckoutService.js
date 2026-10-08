@@ -27,10 +27,12 @@ export async function finishListAndStock({ accountId, pantryId, listId, pricesBy
     }
     const storedList = database.grocery_lists.find((entry) => entry.id === listId && entry.pantry_id === pantryId);
     if (!storedList) throw new Error('Lista não encontrada.');
-    if (storedList.is_finished) return database;
+    if (!storedList.is_active) return database;
     const purchase = {
       id: purchaseId, title: list.name,
-      location: list.location && list.location.length <= 8 ? list.location : null,
+      location: database.markets.find((market) => market.id === storedList.market_id)?.cep ??
+        (list.location && list.location.length <= 8 ? list.location : null),
+      market_id: storedList.market_id ?? null,
       purchase_date: purchasedAt.slice(0, 10),
       total_price: products.reduce((total, product) => total + product.totalPrice, 0),
       total_products: products.length,
@@ -47,7 +49,7 @@ export async function finishListAndStock({ accountId, pantryId, listId, pricesBy
       purchases: [...database.purchases, purchase],
       pantry_products: [...database.pantry_products, ...pantry_products],
       grocery_lists: database.grocery_lists.map((entry) => entry.id === listId
-        ? { ...entry, is_finished: true } : entry),
+        ? { ...entry, is_active: false } : entry),
     };
   });
 }

@@ -55,7 +55,7 @@ repository contracts
 - `purchaseRepository`.
 - `productAliasRepository`.
 
-As assinaturas públicas devem permanecer estáveis durante a troca de armazenamento local por API. A pedido do usuário em 6 de outubro de 2026, a chave principal de armazenamento espelha as tabelas e os campos do JSON final do grupo, acrescidos de `grocery_lists.is_finished` e `grocery_list_products.category_id`, confirmados como campos esquecidos no desenho. Somente a versão do esquema é mantida em chave separada.
+As assinaturas públicas devem permanecer estáveis durante a troca de armazenamento local por API. Desde 8 de outubro de 2026, a chave principal de armazenamento espelha o JSON oficial fechado, preservado em `hosted-database-model-2026-10-08.json`, acrescido localmente da tabela `markets` e das referências `market_id` em compras e listas. Para listas, o modelo usa `grocery_lists.is_active` (`true` ativa, `false` concluída) e `grocery_list_products.category_id`. Somente a versão do esquema é mantida em chave separada. A migração local da versão 8 para a 9 preserva os dados e associa históricos com CEP a um mercado legado por CEP; não atribui coordenadas inexistentes.
 
 ## Estado e persistência
 
@@ -112,6 +112,6 @@ Não será adicionada uma biblioteca global de estado, formulário ou banco rela
 
 ## Decisões ainda técnicas
 
-- Contrato da API para incluir os campos `grocery_lists.is_finished` e `grocery_list_products.category_id`, ainda ausentes da implantação hospedada confirmada.
+- Confirmar que o contrato da API e a implantação hospedada seguem o modelo oficial fechado de 8 de outubro, inclusive `grocery_lists.is_active` e `grocery_list_products.category_id`.
 - Estratégia final do extrator da SEFAZ-SP após teste com uma nota real.
 - Biblioteca e configuração de testes compatíveis com a base atual.

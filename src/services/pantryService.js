@@ -1,8 +1,10 @@
 import * as Crypto from 'expo-crypto';
+import { normalizeCep } from '../domain/locationValidation';
 
 import {
   createPantry as savePantry,
   listPantriesByAccountId,
+  updatePantryLocation as savePantryLocation,
 } from '../repositories/pantryRepository';
 
 export async function listPantries(accountId) {
@@ -11,7 +13,7 @@ export async function listPantries(accountId) {
   return listPantriesByAccountId(accountId);
 }
 
-export async function createPantry({ accountId, color, name }) {
+export async function createPantry({ accountId, color, name, location }) {
   const normalizedName = name?.trim();
 
   if (!accountId) {
@@ -29,13 +31,37 @@ export async function createPantry({ accountId, color, name }) {
     throw new Error('INVALID_PANTRY_COLOR');
   }
 
+  let normalizedLocation;
+  try {
+    normalizedLocation = normalizeCep(location);
+  } catch {
+    const error = new Error('Informe um CEP válido com 8 números.');
+    error.fields = { location: error.message };
+    throw error;
+  }
+
   const pantry = {
     id: Crypto.randomUUID(),
     accountId,
     name: normalizedName,
+    location: normalizedLocation,
     color,
     createdAt: new Date().toISOString(),
   };
 
   return savePantry(pantry);
+}
+
+export async function updatePantryLocation({ accountId, pantryId, location }) {
+  if (!accountId || !pantryId) throw new Error('INVALID_PANTRY');
+  let normalizedLocation;
+  try {
+    normalizedLocation = normalizeCep(location);
+  } catch {
+    const error = new Error('Informe um CEP válido com 8 números.');
+    error.fields = { location: error.message };
+    throw error;
+  }
+  await savePantryLocation({ accountId, pantryId, location: normalizedLocation });
+  return (await listPantriesByAccountId(accountId)).find((pantry) => pantry.id === pantryId);
 }

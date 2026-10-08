@@ -20,7 +20,7 @@ import { finishListAndStock } from '../../services/groceryCheckoutService';
 import { listPantries } from '../../services/pantryService';
 import {
   CategoryScroll, Chevron, ColorCircle, Content, EmptyText, Header, HeaderActions,
-  EstimateBox, EstimateCopy, EstimateDetail, EstimatePrice, EstimateTitle, IconButton, ItemStack, ListActions, ListHeading, ListName, ListScroll, ListSection,
+  EstimateBox, EstimateCopy, EstimateDetail, EstimateMissingAction, EstimateMissingText, EstimatePrice, EstimateTitle, IconButton, ItemStack, ListActions, ListHeading, ListName, ListScroll, ListSection,
   PantryIndicator, RetryButton, RetryText, RoundButton, Screen, SelectionBar, SelectionButton,
   SelectionButtonText, SelectionHint, StatusText, Title, TitleBlock, TitleRow,
 } from './styles';
@@ -43,6 +43,11 @@ function ListChevron({ expanded }) {
 
 function formatEstimatedPrice(value) {
   return `R$ ${Number(value).toFixed(2).replace('.', ',')}`;
+}
+
+function formatCep(value) {
+  const digits = String(value ?? '').replace(/\D/g, '');
+  return digits.length === 8 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
 }
 
 export default function GroceryListScreen({ navigation, route }) {
@@ -89,7 +94,10 @@ export default function GroceryListScreen({ navigation, route }) {
         setLists(storedLists);
         setError(found ? null : 'Esta despensa não está disponível para sua conta.');
       })
-      .catch(() => { if (active) { setPantry(null); setError('Não foi possível carregar as listas desta despensa.'); } })
+      .catch((loadError) => {
+        console.error('[GroceryListScreen] Falha ao carregar listas:', loadError);
+        if (active) { setPantry(null); setError('Não foi possível carregar as listas desta despensa.'); }
+      })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [account?.id, pantryId]));
@@ -225,7 +233,7 @@ export default function GroceryListScreen({ navigation, route }) {
           {loading ? <ActivityIndicator accessibilityLabel="Carregando listas" /> : error ? (
             <>
               <StatusText accessibilityRole="alert">{error}</StatusText>
-              <RetryButton accessibilityRole="button" onPress={() => { setLoading(true); refresh().then(() => setError(null)).catch(() => { setPantry(null); setError('Não foi possível carregar as listas desta despensa.'); }).finally(() => setLoading(false)); }}>
+              <RetryButton accessibilityRole="button" onPress={() => { setLoading(true); refresh().then(() => setError(null)).catch((loadError) => { console.error('[GroceryListScreen] Falha ao recarregar listas:', loadError); setPantry(null); setError('Não foi possível carregar as listas desta despensa.'); }).finally(() => setLoading(false)); }}>
                 <RetryText>Tentar novamente</RetryText>
               </RetryButton>
             </>
@@ -257,30 +265,55 @@ export default function GroceryListScreen({ navigation, route }) {
                     </IconButton>
                   </ListActions>
                 </ListHeading>
-                {list.items.length > 0 ? (
+                {expanded && (list.items.length > 0 ? (
                   <EstimateBox accessibilityLabel={list.estimatedPrice == null
                     ? `Histórico disponível para ${list.matchedItems} de ${list.totalItems} itens`
                     : `${list.matchedItems < list.totalItems ? 'Estimativa parcial' : 'Total estimado'}: ${formatEstimatedPrice(list.estimatedPrice)}; histórico para ${list.matchedItems} de ${list.totalItems} itens`}>
                     {list.estimatedPrice == null ? (
                       <>
                         <EstimateCopy>
-                          <EstimateTitle>Estimativa parcial</EstimateTitle>
-                          <EstimateDetail>Histórico disponível para {list.matchedItems} de {list.totalItems} itens.</EstimateDetail>
+                          <EstimateTitle>{list.location ? 'Sem estimativa neste mercado' : 'Estimativa parcial'}</EstimateTitle>
+                          <EstimateDetail>{list.location
+                            ? `CEP ${formatCep(list.location)} · histórico para ${list.matchedItems} de ${list.totalItems} itens.`
+                            : `Histórico disponível para ${list.matchedItems} de ${list.totalItems} itens.`}</EstimateDetail>
+                          {list.missingItems?.length ? (
+                            <EstimateMissingAction accessibilityRole="button" onPress={() => Alert.alert(
+                              'Produtos sem histórico',
+                              list.missingItems.join('\n'),
+                            )}>
+                              <EstimateMissingText>Ver produtos sem histórico</EstimateMissingText>
+                            </EstimateMissingAction>
+                          ) : null}
                         </EstimateCopy>
                       </>
                     ) : (
                       <>
                         <EstimateCopy>
-                          <EstimateTitle>{list.matchedItems < list.totalItems ? 'Estimativa parcial' : 'Total estimado'}</EstimateTitle>
+                          <EstimateTitle>{list.location ? 'Preço estimado neste mercado' : list.matchedItems < list.totalItems ? 'Estimativa parcial' : 'Total estimado'}</EstimateTitle>
                           <EstimateDetail>{list.matchedItems < list.totalItems
-                            ? `Soma de ${list.matchedItems} de ${list.totalItems} itens com histórico.`
-                            : 'Com base no histórico de compras.'}</EstimateDetail>
+                            ? `${list.location ? `CEP ${formatCep(list.location)} · ` : ''}Soma de ${list.matchedItems} de ${list.totalItems} itens com histórico.`
+                            : list.location ? `CEP ${formatCep(list.location)} · com base no histórico de compras.` : 'Com base no histórico de compras.'}</EstimateDetail>
+                          {list.missingItems?.length ? (
+                            <EstimateMissingAction accessibilityRole="button" onPress={() => Alert.alert(
+                              'Produtos sem histórico',
+                              list.missingItems.join('\n'),
+                            )}>
+                              <EstimateMissingText>Ver produtos sem histórico</EstimateMissingText>
+                            </EstimateMissingAction>
+                          ) : null}
                         </EstimateCopy>
                         <EstimatePrice>{formatEstimatedPrice(list.estimatedPrice)}</EstimatePrice>
                       </>
                     )}
                   </EstimateBox>
-                ) : null}
+                ) : list.location ? (
+                  <EstimateBox accessibilityLabel={`Mercado selecionado, CEP ${formatCep(list.location)}; a estimativa aparecerá quando a lista tiver produtos.`}>
+                    <EstimateCopy>
+                      <EstimateTitle>Mercado selecionado</EstimateTitle>
+                      <EstimateDetail>CEP {formatCep(list.location)} · adicione produtos para estimar o preço.</EstimateDetail>
+                    </EstimateCopy>
+                  </EstimateBox>
+                ) : null)}
                 {removalListId === list.id ? (
                   <SelectionBar>
                     <SelectionHint>Selecione os produtos ({removalItemIds.length})</SelectionHint>

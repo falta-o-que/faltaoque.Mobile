@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 
 import Navbar from '../../components/Navbar';
 import CreatePantryModal from '../../components/CreatePantryModal';
+import PantryLocationModal from '../../components/PantryLocationModal';
 import PantryCard from '../../components/PantryCard';
 import PantryDestinationModal from '../../components/PantryDestinationModal';
 import QuickActionButton from '../../components/QuickActionButton';
@@ -50,6 +51,8 @@ export function HomeScreen({ navigation }) {
   const [selectedAction, setSelectedAction] = useState('pantry');
   const [isCreatePantryModalOpen, setIsCreatePantryModalOpen] = useState(false);
   const [selectedPantry, setSelectedPantry] = useState(null);
+  const [pantryForLocationEdit, setPantryForLocationEdit] = useState(null);
+  const [isSavingPantryLocation, setIsSavingPantryLocation] = useState(false);
   const [pantries, setPantries] = useState([]);
   const [pantriesError, setPantriesError] = useState(null);
 
@@ -93,8 +96,8 @@ export function HomeScreen({ navigation }) {
     }
   };
 
-  const handlePantrySettingsPress = (pantryName) => {
-    showComingSoon(`A configuração de ${pantryName}`);
+  const handlePantrySettingsPress = (pantry) => {
+    setPantryForLocationEdit(pantry);
   };
 
   const handlePantryPress = (pantry) => {
@@ -122,11 +125,12 @@ export function HomeScreen({ navigation }) {
     setIsCreatePantryModalOpen(true);
   };
 
-  const handleCreatePantry = async ({ color, name }) => {
+  const handleCreatePantry = async ({ color, name, location }) => {
     try {
       const pantry = await pantryService.createPantry({
         accountId: account?.id,
         color,
+        location,
         name,
       });
 
@@ -138,6 +142,24 @@ export function HomeScreen({ navigation }) {
         'Não foi possível criar a despensa',
         'Tente novamente em alguns instantes.',
       );
+    }
+  };
+
+  const handleSavePantryLocation = async (location) => {
+    if (isSavingPantryLocation) return;
+    setIsSavingPantryLocation(true);
+    try {
+      const updated = await pantryService.updatePantryLocation({
+        accountId: account?.id,
+        pantryId: pantryForLocationEdit?.id,
+        location,
+      });
+      setPantries((current) => current.map((pantry) => pantry.id === updated.id ? updated : pantry));
+      setPantryForLocationEdit(null);
+    } catch {
+      Alert.alert('Não foi possível salvar o CEP', 'Confira o CEP e tente novamente.');
+    } finally {
+      setIsSavingPantryLocation(false);
     }
   };
 
@@ -178,7 +200,7 @@ export function HomeScreen({ navigation }) {
                     name={pantry.name}
                     productCount={pantry.productCount}
                     onPress={() => handlePantryPress(pantry)}
-                    onSettingsPress={() => handlePantrySettingsPress(pantry.name)}
+                    onSettingsPress={() => handlePantrySettingsPress(pantry)}
                   />
                 ))}
               </PantryList>
@@ -198,6 +220,13 @@ export function HomeScreen({ navigation }) {
         onCreate={handleCreatePantry}
         onRequestClose={() => setIsCreatePantryModalOpen(false)}
         visible={isCreatePantryModalOpen}
+      />
+      <PantryLocationModal
+        busy={isSavingPantryLocation}
+        onRequestClose={() => setPantryForLocationEdit(null)}
+        onSave={handleSavePantryLocation}
+        pantry={pantryForLocationEdit}
+        visible={Boolean(pantryForLocationEdit)}
       />
       <PantryDestinationModal
         onOpenPantry={handleOpenPantry}

@@ -139,6 +139,15 @@ export const EstimateDetail = styled.Text`
   font-size: ${({ theme }) => theme.fonts.sizes['0']}px;
 `;
 
+export const EstimateMissingAction = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })``;
+
+export const EstimateMissingText = styled.Text`
+  color: ${({ theme }) => theme.colors.primary[700]};
+  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
+  font-size: ${({ theme }) => theme.fonts.sizes['0']}px;
+  text-decoration-line: underline;
+`;
+
 export const ListName = styled.Text`
   flex: 1;
   color: ${({ theme }) => theme.colors.black.Black};

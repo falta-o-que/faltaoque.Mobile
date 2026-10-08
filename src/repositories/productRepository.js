@@ -1,4 +1,6 @@
 import { readDatabase, updateDatabase, getCategoryId, resolveCategory } from '../storage/localDatabase';
+import { normalizeCep } from '../domain/locationValidation';
+import { findOrCreateLocalMarket } from './marketRepository';
 
 const UNIT_BY_ID = { 1: 'g', 2: 'kg', 3: 'ml', 4: 'L' };
 const UNIT_ID = { g: 1, kg: 2, ml: 3, L: 4 };
@@ -17,13 +19,15 @@ function toProductView(database, row, accountId) {
     priceType: 'total', weight: row.content_value, unit: UNIT_BY_ID[row.unit_of_measure] ?? null,
     category: resolveCategory(database, row.category_id)?.name ?? 'outros', expirationDate: row.expiration_date,
     accountId, pantryId: purchase?.pantry_id, createdAt: purchase?.purchase_date,
+    marketId: purchase?.market_id ?? null,
+    location: database.markets.find((market) => market.id === purchase?.market_id)?.cep ?? purchase?.location ?? null,
   };
 }
 
-function toPurchaseRow(purchase) {
+function toPurchaseRow(purchase, marketId) {
   return {
     id: purchase.id, title: purchase.title ?? (purchase.source === 'nota_fiscal' ? 'Nota fiscal' : 'Compra manual'),
-    location: purchase.location && purchase.location.length <= 8 ? purchase.location : null,
+    location: normalizeCep(purchase.location), market_id: marketId,
     purchase_date: String(purchase.purchasedAt ?? new Date().toISOString()).slice(0, 10),
     total_price: Number(purchase.totalPrice ?? 0), total_products: purchase.items?.length ?? 1,
     is_finished: true, finish_date: String(purchase.purchasedAt ?? new Date().toISOString()).slice(0, 10),
@@ -52,9 +56,11 @@ export async function listProductsByPantry(accountId, pantryId) {
 export async function createProductWithPurchase(product, purchase) {
   await updateDatabase((database) => {
     assertPantry(database, product.accountId, product.pantryId);
-    const purchaseRow = toPurchaseRow(purchase);
+    const resolvedMarket = findOrCreateLocalMarket(database.markets,
+      purchase.market ?? (purchase.location ? { cep: purchase.location } : null));
+    const purchaseRow = toPurchaseRow(purchase, resolvedMarket.marketId);
     return {
-      ...database, purchases: [...database.purchases, purchaseRow],
+      ...database, markets: resolvedMarket.markets, purchases: [...database.purchases, purchaseRow],
       pantry_products: [...database.pantry_products, toProductRow(database, product, purchase.id)],
     };
   });
@@ -123,9 +129,11 @@ export async function importFiscalPurchase({ accountId, pantryId, products, purc
     if (qrCodeId && database.purchases.some((row) => row.pantry_id === pantryId && row.qr_code_id === qrCodeId)) {
       throw new Error('DUPLICATE_FISCAL_NOTE');
     }
-    const purchaseRow = toPurchaseRow({ ...purchase, qrCodeId });
+    const resolvedMarket = findOrCreateLocalMarket(database.markets,
+      purchase.market ?? (purchase.location ? { cep: purchase.location } : null));
+    const purchaseRow = toPurchaseRow({ ...purchase, qrCodeId }, resolvedMarket.marketId);
     return {
-      ...database, purchases: [...database.purchases, purchaseRow],
+      ...database, markets: resolvedMarket.markets, purchases: [...database.purchases, purchaseRow],
       pantry_products: [...database.pantry_products, ...products.map((product) => toProductRow(database, product, purchase.id))],
     };
   });

@@ -30,9 +30,11 @@ function median(values) {
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
-function getHistory(database, pantryId) {
+function getHistory(database, pantryId, location, marketId) {
   const purchases = new Map(database.purchases
-    .filter((purchase) => purchase.pantry_id === pantryId)
+    .filter((purchase) => purchase.pantry_id === pantryId && (marketId
+      ? purchase.market_id === marketId
+      : !location || purchase.location === location))
     .map((purchase) => [purchase.id, purchase]));
 
   return database.pantry_products.flatMap((product) => {
@@ -48,16 +50,56 @@ function matchesProduct(plannedItem, observation) {
   return matchesName(plannedItem.name, observation.product.name);
 }
 
-function preferSameMeasure(matches, item) {
-  if (item.weight == null) return matches;
-  const unitId = UNIT_IDS[item.unit];
+function comparableCategory(matches, item) {
+  if (!item.category || item.category === 'outros') return matches;
+  const sameCategory = matches.filter(({ product }) => product.category_name === item.category);
+  return sameCategory.length ? sameCategory : matches;
+}
+
+function baseMeasure(value, unitId) {
+  const amount = Number(value);
+  if (!(amount > 0) || !Number.isFinite(amount)) return null;
+  if (unitId === UNIT_IDS.kg) return amount * 1000;
+  if (unitId === UNIT_IDS.L) return amount * 1000;
+  if (unitId === UNIT_IDS.g || unitId === UNIT_IDS.ml) return amount;
+  return null;
+}
+
+function sameUnit(matches, unit) {
+  const unitId = UNIT_IDS[unit];
+  return unitId ? matches.filter(({ product }) => product.unit_of_measure === unitId) : [];
+}
+
+function samePresentation(matches, item) {
   const plannedWeight = Number(item.weight);
-  const sameMeasure = matches.filter(({ product }) => {
-    if (product.unit_of_measure !== unitId) return false;
+  const plannedUnit = UNIT_IDS[item.unit];
+  return matches.filter(({ product }) => {
+    if (product.unit_of_measure !== plannedUnit) return false;
     const historyWeight = Number(product.content_value);
     return Number.isFinite(historyWeight) && Math.abs(historyWeight - plannedWeight) <= Math.max(0.01, plannedWeight * 0.02);
   });
-  return sameMeasure.length ? sameMeasure : matches;
+}
+
+function presentationKey({ product }) {
+  return `${product.category_id ?? 'category-unknown'}:${product.unit_of_measure ?? 'unit-unknown'}:${product.content_value ?? 'size-unknown'}`;
+}
+
+function selectRepresentativePresentation(matches) {
+  const groups = new Map();
+  matches.forEach((observation) => {
+    const key = presentationKey(observation);
+    const group = groups.get(key) ?? [];
+    group.push(observation);
+    groups.set(key, group);
+  });
+  return [...groups.values()].sort((first, second) => {
+    if (first.length !== second.length) return second.length - first.length;
+    const firstDates = first.map((row) => String(row.purchasedAt ?? '')).sort();
+    const secondDates = second.map((row) => String(row.purchasedAt ?? '')).sort();
+    const firstRecent = firstDates[firstDates.length - 1] ?? '';
+    const secondRecent = secondDates[secondDates.length - 1] ?? '';
+    return secondRecent.localeCompare(firstRecent);
+  })[0] ?? [];
 }
 
 function estimateUnitPrice(observations) {
@@ -70,16 +112,39 @@ function estimateUnitPrice(observations) {
 
 export function estimateGroceryListPrices(database, list) {
   const items = list.items ?? [];
-  if (items.length === 0) return { estimatedPrice: null, matchedItems: 0, totalItems: 0 };
+  if (items.length === 0) return { estimatedPrice: null, matchedItems: 0, totalItems: 0, missingItems: [] };
 
-  const history = getHistory(database, list.pantryId);
+  const categories = new Map((database.categories ?? []).map((category) => [category.id, category.name]));
+  const history = getHistory(database, list.pantryId, list.location, list.marketId)
+    .map((observation) => ({ ...observation, product: { ...observation.product,
+      category_name: categories.get(observation.product.category_id) ?? null } }));
   let matchedItems = 0;
   let total = 0;
+  const missingItems = [];
   items.forEach((item) => {
-    const matches = history.filter((observation) => matchesProduct(item, observation));
-    const comparableHistory = preferSameMeasure(matches, item);
-    const unitPrice = estimateUnitPrice(comparableHistory);
-    if (unitPrice == null) return;
+    const matches = comparableCategory(history.filter((observation) => matchesProduct(item, observation)), item);
+    let unitPrice = null;
+    if (item.weight != null && Number(item.weight) > 0 && UNIT_IDS[item.unit]) {
+      const sameUnitHistory = sameUnit(matches, item.unit);
+      const exactPresentation = samePresentation(sameUnitHistory, item);
+      if (exactPresentation.length) {
+        unitPrice = estimateUnitPrice(exactPresentation);
+      } else {
+        const measuredHistory = sameUnitHistory.filter(({ product }) => baseMeasure(product.content_value, product.unit_of_measure) != null);
+        const perBaseMeasure = estimateUnitPrice(measuredHistory.map((observation) => ({
+          ...observation,
+          unitPrice: observation.unitPrice / baseMeasure(observation.product.content_value, observation.product.unit_of_measure),
+        })));
+        if (perBaseMeasure != null) unitPrice = perBaseMeasure * baseMeasure(item.weight, UNIT_IDS[item.unit]);
+        else unitPrice = estimateUnitPrice(selectRepresentativePresentation(sameUnitHistory.length ? sameUnitHistory : matches));
+      }
+    } else {
+      unitPrice = estimateUnitPrice(selectRepresentativePresentation(matches));
+    }
+    if (unitPrice == null) {
+      missingItems.push(item.name);
+      return;
+    }
     matchedItems += 1;
     total += unitPrice * Number(item.quantity ?? 1);
   });
@@ -88,5 +153,6 @@ export function estimateGroceryListPrices(database, list) {
     estimatedPrice: matchedItems > 0 ? Math.round(total * 100) / 100 : null,
     matchedItems,
     totalItems: items.length,
+    missingItems,
   };
 }

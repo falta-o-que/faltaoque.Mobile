@@ -1,4 +1,5 @@
 import * as Crypto from 'expo-crypto';
+import { normalizeCep } from '../domain/locationValidation';
 import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../domain/productValidation';
 import { extractPackageMeasure } from '../domain/packageMeasure';
 import { groupFiscalItems } from '../domain/fiscalItems';
@@ -34,8 +35,14 @@ export async function loadFiscalPurchase(qrUrl) {
   } finally { clearTimeout(timeout); }
 }
 
-export async function confirmFiscalPurchase({ accountId, pantryId, purchase, items }) {
+export async function confirmFiscalPurchase({ accountId, pantryId, purchase, items, location, market }) {
   if (!purchase?.qrCodeId || purchase.qrCodeId.length > 44) throw new Error('INVALID_FISCAL_QR');
+  let normalizedLocation;
+  try {
+    normalizedLocation = normalizeCep(location);
+  } catch {
+    throw new Error('INVALID_CEP');
+  }
   const selected = items.filter((item) => item.selected);
   if (!selected.length) throw new Error('NO_FISCAL_ITEMS');
   if (selected.some((item) => item.weight != null && String(item.weight).trim() !== '' &&
@@ -60,7 +67,7 @@ export async function confirmFiscalPurchase({ accountId, pantryId, purchase, ite
       expirationDate: null, createdAt: new Date().toISOString(),
     };
   });
-  const storedPurchase = { id: Crypto.randomUUID(), accountId, pantryId, source: 'nota_fiscal', purchasedAt: purchase.purchasedAt || new Date().toISOString(), location: purchase.merchantName, totalPrice: purchase.totalAmount, qrCodeId: purchase.qrCodeId, items: selected.map((item, index) => ({ ...item, productId: products[index].id })) };
+  const storedPurchase = { id: Crypto.randomUUID(), accountId, pantryId, source: 'nota_fiscal', market, purchasedAt: purchase.purchasedAt || new Date().toISOString(), location: normalizedLocation, totalPrice: purchase.totalAmount, qrCodeId: purchase.qrCodeId, items: selected.map((item, index) => ({ ...item, productId: products[index].id })) };
   await importFiscalPurchase({ accountId, pantryId, products, purchase: storedPurchase, qrCodeId: purchase.qrCodeId });
   return products;
 }

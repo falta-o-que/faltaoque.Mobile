@@ -9,6 +9,7 @@ import {
   CheckIcon,
   DeliveryIcon,
   FilterIcon,
+  LocationIcon,
   PenIcon,
   ShoppingListIcon,
 } from '../../assets/icons/export';
@@ -19,6 +20,7 @@ import CategoryTag from '../CategoryTag';
 import AnimatedDropdown from '../AnimatedDropdown';
 import FormField from '../FormField';
 import ModalActionButton from '../ModalActionButton';
+import PlaceSearchField from '../PlaceSearchField';
 import {
   Accordion, AccordionHeader, AccordionLabel, Actions, Body, Card, CategoryOptions,
   CheckoutItem, CheckoutItemMeta, CheckoutItemName, CheckoutList, Chevron,
@@ -70,6 +72,8 @@ export default function GroceryListModal({
 }) {
   const [name, setName] = useState('');
   const [plannedDate, setPlannedDate] = useState('');
+  const [marketQuery, setMarketQuery] = useState('');
+  const [selectedMarket, setSelectedMarket] = useState(null);
   const [quantity, setQuantity] = useState('1');
   const [weight, setWeight] = useState('');
   const [unit, setUnit] = useState('');
@@ -83,10 +87,13 @@ export default function GroceryListModal({
     if (!visible) return;
     setName(mode === 'settings' || mode === 'repeat' ? list?.name ?? '' : mode === 'editItem' ? item?.name ?? '' : '');
     setPlannedDate(mode === 'settings' ? dateToBr(list?.plannedDate) : '');
+    const existingMarket = mode === 'settings' || mode === 'repeat' ? list?.market ?? null : null;
+    setSelectedMarket(existingMarket);
+    setMarketQuery(existingMarket?.localName || (mode === 'settings' || mode === 'repeat' ? list?.location ?? '' : ''));
     setQuantity(mode === 'editItem' ? String(item?.quantity ?? 1) : '1');
     setWeight(mode === 'editItem' && item?.weight != null ? String(item.weight).replace('.', ',') : '');
     setUnit(mode === 'editItem' ? item?.unit ?? '' : '');
-    setCategory(mode === 'editItem' ? item?.category ?? 'outros' : null);
+    setCategory(mode === 'editItem' ? item?.category ?? null : null);
     setIsCategoryOpen(true);
     setSelectedSort(sortOption ?? null);
     setPrices({});
@@ -128,7 +135,8 @@ export default function GroceryListModal({
       if (plannedDate && !isWithinThreeMonthDateRange(plannedDate)) {
         return setError('Informe uma data real dos últimos 3 meses ou futura, no formato DD/MM/AAAA.');
       }
-      const draft = { name: cleanName, plannedDate: dateToIso(plannedDate) };
+      if (marketQuery.trim() && !selectedMarket) return setError('Escolha um mercado da lista de endereços.');
+      const draft = { name: cleanName, plannedDate: dateToIso(plannedDate), location: selectedMarket?.cep ?? null, market: selectedMarket };
       if (mode === 'repeat') return onRepeat(draft);
       return mode === 'create' ? onCreate(draft) : onUpdate(draft);
     }
@@ -139,7 +147,7 @@ export default function GroceryListModal({
       const normalizedWeight = Number(weight.replace(',', '.'));
       if (hasWeight && (!(normalizedWeight > 0) || !Number.isFinite(normalizedWeight))) return setError('Informe um peso ou volume maior que zero.');
       if (hasWeight && !PRODUCT_UNITS.includes(unit)) return setError('Escolha a unidade de medida.');
-      if (!PRODUCT_CATEGORIES.includes(category)) return setError('Escolha uma categoria.');
+      if (category && !PRODUCT_CATEGORIES.includes(category)) return setError('Escolha uma categoria válida.');
       const draft = {
         name: cleanName,
         quantity: Number(quantity),
@@ -209,6 +217,22 @@ export default function GroceryListModal({
                       placeholder={mode === 'repeat' ? 'Nova data da compra (DD/MM/AAAA) *' : 'Data da compra (DD/MM/AAAA)'}
                       value={plannedDate}
                     />
+                    <PlaceSearchField
+                      value={marketQuery}
+                      selected={Boolean(selectedMarket)}
+                      selectedPlace={selectedMarket}
+                      disabled={busy || isFinished}
+                      error={error.includes('mercado') ? error : undefined}
+                      Icon={LocationIcon}
+                      placeholder="Mercado da compra (opcional)"
+                      onChangeText={(value) => { setMarketQuery(value); setSelectedMarket(null); clearError(); }}
+                      onSelect={(market) => { setSelectedMarket(market); setMarketQuery(market.displayName); clearError(); }}
+                    />
+                    {mode === 'settings' && selectedMarket && !isFinished ? (
+                      <CompactAction accessibilityRole="button" disabled={busy} onPress={() => { setSelectedMarket(null); setMarketQuery(''); clearError(); }} $tone="danger">
+                        <CompactActionLabel $tone="danger">Remover mercado da lista</CompactActionLabel>
+                      </CompactAction>
+                    ) : null}
                   </Fields>
                 ) : null}
 
@@ -225,7 +249,7 @@ export default function GroceryListModal({
                         keyboardType="decimal-pad"
                         maxLength={16}
                         onChangeText={(value) => { setWeight(value); if (!value.trim()) setUnit(''); clearError(); }}
-                        placeholder="Peso"
+                        placeholder="Peso ou volume (opcional)"
                         value={weight}
                       />
                       {weight.trim() ? (
@@ -240,7 +264,7 @@ export default function GroceryListModal({
                     </WeightGroup>
                     <Accordion>
                       <AccordionHeader accessibilityRole="button" accessibilityState={{ expanded: isCategoryOpen }} disabled={busy} onPress={toggleCategoryOptions}>
-                        <AccordionLabel>Categoria</AccordionLabel><CategoryChevron expanded={isCategoryOpen} />
+                      <AccordionLabel>Categoria (opcional)</AccordionLabel><CategoryChevron expanded={isCategoryOpen} />
                       </AccordionHeader>
                       <AnimatedDropdown open={isCategoryOpen}>
                         <CategoryOptions>
@@ -248,6 +272,7 @@ export default function GroceryListModal({
                             <CategoryTag key={option} category={option} disabled={busy} onSelectionChange={(selected) => { setCategory(selected ? option : null); clearError(); }} selected={category === option} variant="product" />
                           ))}
                         </CategoryOptions>
+                        <HelpText>Sem categoria ou tamanho, a estimativa usa a apresentação mais recorrente no histórico deste mercado.</HelpText>
                       </AnimatedDropdown>
                     </Accordion>
                   </Fields>

@@ -17,6 +17,7 @@ export { default as EyeClosedIcon } from './EyeClosedIcon';
 export { default as FilterIcon } from './FilterIcon';
 export { default as HistoryIcon } from './HistoryIcon';
 export { default as InfoIcon } from './InfoIcon';
+export { default as LocationIcon } from './LocationIcon';
 export { default as PantryIcon } from './PantryIcon';
 export { default as PenIcon } from './PenIcon';
 export { default as SearchIcon } from './SearchIcon';

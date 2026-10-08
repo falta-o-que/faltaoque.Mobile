@@ -4,9 +4,10 @@ import { usePreventRemove } from '@react-navigation/native';
 import { useTheme } from 'styled-components/native';
 import CategoryTag from '../../components/CategoryTag';
 import FormField from '../../components/FormField';
+import PlaceSearchField from '../../components/PlaceSearchField';
 import ButtonClick from '../../components/ButtonClick';
 import ModalActionButton from '../../components/ModalActionButton';
-import { PenIcon, DeliveryIcon, CheckIcon, CancelCircleIcon, PantryIcon } from '../../assets/icons/export';
+import { PenIcon, DeliveryIcon, CheckIcon, CancelCircleIcon, LocationIcon, PantryIcon } from '../../assets/icons/export';
 import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../../domain/productValidation';
 import { UnitOptions, UnitOption, UnitLabel } from '../../components/AddProductModal/styles';
 import { useAuth } from '../../contexts/AuthContext';
@@ -32,6 +33,9 @@ export default function NfceReviewScreen({ route, navigation }) {
   const [categoryOpen, setCategoryOpen] = useState(null);
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState(null);
+  const [location, setLocation] = useState('');
+  const [selectedMarket, setSelectedMarket] = useState(null);
+  const [locationError, setLocationError] = useState('');
   const [saving, setSaving] = useState(false);
   const busy = useRef(false);
   const list = useRef(null);
@@ -49,6 +53,12 @@ export default function NfceReviewScreen({ route, navigation }) {
 
   async function confirm() {
     if (busy.current || !selected.length) return;
+    if (location.trim() && !selectedMarket) {
+      setLocationError('Escolha um mercado da lista de endereços.');
+      return;
+    }
+    const normalizedLocation = selectedMarket?.cep ?? null;
+    setLocationError('');
     const nextErrors = {};
     items.forEach((item, index) => {
       if (!item.selected) return;
@@ -75,7 +85,7 @@ export default function NfceReviewScreen({ route, navigation }) {
     busy.current = true;
     setSaving(true);
     try {
-      await confirmFiscalPurchase({ accountId: account?.id, pantryId, purchase, items: items.map((item) => ({ ...item,
+      await confirmFiscalPurchase({ accountId: account?.id, pantryId, purchase, location: normalizedLocation, market: selectedMarket, items: items.map((item) => ({ ...item,
         quantity: decimal(item.quantity), unitPrice: decimal(item.unitPrice), totalPrice: decimal(item.totalPrice),
         weight: item.weight.trim() ? decimal(item.weight) : null, unit: item.weight.trim() ? item.unit : null,
       })) });
@@ -151,6 +161,17 @@ export default function NfceReviewScreen({ route, navigation }) {
       <FlatList ref={list} data={items} keyExtractor={(_, index) => String(index)} renderItem={renderItem} extraData={{ expanded, errors, saving }} keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, gap: 16 }} onScrollToIndexFailed={({ index, averageItemLength }) => list.current?.scrollToOffset({ offset: index * averageItemLength, animated: true })}
         ListHeaderComponent={<Group>
           <Summary><ReceiptLabel>NOTA LIDA</ReceiptLabel><Label>{purchase?.merchantName || 'Nota fiscal'}</Label><Muted>{items.length} {items.length === 1 ? 'produto encontrado' : 'produtos encontrados'} · {currency(purchase?.totalAmount)}</Muted></Summary>
+          <PlaceSearchField
+            value={location}
+            selected={Boolean(selectedMarket)}
+            selectedPlace={selectedMarket}
+            disabled={saving}
+            error={locationError}
+            Icon={LocationIcon}
+            placeholder="Mercado da compra (opcional)"
+            onChangeText={(value) => { setLocation(value); setSelectedMarket(null); setLocationError(''); }}
+            onSelect={(market) => { setSelectedMarket(market); setLocation(market.displayName); setLocationError(''); }}
+          />
           <SectionTitle>O que vai para a despensa?</SectionTitle>
           <Muted>Os produtos começam selecionados. Use “Não adicionar este produto” para retirar algum da seleção.</Muted>
         </Group>}
