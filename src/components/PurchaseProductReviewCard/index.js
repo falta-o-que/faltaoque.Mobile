@@ -2,7 +2,7 @@ import CategoryTag from '../CategoryTag';
 import ModalActionButton from '../ModalActionButton';
 import FormField from '../FormField';
 import { useTheme } from 'styled-components/native';
-import { CheckIcon, CancelCircleIcon, PenIcon, DeliveryIcon } from '../../assets/icons/export';
+import { CheckIcon, CancelCircleIcon, PenIcon, DeliveryIcon, InfoIcon } from '../../assets/icons/export';
 import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../../domain/productValidation';
 import { UnitOptions, UnitOption, UnitLabel } from '../AddProductModal/styles';
 import {
@@ -24,6 +24,7 @@ const displayUnitLabel = (value) => {
 
 export default function PurchaseProductReviewCard({
   item, title, included = true, expanded = false, busy = false,
+  selectionPending = false, selectionLabel,
   readOnly = false,
   categoryOpen = false, onToggleIncluded, onToggleEdit, onToggleCategory,
   onSelectCategory, categoryOptions = PRODUCT_CATEGORIES, editorValues, editorErrors = {},
@@ -65,10 +66,12 @@ export default function PurchaseProductReviewCard({
   }
 
   return (
-    <Card $selected={included}>
-      <SelectionStatus $selected={included} accessibilityLiveRegion="polite">
-        {included ? <CheckIcon size={18} color={theme.colors.primary[700]} /> : <CancelCircleIcon size={18} color={theme.colors.black[400]} />}
-        <SelectionText>{included ? 'Será adicionado à despensa' : 'Não será adicionado'}</SelectionText>
+    <Card $selected={included || selectionPending}>
+      <SelectionStatus $selected={included || selectionPending} accessibilityLiveRegion="polite">
+        {selectionPending ? <InfoIcon size={18} color={theme.colors.primary[700]} />
+          : included ? <CheckIcon size={18} color={theme.colors.primary[700]} />
+            : <CancelCircleIcon size={18} color={theme.colors.black[400]} />}
+        <SelectionText>{selectionLabel || (selectionPending ? 'Aguardando sua decisão' : included ? 'Será adicionado à despensa' : 'Não será adicionado')}</SelectionText>
       </SelectionStatus>
       <ProductRow>
         <ProductImage source={require('../../assets/grocery/legumesGrocery.png')} accessible={false} />

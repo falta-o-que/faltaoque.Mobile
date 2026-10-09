@@ -160,7 +160,7 @@ Outra correção de 6 de outubro: a Navbar de listas abre uma tela intermediári
 
 ### Status atual — página de listas de compras — 9 de outubro de 2026
 
-O usuário considera a página de listas de compras concluída e o fluxo anterior validado no Android. A fixture demonstrativa segue desativada. As decisões fechadas e a implementação atual do fluxo de finalização estão registradas abaixo. A revisão fiscal pode mostrar até quatro etapas conforme os itens pendentes e usa vínculo um a um entre linhas da nota e itens da lista; tentativas automáticas ambíguas ficam para decisão manual. As regras continuam sem alteração do esquema hospedado.
+O usuário considera a página de listas de compras concluída e o fluxo anterior validado no Android. A fixture demonstrativa segue desativada. As decisões fechadas e a implementação atual do fluxo de finalização estão registradas abaixo. A revisão fiscal apresenta etapas nomeadas somente quando são relevantes, preserva a etapa enquanto a pessoa termina suas decisões e encerra com um resumo editável do que vai ou não para a despensa. Os vínculos são um a um e automações ambíguas ficam para decisão manual; as regras continuam sem alteração do esquema hospedado.
 
 Na continuação da página, os cards dos produtos usam a cor da categoria na barrinha lateral; `Limpeza/Higiene`, cujo fundo é branco puro, recebe contorno cinza. Foi incluído um atalho de lápis para abrir o modal de edição do produto, que permite alterar nome, quantidade, peso/volume, unidade e categoria na lista ativa. O serviço mantém o estado de marcação do item.
 
