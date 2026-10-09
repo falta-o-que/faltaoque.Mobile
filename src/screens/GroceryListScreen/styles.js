@@ -133,6 +133,16 @@ export const EstimatePrice = styled.Text`
   font-size: ${({ theme }) => theme.fonts.sizes['2']}px;
 `;
 
+export const EstimateAmount = styled.View`
+  align-items: flex-end;
+`;
+
+export const EstimatePriceLabel = styled.Text`
+  color: ${({ theme }) => theme.colors.black[300]};
+  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
+  font-size: ${({ theme }) => theme.fonts.sizes['0']}px;
+`;
+
 export const EstimateDetail = styled.Text`
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
@@ -141,6 +151,24 @@ export const EstimateDetail = styled.Text`
 
 export const EstimateSuggestionOptions = styled.View`
   gap: 8px;
+`;
+
+export const EstimateDisclaimer = styled.View`
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+  padding: 9px 12px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.primary[200]};
+  border-radius: 10px;
+  background-color: ${({ theme }) => theme.colors.white[100]};
+`;
+
+export const EstimateDisclaimerText = styled.Text`
+  color: ${({ theme }) => theme.colors.black[300]};
+  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
+  font-size: ${({ theme }) => theme.fonts.sizes['0']}px;
+  text-align: center;
 `;
 
 export const EstimateSuggestionOption = styled.TouchableOpacity.attrs({ activeOpacity: 0.75 })`

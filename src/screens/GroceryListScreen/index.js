@@ -23,8 +23,9 @@ import { getCollapsedGroceryListIds, saveCollapsedGroceryListIds } from '../../s
 import { listPantries } from '../../services/pantryService';
 import {
   CategoryScroll, Chevron, ColorCircle, Content, EmptyText, Header, HeaderActions,
-  EstimateBox, EstimateCopy, EstimateDetail, EstimateMissingAction, EstimateMissingText, EstimatePrice, EstimateTitle,
+  EstimateBox, EstimateCopy, EstimateDetail, EstimateAmount, EstimateMissingAction, EstimateMissingText, EstimatePrice, EstimatePriceLabel, EstimateTitle,
   EstimateSuggestionOptions, EstimateSuggestionOption, EstimateSuggestionOptionTitle, EstimateSuggestionOptionDetail,
+  EstimateDisclaimer, EstimateDisclaimerText,
   IconButton, ItemStack, ListActions, ListHeading, ListName, ListScroll, ListSection,
   PantryIndicator, RetryButton, RetryText, RoundButton, Screen, SelectionBar, SelectionButton,
   SelectionButtonText, SelectionHint, StatusText, Title, TitleBlock, TitleRow,
@@ -340,7 +341,7 @@ export default function GroceryListScreen({ navigation, route }) {
                     <EstimateBox
                       accessibilityRole="button"
                       accessibilityLabel={selectedCandidate?.market
-                        ? `${selectedSuggestionLabel}: ${selectedMarketLabel}, ${selectedEstimate?.estimatedPrice == null ? 'sem estimativa de preço' : formatEstimatedPrice(selectedEstimate.estimatedPrice)}. Toque para trocar a sugestão.`
+                        ? `${selectedSuggestionLabel}: ${selectedMarketLabel}, ${selectedEstimate?.estimatedPrice == null ? 'sem estimativa de preço' : `preço estimado ${formatEstimatedPrice(selectedEstimate.estimatedPrice)}`}. Toque para trocar a sugestão.`
                         : 'Sugestões de mercado. Toque para escolher Mais perto, Melhor custo-benefício ou Marcas mais compradas.'}
                       disabled={loadingSuggestionListId === list.id}
                       onPress={() => toggleSuggestionPanel(list)}
@@ -365,10 +366,18 @@ export default function GroceryListScreen({ navigation, route }) {
                           </>
                         ) : <EstimateDetail>Toque para comparar proximidade, preço e marcas.</EstimateDetail>}
                       </EstimateCopy>
-                      {selectedEstimate?.estimatedPrice != null ? <EstimatePrice>{formatEstimatedPrice(selectedEstimate.estimatedPrice)}</EstimatePrice> : null}
+                      {selectedEstimate?.estimatedPrice != null ? (
+                        <EstimateAmount>
+                          <EstimatePriceLabel>Preço estimado</EstimatePriceLabel>
+                          <EstimatePrice>{formatEstimatedPrice(selectedEstimate.estimatedPrice)}</EstimatePrice>
+                        </EstimateAmount>
+                      ) : null}
                     </EstimateBox>
                     {suggestionPanelListId === list.id ? (
                       <EstimateSuggestionOptions>
+                        <EstimateDisclaimer>
+                          <EstimateDisclaimerText>Estimativa baseada no histórico de compras. O valor pode variar.</EstimateDisclaimerText>
+                        </EstimateDisclaimer>
                         {loadingSuggestionListId === list.id ? <EstimateDetail>Consultando histórico e localização…</EstimateDetail> : null}
                         {suggestionOptions.map((option) => {
                           const candidate = option.candidate;
@@ -377,7 +386,7 @@ export default function GroceryListScreen({ navigation, route }) {
                               ? `${formatMarketLocation(candidate.market)} · aprox. ${candidate.distanceKm.toFixed(1).replace('.', ',')} km`
                               : option.type === GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS
                                 ? `${formatMarketLocation(candidate.market)} · marcas favoritas em ${candidate.brandCoverage.available} de ${candidate.brandCoverage.total} produtos`
-                                : `${formatMarketLocation(candidate.market)} · ${candidate.estimate.estimatedPrice == null ? 'sem preço estimado' : formatEstimatedPrice(candidate.estimate.estimatedPrice)}`;
+                                : `${formatMarketLocation(candidate.market)} · ${candidate.estimate.estimatedPrice == null ? 'sem preço estimado' : `preço estimado: ${formatEstimatedPrice(candidate.estimate.estimatedPrice)}`}`;
                           return (
                             <EstimateSuggestionOption
                               key={option.type}
@@ -432,7 +441,10 @@ export default function GroceryListScreen({ navigation, route }) {
                             </EstimateMissingAction>
                           ) : null}
                         </EstimateCopy>
-                        <EstimatePrice>{formatEstimatedPrice(list.estimatedPrice)}</EstimatePrice>
+                        <EstimateAmount>
+                          <EstimatePriceLabel>Preço estimado</EstimatePriceLabel>
+                          <EstimatePrice>{formatEstimatedPrice(list.estimatedPrice)}</EstimatePrice>
+                        </EstimateAmount>
                       </>
                     )}
                   </EstimateBox>
