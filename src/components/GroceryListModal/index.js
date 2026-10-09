@@ -319,7 +319,6 @@ export default function GroceryListModal({
                         </SortOption>
                       ))}
                     </SortOptions>
-                    <HelpText>Ordenação por preço ficará disponível quando os valores dos itens forem integrados.</HelpText>
                   </FilterSection>
                 ) : null}
 
