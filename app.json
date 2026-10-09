@@ -11,7 +11,11 @@
     },
     "android": {
       "icon": "./src/assets/branding/app-icon.png",
-      "package": "com.faltaoque.front"
+      "package": "com.faltaoque.front",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -26,6 +30,12 @@
           "barcodeScannerEnabled": true
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "73ea38cc-3585-408a-bd46-eaceabefa581"
+      }
+    },
+    "owner": "miguelzack"
   }
 }
