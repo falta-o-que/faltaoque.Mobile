@@ -2,19 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Platform } from 'react-native';
 import { usePreventRemove } from '@react-navigation/native';
 import { useTheme } from 'styled-components/native';
-import CategoryTag from '../../components/CategoryTag';
-import FormField from '../../components/FormField';
 import PlaceSearchField from '../../components/PlaceSearchField';
 import ButtonClick from '../../components/ButtonClick';
 import ModalActionButton from '../../components/ModalActionButton';
-import { PenIcon, DeliveryIcon, CheckIcon, CancelCircleIcon, LocationIcon, PantryIcon } from '../../assets/icons/export';
+import PurchaseProductReviewCard from '../../components/PurchaseProductReviewCard';
+import { CancelCircleIcon, LocationIcon, PantryIcon } from '../../assets/icons/export';
 import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../../domain/productValidation';
-import { UnitOptions, UnitOption, UnitLabel } from '../../components/AddProductModal/styles';
+import { normalizeFiscalProduct } from '../../domain/groceryCheckoutReconciliation';
 import { useAuth } from '../../contexts/AuthContext';
 import { confirmFiscalPurchase } from '../../services/nfceImportService';
 import { getUserErrorMessage } from '../../utils/userErrors';
-import { Screen, KeyboardArea, Header, Title, Muted, Label, Name, Card, Summary, Row, Group, Tags, Footer, ErrorText,
-  Destination, Dot, ProductImage, ProductBody, ProductRow, Price, Selection, SelectionText, SelectionStatus, CardActions, CategoryButton, CategoryButtonText, Editor, SectionTitle, Progress, ReceiptLabel,
+import { Screen, KeyboardArea, Header, Title, Muted, Label, Summary, Row, Group, Footer, ErrorText,
+  Destination, Dot, Price, CategoryButtonText, SectionTitle, Progress, ReceiptLabel,
 } from './styles';
 
 const decimal = (value) => Number(String(value).trim().replace(',', '.'));
@@ -26,6 +25,9 @@ export default function NfceReviewScreen({ route, navigation }) {
   const { account } = useAuth();
   const theme = useTheme();
   const [items, setItems] = useState(() => (purchase?.items ?? []).map((item) => ({ ...item,
+    ...(() => { const proposal = normalizeFiscalProduct(item.sourceDescription); return {
+      name: proposal.name, brand: proposal.brand ?? '', requiresReview: proposal.requiresReview,
+    }; })(),
     category: item.category ?? 'outros',
     weight: inputValue(item.weight), unit: item.unit ?? '',
     quantity: inputValue(item.quantity), unitPrice: inputValue(item.unitPrice), totalPrice: inputValue(item.totalPrice),
@@ -64,7 +66,7 @@ export default function NfceReviewScreen({ route, navigation }) {
     items.forEach((item, index) => {
       if (!item.selected) return;
       const fields = {};
-      if (!item.sourceDescription.trim()) fields.sourceDescription = 'Informe o nome do produto.';
+      if (!item.name.trim()) fields.name = 'Informe o nome que aparecerá na despensa.';
       for (const field of ['quantity', 'unitPrice', 'totalPrice']) {
         if (!/^\d+(?:[,.]\d+)?$/.test(String(item[field]).trim()) || !Number.isFinite(decimal(item[field])) || decimal(item[field]) <= 0) fields[field] = 'Informe um valor maior que zero.';
       }
@@ -107,49 +109,18 @@ export default function NfceReviewScreen({ route, navigation }) {
     const open = expanded === index;
     const fields = errors[index] ?? {};
     return (
-      <Card $selected={item.selected}>
-        <SelectionStatus $selected={item.selected} accessibilityLiveRegion="polite">
-          {item.selected ? <CheckIcon size={18} color={theme.colors.primary[700]} /> : <CancelCircleIcon size={18} color={theme.colors.black[400]} />}
-          <SelectionText>{item.selected ? 'Será adicionado à despensa' : 'Não será adicionado'}</SelectionText>
-        </SelectionStatus>
-        <ProductRow>
-          <ProductImage source={require('../../assets/grocery/legumesGrocery.png')} accessible={false} />
-          <ProductBody>
-            <Name>{item.sourceDescription || 'Produto sem nome'}</Name>
-            {item.weight ? <Muted>Embalagem: {item.weight} {item.unit}</Muted> : null}
-            <Muted>{item.quantity} {item.unitLabel || 'un.'} · {currency(item.unitPrice)}/{item.unitLabel || 'un.'}</Muted>
-            <Price>{currency(item.totalPrice)} <ReceiptLabel>no total</ReceiptLabel></Price>
-          </ProductBody>
-        </ProductRow>
-        {item.sourceItems?.length > 1 ? <Muted>{item.sourceItems.length} registros iguais na nota · quantidade somada{item.hasDifferentPrices ? ' · preço unitário médio' : ''}</Muted> : null}
-        <CardActions>
-          {item.category ? <CategoryTag category={item.category} variant="product" disabled={saving} onPress={() => setCategoryOpen(categoryOpen === index ? null : index)} /> : <CategoryButton accessibilityRole="button" disabled={saving} onPress={() => setCategoryOpen(categoryOpen === index ? null : index)}><CategoryButtonText>+ Escolher categoria</CategoryButtonText></CategoryButton>}
-          <Row><ReceiptLabel>{open ? 'Concluir' : 'Editar'}</ReceiptLabel><ModalActionButton Icon={open ? CheckIcon : PenIcon} accessibilityLabel={open ? 'Concluir edição' : `Editar ${item.sourceDescription}`} disabled={saving} variant="confirm" onPress={() => setExpanded(open ? null : index)} /></Row>
-        </CardActions>
-        <Selection accessibilityRole="button" accessibilityLabel={`${item.selected ? 'Não adicionar' : 'Adicionar'} ${item.sourceDescription}`} accessibilityState={{ disabled: saving }} disabled={saving} onPress={() => { update(index, { selected: !item.selected }); setExpanded(null); setCategoryOpen(null); }}>
-          <SelectionText>{item.selected ? 'Não adicionar este produto' : 'Adicionar este produto'}</SelectionText>
-        </Selection>
-        {categoryOpen === index && !open ? <Group><Label>Qual é a categoria?</Label><Tags>{PRODUCT_CATEGORIES.map((category) => <CategoryTag key={category} category={category} variant="product" selected={item.category === category} disabled={saving} onSelectionChange={() => { update(index, { category }); setCategoryOpen(null); }} />)}</Tags></Group> : null}
-        {open ? <Editor>
-          <SectionTitle>Editar produto</SectionTitle>
-          <Label>Nome *</Label>
-          <FormField Icon={PenIcon} accessibilityLabel="Nome do produto, obrigatório" value={item.sourceDescription} maxLength={120} editable={!saving} error={fields.sourceDescription} onChangeText={(value) => update(index, { sourceDescription: value })} />
-          {[
-            ['quantity', `Quantidade${item.unitLabel ? ` (${item.unitLabel})` : ''} *`],
-            ['unitPrice', `Preço por ${item.unitLabel || 'unidade'} (R$) *`],
-            ['totalPrice', 'Total do item (R$) *'],
-          ].map(([field, label]) => <Group key={field}><Label>{label}</Label><FormField Icon={DeliveryIcon} accessibilityLabel={label} value={item[field]} keyboardType="decimal-pad" maxLength={16} editable={!saving} error={fields[field]} onChangeText={(value) => update(index, { [field]: value })} /></Group>)}
-          <Muted>Os preços da nota são independentes e podem incluir descontos.</Muted>
-          <Label>Peso/volume da embalagem</Label>
-          <FormField accessibilityLabel="Peso ou volume da embalagem" value={item.weight} keyboardType="decimal-pad" maxLength={16} editable={!saving} error={fields.weight} placeholder="Ex.: 500" onChangeText={(weight) => update(index, { weight, unit: weight.trim() ? item.unit : '' })} />
-          {item.weight.trim() ? <><Label>Unidade *</Label><UnitOptions accessibilityRole="radiogroup">{PRODUCT_UNITS.map((unit) => <UnitOption key={unit} accessibilityRole="radio" accessibilityLabel={`Unidade ${unit}, obrigatória`} accessibilityState={{ checked: item.unit === unit }} $selected={item.unit === unit} disabled={saving} onPress={() => update(index, { unit })}><UnitLabel $selected={item.unit === unit}>{unit}</UnitLabel></UnitOption>)}</UnitOptions></> : null}
-          {fields.unit ? <ErrorText accessibilityLiveRegion="polite" accessibilityRole="alert">{fields.unit}</ErrorText> : null}
-          <Muted>Medida de cada embalagem, sem multiplicar pela quantidade comprada.</Muted>
-          <Label>Categoria *</Label>
-          <Tags>{PRODUCT_CATEGORIES.map((category) => <CategoryTag key={category} category={category} variant="product" selected={item.category === category} disabled={saving} onSelectionChange={() => update(index, { category })} />)}</Tags>
-          {fields.category ? <ErrorText accessibilityLiveRegion="polite" accessibilityRole="alert">{fields.category}</ErrorText> : null}
-        </Editor> : null}
-      </Card>
+      <PurchaseProductReviewCard item={item} included={Boolean(item.selected)} expanded={open} busy={saving}
+        editorValues={{ name: item.name, brand: item.brand, quantity: item.quantity, unitPrice: item.unitPrice,
+          totalPrice: item.totalPrice, weight: item.weight, unit: item.unit, category: item.category }}
+        editorErrors={fields}
+        editorNotice={item.requiresReview ? 'A descrição da nota pode conter informações ambíguas. Confira nome, marca e tamanho.' : null}
+        onEditorChange={(field, value) => update(index, field === 'weight'
+          ? { weight: value, unit: value.trim() ? item.unit : '' } : { [field]: value })}
+        categoryOpen={categoryOpen === index} categoryOptions={PRODUCT_CATEGORIES}
+        onToggleCategory={() => setCategoryOpen(categoryOpen === index ? null : index)}
+        onSelectCategory={(category) => { update(index, { category }); setCategoryOpen(null); }}
+        onToggleEdit={() => { setExpanded(open ? null : index); setCategoryOpen(null); }}
+        onToggleIncluded={() => { update(index, { selected: !item.selected }); setExpanded(null); setCategoryOpen(null); }} />
     );
   }
 
@@ -161,7 +132,7 @@ export default function NfceReviewScreen({ route, navigation }) {
       </Header>
       <FlatList ref={list} data={items} keyExtractor={(_, index) => String(index)} renderItem={renderItem} extraData={{ expanded, errors, saving }} keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, gap: 16 }} onScrollToIndexFailed={({ index, averageItemLength }) => list.current?.scrollToOffset({ offset: index * averageItemLength, animated: true })}
         ListHeaderComponent={<Group>
-          <Summary><ReceiptLabel>NOTA LIDA</ReceiptLabel><Label>{purchase?.merchantName || 'Nota fiscal'}</Label><Muted>{items.length} {items.length === 1 ? 'produto encontrado' : 'produtos encontrados'} · {currency(purchase?.totalAmount)}</Muted></Summary>
+          <Summary><ReceiptLabel>NOTA LIDA</ReceiptLabel><Label>{purchase?.merchantName || 'Nota fiscal'}</Label><Muted>{items.length} {items.length === 1 ? 'produto encontrado' : 'produtos encontrados'} · {currency(purchase?.totalAmount)}</Muted><Muted>Data da nota: {purchase?.purchasedAt ? purchase.purchasedAt.slice(8, 10) + '/' + purchase.purchasedAt.slice(5, 7) + '/' + purchase.purchasedAt.slice(0, 4) : 'não identificada'} (não editável)</Muted></Summary>
           <PlaceSearchField
             value={location}
             selected={Boolean(selectedMarket)}

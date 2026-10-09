@@ -16,7 +16,7 @@ export default function NfceScannerModal({ visible, onRequestClose, onPurchaseLo
   async function handleScan({ data }) {
     if (processing) return;
     setProcessing(true); setError(null);
-    try { onPurchaseLoaded(await loadFiscalPurchase(data)); }
+    try { await onPurchaseLoaded(await loadFiscalPurchase(data)); }
     catch (cause) { setError(getUserErrorMessage(cause, 'Não foi possível ler esta nota. Confira sua conexão e tente novamente.')); setProcessing(false); }
   }
   const title = permission?.granted ? 'Ler QR Code' : 'Usar a câmera';

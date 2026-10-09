@@ -209,6 +209,7 @@ export function HomeScreen({ navigation }) {
                     color={pantry.color}
                     name={pantry.name}
                     productCount={pantry.productCount}
+                    shoppingListCount={pantry.shoppingListCount}
                     onPress={() => handlePantryPress(pantry)}
                     onSettingsPress={() => handlePantrySettingsPress(pantry)}
                   />

@@ -4,6 +4,7 @@ import { Animated, Easing, Modal, Platform } from 'react-native';
 import {
   AngleIcon,
   BoxIcon,
+  CalendarIcon,
   CancelCircleIcon,
   CheckIcon,
   DeliveryIcon,
@@ -55,6 +56,7 @@ import {
 
 const EMPTY_DRAFT = {
   name: '',
+  brand: '',
   price: '',
   priceType: 'unit',
   quantity: '',
@@ -254,6 +256,17 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                   returnKeyType="next"
                   value={draft.name}
                 />
+                  <FormField
+                    accessibilityLabel="Marca do produto, opcional"
+                    autoCapitalize="words"
+                    editable={!isSubmitting}
+                    error={errors.brand}
+                    Icon={PenIcon}
+                    maxLength={100}
+                    onChangeText={(value) => updateField('brand', value)}
+                    placeholder="Marca (opcional)"
+                    value={draft.brand}
+                  />
                   <PriceTypeOptions accessibilityRole="radiogroup">
                     {PRODUCT_PRICE_TYPES.map((priceType) => (
                       <PriceTypeOption
@@ -313,6 +326,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                     accessibilityLabel="Data de validade, opcional, no formato dia-mês-ano"
                     editable={!isSubmitting}
                     error={errors.expirationDate}
+                    Icon={CalendarIcon}
                     inputMode="numeric"
                     keyboardType="numbers-and-punctuation"
                     maxLength={10}

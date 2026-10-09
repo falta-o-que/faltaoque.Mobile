@@ -10,6 +10,9 @@ import AnimatedDropdown from '../../components/AnimatedDropdown';
 import GroceryListItemCard from '../../components/GroceryListItemCard';
 import GroceryListHistoryModal from '../../components/GroceryListHistoryModal';
 import GroceryListModal from '../../components/GroceryListModal';
+import AddProductMethodModal from '../../components/AddProductMethodModal';
+import GroceryCheckoutReview from '../../components/GroceryCheckoutReview';
+import NfceScannerModal from '../../components/NfceScannerModal';
 import Navbar from '../../components/Navbar';
 import { useAuth } from '../../contexts/AuthContext';
 import { showUserErrorAlert } from '../../utils/userErrors';
@@ -18,7 +21,9 @@ import { GROCERY_SUGGESTION_OPTIONS, GROCERY_SUGGESTION_TYPES } from '../../doma
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import * as groceryListService from '../../services/groceryListService';
 import { getGroceryMarketSuggestions } from '../../services/groceryMarketSuggestionService';
-import { finishListAndStock } from '../../services/groceryCheckoutService';
+import { finalizeGroceryCheckout } from '../../services/groceryCheckoutService';
+import { reconcileGroceryCheckout, RECONCILIATION_STATUS, arePresentationsCompatible } from '../../domain/groceryCheckoutReconciliation';
+import { assertFiscalNoteUnused, listProductOccurrences } from '../../services/productService';
 import { getCollapsedGroceryListIds, saveCollapsedGroceryListIds } from '../../services/groceryListViewPreferenceService';
 import { listPantries } from '../../services/pantryService';
 import {
@@ -56,6 +61,25 @@ function formatMarketLocation(market) {
   return market.local_name || 'Mercado não identificado';
 }
 
+const localToday = () => {
+  const now = new Date();
+  return `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+};
+const displayDate = (iso) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso ?? ''));
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : '';
+};
+const sameName = (a, b) => String(a ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim() ===
+  String(b ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+const priceText = (value) => value == null ? '' : String(value).replace('.', ',');
+
+function withPantryConflict(draft, existingProducts) {
+  const current = existingProducts.find((product) => sameName(product.name, draft.name) &&
+    arePresentationsCompatible(product, draft) && arePresentationsCompatible(draft, product) &&
+    product.category !== draft.category);
+  return current ? { ...draft, categoryConflict: { listCategory: draft.category, pantryCategory: current.category }, categoryResolved: false } : draft;
+}
+
 export default function GroceryListScreen({ navigation, route }) {
   const { account } = useAuth();
   const pantryId = route.params?.pantryId;
@@ -79,6 +103,14 @@ export default function GroceryListScreen({ navigation, route }) {
   const [suggestionOptionsByList, setSuggestionOptionsByList] = useState({});
   const [selectedSuggestionByList, setSelectedSuggestionByList] = useState({});
   const [loadingSuggestionListId, setLoadingSuggestionListId] = useState(null);
+  const [checkoutMode, setCheckoutMode] = useState('manual');
+  const [checkoutPurchase, setCheckoutPurchase] = useState(null);
+  const [checkoutItems, setCheckoutItems] = useState([]);
+  const [checkoutDate, setCheckoutDate] = useState(localToday);
+  const [checkoutMarketQuery, setCheckoutMarketQuery] = useState('');
+  const [checkoutMarket, setCheckoutMarket] = useState(null);
+  const [checkoutError, setCheckoutError] = useState('');
+  const [pantryOccurrences, setPantryOccurrences] = useState([]);
 
   const refresh = useCallback(async () => {
     const [pantries, storedLists] = await Promise.all([
@@ -244,11 +276,161 @@ export default function GroceryListScreen({ navigation, route }) {
   };
 
   const handleStartCheckout = () => {
-    if (!activeList?.items.some((item) => item.checked)) {
-      Alert.alert('Nenhum item marcado', 'Marque os itens comprados antes de finalizar a lista.');
+    setCheckoutError('');
+    setActiveModal('checkout-choice');
+  };
+
+  const startManualCheckout = async () => {
+    if (!activeList) return;
+    try {
+      const existing = await listProductOccurrences(account?.id, pantryId);
+      setPantryOccurrences(existing);
+      setCheckoutItems(activeList.items.map((item) => withPantryConflict({
+        id: `planned-${item.id}`, sourceDescription: '', name: item.name, brand: '',
+        quantity: String(item.quantity ?? 1), contentValue: item.weight == null ? '' : String(item.weight),
+        unit: item.unit ?? '', category: item.category ?? 'outros', priceInput: '',
+        priceMode: 'unit', included: Boolean(item.checked), listItemId: item.id,
+        needsReview: false, reviewed: true,
+      }, existing)));
+      setCheckoutDate(localToday());
+      setCheckoutMarket(activeList.market ?? null);
+      setCheckoutMarketQuery(activeList.market?.localName ?? '');
+      setCheckoutPurchase(null);
+      setCheckoutMode('manual');
+      setCheckoutError('');
+      setActiveModal('checkout-review');
+    } catch (cause) {
+      showUserErrorAlert(cause, { title: 'Não foi possível preparar a compra' });
+    }
+  };
+
+  const startFiscalCheckout = async (purchase) => {
+    if (!activeList) return;
+    try {
+      await assertFiscalNoteUnused({ accountId: account?.id, pantryId, qrCodeId: purchase.qrCodeId });
+      const existing = await listProductOccurrences(account?.id, pantryId);
+      setPantryOccurrences(existing);
+      const reconciliation = reconcileGroceryCheckout({
+        plannedItems: activeList.items, fiscalLines: purchase.items,
+        brandCatalog: existing.map((product) => product.brand).filter(Boolean),
+      });
+      const fiscalItems = reconciliation.occurrences.map(({ receiptLineIndex, fiscalLine, proposal, match }) => {
+        const matched = activeList.items.find((item) => item.id === match.plannedItemId);
+        const quantity = Number(fiscalLine.quantity);
+        const fractional = !Number.isInteger(quantity);
+        const salesUnit = ({ g: 'g', kg: 'kg', ml: 'ml', l: 'L' })[String(fiscalLine.unitLabel ?? '').toLowerCase()];
+        const draft = {
+          id: `fiscal-${receiptLineIndex}`, sourceDescription: fiscalLine.sourceDescription,
+          name: matched?.name ?? proposal.name, detectedName: proposal.name, brand: proposal.brand ?? '',
+          quantity: String(fractional ? 1 : quantity),
+          contentValue: proposal.weight ?? (fractional && salesUnit ? quantity : ''),
+          unit: proposal.unit ?? (fractional ? salesUnit ?? '' : ''),
+          category: matched?.category ?? fiscalLine.category ?? 'outros',
+          priceInput: priceText(fiscalLine.totalPrice), priceMode: 'total',
+          included: match.status === RECONCILIATION_STATUS.AUTO_MATCHED,
+          listItemId: match.status === RECONCILIATION_STATUS.AUTO_MATCHED ? match.plannedItemId : null,
+          matchStatus: match.status === RECONCILIATION_STATUS.AUTO_MATCHED ? 'automatic' : 'unmatched',
+          needsReview: match.status !== RECONCILIATION_STATUS.AUTO_MATCHED || fractional,
+          reviewed: false,
+        };
+        return withPantryConflict(draft, existing);
+      });
+      const matchedIds = new Set(fiscalItems.map((item) => item.listItemId).filter(Boolean));
+      const missingItems = activeList.items.filter((item) => !matchedIds.has(item.id)).map((item) => withPantryConflict({
+        id: `missing-${item.id}`, sourceDescription: '', name: item.name, brand: '',
+        quantity: String(item.quantity ?? 1), contentValue: item.weight == null ? '' : String(item.weight),
+        unit: item.unit ?? '', category: item.category ?? 'outros', priceInput: '',
+        priceMode: 'total', included: false, listItemId: item.id, matchStatus: 'planned', needsReview: true, reviewed: false,
+      }, existing));
+      setCheckoutItems([...fiscalItems, ...missingItems]);
+      setCheckoutDate(displayDate(purchase.purchasedAt));
+      setCheckoutMarket(activeList.market ?? null);
+      setCheckoutMarketQuery(activeList.market?.localName ?? '');
+      setCheckoutPurchase(purchase);
+      setCheckoutMode('nfce');
+      setCheckoutError('');
+      setActiveModal('checkout-review');
+    } catch (cause) {
+      if (cause?.message === 'DUPLICATE_FISCAL_NOTE') throw cause;
+      showUserErrorAlert(cause, { title: 'Não foi possível preparar a nota' });
+      setActiveModal('checkout-choice');
+    }
+  };
+
+  const changeCheckoutItem = (id, patch) => {
+    if (Object.hasOwn(patch, 'listItemId') && patch.listItemId && checkoutItems.some((item) =>
+      item.id !== id && item.sourceDescription && item.listItemId === patch.listItemId)) {
+      setCheckoutError('Esse produto da lista já está relacionado a outra linha da nota.');
       return;
     }
-    setActiveModal('checkout');
+    setCheckoutItems((current) => {
+      const currentItem = current.find((item) => item.id === id);
+      const releasedListItemId = patch.listItemId === null ? currentItem?.listItemId : null;
+      const releasedMissingId = releasedListItemId ? `missing-${releasedListItemId}` : null;
+      let next = current.map((item) => {
+        if (item.id !== id) {
+          if (releasedMissingId && item.id === releasedMissingId) {
+            return { ...item, included: false, needsReview: true, reviewed: false };
+          }
+          return patch.listItemId && item.id === `missing-${patch.listItemId}`
+            ? { ...item, included: false, reviewed: true } : item;
+        }
+        const linked = activeList?.items.find((entry) => entry.id === patch.listItemId);
+        const changed = {
+          ...item, ...patch,
+          ...(Object.hasOwn(patch, 'listItemId') ? { matchStatus: linked ? 'manual' : 'unmatched' } : {}),
+          ...(linked ? { name: linked.name, category: linked.category }
+            : Object.hasOwn(patch, 'listItemId') && item.sourceDescription ? { name: item.detectedName ?? item.name } : {}),
+        };
+        const updated = Object.hasOwn(patch, 'listItemId') ? withPantryConflict({
+          ...changed, categoryConflict: null, categoryResolved: true,
+        }, pantryOccurrences) : changed;
+        return {
+          ...updated,
+          reviewed: Object.hasOwn(patch, 'reviewed')
+            ? patch.reviewed
+            : item.reviewed,
+          categoryResolved: Object.hasOwn(patch, 'category') || (updated.categoryConflict
+            ? Boolean(item.categoryResolved) : true),
+        };
+      });
+
+      if (releasedMissingId && currentItem?.sourceDescription && releasedListItemId &&
+        !next.some((item) => item.id === releasedMissingId)) {
+        const planned = activeList?.items.find((item) => item.id === releasedListItemId);
+        if (planned) next = [...next, withPantryConflict({
+          id: releasedMissingId, sourceDescription: '', name: planned.name, brand: '',
+          quantity: String(planned.quantity ?? 1), contentValue: planned.weight == null ? '' : String(planned.weight),
+          unit: planned.unit ?? '', category: planned.category ?? 'outros', priceInput: '',
+          priceMode: 'total', included: false, listItemId: planned.id,
+          matchStatus: 'planned', needsReview: true, reviewed: false,
+        }, pantryOccurrences)];
+      }
+      return next;
+    });
+    setCheckoutError('');
+  };
+
+  const confirmCheckout = async () => {
+    if (busy || !activeList) return;
+    setBusy(true);
+    setCheckoutError('');
+    try {
+      await finalizeGroceryCheckout({
+        accountId: account?.id, pantryId, listId: activeList.id, mode: checkoutMode,
+        dateValue: checkoutDate, purchase: checkoutPurchase, market: checkoutMarket,
+        marketQuery: checkoutMarketQuery, items: checkoutItems,
+      });
+      await refresh();
+      setActiveModal(null);
+      setActiveListId(null);
+      setCheckoutItems([]);
+    } catch (cause) {
+      setCheckoutError(cause.message === 'DUPLICATE_FISCAL_NOTE'
+        ? 'Esta nota fiscal já foi adicionada a esta despensa.' : cause.message);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleNavbar = (key, item) => {
@@ -486,7 +668,7 @@ export default function GroceryListScreen({ navigation, route }) {
         </ListScroll>
       </Content>
       <GroceryListModal
-        visible={Boolean(activeModal)}
+        visible={Boolean(activeModal) && !['checkout-choice', 'checkout-scanner', 'checkout-review'].includes(activeModal)}
         mode={activeModal}
         list={activeList}
         item={activeItem}
@@ -499,10 +681,26 @@ export default function GroceryListScreen({ navigation, route }) {
         onUpdate={(draft) => perform(() => groceryListService.updateGroceryList({ ...draft, accountId: account?.id, pantryId, listId: activeListId }))}
         onRepeat={(draft) => perform(() => groceryListService.repeatGroceryList({ ...draft, accountId: account?.id, pantryId, listId: activeListId }))}
         onStartCheckout={handleStartCheckout}
-        onCheckout={(pricesByItemId) => perform(() => finishListAndStock({ accountId: account?.id, pantryId, listId: activeListId, pricesByItemId }))}
         onDelete={() => perform(() => groceryListService.deleteGroceryList({ accountId: account?.id, pantryId, listId: activeListId }))}
         onSortChange={setSortOption}
       />
+      <AddProductMethodModal checkout visible={activeModal === 'checkout-choice'}
+        onRequestClose={() => setActiveModal('settings')}
+        onManual={startManualCheckout}
+        onQrCode={() => setActiveModal('checkout-scanner')} />
+      <NfceScannerModal visible={activeModal === 'checkout-scanner'}
+        onRequestClose={() => setActiveModal(null)}
+        onPurchaseLoaded={startFiscalCheckout} />
+      <GroceryCheckoutReview visible={activeModal === 'checkout-review'}
+        mode={checkoutMode} list={activeList ?? {}} purchase={checkoutPurchase}
+        dateValue={checkoutDate} dateReadOnly={checkoutMode === 'nfce'}
+        marketQuery={checkoutMarketQuery} selectedMarket={checkoutMarket} items={checkoutItems}
+        busy={busy} error={checkoutError}
+        onChangeDate={(value) => { setCheckoutDate(value); setCheckoutError(''); }}
+        onChangeMarketQuery={(value) => { setCheckoutMarketQuery(value); setCheckoutMarket(null); setCheckoutError(''); }}
+        onSelectMarket={(value) => { setCheckoutMarket(value); setCheckoutMarketQuery(value.displayName ?? value.localName ?? ''); setCheckoutError(''); }}
+        onChangeItem={changeCheckoutItem} onResetItems={setCheckoutItems} onConfirm={confirmCheckout}
+        onClose={() => setActiveModal('settings')} />
       <GroceryListHistoryModal
         visible={historyOpen}
         lists={lists.filter((list) => list.status === 'finished')}

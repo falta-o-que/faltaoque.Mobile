@@ -20,6 +20,7 @@ export function GroceryListItemCard({
   onToggle,
   onEdit,
   disabled = false,
+  showCheckbox = true,
 }) {
   const metadata = [weight, size].filter(Boolean).join(' · ');
   const canToggle = !disabled && typeof onToggle === 'function';
@@ -37,7 +38,7 @@ export function GroceryListItemCard({
           <PenIcon size={16} color="#494949" />
         </EditButton>
       ) : null}
-      <Checkbox
+      {showCheckbox ? <Checkbox
         $checked={checked}
         accessibilityLabel={checked ? `Desmarcar ${name}` : `Marcar ${name}`}
         accessibilityRole="checkbox"
@@ -46,7 +47,7 @@ export function GroceryListItemCard({
         onPress={canToggle ? onToggle : undefined}
       >
         {checked ? <SimpleCheckIcon width={9} height={7} /> : null}
-      </Checkbox>
+      </Checkbox> : null}
     </Card>
   );
 }

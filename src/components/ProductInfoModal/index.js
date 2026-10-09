@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Easing, Animated, Modal, Platform } from 'react-native';
 
-import { AngleIcon, BoxIcon, CancelCircleIcon, CheckIcon, DeliveryIcon, InfoIcon, PenIcon } from '../../assets/icons/export';
+import { AngleIcon, BoxIcon, CalendarIcon, CancelCircleIcon, CheckIcon, DeliveryIcon, InfoIcon, PenIcon } from '../../assets/icons/export';
 import { PRODUCT_CATEGORIES, PRODUCT_PRICE_TYPES, PRODUCT_UNITS, validateProduct } from '../../domain/productValidation';
 import { getUserErrorMessage } from '../../utils/userErrors';
 import CategoryTag, { CATEGORY_LABELS } from '../CategoryTag';
@@ -14,7 +14,7 @@ import {
   SubmitError, TitleGroup, UnitLabel, UnitOption, UnitOptions, WeightGroup,
 } from './styles';
 
-const EMPTY_DRAFT = { name: '', price: '', priceType: 'unit', quantity: '', expirationDate: '', weight: '', unit: '', category: null };
+const EMPTY_DRAFT = { name: '', brand: '', price: '', priceType: 'unit', quantity: '', expirationDate: '', weight: '', unit: '', category: null };
 
 const formatPrice = (value) => Number.isFinite(Number(value)) ? `R$ ${Number(value).toFixed(2).replace('.', ',')}` : '—';
 
@@ -25,6 +25,7 @@ function toDraft(product = {}) {
     : expirationDate;
   return {
     name: String(product.name ?? ''),
+    brand: String(product.brand ?? ''),
     priceType: product.priceType === 'total' ? 'total' : 'unit',
     price: String(product.priceType === 'total' ? product.totalPrice ?? '' : product.unitPrice ?? ''),
     quantity: String(product.quantity ?? ''),
@@ -92,6 +93,7 @@ export function ProductInfoModal({ visible, product, onDelete, onRequestClose, o
   const details = [
     ['Preço unitário', formatPrice(product?.unitPrice)],
     ['Preço total', formatPrice(product?.totalPrice)],
+    ['Marca', draft.brand || 'Sem marca'],
     ['Quantidade', draft.quantity || '—'],
     ['Validade', draft.expirationDate || 'Sem validade'],
     ['Peso/volume', [draft.weight, draft.unit].filter(Boolean).join(' ') || '—'],
@@ -107,10 +109,11 @@ export function ProductInfoModal({ visible, product, onDelete, onRequestClose, o
             {!isEditing ? <ReadonlyPanel>{details.map(([label, value]) => <DetailRow key={label}><DetailLabel>{label}</DetailLabel><DetailValue>{value}</DetailValue></DetailRow>)}</ReadonlyPanel> : (
               <FormContent><Fields>
                 <FormField accessibilityLabel="Nome do produto, obrigatório" autoCapitalize="sentences" editable={!isSubmitting} error={errors.name} Icon={PenIcon} maxLength={120} onChangeText={(value) => updateField('name', value)} placeholder="Nome *" value={draft.name} />
+                <FormField accessibilityLabel="Marca do produto, opcional" autoCapitalize="words" editable={!isSubmitting} error={errors.brand} Icon={PenIcon} maxLength={100} onChangeText={(value) => updateField('brand', value)} placeholder="Marca (opcional)" value={draft.brand} />
                 <PriceTypeOptions accessibilityRole="radiogroup">{PRODUCT_PRICE_TYPES.map((priceType) => <PriceTypeOption key={priceType} accessibilityRole="radio" accessibilityState={{ checked: draft.priceType === priceType }} disabled={isSubmitting} onPress={() => updateField('priceType', priceType)} $selected={draft.priceType === priceType}><PriceTypeLabel $selected={draft.priceType === priceType}>{priceType === 'unit' ? 'Por unidade' : 'Total do lote'}</PriceTypeLabel></PriceTypeOption>)}</PriceTypeOptions>
                 <FormField accessibilityLabel={draft.priceType === 'total' ? 'Preço total do lote, obrigatório' : 'Preço unitário, obrigatório'} editable={!isSubmitting} error={errors.price} Icon={DeliveryIcon} keyboardType="decimal-pad" onChangeText={(value) => updateField('price', value)} placeholder={draft.priceType === 'total' ? 'Total do lote *' : 'Preço por unidade *'} value={draft.price} />
                 <FormField accessibilityLabel="Quantidade, obrigatória" editable={!isSubmitting} error={errors.quantity} Icon={DeliveryIcon} keyboardType="number-pad" onChangeText={(value) => updateField('quantity', value)} placeholder="Quantidade *" value={draft.quantity} />
-                <FormField accessibilityLabel="Data de validade" editable={!isSubmitting} error={errors.expirationDate} keyboardType="numbers-and-punctuation" maxLength={10} onChangeText={handleExpiration} placeholder="Validade (DD/MM/AAAA)" value={draft.expirationDate} />
+                <FormField accessibilityLabel="Data de validade" editable={!isSubmitting} error={errors.expirationDate} Icon={CalendarIcon} keyboardType="numbers-and-punctuation" maxLength={10} onChangeText={handleExpiration} placeholder="Validade (DD/MM/AAAA)" value={draft.expirationDate} />
                 <WeightGroup><FormField accessibilityLabel="Peso ou volume" editable={!isSubmitting} error={errors.weight} Icon={BoxIcon} keyboardType="decimal-pad" onChangeText={(value) => updateField('weight', value)} placeholder="Peso" value={draft.weight} />{draft.weight.trim() ? <><AccordionLabel>Unidade *</AccordionLabel><UnitOptions accessibilityRole="radiogroup">{PRODUCT_UNITS.map((unit) => <UnitOption key={unit} accessibilityLabel={`Unidade ${unit}, obrigatória`} accessibilityRole="radio" accessibilityState={{ checked: draft.unit === unit }} disabled={isSubmitting} onPress={() => updateField('unit', unit)} $selected={draft.unit === unit}><UnitLabel $selected={draft.unit === unit}>{unit}</UnitLabel></UnitOption>)}</UnitOptions>{errors.unit ? <InlineError>{errors.unit}</InlineError> : null}</> : null}</WeightGroup>
               </Fields><Accordion><AccordionHeader disabled={isSubmitting} onPress={() => setIsCategoryOpen((open) => !open)} $hasError={Boolean(errors.category)}><AccordionLabel>Categoria *</AccordionLabel><Chevron style={categoryChevronStyle}><AngleIcon /></Chevron></AccordionHeader>{isCategoryOpen ? <CategoryOptions style={categoryPanelStyle}>{PRODUCT_CATEGORIES.map((category) => <CategoryTag key={category} category={category} disabled={isSubmitting} onSelectionChange={(selected) => updateField('category', selected ? category : null)} selected={draft.category === category} variant="product" />)}</CategoryOptions> : null}{errors.category ? <InlineError>{errors.category}</InlineError> : null}</Accordion></FormContent>
             )}

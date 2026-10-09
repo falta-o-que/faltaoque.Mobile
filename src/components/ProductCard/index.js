@@ -38,7 +38,7 @@ export function ProductCard({
 }) {
   const theme = useTheme();
   const hasInfoAction = typeof onInfoPress === 'function';
-  const canDecrement = !disabled && quantity > 1 && typeof onDecrement === 'function';
+  const canDecrement = !disabled && quantity > 0 && typeof onDecrement === 'function';
   const canIncrement = !disabled && typeof onIncrement === 'function';
   const measure = [weight, unit].filter(Boolean).join(' ');
   const categoryKey = CATEGORY_LABELS[category] ? category : 'organicos';

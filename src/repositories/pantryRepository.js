@@ -8,6 +8,7 @@ export async function listPantriesByAccountId(accountId) {
     color: resolveColor(database, pantry.color_id)?.hex_code,
     productCount: database.pantry_products.filter((product) => !product.is_deleted && product.is_in_pantry &&
       database.purchases.some((purchase) => purchase.id === product.purchase_id && purchase.pantry_id === pantry.id)).length,
+    shoppingListCount: database.grocery_lists.filter((list) => list.pantry_id === pantry.id && list.is_active).length,
   }));
 }
 

@@ -37,13 +37,22 @@ function readScope(database, accountId, pantryId) {
   const member = database.users_pantries.some((row) => row.user_id === accountId && row.pantry_id === pantryId);
   if (!member) return [];
   const lists = database.grocery_lists.filter((list) => list.pantry_id === pantryId);
+  const matchedPurchaseIds = new Set();
   return lists.map((list) => {
     const market = database.markets.find((entry) => entry.id === list.market_id) ?? null;
+    const matchedPurchase = list.is_active ? null : database.purchases.find((purchase) => {
+      const sameTotal = Math.round(Number(purchase.total_price) * 100) === Math.round(Number(list.estimated_price) * 100);
+      const matches = purchase.pantry_id === pantryId && purchase.title === list.name &&
+        purchase.market_id === (list.market_id ?? null) && sameTotal && !matchedPurchaseIds.has(purchase.id);
+      if (matches) matchedPurchaseIds.add(purchase.id);
+      return matches;
+    });
     const view = {
       id: list.id, accountId, pantryId, name: list.name, plannedDate: list.date,
       location: market?.cep ?? list.location,
       marketId: list.market_id ?? null, market: market ? { id: market.id, cep: market.cep, latitude: market.latitude, longitude: market.longitude, localName: market.local_name } : null, estimatedPrice: list.estimated_price,
       status: list.is_active ? 'active' : 'finished',
+      finishedAt: matchedPurchase?.purchase_date ?? matchedPurchase?.finish_date ?? null,
       items: database.grocery_list_products.filter((item) => item.grocery_list_id === list.id).map((item) => ({
       id: item.id, name: item.name, category: database.categories.find((category) => category.id === item.category_id)?.name ?? null, quantity: item.quantity ?? 1,
       weight: item.content_value, unit: ({ 1: 'g', 2: 'kg', 3: 'ml', 4: 'L' })[item.unit_of_measure] ?? null,

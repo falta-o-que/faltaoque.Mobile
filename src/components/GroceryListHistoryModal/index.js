@@ -50,7 +50,7 @@ const formatMeasure = (item) => {
 };
 
 const formatPrice = (value) => value == null
-  ? 'Sem estimativa'
+  ? 'Valor não registrado'
   : `R$ ${Number(value).toFixed(2).replace('.', ',')}`;
 
 export default function GroceryListHistoryModal({
@@ -102,7 +102,7 @@ export default function GroceryListHistoryModal({
                       <DateText>{list.market?.localName || 'Mercado não identificado'}</DateText>
                     </DateRow>
                     <DateRow>
-                      <DateLabel>Preço estimado</DateLabel>
+                      <DateLabel>Total da compra</DateLabel>
                       <DateText>{formatPrice(list.estimatedPrice)}</DateText>
                     </DateRow>
 

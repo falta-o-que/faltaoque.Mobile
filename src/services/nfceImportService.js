@@ -2,7 +2,9 @@ import * as Crypto from 'expo-crypto';
 import { normalizeCep } from '../domain/locationValidation';
 import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../domain/productValidation';
 import { extractPackageMeasure } from '../domain/packageMeasure';
-import { groupFiscalItems } from '../domain/fiscalItems';
+import { groupFiscalItems, isDisposableBagFiscalItem } from '../domain/fiscalItems';
+import { normalizeFiscalProduct } from '../domain/groceryCheckoutReconciliation';
+import { normalizeDateOnly } from '../domain/dateValidation';
 import { importFiscalPurchase } from '../repositories/productRepository';
 import { extractSaoPauloNfce, isSaoPauloFiscalUrl } from '../integrations/nfce/spExtractor';
 
@@ -28,7 +30,11 @@ export async function loadFiscalPurchase(qrUrl) {
     const html = await response.text();
     if (html.length > 2_000_000) throw new Error('FISCAL_PAGE_TOO_LARGE');
     const purchase = extractSaoPauloNfce(html);
-    return { ...purchase, qrCodeId: extractNfceCode(qrUrl), items: groupFiscalItems(purchase.items).map((item) => ({ ...item, ...extractPackageMeasure(item.sourceDescription), category: suggestCategory(item.sourceDescription), selected: true })) };
+    return { ...purchase, qrCodeId: extractNfceCode(qrUrl), items: groupFiscalItems(purchase.items).map((item) => {
+      const measure = extractPackageMeasure(item.sourceDescription);
+      return { ...item, weight: measure.weight, unit: measure.unit,
+        category: suggestCategory(item.sourceDescription), selected: true };
+    }) };
   } catch (error) {
     if (['INVALID_FISCAL_QR', 'UNSUPPORTED_FISCAL_PAGE', 'FISCAL_PAGE_TOO_LARGE'].includes(error.message)) throw error;
     throw new Error('FISCAL_NETWORK_ERROR');
@@ -37,19 +43,24 @@ export async function loadFiscalPurchase(qrUrl) {
 
 export async function confirmFiscalPurchase({ accountId, pantryId, purchase, items, location, market }) {
   if (!purchase?.qrCodeId || purchase.qrCodeId.length > 44) throw new Error('INVALID_FISCAL_QR');
+  const noteDate = normalizeDateOnly(String(purchase.purchasedAt ?? '').slice(0, 10));
+  const today = new Date();
+  const localToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  if (!noteDate || noteDate > localToday) throw new Error('A data da nota é inválida ou está no futuro.');
   let normalizedLocation;
   try {
     normalizedLocation = normalizeCep(location);
   } catch {
     throw new Error('INVALID_CEP');
   }
-  const selected = items.filter((item) => item.selected);
+  const selected = items.filter((item) => item.selected && !isDisposableBagFiscalItem(item.sourceDescription));
   if (!selected.length) throw new Error('NO_FISCAL_ITEMS');
   if (selected.some((item) => item.weight != null && String(item.weight).trim() !== '' &&
     (!Number.isFinite(Number(item.weight)) || Number(item.weight) <= 0 || !PRODUCT_UNITS.includes(item.unit)))) throw new Error('INVALID_FISCAL_ITEM');
   if (selected.some((item) => !PRODUCT_CATEGORIES.includes(item.category) || !(Number(item.quantity) > 0) || !(Number(item.totalPrice) > 0))) throw new Error('INVALID_FISCAL_ITEM');
   if (selected.some((item) => !Number.isInteger(Number(item.quantity)) && !item.weight &&
     !({ g: true, kg: true, ml: true, l: true })[String(item.unitLabel ?? '').toLowerCase()])) throw new Error('INVALID_FISCAL_ITEM');
+  if (selected.some((item) => !String(item.name ?? '').trim())) throw new Error('Revise o nome dos produtos da nota.');
   const products = selected.map((item) => {
     const fiscalQuantity = Number(item.quantity);
     const fractionalSalesUnit = !Number.isInteger(fiscalQuantity);
@@ -59,7 +70,8 @@ export async function confirmFiscalPurchase({ accountId, pantryId, purchase, ite
       : null);
     const contentValue = item.weight ? Number(item.weight) : fractionalSalesUnit ? fiscalQuantity : null;
     return {
-      id: Crypto.randomUUID(), accountId, pantryId, name: item.sourceDescription.trim(),
+      id: Crypto.randomUUID(), accountId, pantryId, name: String(item.name || normalizeFiscalProduct(item.sourceDescription).name).trim(),
+      brand: String(item.brand ?? '').trim() || null,
       quantity: fractionalSalesUnit ? 1 : fiscalQuantity,
       unitPrice: Number(item.unitPrice) || Number(item.totalPrice) / fiscalQuantity,
       totalPrice: Number(item.totalPrice), priceType: 'unit', weight: contentValue,
@@ -67,7 +79,7 @@ export async function confirmFiscalPurchase({ accountId, pantryId, purchase, ite
       expirationDate: null, createdAt: new Date().toISOString(),
     };
   });
-  const storedPurchase = { id: Crypto.randomUUID(), accountId, pantryId, source: 'nota_fiscal', market, purchasedAt: purchase.purchasedAt || new Date().toISOString(), location: normalizedLocation, totalPrice: purchase.totalAmount, qrCodeId: purchase.qrCodeId, items: selected.map((item, index) => ({ ...item, productId: products[index].id })) };
+  const storedPurchase = { id: Crypto.randomUUID(), accountId, pantryId, source: 'nota_fiscal', market, purchasedAt: purchase.purchasedAt, location: normalizedLocation, totalPrice: products.reduce((sum, product) => sum + product.totalPrice, 0), qrCodeId: purchase.qrCodeId, items: selected.map((item, index) => ({ ...item, productId: products[index].id })) };
   await importFiscalPurchase({ accountId, pantryId, products, purchase: storedPurchase, qrCodeId: purchase.qrCodeId });
   return products;
 }
