@@ -1,6 +1,7 @@
 import { normalizeCep } from '../domain/locationValidation';
 import { GROCERY_SUGGESTION_TYPES } from '../domain/grocerySuggestionOptions';
 import { readDatabase } from '../storage/localDatabase';
+import { getUserErrorMessage } from '../utils/userErrors';
 import { estimateGroceryListPrices } from './groceryPriceEstimateService';
 
 const geocodeCache = new Map();
@@ -141,7 +142,7 @@ export async function getGroceryMarketSuggestions({ pantryId, pantryCep, list })
           distanceKm: distanceKm(pantryCoordinates, candidate.market),
         })).sort((first, second) => first.distanceKm - second.distanceKm)[0] ?? null;
       } catch (error) {
-        nearestError = error.message;
+        nearestError = getUserErrorMessage(error, 'Não foi possível calcular a distância agora. Tente novamente mais tarde.');
       }
     }
   }

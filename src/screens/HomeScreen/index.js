@@ -17,6 +17,7 @@ import {
 } from '../../assets/icons/export';
 import { useAuth } from '../../contexts/AuthContext';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
+import { showUserErrorAlert } from '../../utils/userErrors';
 import * as pantryService from '../../services/pantryService';
 import {
   Avatar,
@@ -25,6 +26,8 @@ import {
   EmptyText,
   Greeting,
   LoadError,
+  RetryButton,
+  RetryText,
   PantryList,
   PantryTitle,
   Question,
@@ -55,6 +58,7 @@ export function HomeScreen({ navigation }) {
   const [isSavingPantryLocation, setIsSavingPantryLocation] = useState(false);
   const [pantries, setPantries] = useState([]);
   const [pantriesError, setPantriesError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useFocusEffect(useCallback(() => {
     let isMounted = true;
@@ -77,7 +81,7 @@ export function HomeScreen({ navigation }) {
     return () => {
       isMounted = false;
     };
-  }, [account?.id]));
+  }, [account?.id, reloadKey]));
 
   const handleActionPress = (key, label) => {
     if (key === 'pantry') {
@@ -139,10 +143,7 @@ export function HomeScreen({ navigation }) {
       setPantriesError(null);
       setIsCreatePantryModalOpen(false);
     } catch (error) {
-      Alert.alert(
-        'Não foi possível criar a despensa',
-        'Tente novamente em alguns instantes.',
-      );
+      showUserErrorAlert(error, { title: 'Não foi possível criar a despensa', fallback: 'Os dados preenchidos foram mantidos. Tente novamente em alguns instantes.' });
     }
   };
 
@@ -189,7 +190,14 @@ export function HomeScreen({ navigation }) {
         {selectedAction === 'pantry' ? (
           <PantrySection>
             <PantryTitle>Suas despensas</PantryTitle>
-            {pantriesError ? <LoadError>{pantriesError}</LoadError> : null}
+            {pantriesError ? (
+              <>
+                <LoadError accessibilityLiveRegion="polite" accessibilityRole="alert">{pantriesError}</LoadError>
+                <RetryButton accessibilityRole="button" onPress={() => setReloadKey((value) => value + 1)}>
+                  <RetryText>Tentar novamente</RetryText>
+                </RetryButton>
+              </>
+            ) : null}
             {pantries.length === 0 && !pantriesError ? (
               <EmptyText>Você ainda não possui despensas...</EmptyText>
             ) : null}

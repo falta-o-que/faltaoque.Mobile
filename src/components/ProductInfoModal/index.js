@@ -3,6 +3,7 @@ import { Easing, Animated, Modal, Platform } from 'react-native';
 
 import { AngleIcon, BoxIcon, CancelCircleIcon, CheckIcon, DeliveryIcon, InfoIcon, PenIcon } from '../../assets/icons/export';
 import { PRODUCT_CATEGORIES, PRODUCT_PRICE_TYPES, PRODUCT_UNITS, validateProduct } from '../../domain/productValidation';
+import { getUserErrorMessage } from '../../utils/userErrors';
 import CategoryTag, { CATEGORY_LABELS } from '../CategoryTag';
 import FormField from '../FormField';
 import ModalActionButton from '../ModalActionButton';
@@ -81,7 +82,7 @@ export function ProductInfoModal({ visible, product, onDelete, onRequestClose, o
     if (Object.keys(nextErrors).length) return;
     submittingRef.current = true; setIsSubmitting(true);
     try { await onSave?.({ ...draft }); setOriginalDraft({ ...draft }); setIsEditing(false); setIsCategoryOpen(false); }
-    catch (error) { setErrors({ ...(error?.fields ?? {}), submit: 'Não foi possível salvar o produto. Tente novamente.' }); }
+    catch (error) { setErrors({ ...(error?.fields ?? {}), submit: getUserErrorMessage(error, 'Não foi possível salvar o produto. Seus dados foram mantidos; tente novamente.') }); }
     finally { submittingRef.current = false; setIsSubmitting(false); }
   }
 
@@ -113,7 +114,7 @@ export function ProductInfoModal({ visible, product, onDelete, onRequestClose, o
                 <WeightGroup><FormField accessibilityLabel="Peso ou volume" editable={!isSubmitting} error={errors.weight} Icon={BoxIcon} keyboardType="decimal-pad" onChangeText={(value) => updateField('weight', value)} placeholder="Peso" value={draft.weight} />{draft.weight.trim() ? <><UnitOptions accessibilityRole="radiogroup">{PRODUCT_UNITS.map((unit) => <UnitOption key={unit} accessibilityRole="radio" accessibilityState={{ checked: draft.unit === unit }} disabled={isSubmitting} onPress={() => updateField('unit', unit)} $selected={draft.unit === unit}><UnitLabel $selected={draft.unit === unit}>{unit}</UnitLabel></UnitOption>)}</UnitOptions>{errors.unit ? <InlineError>{errors.unit}</InlineError> : null}</> : null}</WeightGroup>
               </Fields><Accordion><AccordionHeader disabled={isSubmitting} onPress={() => setIsCategoryOpen((open) => !open)} $hasError={Boolean(errors.category)}><AccordionLabel>Categoria *</AccordionLabel><Chevron style={categoryChevronStyle}><AngleIcon /></Chevron></AccordionHeader>{isCategoryOpen ? <CategoryOptions style={categoryPanelStyle}>{PRODUCT_CATEGORIES.map((category) => <CategoryTag key={category} category={category} disabled={isSubmitting} onSelectionChange={(selected) => updateField('category', selected ? category : null)} selected={draft.category === category} variant="product" />)}</CategoryOptions> : null}{errors.category ? <InlineError>{errors.category}</InlineError> : null}</Accordion></FormContent>
             )}
-            {errors.submit ? <SubmitError>{errors.submit}</SubmitError> : null}{isSubmitting ? <BusyStatus><BusyIndicator /><BusyText>Salvando...</BusyText></BusyStatus> : null}
+            {errors.submit ? <SubmitError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.submit}</SubmitError> : null}{isSubmitting ? <BusyStatus><BusyIndicator /><BusyText>Salvando...</BusyText></BusyStatus> : null}
             {!isEditing ? <DeleteButton accessibilityLabel="Excluir produto" disabled={isSubmitting} onPress={onDelete}><DeleteLabel>Excluir produto</DeleteLabel></DeleteButton> : null}
             <Actions><ModalActionButton accessibilityLabel={isEditing ? 'Cancelar edição' : 'Fechar informações'} disabled={isSubmitting} Icon={CancelCircleIcon} onPress={handleCancel} variant="cancel" /><ModalActionButton accessibilityLabel={isEditing ? 'Salvar produto' : 'Editar produto'} disabled={isSubmitting} Icon={isEditing ? CheckIcon : PenIcon} onPress={isEditing ? handleSave : () => setIsEditing(true)} variant="confirm" /></Actions>
           </Content>

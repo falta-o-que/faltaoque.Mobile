@@ -12,12 +12,12 @@ import GroceryListHistoryModal from '../../components/GroceryListHistoryModal';
 import GroceryListModal from '../../components/GroceryListModal';
 import Navbar from '../../components/Navbar';
 import { useAuth } from '../../contexts/AuthContext';
+import { showUserErrorAlert } from '../../utils/userErrors';
 import { PRODUCT_CATEGORIES } from '../../domain/productValidation';
 import { GROCERY_SUGGESTION_OPTIONS, GROCERY_SUGGESTION_TYPES } from '../../domain/grocerySuggestionOptions';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import * as groceryListService from '../../services/groceryListService';
 import { getGroceryMarketSuggestions } from '../../services/groceryMarketSuggestionService';
-import { seedGroceryEstimateDemoData } from '../../services/groceryEstimateDemoData';
 import { finishListAndStock } from '../../services/groceryCheckoutService';
 import { getCollapsedGroceryListIds, saveCollapsedGroceryListIds } from '../../services/groceryListViewPreferenceService';
 import { listPantries } from '../../services/pantryService';
@@ -103,7 +103,6 @@ export default function GroceryListScreen({ navigation, route }) {
     setSelectedSuggestionByList({});
     setLoadingSuggestionListId(null);
     (async () => {
-      if (__DEV__) await seedGroceryEstimateDemoData(pantryId);
       return Promise.all([
         listPantries(account?.id),
         groceryListService.listGroceryLists(account?.id, pantryId),
@@ -136,7 +135,6 @@ export default function GroceryListScreen({ navigation, route }) {
     return list.items.some((item) => selectedCategories.includes(item.category));
   }), [lists, selectedCategories]);
 
-  const showError = (message) => Alert.alert('Não foi possível concluir a ação', message);
   const perform = async (operation) => {
     if (busy) return;
     setBusy(true);
@@ -147,7 +145,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setError(null);
       return true;
     } catch (operationError) {
-      showError(operationError?.message || 'Tente novamente em alguns instantes.');
+      showUserErrorAlert(operationError, { title: 'Não foi possível concluir a ação', fallback: 'Seus dados foram mantidos. Tente novamente em alguns instantes.' });
       return false;
     } finally {
       setBusy(false);
@@ -191,7 +189,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setSuggestionOptionsByList((current) => ({ ...current, [list.id]: options }));
     } catch (suggestionError) {
       console.error('[GroceryListScreen] Falha ao calcular sugestões:', suggestionError);
-      Alert.alert('Sugestões indisponíveis', suggestionError?.message || 'Não foi possível consultar os mercados agora.');
+      showUserErrorAlert(suggestionError, { title: 'Sugestões indisponíveis', fallback: 'Não foi possível consultar os mercados agora. Tente novamente.' });
       setSuggestionPanelListId(null);
     } finally {
       setLoadingSuggestionListId((current) => current === list.id ? null : current);

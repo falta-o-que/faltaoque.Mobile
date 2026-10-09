@@ -112,7 +112,7 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
       name: name.trim() ? undefined : 'Informe o nome da despensa.',
       color: color ? undefined : 'Escolha uma cor para a despensa.',
       location: location.trim() && !selectedPlace
-        ? 'Escolha um endereço da lista de sugestões.' : undefined,
+        ? 'Selecione um endereço válido nas sugestões do Google ou deixe o campo em branco.' : undefined,
     };
 
     setErrors(nextErrors);
@@ -214,7 +214,7 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
                 </ColorGrid>
               </ColorPanel>
             ) : null}
-            {errors.color ? <InlineError>{errors.color}</InlineError> : null}
+            {errors.color ? <InlineError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.color}</InlineError> : null}
           </ColorField>
           <Actions>
             <ModalActionButton

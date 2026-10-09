@@ -9,7 +9,7 @@ import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import { listPantries } from '../../services/pantryService';
 import {
   Card, ColorCircle, Content, EmptyText, Header, List, PantryName,
-  Screen, StatusText, Subtitle, Title,
+  RetryButton, RetryText, Screen, StatusText, Subtitle, Title,
 } from './styles';
 
 export default function GroceryPantryPickerScreen({ navigation }) {
@@ -17,6 +17,7 @@ export default function GroceryPantryPickerScreen({ navigation }) {
   const [pantries, setPantries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useFocusEffect(useCallback(() => {
     let active = true;
@@ -26,7 +27,7 @@ export default function GroceryPantryPickerScreen({ navigation }) {
       .catch(() => { if (active) setError('Não foi possível carregar suas despensas.'); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [account?.id]));
+  }, [account?.id, reloadKey]));
 
   const handleNavbar = (key, item) => {
     if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME);
@@ -40,7 +41,12 @@ export default function GroceryPantryPickerScreen({ navigation }) {
         <Header><ShoppingListIcon size={28} color="#00DD00" /><Title>Lista de compras</Title></Header>
         <Subtitle>Escolha a despensa para abrir suas listas de compras.</Subtitle>
         {loading ? <ActivityIndicator accessibilityLabel="Carregando despensas" /> : error ? (
-          <StatusText accessibilityRole="alert" onPress={() => navigation.replace(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER)}>{error} Toque para tentar novamente.</StatusText>
+          <>
+            <StatusText accessibilityLiveRegion="polite" accessibilityRole="alert">{error}</StatusText>
+            <RetryButton accessibilityRole="button" onPress={() => setReloadKey((value) => value + 1)}>
+              <RetryText>Tentar novamente</RetryText>
+            </RetryButton>
+          </>
         ) : pantries.length === 0 ? (
           <EmptyText>Você ainda não possui despensas. Crie uma na página inicial.</EmptyText>
         ) : (

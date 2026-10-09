@@ -1,6 +1,6 @@
 # Estado atual
 
-Última atualização da memória de planejamento: 8 de outubro de 2026. A descrição da implementação abaixo registra o estado do MVP local e as atualizações incorporadas nesta data.
+Última atualização da memória de planejamento: 9 de outubro de 2026. A descrição da implementação abaixo registra o estado do MVP local e as atualizações incorporadas nesta data.
 
 ## Marco imediato
 
@@ -32,6 +32,7 @@ Funcionalidades exigidas para essa entrega:
 - Componentes existentes incluem `ButtonClick`, `CategoryTag`, `Navbar`, `QuickActionButton`, `CreatePantryModal`, `ModalActionButton`, `PantryCard`, `SearchField`, `ProductCard` e `AddProductModal`.
 - React Navigation separa o fluxo público (`Login` e `Register`) do fluxo autenticado (`Home` e `Pantry`).
 - As telas-base de login, cadastro e home foram criadas a partir dos nós atuais de alta fidelidade do Figma.
+- O catálogo `src/utils/userErrors.js` padroniza mensagens de falha e alertas: converte códigos conhecidos, aceita apenas mensagens de domínio aprovadas e oculta exceções técnicas não reconhecidas. Validações permanecem junto dos campos, falhas de carregamento oferecem nova tentativa, operações preservam os dados e os erros são anunciados por acessibilidade. Places e Geocoding mantêm instruções específicas para problemas de chave, API e faturamento.
 - A troca entre os navegadores depende da sessão restaurada pelo contexto de autenticação.
 - Contas locais são persistidas em um esquema versionado por meio de repositório substituível; senhas são armazenadas somente como hash com salt.
 - A sessão ativa usa armazenamento seguro e é restaurada após reiniciar o aplicativo.
@@ -141,6 +142,7 @@ Outra correção de 6 de outubro: a Navbar de listas abre uma tela intermediári
 - Aprovada a tabela `markets` com ID interno, CEP, latitude/longitude e `local_name` apenas local. Listas e compras apontam para ela por `market_id` opcional; CEP não é único. O nome principal vem do estabelecimento selecionado no Google Places e fica cacheado no registro local do mercado, sem persistir `place_id`.
 - A decisão está documentada em `docs/architecture/markets-model-addendum-2026-10-08.md` e implementada no banco local do app (versão 11), incluindo relação opcional de listas e compras com `markets`. A busca Google Places foi conectada à lista, compra manual, revisão de NFC-e e criação/edição da despensa. Para mercados guarda CEP, coordenadas e somente o nome principal retornado pelo Places, sem persistir `place_id`; para despensas grava o CEP em `pantries.location` e somente o nome principal em cache local em `pantries.location_name`. O banco hospedado ainda não foi alterado. A fotografia oficial do banco de 8 de outubro continua preservada sem alterações.
 - A chave preenchida pelo usuário está em `.env.local` (ignorado pelo Git; o conteúdo não é registrado na memória). Após a atualização, Places Autocomplete retornou quatro sugestões e Place Details forneceu CEP e coordenadas em uma chamada real feita deste ambiente. Chamadas separadas ao Routes API e ao Directions API (Legacy) foram rejeitadas; não são necessárias para a busca de endereço. O teste visual no app Android ainda está pendente. Antes de produção, preferir um proxy autenticado ou SDK nativo; não distribuir chave irrestrita no bundle `EXPO_PUBLIC_`.
+- Os campos de endereço/mercado informam quando o Google não encontra resultados e exigem selecionar uma sugestão válida antes de salvar; texto aleatório não é aceito. Place Details continua exigindo CEP válido e coordenadas.
 - O aparelho Android `RMX3710` está conectado pelo ADB quando executado fora do sandbox.
 - O contrato do backend precisa definir o backfill de `location` para `market_id`; registros históricos que só têm CEP não identificam com segurança qual unidade foi visitada.
 
@@ -154,7 +156,7 @@ Outra correção de 6 de outubro: a Navbar de listas abre uma tela intermediári
 - O histórico de demonstração cria sete compras sintéticas ligadas a Atacadão - Indianópolis (CEP 04045-004), Carrefour Express Moema (CEP 04077-023) e Minuto Pão de Açúcar (CEP 04089-001), com nomes cacheados, coordenadas, marcas e itens em `pantry_products`. Isso permite diferenciar o Atacadão como mercado mais próximo e de menor custo no cenário, e o Minuto Pão de Açúcar como mercado com maior cobertura das marcas preferidas. Os produtos, marcas e lojas são reais; as compras não são transações nem cupons reais, e os preços são valores de referência demonstrativos, aproximados de catálogos públicos e podem variar por unidade, promoção e data.
 - Endereços verificados em [Metrô São Judas](https://www.metro.sp.gov.br/pt_BR/sua-viagem/linhas-estacoes/linha-1-azul/estacao-sao-judas/), [Atacadão Indianópolis](https://www.atacadao.com.br/loja/indianopolis), [Carrefour Express Moema](https://www.waze.com/live-map/directions/br/sp/carrefour-express-moema?to=place.ChIJvxt21fpbzpQRM_SDSVHIFzI) e [Minuto Pão de Açúcar Indianópolis](https://www.paodeacucar.com/nossas-lojas/alameda-dos-maracatins-88.sdx?filter=Minuto). CEP/coords dos registros locais foram conferidos com Places para os locais selecionados.
 - Ao inserir a nova fixture, o serviço remove apenas os mocks antigos identificados pelos títulos/nome exatos. Registros de compras e mercados sem esses marcadores são preservados. Se a fixture completa já existir, ela não é recriada nem sobrescreve alterações feitas pelo usuário na lista demonstrativa.
-- Estado desta sessão: fixture e documentação atualizadas; `npx expo export --platform android` compilou com sucesso e `git diff --check` passou. Ainda falta conferir no Android que o usuário seleciona a Estação São Judas no Maps e que a lista/sugestões aparecem no aparelho. A fixture é disparada ao focar a página de listas da despensa em modo de desenvolvimento.
+- A fixture de sugestões está temporariamente desativada a pedido do usuário em 9 de outubro: `src/services/groceryEstimateDemoData.js` permanece no repositório, mas a tela não a importa nem executa. Dados demonstrativos que já estejam salvos no armazenamento local não são removidos por essa alteração. A reativação depende de nova solicitação do usuário.
 
 Na continuação da página, os cards dos produtos usam a cor da categoria na barrinha lateral; `Limpeza/Higiene`, cujo fundo é branco puro, recebe contorno cinza. Foi incluído um atalho de lápis para abrir o modal de edição do produto, que permite alterar nome, quantidade, peso/volume, unidade e categoria na lista ativa. O serviço mantém o estado de marcação do item.
 

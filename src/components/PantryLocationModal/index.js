@@ -33,7 +33,7 @@ export default function PantryLocationModal({ visible, pantry, busy, onSave, onR
 
   async function save() {
     if (location.trim() && !selectedPlace) {
-      setError('Escolha um endereço da lista de sugestões.');
+      setError('Selecione um endereço válido nas sugestões do Google ou deixe o campo em branco.');
       return;
     }
     await onSave(selectedPlace?.cep ?? null, selectedPlace?.displayName ?? null);

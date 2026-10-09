@@ -12,6 +12,7 @@ import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../../domain/productValidatio
 import { UnitOptions, UnitOption, UnitLabel } from '../../components/AddProductModal/styles';
 import { useAuth } from '../../contexts/AuthContext';
 import { confirmFiscalPurchase } from '../../services/nfceImportService';
+import { getUserErrorMessage } from '../../utils/userErrors';
 import { Screen, KeyboardArea, Header, Title, Muted, Label, Name, Card, Summary, Row, Group, Tags, Footer, ErrorText,
   Destination, Dot, ProductImage, ProductBody, ProductRow, Price, Selection, SelectionText, SelectionStatus, CardActions, CategoryButton, CategoryButtonText, Editor, SectionTitle, Progress, ReceiptLabel,
 } from './styles';
@@ -54,7 +55,7 @@ export default function NfceReviewScreen({ route, navigation }) {
   async function confirm() {
     if (busy.current || !selected.length) return;
     if (location.trim() && !selectedMarket) {
-      setLocationError('Escolha um mercado da lista de endereços.');
+      setLocationError('Selecione um mercado válido nas sugestões do Google ou limpe o campo.');
       return;
     }
     const normalizedLocation = selectedMarket?.cep ?? null;
@@ -93,7 +94,7 @@ export default function NfceReviewScreen({ route, navigation }) {
       // Leave after the navigation guard has rendered its unlocked state.
       setCompleted(true);
     } catch (error) {
-      setSubmitError(error.message === 'DUPLICATE_FISCAL_NOTE' ? 'Esta nota já foi adicionada à sua conta.' : 'Não foi possível adicionar os produtos. Suas alterações foram mantidas; tente novamente.');
+      setSubmitError(getUserErrorMessage(error, 'Não foi possível adicionar os produtos. Suas alterações foram mantidas; tente novamente.'));
       busy.current = false;
       setSaving(false);
     }
@@ -142,11 +143,11 @@ export default function NfceReviewScreen({ route, navigation }) {
           <Label>Peso/volume da embalagem</Label>
           <FormField accessibilityLabel="Peso ou volume da embalagem" value={item.weight} keyboardType="decimal-pad" maxLength={16} editable={!saving} error={fields.weight} placeholder="Ex.: 500" onChangeText={(weight) => update(index, { weight, unit: weight.trim() ? item.unit : '' })} />
           {item.weight.trim() ? <UnitOptions accessibilityRole="radiogroup">{PRODUCT_UNITS.map((unit) => <UnitOption key={unit} accessibilityRole="radio" accessibilityLabel={unit} accessibilityState={{ checked: item.unit === unit }} $selected={item.unit === unit} disabled={saving} onPress={() => update(index, { unit })}><UnitLabel $selected={item.unit === unit}>{unit}</UnitLabel></UnitOption>)}</UnitOptions> : null}
-          {fields.unit ? <ErrorText>{fields.unit}</ErrorText> : null}
+          {fields.unit ? <ErrorText accessibilityLiveRegion="polite" accessibilityRole="alert">{fields.unit}</ErrorText> : null}
           <Muted>Medida de cada embalagem, sem multiplicar pela quantidade comprada.</Muted>
           <Label>Categoria *</Label>
           <Tags>{PRODUCT_CATEGORIES.map((category) => <CategoryTag key={category} category={category} variant="product" selected={item.category === category} disabled={saving} onSelectionChange={() => update(index, { category })} />)}</Tags>
-          {fields.category ? <ErrorText>{fields.category}</ErrorText> : null}
+          {fields.category ? <ErrorText accessibilityLiveRegion="polite" accessibilityRole="alert">{fields.category}</ErrorText> : null}
         </Editor> : null}
       </Card>
     );
@@ -180,7 +181,7 @@ export default function NfceReviewScreen({ route, navigation }) {
       <Footer>
         <Row><Group><Label>{selected.length} {selected.length === 1 ? 'produto selecionado' : 'produtos selecionados'}</Label><Price>{currency(total)}</Price></Group><PantryIcon size={30} color={theme.colors.primary.Green} /></Row>
         {pending ? <Progress accessibilityRole="button" disabled={saving} onPress={() => { const index = items.findIndex((item) => item.selected && !PRODUCT_CATEGORIES.includes(item.category)); setCategoryOpen(index); setExpanded(null); list.current?.scrollToIndex({ index, animated: true }); }}><CategoryButtonText>{pending === 1 ? 'Falta escolher 1 categoria' : `Faltam escolher ${pending} categorias`} · Resolver</CategoryButtonText></Progress> : null}
-        {submitError ? <ErrorText accessibilityRole="alert">{submitError}</ErrorText> : null}
+        {submitError ? <ErrorText accessibilityLiveRegion="polite" accessibilityRole="alert">{submitError}</ErrorText> : null}
         {saving ? <ActivityIndicator color={theme.colors.primary.Green} accessibilityLabel="Adicionando produtos" /> : null}
         <ButtonClick disabled={saving || completed || !selected.length} onPress={confirm} title={saving ? 'Guardando compras...' : 'Guardar na despensa'} />
       </Footer>

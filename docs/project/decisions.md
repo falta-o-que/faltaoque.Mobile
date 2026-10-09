@@ -2,6 +2,14 @@
 
 As decisões mais recentes prevalecem quando uma proposta ou anotação anterior descreve outro fluxo. O SDD `../specs/integracao-e-fluxos-2026-10-05.md` consolida o estado atual das decisões posteriores ao MVP, sem afirmar implementação no app ou no banco hospedado.
 
+## 2026-10-09 - Tratamento padronizado de erros no mobile
+
+Erros mostrados ao usuário passam por um catálogo central que traduz códigos conhecidos e só preserva mensagens de domínio explicitamente aprovadas. Detalhes técnicos inesperados não aparecem na tela; a interface usa uma mensagem curta e contextual. Validações aparecem junto ao campo; falhas de carregamento mantêm uma ação visível de tentar novamente; falhas de operação preservam os dados preenchidos e explicam o próximo passo quando conhecido. Erros inline e estados de falha anunciam a mensagem a tecnologias assistivas. Mensagens específicas de configuração das APIs Places e Geocoding continuam distinguindo chave, API desabilitada e faturamento.
+
+## 2026-10-09 - Seleção obrigatória de endereço sugerido
+
+Campos de endereço e mercado aceitam somente uma sugestão selecionada do Google Places. Texto digitado sem seleção não pode ser salvo; ao não haver resultados, a busca explica que é necessário selecionar um endereço sugerido ou limpar o campo opcional. A seleção continua dependendo de Place Details válido, com CEP e coordenadas disponíveis.
+
 ## 2026-10-08 - Persistência da expansão das listas
 
 O estado aberta/recolhida de cada lista ativa deve ser restaurado quando o usuário voltar à página de listas. O app guarda localmente os IDs das listas recolhidas, isolados por conta e despensa; essa preferência de interface não faz parte dos dados da lista nem do backend. IDs de listas que já não estão ativas são ignorados ao restaurar o estado.

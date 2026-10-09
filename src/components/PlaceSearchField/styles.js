@@ -42,7 +42,7 @@ export const Status = styled.View`
   gap: 8px;
 `;
 export const Helper = styled.Text`
-  color: ${({ theme }) => theme.colors.black[400]};
+  color: ${({ $error, theme }) => $error ? theme.colors.danger[600] : theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: 12px;
 `;

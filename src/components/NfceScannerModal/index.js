@@ -5,13 +5,9 @@ import { CancelCircleIcon, PantryIcon } from '../../assets/icons/export';
 import ButtonClick from '../ButtonClick';
 import ModalActionButton from '../ModalActionButton';
 import { loadFiscalPurchase } from '../../services/nfceImportService';
+import { getUserErrorMessage } from '../../utils/userErrors';
 import { CameraArea, CameraHint, CameraShell, Content, Error, Eyebrow, Footer, Frame, Header, HeadingGroup, Help, Intro, IntroIcon, PermissionState, Screen, Status, StatusText, Title } from './styles';
 
-const ERROR_MESSAGES = {
-  INVALID_FISCAL_QR: 'Este QR Code não é uma NFC-e pública de São Paulo.',
-  UNSUPPORTED_FISCAL_PAGE: 'Não foi possível interpretar os itens desta nota.',
-  FISCAL_NETWORK_ERROR: 'Não foi possível consultar a nota. Verifique sua conexão e tente novamente.',
-};
 export default function NfceScannerModal({ visible, onRequestClose, onPurchaseLoaded }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [processing, setProcessing] = useState(false);
@@ -21,7 +17,7 @@ export default function NfceScannerModal({ visible, onRequestClose, onPurchaseLo
     if (processing) return;
     setProcessing(true); setError(null);
     try { onPurchaseLoaded(await loadFiscalPurchase(data)); }
-    catch (cause) { setError(ERROR_MESSAGES[cause.message] ?? 'Não foi possível ler esta nota.'); setProcessing(false); }
+    catch (cause) { setError(getUserErrorMessage(cause, 'Não foi possível ler esta nota. Confira sua conexão e tente novamente.')); setProcessing(false); }
   }
   const title = permission?.granted ? 'Ler QR Code' : 'Usar a câmera';
   return <Modal visible={visible} onRequestClose={onRequestClose} animationType="slide"><Screen edges={['top', 'left', 'right', 'bottom']}><Content>

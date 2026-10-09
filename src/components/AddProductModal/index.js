@@ -16,6 +16,7 @@ import {
   PRODUCT_UNITS,
   validateProduct,
 } from '../../domain/productValidation';
+import { getUserErrorMessage } from '../../utils/userErrors';
 import CategoryTag from '../CategoryTag';
 import FormField from '../FormField';
 import ModalActionButton from '../ModalActionButton';
@@ -159,7 +160,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
     }
 
     const nextErrors = validateProduct(draft);
-    if (draft.location.trim() && !selectedMarket) nextErrors.location = 'Escolha um mercado da lista de endereços.';
+    if (draft.location.trim() && !selectedMarket) nextErrors.location = 'Selecione um mercado válido nas sugestões do Google ou limpe o campo.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
       return;
@@ -177,7 +178,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
       setErrors((currentErrors) => ({
         ...currentErrors,
         ...fieldErrors,
-        submit: 'Não foi possível adicionar o produto. Tente novamente.',
+        submit: getUserErrorMessage(error, 'Não foi possível adicionar o produto. Seus dados foram mantidos; tente novamente.'),
       }));
     } finally {
       submittingRef.current = false;
@@ -392,8 +393,8 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                 </Accordion>
               </FormContent>
 
-              {errors.submit ? (
-                <SubmitError accessibilityLiveRegion="polite">{errors.submit}</SubmitError>
+                {errors.submit ? (
+                  <SubmitError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.submit}</SubmitError>
               ) : null}
 
               {isSubmitting ? (

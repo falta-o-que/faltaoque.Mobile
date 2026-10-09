@@ -135,7 +135,7 @@ export default function GroceryListModal({
       if (plannedDate && !isWithinThreeMonthDateRange(plannedDate)) {
         return setError('Informe uma data real dos últimos 3 meses ou futura, no formato DD/MM/AAAA.');
       }
-      if (marketQuery.trim() && !selectedMarket) return setError('Escolha um mercado nas sugestões do Google Maps.');
+      if (marketQuery.trim() && !selectedMarket) return setError('Selecione um mercado válido nas sugestões do Google ou limpe o campo.');
       const draft = { name: cleanName, plannedDate: dateToIso(plannedDate), location: selectedMarket?.cep ?? null, market: selectedMarket };
       if (mode === 'repeat') return onRepeat(draft);
       return mode === 'create' ? onCreate(draft) : onUpdate(draft);

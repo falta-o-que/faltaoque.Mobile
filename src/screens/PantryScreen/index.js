@@ -17,6 +17,7 @@ import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import { listPantries } from '../../services/pantryService';
 import { addProduct, deleteProduct, listProducts, updateProduct, updateProductQuantity } from '../../services/productService';
 import { PRODUCT_CATEGORIES } from '../../domain/productValidation';
+import { showUserErrorAlert } from '../../utils/userErrors';
 import {
   Screen, Content, Header, TitleRow, ColorCircle, Title, Actions,
   Categories, CategorySection, EmptyState, EmptyText, StatusArea, ErrorText, Retry, RetryText,
@@ -98,7 +99,7 @@ export default function PantryScreen({ route, navigation }) {
       const updated = await updateProductQuantity({ accountId: account?.id, pantryId, productId: product.id, quantity });
       setStoredProducts((current) => current.map((item) => item.id === product.id ? updated : item));
     } catch {
-      Alert.alert('Não foi possível atualizar a quantidade', 'Tente novamente em alguns instantes.');
+      showUserErrorAlert(null, { title: 'Não foi possível atualizar a quantidade', fallback: 'A quantidade anterior foi mantida. Tente novamente em alguns instantes.' });
     } finally {
       setUpdatingProductIds((current) => current.filter((id) => id !== product.id));
     }
@@ -159,7 +160,7 @@ export default function PantryScreen({ route, navigation }) {
               setStoredProducts((current) => current.filter((item) => item.id !== selectedProduct.id));
               setSelectedProduct(null);
             } catch {
-              Alert.alert('Não foi possível excluir o produto', 'Tente novamente em alguns instantes.');
+              showUserErrorAlert(null, { title: 'Não foi possível excluir o produto', fallback: 'O produto continua na despensa. Tente novamente em alguns instantes.' });
             }
           },
         },

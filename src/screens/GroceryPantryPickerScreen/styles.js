@@ -66,3 +66,14 @@ export const EmptyText = styled.Text`
 export const StatusText = styled(EmptyText)`
   color: ${({ theme }) => theme.colors.danger[600]};
 `;
+export const RetryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
+  align-self: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.colors.white[200]};
+`;
+export const RetryText = styled.Text`
+  color: ${({ theme }) => theme.colors.black.Black};
+  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
+  font-size: 13px;
+`;
