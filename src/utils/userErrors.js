@@ -23,7 +23,7 @@ const ERROR_CODE_MESSAGES = {
 // of the UI and each screen supplies a fallback that fits the action.
 const SAFE_USER_MESSAGES = new Set([
   'Conta e despensa são obrigatórias.',
-  'A data planejada deve ser real e estar nos últimos 3 meses ou no futuro.',
+  'A data planejada deve ser real, hoje ou futura.',
   'Escolha um mercado válido da lista de sugestões.',
   'Esta despensa não está disponível para sua conta.',
   'O produto não está disponível nesta despensa.',

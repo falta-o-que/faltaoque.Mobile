@@ -133,7 +133,7 @@ export default function NfceReviewScreen({ route, navigation }) {
         {open ? <Editor>
           <SectionTitle>Editar produto</SectionTitle>
           <Label>Nome *</Label>
-          <FormField Icon={PenIcon} accessibilityLabel="Nome do produto" value={item.sourceDescription} maxLength={120} editable={!saving} error={fields.sourceDescription} onChangeText={(value) => update(index, { sourceDescription: value })} />
+          <FormField Icon={PenIcon} accessibilityLabel="Nome do produto, obrigatório" value={item.sourceDescription} maxLength={120} editable={!saving} error={fields.sourceDescription} onChangeText={(value) => update(index, { sourceDescription: value })} />
           {[
             ['quantity', `Quantidade${item.unitLabel ? ` (${item.unitLabel})` : ''} *`],
             ['unitPrice', `Preço por ${item.unitLabel || 'unidade'} (R$) *`],
@@ -142,7 +142,7 @@ export default function NfceReviewScreen({ route, navigation }) {
           <Muted>Os preços da nota são independentes e podem incluir descontos.</Muted>
           <Label>Peso/volume da embalagem</Label>
           <FormField accessibilityLabel="Peso ou volume da embalagem" value={item.weight} keyboardType="decimal-pad" maxLength={16} editable={!saving} error={fields.weight} placeholder="Ex.: 500" onChangeText={(weight) => update(index, { weight, unit: weight.trim() ? item.unit : '' })} />
-          {item.weight.trim() ? <UnitOptions accessibilityRole="radiogroup">{PRODUCT_UNITS.map((unit) => <UnitOption key={unit} accessibilityRole="radio" accessibilityLabel={unit} accessibilityState={{ checked: item.unit === unit }} $selected={item.unit === unit} disabled={saving} onPress={() => update(index, { unit })}><UnitLabel $selected={item.unit === unit}>{unit}</UnitLabel></UnitOption>)}</UnitOptions> : null}
+          {item.weight.trim() ? <><Label>Unidade *</Label><UnitOptions accessibilityRole="radiogroup">{PRODUCT_UNITS.map((unit) => <UnitOption key={unit} accessibilityRole="radio" accessibilityLabel={`Unidade ${unit}, obrigatória`} accessibilityState={{ checked: item.unit === unit }} $selected={item.unit === unit} disabled={saving} onPress={() => update(index, { unit })}><UnitLabel $selected={item.unit === unit}>{unit}</UnitLabel></UnitOption>)}</UnitOptions></> : null}
           {fields.unit ? <ErrorText accessibilityLiveRegion="polite" accessibilityRole="alert">{fields.unit}</ErrorText> : null}
           <Muted>Medida de cada embalagem, sem multiplicar pela quantidade comprada.</Muted>
           <Label>Categoria *</Label>

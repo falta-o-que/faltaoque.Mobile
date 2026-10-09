@@ -21,14 +21,10 @@ export function normalizeDateOnly(value) {
   return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-export function isWithinThreeMonthDateRange(value, now = new Date()) {
+export function isTodayOrFutureDate(value, now = new Date()) {
   const normalized = normalizeDateOnly(value);
   if (!normalized) return false;
 
-  const minimumMonth = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-  const minimumYear = minimumMonth.getFullYear();
-  const month = minimumMonth.getMonth() + 1;
-  const day = Math.min(now.getDate(), daysInMonth(minimumYear, month));
-  const minimumDate = `${String(minimumYear).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  return normalized >= minimumDate;
+  const today = `${String(now.getFullYear()).padStart(4, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return normalized >= today;
 }

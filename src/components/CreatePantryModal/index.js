@@ -149,14 +149,14 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
           </Header>
           <ColorField>
             <FormField
-              accessibilityLabel="Nome da despensa"
+              accessibilityLabel="Nome da despensa, obrigatório"
               error={errors.name}
               Icon={PenIcon}
               onChangeText={(value) => {
                 setName(value);
                 setErrors((currentErrors) => ({ ...currentErrors, name: undefined }));
               }}
-              placeholder="Nome"
+              placeholder="Nome *"
               value={name}
             />
             <PlaceSearchField
@@ -185,7 +185,7 @@ export function CreatePantryModal({ onCreate, onRequestClose, visible }) {
               onPress={() => setIsColorPickerOpen((currentValue) => !currentValue)}
               $hasError={Boolean(errors.color)}
             >
-              <FieldLabel>Cor da despensa</FieldLabel>
+              <FieldLabel>Cor da despensa *</FieldLabel>
               <ColorChevron style={colorPickerChevronStyle}>
                 <AngleIcon />
               </ColorChevron>

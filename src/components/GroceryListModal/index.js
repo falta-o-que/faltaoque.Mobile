@@ -13,7 +13,7 @@ import {
   PenIcon,
   ShoppingListIcon,
 } from '../../assets/icons/export';
-import { isWithinThreeMonthDateRange, normalizeDateOnly } from '../../domain/dateValidation';
+import { isTodayOrFutureDate, normalizeDateOnly } from '../../domain/dateValidation';
 import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../../domain/productValidation';
 import { ProductCartIcon } from '../AddProductModal/icons';
 import CategoryTag from '../CategoryTag';
@@ -131,9 +131,8 @@ export default function GroceryListModal({
     const cleanName = name.trim();
     if (isListForm) {
       if (!cleanName) return setError('Informe o nome da lista.');
-      if (mode === 'repeat' && !plannedDate) return setError('Informe uma nova data para esta compra.');
-      if (plannedDate && !isWithinThreeMonthDateRange(plannedDate)) {
-        return setError('Informe uma data real dos últimos 3 meses ou futura, no formato DD/MM/AAAA.');
+      if (plannedDate && !isTodayOrFutureDate(plannedDate)) {
+        return setError('Informe uma data de hoje ou futura, no formato DD/MM/AAAA.');
       }
       if (marketQuery.trim() && !selectedMarket) return setError('Selecione um mercado válido nas sugestões do Google ou limpe o campo.');
       const draft = { name: cleanName, plannedDate: dateToIso(plannedDate), location: selectedMarket?.cep ?? null, market: selectedMarket };
@@ -196,18 +195,18 @@ export default function GroceryListModal({
                 {isListForm ? (
                   <Fields>
                     <FormField
-                      accessibilityLabel="Nome da lista"
+                      accessibilityLabel="Nome da lista, obrigatório"
                       autoCapitalize="sentences"
                       editable={!busy && !isFinished}
                       error={error.toLowerCase().includes('nome') ? error : undefined}
                       Icon={PenIcon}
                       maxLength={100}
                       onChangeText={(value) => { setName(value); clearError(); }}
-                      placeholder="Nome"
+                      placeholder="Nome *"
                       value={name}
                     />
                     <FormField
-                      accessibilityLabel={mode === 'repeat' ? 'Nova data planejada para a compra, obrigatória' : 'Data planejada para a compra'}
+                      accessibilityLabel="Data planejada para a compra"
                       editable={!busy && !isFinished}
                       error={error.toLowerCase().includes('data') ? error : undefined}
                       Icon={CalendarIcon}
@@ -215,7 +214,7 @@ export default function GroceryListModal({
                       keyboardType="number-pad"
                       maxLength={10}
                       onChangeText={handleDateChange}
-                      placeholder={mode === 'repeat' ? 'Nova data da compra (DD/MM/AAAA) *' : 'Data da compra (DD/MM/AAAA)'}
+                      placeholder="Data planejada (DD/MM/AAAA)"
                       value={plannedDate}
                     />
                     <PlaceSearchField
@@ -254,13 +253,16 @@ export default function GroceryListModal({
                         value={weight}
                       />
                       {weight.trim() ? (
-                        <UnitOptions accessibilityRole="radiogroup">
+                        <WeightGroup>
+                          <AccordionLabel>Unidade *</AccordionLabel>
+                          <UnitOptions accessibilityRole="radiogroup">
                           {PRODUCT_UNITS.map((option) => (
-                            <UnitOption key={option} accessibilityLabel={`Unidade ${option}`} accessibilityRole="radio" accessibilityState={{ checked: unit === option }} disabled={busy} onPress={() => { setUnit(option); clearError(); }} $selected={unit === option}>
+                            <UnitOption key={option} accessibilityLabel={`Unidade ${option}, obrigatória`} accessibilityRole="radio" accessibilityState={{ checked: unit === option }} disabled={busy} onPress={() => { setUnit(option); clearError(); }} $selected={unit === option}>
                               <UnitLabel $selected={unit === option}>{option}</UnitLabel>
                             </UnitOption>
                           ))}
-                        </UnitOptions>
+                          </UnitOptions>
+                        </WeightGroup>
                       ) : null}
                     </WeightGroup>
                     <Accordion>

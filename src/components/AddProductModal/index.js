@@ -334,12 +334,13 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                     value={draft.weight}
                   />
                   {hasWeight ? (
-                    <>
+                    <WeightGroup>
+                      <AccordionLabel>Unidade *</AccordionLabel>
                       <UnitOptions accessibilityRole="radiogroup">
                         {PRODUCT_UNITS.map((unit) => (
                           <UnitOption
                             key={unit}
-                            accessibilityLabel={`Unidade ${unit}`}
+                            accessibilityLabel={`Unidade ${unit}, obrigatória`}
                             accessibilityRole="radio"
                             accessibilityState={{ checked: draft.unit === unit }}
                             disabled={isSubmitting}
@@ -353,7 +354,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                       {errors.unit ? (
                         <InlineError accessibilityLiveRegion="polite">{errors.unit}</InlineError>
                       ) : null}
-                    </>
+                    </WeightGroup>
                   ) : null}
                   </WeightGroup>
                 </Fields>

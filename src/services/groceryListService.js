@@ -1,7 +1,7 @@
 // Local API simulator. The service contract stays independent from the storage
 // adapter so it can later call the hosted grocery-list endpoints.
 import * as Crypto from 'expo-crypto';
-import { isWithinThreeMonthDateRange, normalizeDateOnly } from '../domain/dateValidation';
+import { isTodayOrFutureDate, normalizeDateOnly } from '../domain/dateValidation';
 import { normalizeCep } from '../domain/locationValidation';
 import { getCategoryId, readDatabase, updateDatabase } from '../storage/localDatabase';
 import { PRODUCT_CATEGORIES } from '../domain/productValidation';
@@ -19,8 +19,8 @@ const makeId = () => Crypto.randomUUID();
 function normalizePlannedDate(value) {
   if (!value) return null;
   const normalized = normalizeDateOnly(value);
-  if (!normalized || !isWithinThreeMonthDateRange(normalized)) {
-    throw new Error('A data planejada deve ser real e estar nos últimos 3 meses ou no futuro.');
+  if (!normalized || !isTodayOrFutureDate(normalized)) {
+    throw new Error('A data planejada deve ser real, hoje ou futura.');
   }
   return normalized;
 }
@@ -274,7 +274,6 @@ export async function finishGroceryList({ accountId, pantryId, listId }) {
 }
 
 export async function repeatGroceryList({ accountId, pantryId, listId, name, plannedDate, location, market }) {
-  if (!plannedDate) throw new Error('Informe uma nova data para esta compra.');
   const normalizedPlannedDate = normalizePlannedDate(plannedDate);
   return mutateScope(accountId, pantryId, (lists) => {
     const source = lists.find((list) => list.id === listId);
