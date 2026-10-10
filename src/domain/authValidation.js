@@ -50,6 +50,29 @@ export function validateRegistration({
   };
 }
 
+export function validateProfile({ name = '', email = '', avatarColor, password = '', passwordConfirmation = '' }) {
+  const passwordError = password ? validatePassword(password) : undefined;
+  const passwordConfirmationError = password && !passwordConfirmation
+    ? 'Confirme a nova senha.'
+    : !password && passwordConfirmation
+      ? 'Informe a nova senha.'
+      : password !== passwordConfirmation
+        ? 'As senhas não coincidem.'
+        : undefined;
+
+  return {
+    name: !name.trim()
+      ? 'Informe o nome.'
+      : name.trim().length > 50
+        ? 'O nome deve ter até 50 caracteres.'
+        : undefined,
+    email: validateEmail(email),
+    avatarColor: avatarColor ? undefined : 'Escolha uma cor para o avatar.',
+    password: passwordError,
+    passwordConfirmation: passwordConfirmationError,
+  };
+}
+
 export function hasValidationErrors(errors) {
   return Object.values(errors).some(Boolean);
 }

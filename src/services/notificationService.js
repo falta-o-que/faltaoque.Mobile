@@ -348,6 +348,29 @@ export function markNotificationRead(accountId, notificationId) {
   });
 }
 
+export function markAllNotificationsRead(accountId) {
+  return withNotificationLock(accountId, async () => {
+    const state = await loadNotificationState(accountId);
+    const ids = state.notifications
+      .filter((notification) => !notification.isRead)
+      .map((notification) => notification.id);
+
+    if (ids.length === 0) return { ids, deviceCleared: true };
+
+    await updateMetadata(accountId, (current) => ({
+      ...current,
+      readIds: [...new Set([...current.readIds, ...ids])],
+    }));
+
+    try {
+      await removeDeviceNotifications(accountId, ids);
+      return { ids, deviceCleared: true };
+    } catch {
+      return { ids, deviceCleared: false };
+    }
+  });
+}
+
 export function recordNotificationAddedToList(accountId, notificationId, list) {
   return withNotificationLock(accountId, async () => {
     await updateMetadata(accountId, (current) => ({

@@ -5,6 +5,7 @@ import {
   findAccountByEmail,
   findAccountById,
   normalizeEmail,
+  updateAccount,
 } from '../repositories/accountRepository';
 import {
   clearActiveAccountId,
@@ -79,6 +80,20 @@ export async function login({ email, password }) {
 
   await saveActiveAccountId(account.id);
   return toPublicAccount(account);
+}
+
+export async function updateProfile({ accountId, name, email, avatarColor, password }) {
+  const normalizedEmail = normalizeEmail(email);
+  const passwordHash = password ? await hashPassword(password, accountId) : undefined;
+  const updatedAccount = await updateAccount({
+    accountId,
+    name: name.trim(),
+    email: normalizedEmail,
+    avatarColor,
+    passwordHash,
+  });
+
+  return toPublicAccount(updatedAccount);
 }
 
 export async function restoreSession() {

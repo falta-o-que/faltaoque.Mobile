@@ -39,6 +39,12 @@ export function AuthProvider({ children }) {
       },
       register: authService.register,
       completeRegistration: setAccount,
+      updateProfile: async (profile) => {
+        if (!account?.id) throw new Error('ACCOUNT_NOT_FOUND');
+        const updatedAccount = await authService.updateProfile({ ...profile, accountId: account.id });
+        setAccount(updatedAccount);
+        return updatedAccount;
+      },
       logout: async () => {
         await authService.logout();
         setAccount(null);

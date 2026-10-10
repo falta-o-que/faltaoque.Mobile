@@ -9,7 +9,7 @@ Status: especificação funcional atualizada até 10 de outubro de 2026. Não co
 - `../architecture/hosted-database-model-2026-10-05.json` é o retrato inicial da modelagem MySQL recebido em 5 de outubro. `../architecture/hosted-database.sql` é o último script SQL recebido, de 1º de outubro, e já não representa as mudanças dos retratos posteriores.
 - O modelo oficial fechado recebido em 8 de outubro está preservado em `../architecture/hosted-database-model-2026-10-08.json`; ele atualiza a referência recebida em 6 de outubro. Ainda não confirma o esquema implantado nem o contrato da API.
 - As decisões de 9 de outubro em `../project/decisions.md` atualizam os fluxos de finalização, revisão fiscal, normalização e comportamento da página de listas descritos anteriormente neste documento.
-- As decisões de 10 de outubro em `../project/decisions.md` registram a edição local da despensa e o respiro do ícone adaptável Android; elas não confirmam nem alteram o contrato do backend.
+- As decisões de 10 de outubro em `../project/decisions.md` registram a edição local do perfil e da despensa e o respiro do ícone adaptável Android; elas não confirmam nem alteram o contrato do backend.
 - O backend e o banco são mantidos por outra parte da equipe. Este documento especifica comportamento do mobile e contratos a confirmar; não autoriza presumir que campos ou rotas já estejam disponíveis.
 
 ## Compras, produtos e estoque
@@ -71,6 +71,13 @@ Peso/volume de um item planejado é opcional; a categoria é obrigatória, confo
 
 - A despensa receberá um indicador para deixar de ser exibida sem apagar compras e histórico. Todos os participantes convidados terão as mesmas ações na despensa; não haverá papéis individuais por participante neste escopo.
 - O indicador do usuário é `users.is_active`. O modelo final de 6 de outubro contém tanto `pantry_products.is_in_pantry` quanto `pantry_products.is_deleted`; a remoção lógica usa `is_deleted`, iniciado em `false` e alterado para `true`. Confirmar a implantação do JSON antes da integração.
+
+## Atualização de 10 de outubro — edição local do perfil concluída
+
+- O atalho Perfil alterna o componente da parte inferior da Home; o cabeçalho e a navegação permanecem na Home. A interface permite editar nome, e-mail e cor do avatar.
+- A alteração de senha é opcional. Para alterá-la, o usuário preenche nova senha e confirmação; ambas devem coincidir e respeitar o limite de 8 a 20 caracteres. Deixar os dois campos vazios mantém a senha atual. Cada campo tem seu próprio controle para mostrar ou ocultar o texto.
+- O e-mail é validado e não pode pertencer a outra conta local. A gravação atualizada do perfil permanece no armazenamento local, acompanha a conta ativa e não pressupõe rota nem contrato de perfil hospedado. A senha continua persistida como hash, nunca em texto simples.
+- A funcionalidade foi implementada, o bundle Android exportado e o usuário informou que testou o fluxo no aparelho e que aparentemente está tudo correto.
 
 ## Atualização de 10 de outubro — edição local da despensa concluída
 

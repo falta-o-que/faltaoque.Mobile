@@ -8,6 +8,8 @@ import CreatePantryModal, { PantryFormModal } from '../../components/CreatePantr
 import PantryCard from '../../components/PantryCard';
 import PantryDestinationModal from '../../components/PantryDestinationModal';
 import QuickActionButton from '../../components/QuickActionButton';
+import NotificationsScreen from '../NotificationsScreen';
+import ProfileScreen from '../ProfileScreen';
 import {
   AddCircleIcon,
   PantryIcon,
@@ -26,6 +28,9 @@ import {
   CreateAction,
   EmptyText,
   Greeting,
+  HomeActionSection,
+  HomeActionTitle,
+  HomeActionText,
   LoadError,
   RetryButton,
   RetryText,
@@ -48,6 +53,13 @@ const QUICK_ACTIONS = [
 
 const showComingSoon = (feature) => {
   Alert.alert('Em breve', `${feature} estará disponível em breve.`);
+};
+
+const HOME_ACTION_CONTENT = {
+  settings: {
+    title: 'Configurações',
+    message: 'As configurações estarão disponíveis em breve.',
+  },
 };
 
 export function HomeScreen({ navigation }) {
@@ -109,19 +121,13 @@ export function HomeScreen({ navigation }) {
     return () => subscription.remove();
   }, [account?.id]);
 
-  const handleActionPress = (key, label) => {
-    if (key === 'pantry') {
-      setSelectedAction(key);
-      return;
-    }
-
-    if (key === 'notifications') {
-      navigation.navigate(AUTHENTICATED_ROUTES.NOTIFICATIONS);
-      return;
-    }
-
-    showComingSoon(label);
+  const handleActionPress = (key) => {
+    setSelectedAction(key);
   };
+
+  const handleUnreadCountChange = useCallback((count) => {
+    setUnreadNotificationCount(count);
+  }, []);
 
   const handleNavbarItemChange = (key, item) => {
     if (key === 'shopping-list') {
@@ -235,7 +241,7 @@ export function HomeScreen({ navigation }) {
                 key={key}
                 Icon={icon}
                 accessibilityLabel={label}
-                onPress={() => handleActionPress(key, label)}
+                onPress={() => handleActionPress(key)}
                 selected={selectedAction === key}
                 showBadge={key === 'notifications' && unreadNotificationCount > 0}
                 text={text}
@@ -281,6 +287,22 @@ export function HomeScreen({ navigation }) {
               />
             </CreateAction>
           </PantrySection>
+        ) : null}
+        {selectedAction === 'notifications' ? (
+          <NotificationsScreen
+            embedded
+            navigation={navigation}
+            onUnreadCountChange={handleUnreadCountChange}
+          />
+        ) : null}
+        {selectedAction === 'profile' ? (
+          <ProfileScreen embedded navigation={navigation} />
+        ) : null}
+        {HOME_ACTION_CONTENT[selectedAction] ? (
+          <HomeActionSection>
+            <HomeActionTitle>{HOME_ACTION_CONTENT[selectedAction].title}</HomeActionTitle>
+            <HomeActionText>{HOME_ACTION_CONTENT[selectedAction].message}</HomeActionText>
+          </HomeActionSection>
         ) : null}
       </Content>
       <CreatePantryModal

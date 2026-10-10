@@ -83,17 +83,43 @@ export const NotificationHeading = styled.View`
   gap: 10px;
 `;
 
-export const ClearAction = styled.View`
+export const NotificationActions = styled.View`
   width: 100%;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
   margin-top: 8px;
 `;
 
-export const ClearButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
-  min-height: 36px;
+export const MarkAllReadButton = styled.TouchableOpacity.attrs(({ disabled }) => ({
+  activeOpacity: 0.7,
+  disabled,
+}))`
+  min-height: 41px;
+  flex: 1;
+  align-items: center;
   justify-content: center;
-  padding: 0 12px;
-  border-radius: 10px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.primary[200]};
+  opacity: ${({ disabled }) => disabled ? 0.5 : 1};
+`;
+
+export const MarkAllReadText = styled.Text`
+  color: ${({ theme }) => theme.colors.black.Black};
+  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
+  font-size: 11px;
+  text-align: center;
+`;
+
+export const ClearButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
+  min-height: 41px;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  border-radius: 12px;
   background-color: ${({ theme }) => theme.colors.white[200]};
   opacity: ${({ disabled }) => disabled ? 0.5 : 1};
 `;
@@ -101,7 +127,8 @@ export const ClearButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })
 export const ClearText = styled.Text`
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 12px;
+  font-size: 11px;
+  text-align: center;
 `;
 
 export const PermissionHint = styled.Text`
