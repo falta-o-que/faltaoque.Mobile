@@ -22,6 +22,7 @@ import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import * as groceryListService from '../../services/groceryListService';
 import { getGroceryMarketSuggestions } from '../../services/groceryMarketSuggestionService';
 import { finalizeGroceryCheckout } from '../../services/groceryCheckoutService';
+import { syncDeviceNotifications } from '../../services/notificationService';
 import { reconcileGroceryCheckout, RECONCILIATION_STATUS, arePresentationsCompatible } from '../../domain/groceryCheckoutReconciliation';
 import { assertFiscalNoteUnused, listProductOccurrences } from '../../services/productService';
 import { getCollapsedGroceryListIds, saveCollapsedGroceryListIds } from '../../services/groceryListViewPreferenceService';
@@ -421,6 +422,7 @@ export default function GroceryListScreen({ navigation, route }) {
         dateValue: checkoutDate, purchase: checkoutPurchase, market: checkoutMarket,
         marketQuery: checkoutMarketQuery, items: checkoutItems,
       });
+      await syncDeviceNotifications(account?.id).catch(() => {});
       await refresh();
       setActiveModal(null);
       setActiveListId(null);

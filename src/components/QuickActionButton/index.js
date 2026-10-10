@@ -1,10 +1,11 @@
-import { ActionButton, TextButton } from './styles';
+import { ActionButton, IconArea, NotificationBadge, TextButton } from './styles';
 
 export function QuickActionButton({
   Icon,
   accessibilityLabel,
   onPress,
   selected = false,
+  showBadge = false,
   text,
 }) {
   return (
@@ -15,7 +16,10 @@ export function QuickActionButton({
       accessibilityState={{ selected }}
       onPress={onPress}
     >
-      <Icon color="#FFFFFF" size={24} />
+      <IconArea>
+        <Icon color="#FFFFFF" size={24} />
+        {showBadge ? <NotificationBadge /> : null}
+      </IconArea>
       <TextButton>{text}</TextButton>
     </ActionButton>
   );

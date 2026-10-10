@@ -23,7 +23,7 @@ Alterar `com.faltaoque.app` no futuro criaria outra identidade de aplicativo And
 - Ícone adaptável Android usa `src/assets/branding/adaptive-icon-foreground.png`, com a marca centralizada e área transparente ao redor, sobre fundo branco. A máscara arredondada é aplicada pelo launcher Android.
 - Logo usado pela interface: `src/assets/branding/logo.png`.
 - Cor principal configurada: `#00DD00`.
-- A identidade atual usa a mesma marca gráfica nos arquivos. O ajuste do ícone adaptável reutiliza o ativo com margem transparente; não altera a logo usada dentro da interface nem o ícone geral do app. A aparência final deve ser conferida no launcher do aparelho após gerar e instalar um novo APK.
+- A identidade atual usa a mesma marca gráfica nos arquivos. O ajuste do ícone adaptável reutiliza o ativo com margem transparente; não altera a logo usada dentro da interface nem o ícone geral do app. O APK de produção com esse ajuste já foi gerado; conferir a aparência final no launcher após instalar no aparelho.
 
 ## Créditos
 

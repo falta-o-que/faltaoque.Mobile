@@ -109,7 +109,7 @@ Entregar no Android um fluxo mobile funcional, persistido localmente e alinhado 
 - A lista deve rolar por trás do botão `Criar` e ser recortada ao alcançar a Navbar, sem invadir o título `Suas despensas`.
 - Os cards devem manter 16 px entre si, exibir a cor escolhida para a despensa e truncar nomes longos em uma linha com reticências.
 - O envio do modal deve ser bloqueado enquanto a criação estiver em andamento, evitando registros duplicados.
-- Ações ainda não implementadas da Home, da configuração do card e da Navbar devem informar `Em breve`, sem alterar a seleção ou os dados persistidos.
+- No escopo original do marco, ações ainda não implementadas da Home, da configuração do card e da Navbar deveriam informar `Em breve`, sem alterar a seleção ou os dados persistidos. A configuração do card foi posteriormente concluída; o comportamento vigente está na seção de despensas do SDD `integracao-e-fluxos-2026-10-05.md`.
 
 ### Exclusão
 

@@ -1,5 +1,6 @@
 import { ActivityIndicator } from 'react-native';
 import { useFonts } from 'expo-font';
+import * as Notifications from 'expo-notifications';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -17,6 +18,15 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import RootNavigator from './navigation/RootNavigator';
 import theme from './theme';
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 function AppContent() {
   const { account, isRestoringSession } = useAuth();
 
@@ -24,7 +34,7 @@ function AppContent() {
     return <ActivityIndicator accessibilityLabel="Carregando sessão" size="large" />;
   }
 
-  return <RootNavigator isAuthenticated={Boolean(account)} />;
+  return <RootNavigator accountId={account?.id} isAuthenticated={Boolean(account)} />;
 }
 
 export default function App() {
