@@ -81,7 +81,7 @@ export default function NotificationsScreen({ navigation, route }) {
     setError(null);
     setSelectedNotification(null);
 
-    syncDeviceNotifications(account?.id, { requestPermission: true })
+    syncDeviceNotifications(account?.id)
       .then(({ permissionGranted }) => {
         if (active) setNotificationsPermissionGranted(permissionGranted);
       })

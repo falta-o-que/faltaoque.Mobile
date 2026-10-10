@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Notifications from 'expo-notifications';
 import { useFocusEffect } from '@react-navigation/native';
 import { Alert } from 'react-native';
@@ -61,9 +61,12 @@ export function HomeScreen({ navigation }) {
   const [pantriesError, setPantriesError] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  const requestedNotificationPermission = useRef(false);
 
   useFocusEffect(useCallback(() => {
     let isMounted = true;
+    const shouldRequestNotificationPermission = !requestedNotificationPermission.current;
+    requestedNotificationPermission.current = true;
 
     pantryService
       .listPantries(account?.id)
@@ -80,7 +83,9 @@ export function HomeScreen({ navigation }) {
         }
       });
 
-    syncDeviceNotifications(account?.id)
+    syncDeviceNotifications(account?.id, shouldRequestNotificationPermission
+      ? { requestPermission: true }
+      : undefined)
       .then(({ unreadCount }) => {
         if (isMounted) setUnreadNotificationCount(unreadCount);
       })

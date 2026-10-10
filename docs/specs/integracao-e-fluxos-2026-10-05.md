@@ -104,3 +104,7 @@ Peso/volume de um item planejado é opcional; a categoria é obrigatória, confo
 
 - O modal em tela cheia de revisão/finalização da lista deve respeitar as áreas seguras superior, inferior e laterais em Android edge-to-edge. Cabeçalho, conteúdo e ações não podem ficar sob a barra de status ou a navegação do sistema.
 - A implementação aplica os insets ao contêiner do modal; a alteração é apenas de interface mobile e não muda o contrato de compras nem o esquema local ou hospedado. Ela foi incluída no APK de produção `e0cca5a0-3cb9-4398-bfd9-12be32a5b79b`; a validação física no Android continua registrada em `../project/current-state.md`.
+
+## Atualização de 10 de outubro — solicitação da permissão de notificações
+
+- O app solicita a permissão uma vez quando a Home autenticada abre pela primeira vez na sessão. Abrir a tela pelo sino não solicita permissão novamente; essa tela apenas sincroniza o estado local e os avisos do aparelho. A sincronização inicial respeita o resultado do sistema e segue a API de permissões do `expo-notifications` no SDK 57.
