@@ -494,7 +494,7 @@ export default function GroceryCheckoutReview({
     : 'Concluir compra sem produtos';
 
   return <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
-    <ModalRoot>
+    <ModalRoot edges={['top', 'right', 'bottom', 'left']}>
       <Header>
         <HeaderRow>
           <Title>Finalizar compra</Title>
