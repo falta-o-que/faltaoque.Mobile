@@ -54,3 +54,7 @@ export async function savePromptedDuplicateCount(accountId, pantryId, duplicateK
   };
   await AsyncStorage.setItem(preferenceKey(accountId, pantryId), JSON.stringify(next));
 }
+
+export async function clearPantryProductViewPreferences(accountId, pantryId) {
+  await AsyncStorage.removeItem(preferenceKey(accountId, pantryId));
+}

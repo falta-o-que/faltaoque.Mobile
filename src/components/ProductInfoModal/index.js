@@ -5,11 +5,12 @@ import { AngleIcon, BoxIcon, CalendarIcon, CancelCircleIcon, CheckIcon, Delivery
 import { PRODUCT_CATEGORIES, PRODUCT_PRICE_TYPES, PRODUCT_UNITS, validateProduct } from '../../domain/productValidation';
 import { getUserErrorMessage } from '../../utils/userErrors';
 import CategoryTag, { CATEGORY_LABELS } from '../CategoryTag';
+import DangerActionButton from '../DangerActionButton';
 import FormField from '../FormField';
 import ModalActionButton from '../ModalActionButton';
 import {
   Accordion, AccordionHeader, AccordionLabel, Actions, BusyIndicator, BusyStatus, BusyText,
-  Card, CategoryOptions, Chevron, Content, DeleteButton, DeleteLabel, DetailLabel, DetailRow, DetailValue, Fields,
+  Card, CategoryOptions, Chevron, Content, DetailLabel, DetailRow, DetailValue, Fields,
   FormContent, Header, Heading, InlineError, Overlay, PriceTypeLabel, PriceTypeOption, PriceTypeOptions, ProductName, ReadonlyPanel, Scroller,
   SubmitError, TitleGroup, UnitLabel, UnitOption, UnitOptions, WeightGroup,
 } from './styles';
@@ -118,7 +119,7 @@ export function ProductInfoModal({ visible, product, onDelete, onRequestClose, o
               </Fields><Accordion><AccordionHeader disabled={isSubmitting} onPress={() => setIsCategoryOpen((open) => !open)} $hasError={Boolean(errors.category)}><AccordionLabel>Categoria *</AccordionLabel><Chevron style={categoryChevronStyle}><AngleIcon /></Chevron></AccordionHeader>{isCategoryOpen ? <CategoryOptions style={categoryPanelStyle}>{PRODUCT_CATEGORIES.map((category) => <CategoryTag key={category} category={category} disabled={isSubmitting} onSelectionChange={(selected) => updateField('category', selected ? category : null)} selected={draft.category === category} variant="product" />)}</CategoryOptions> : null}{errors.category ? <InlineError>{errors.category}</InlineError> : null}</Accordion></FormContent>
             )}
             {errors.submit ? <SubmitError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.submit}</SubmitError> : null}{isSubmitting ? <BusyStatus><BusyIndicator /><BusyText>Salvando...</BusyText></BusyStatus> : null}
-            {!isEditing ? <DeleteButton accessibilityLabel="Excluir produto" disabled={isSubmitting} onPress={onDelete}><DeleteLabel>Excluir produto</DeleteLabel></DeleteButton> : null}
+            {!isEditing ? <DangerActionButton accessibilityLabel="Excluir produto" disabled={isSubmitting} onPress={onDelete} text="Excluir produto" /> : null}
             <Actions><ModalActionButton accessibilityLabel={isEditing ? 'Cancelar edição' : 'Fechar informações'} disabled={isSubmitting} Icon={CancelCircleIcon} onPress={handleCancel} variant="cancel" /><ModalActionButton accessibilityLabel={isEditing ? 'Salvar produto' : 'Editar produto'} disabled={isSubmitting} Icon={isEditing ? CheckIcon : PenIcon} onPress={isEditing ? handleSave : () => setIsEditing(true)} variant="confirm" /></Actions>
           </Content>
         </Scroller></Card>

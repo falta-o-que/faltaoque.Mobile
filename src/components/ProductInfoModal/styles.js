@@ -88,23 +88,6 @@ export const DetailValue = styled.Text`
   font-size: 14px;
 `;
 
-export const DeleteButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })`
-  width: 100%;
-  height: 45px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 20px;
-  background-color: ${({ theme }) => theme.colors.danger[600]};
-  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
-`;
-
-export const DeleteLabel = styled.Text`
-  color: ${({ theme }) => theme.colors.white[100]};
-  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
-  font-weight: ${({ theme }) => theme.fonts.weights.bold};
-`;
-
 export const FormContent = styled.View`
   gap: 12px;
 `;

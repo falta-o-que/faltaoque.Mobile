@@ -12,8 +12,9 @@ export const Overlay = styled.View`
 export const Card = styled.View`
   width: 100%;
   max-width: 350px;
-  gap: 20px;
-  padding: 20px;
+  max-height: 92%;
+  overflow: hidden;
+  padding: 20px 20px 12px;
   border-radius: 12px;
   background-color: ${({ theme }) => theme.colors.white[100]};
   elevation: 4;
@@ -21,6 +22,13 @@ export const Card = styled.View`
   shadow-offset: 0px 0px;
   shadow-opacity: 0.25;
   shadow-radius: 4px;
+`;
+
+export const Scroller = styled.ScrollView``;
+
+export const Content = styled.View`
+  gap: 20px;
+  padding-bottom: 8px;
 `;
 
 export const Header = styled.View`

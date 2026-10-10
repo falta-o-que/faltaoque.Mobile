@@ -1,8 +1,8 @@
 # Estado atual
 
-Última atualização: 9 de outubro de 2026. As seções mais antigas deste arquivo são registros cronológicos; para a situação vigente, use primeiro o resumo abaixo e depois os registros datados mais recentes.
+Última atualização: 10 de outubro de 2026. As seções mais antigas deste arquivo são registros cronológicos; para a situação vigente, use primeiro o resumo abaixo e depois os registros datados mais recentes.
 
-## Estado consolidado — 9 de outubro de 2026
+## Estado consolidado — 10 de outubro de 2026
 
 - A página de listas e as sugestões de mercado foram consideradas concluídas e validadas no Android pelo usuário. A fixture demonstrativa está desligada e não é uma etapa pendente.
 - O fluxo de finalização manual/NFC-e, a revisão de compra e o estoque agregado estão implementados no simulador local; a validação física Android desta versão do fluxo e a leitura de uma NFC-e real permanecem pendentes. iOS não foi testado fisicamente.
@@ -10,6 +10,7 @@
 - A API hospedada não foi confirmada/recebida. O JSON de 8 de outubro é a fotografia de referência do modelo recebido; a entidade `markets` e seus vínculos ainda são responsabilidade da equipe de backend.
 - A identidade configurada do aplicativo é `FaltaOquê?` (`com.faltaoque.app`). O perfil EAS `production` gera APK de instalação direta e aponta explicitamente para o ambiente EAS `production`. A variável `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` foi cadastrada nesse ambiente como sensível; seu valor é compilado no bundle público do app. O build Android de produção `e9572dbf-fc65-4be3-90be-c4ba56f04ca5` foi interrompido pelo usuário antes do ajuste do ícone. A nova build de produção `e0cca5a0-3cb9-4398-bfd9-12be32a5b79b` está em processamento no EAS. O ícone adaptável Android usa `src/assets/branding/adaptive-icon-foreground.png`, com margem transparente e fundo branco, para dar respiro à marca na máscara do launcher. Marca, créditos e detalhes de configuração estão em `app-identity.md`.
 - Próxima validação mobile: percorrer no Android a finalização manual e por NFC-e, incluindo vínculo, itens ausentes/sem vínculo, duplicidade por despensa e gravação local; registrar o resultado aqui. Depois, ajustar apenas os problemas observados.
+- A configuração da despensa agora abre um modal de edição completa baseado no Figma `750:3139`: nome, cor, localização mantida no próprio modal e exclusão com confirmação. O seletor de cores aberto segue a referência `775:2517`, sem a amostra circular ao lado do controle; a seção de participantes foi removida enquanto o compartilhamento segue desativado. A ação destrutiva reutiliza o componente arredondado padronizado com as exclusões de produto e lista. A exclusão local remove os registros dependentes de compras, produtos e listas; a validação em aparelho permanece pendente.
 
 ## Marco original do MVP (referência histórica)
 
@@ -52,7 +53,7 @@ Funcionalidades exigidas para essa entrega:
 - O modal de criação valida nome e cor, reutiliza botões de ação, bloqueia reenvio durante a persistência e apresenta erros junto aos dois campos. O seletor de cor abre e fecha com a mesma animação do seletor de avatar do cadastro.
 - O card de despensa exibe nome, cor, contagem de produtos cadastrados e quantidade de listas de compras ativas na despensa, além do ícone de configuração em `black/400` e reticências para nomes longos. Essa quantidade usa o campo existente de lista ativa e não altera o modelo de dados. Ao tocar no card, a Home abre um modal próprio, com a ação de abrir a despensa antes da lista de compras. A Home atualiza a listagem ao recuperar o foco.
 - A listagem da Home possui estado vazio e de erro, espaçamento de 16 px entre cards, rolagem por trás do botão `Criar` e recorte junto à Navbar.
-- Ações ainda indisponíveis dos atalhos, da configuração do card e das demais opções da Navbar exibem o aviso `Em breve`.
+- Ações indisponíveis dos atalhos e das demais opções da Navbar exibem o aviso `Em breve`; a configuração do card abre o modal de edição completa descrito no estado consolidado.
 - A cor do avatar exibida na Home é a cor escolhida e persistida durante o cadastro.
 - O toque em um card da Home abre a tela da própria despensa (Figma `641:1776`). A tela consulta a despensa da conta ativa pelo identificador, mostra nome e cor persistidos e trata carregamento, erro e despensa indisponível.
 - A tela da despensa inicia sem produtos de demonstração e mantém Perfil selecionado na Navbar, pois foi aberta pela Home. Possui busca reutilizável (`SearchField`), categorias com seleção múltipla e texto branco nos fundos escuros e botões redondos reutilizados de `ModalActionButton`. O botão de filtro abre `ProductFilterModal` seguindo o Figma `820:3267`: ele ordena produtos por nome, preço ou quantidade após confirmação; as tags da tela mantêm a filtragem múltipla por categoria. Quando não há produtos, inclusive após excluir o último, mostra explicitamente o estado vazio; quando busca/filtros não encontram resultados, mostra a mensagem correspondente. Compartilhamento continua indisponível.
