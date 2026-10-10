@@ -1,8 +1,17 @@
 # Estado atual
 
-Última atualização da memória de planejamento: 9 de outubro de 2026. A descrição da implementação abaixo registra o estado do MVP local e as atualizações incorporadas nesta data.
+Última atualização: 9 de outubro de 2026. As seções mais antigas deste arquivo são registros cronológicos; para a situação vigente, use primeiro o resumo abaixo e depois os registros datados mais recentes.
 
-## Marco imediato
+## Estado consolidado — 9 de outubro de 2026
+
+- A página de listas e as sugestões de mercado foram consideradas concluídas e validadas no Android pelo usuário. A fixture demonstrativa está desligada e não é uma etapa pendente.
+- O fluxo de finalização manual/NFC-e, a revisão de compra e o estoque agregado estão implementados no simulador local; a validação física Android desta versão do fluxo e a leitura de uma NFC-e real permanecem pendentes. iOS não foi testado fisicamente.
+- O esquema local atual é a versão 11. Migrações posteriores à versão 8 preservam os dados existentes e adicionam os campos e tabelas locais definidos nas decisões de mercado. Isso não confirma migração no banco hospedado.
+- A API hospedada não foi confirmada/recebida. O JSON de 8 de outubro é a fotografia de referência do modelo recebido; a entidade `markets` e seus vínculos ainda são responsabilidade da equipe de backend.
+- A identidade configurada do aplicativo é `FaltaOquê?` (`com.faltaoque.app`). O perfil EAS `production` está configurado para APK de instalação direta; marca, créditos e limites das informações de publicação estão em `app-identity.md`. O APK ainda não foi gerado nesta etapa.
+- Próxima validação mobile: percorrer no Android a finalização manual e por NFC-e, incluindo vínculo, itens ausentes/sem vínculo, duplicidade por despensa e gravação local; registrar o resultado aqui. Depois, ajustar apenas os problemas observados.
+
+## Marco original do MVP (referência histórica)
 
 Entrega em 14 de setembro de 2026.
 
@@ -52,7 +61,7 @@ Funcionalidades exigidas para essa entrega:
 - Os botões de quantidade do `ProductCard` agora alteram e persistem a quantidade atual. O botão de diminuir fica indisponível em 1, atualizações concorrentes do mesmo card são bloqueadas e falhas preservam o valor exibido.
 - A adição manual persiste produto e compra numa única gravação, com origem `manual`, data/hora atual, local vazio e valores unitário/total. As operações de criação de contas, despensas e produtos usam uma fila de gravação para evitar perda por concorrência. Após adicionar, a tela limpa busca e filtros para mostrar o novo produto.
 - Testes com armazenamento simulado em `tests/product-addition.cjs` cobrem validação de validade, migração, isolamento por conta, falha de gravação, concorrência, histórico, alteração de quantidade e releitura; executar com `node tests/product-addition.cjs`.
-- A fatia da tela da despensa compilou no bundle Android. A comparação foi feita entre código e referência do Figma; a validação visual/interativa no aplicativo e os testes físicos de Android e iOS seguem pendentes.
+- A fatia da tela da despensa compilou no bundle Android e foi comparada ao Figma; na data daquele registro, a validação visual/interativa ainda estava pendente. Posteriormente, o usuário aprovou essa página como base visual e funcional. Não há validação física em iOS.
 - Implementação histórica anterior ao alinhamento de 6 de outubro: a revisão fiscal gravava fingerprint e bloqueava por conta. A versão atual usa o código do parâmetro `p` em `purchases.qr_code_id` e impede repetição por despensa; ver a atualização do modelo final abaixo. O extrator ainda precisa de validação com uma NFC-e paulista real no Android físico.
 - A cobertura automatizada inicial se concentra na adição de produtos e persistência; ainda não há suíte de interface consolidada.
 
@@ -76,7 +85,7 @@ Funcionalidades exigidas para essa entrega:
 - Estratégia de spike da NFC-e de São Paulo documentada.
 - `styled-components/native` definido como padrão obrigatório.
 
-## Próxima etapa
+## Registro de implementação fiscal iniciado em setembro (histórico)
 
 - A tela de leitura de QR Code foi reestilizada com a linguagem da despensa: fundo claro, cabeçalho com ação circular de cancelamento, painel explicativo, moldura verde no preview e botão principal reutilizado para a permissão. Estados de carregamento, consulta e erro seguem a tipografia e as cores do tema. Bundle Android compilado; validar a aparência e a câmera no Expo Go.
 
@@ -92,7 +101,7 @@ Funcionalidades exigidas para essa entrega:
 
 Iniciar a próxima funcionalidade definida pelo usuário. A página da despensa, seus modais de adição e consulta/edição, busca, filtros por tags e controles de quantidade foram aprovados pelo usuário como base visual e funcional; ajustes futuros devem ser tratados como novo escopo ou feedback concreto.
 
-## Ponto de parada — 12 de setembro de 2026
+## Ponto de parada histórico — 12 de setembro de 2026
 
 - Branch da sessão: `feature/DespensaPage`. As alterações permanecem locais e sem commit; conferir a branch e o estado do Git ao retomar e preservar esse trabalho.
 - Referências visuais: página da despensa no Figma `641:1776` e modal de produto `824:4634`, arquivo `clwpIe4TC12SEAwf26SGo9`.
@@ -100,11 +109,11 @@ Iniciar a próxima funcionalidade definida pelo usuário. A página da despensa,
 - Correções aprovadas pelo usuário: manter Perfil selecionado na Navbar ao abrir pela Home; tags da busca aceitam múltipla seleção e usam texto branco em fundos escuros; categoria única e obrigatória; preço pode ser informado por unidade ou como total do lote, com cálculo do complementar. A página da despensa está aprovada como concluída para esta etapa.
 - Verificação realizada: bundle Android compilado e `node tests/product-addition.cjs` aprovado com armazenamento simulado. Isso não substitui validação visual/interativa nem testes físicos de Android/iOS.
 - O modal Info permite consulta e edição de nome, preço por unidade ou total do lote, quantidade, validade, peso/volume, unidade e categoria. A edição atualiza somente o produto; a compra manual original no histórico permanece imutável.
-- A exclusão do produto está disponível no modal Info, exige confirmação explícita e remove apenas o produto da despensa; o histórico de compra é preservado. Ao retomar: aguardar a definição da próxima funcionalidade. A edição/exclusão de despensas e o spike fiscal SP continuam pendentes; este último requer validação com QR Code real.
+- Naquela data, a exclusão do produto estava disponível no modal Info e o próximo passo aguardava definição. Esse registro não descreve a prioridade atual; consulte o estado consolidado no início deste arquivo.
 
 ## Modelo hospedado e novos fluxos — atualização em 8 de outubro de 2026
 
-O JSON anterior enviado pelo grupo em 6 de outubro está preservado em `docs/architecture/hosted-database-model-2026-10-06.json`; o JSON oficial fechado recebido em 8 de outubro está em `docs/architecture/hosted-database-model-2026-10-08.json` e é a referência atual. Ele contém `grocery_lists.is_active` (ativo quando `true`, concluído quando `false`) e `grocery_list_products.category_id`. O campo `is_active` substitui `is_finished` usado no aditivo histórico de 6 de outubro. Não há confirmação de que o modelo atualizado esteja implantado nem de que a API esteja pronta.
+O JSON anterior enviado pelo grupo em 6 de outubro está preservado em `docs/architecture/hosted-database-model-2026-10-06.json`; o JSON oficial fechado recebido em 8 de outubro está em `docs/architecture/hosted-database-model-2026-10-08.json` e é a fotografia de modelo mais recente recebida. Ele contém `grocery_lists.is_active` (ativo quando `true`, concluído quando `false`) e `grocery_list_products.category_id`. O campo diz respeito a listas e não substitui `purchases.is_finished`. Não há confirmação de que o modelo atualizado esteja implantado nem de que a API esteja pronta.
 
 As decisões funcionais e os pontos em aberto estão consolidados em `docs/specs/integracao-e-fluxos-2026-10-05.md` e em `docs/project/decisions.md`. O app usa localmente as tabelas e campos do JSON oficial fechado de 8 de outubro, com os aditivos locais `markets`/`market_id` e `pantries.location_name` no esquema 11 de `src/storage/localDatabase.js`; apenas o número da versão fica em uma chave separada. As migrações preservam os registros e criam mercados legados por CEP histórico, com coordenadas nulas, pois os dados antigos não identificam unidades por coordenadas. O Places API fornece CEP, coordenadas e nome do local selecionado; o app mantém os nomes apenas localmente. Isso ainda não prova integração nem implantação no banco hospedado.
 
@@ -114,7 +123,7 @@ Decisão anterior de 6 de outubro: a exclusão lógica usa `pantry_products.is_d
 
 A branch `feature/page-grocery-list` recebeu a primeira implementação da página de listas a partir do Figma `601:3423`. Pela Navbar, o usuário escolhe a despensa em uma página intermediária; pela Home, ainda pode acessar a lista pelo modal de destino de uma despensa. A tela apresenta categorias, criação de listas, expansão/recolhimento, adição de itens, marcação de compra, seleção para retirada, configuração e conclusão. O histórico fica em modal próprio e permite repetir uma lista concluída. O mesmo nome adicionado a duas listas recebe IDs de ocorrência diferentes.
 
-Como o contrato das rotas `grocery_lists` ainda não foi recebido, a primeira implementação mantinha estado apenas em memória. Em 6 de outubro, por solicitação do usuário, essa camada foi substituída por um simulador local durável da API, usando coleções locais de listas e itens planejados na chave do banco. Após a confirmação do usuário, estado da lista e categoria do item passaram a ser colunas das tabelas; somente a versão fica separada. A interface continua chamando `groceryListService`, que poderá receber o adaptador hospedado depois. Os nós dos modais foram enviados posteriormente pelo usuário e estão descritos abaixo. A validação visual no Expo Go e o contrato de persistência hospedada seguem pendentes.
+Como o contrato das rotas `grocery_lists` ainda não foi recebido, a primeira implementação mantinha estado apenas em memória. Em 6 de outubro, por solicitação do usuário, essa camada foi substituída por um simulador local durável da API, usando coleções locais de listas e itens planejados na chave do banco. Após a confirmação do usuário, estado da lista e categoria do item passaram a ser colunas das tabelas; somente a versão fica separada. A interface continua chamando `groceryListService`, que poderá receber o adaptador hospedado depois. O usuário considerou a página de listas validada no Android em 9 de outubro; essa validação não equivale à integração com a API hospedada.
 
 Na continuação de 6 de outubro, o usuário forneceu os nós dos modais de criação (`766:3283`), edição (`777:3266`), adição de itens (`780:3994`) e filtros (`820:3050`) e pediu um indicador com o nome da despensa na página. O modal de criação/edição terá campo adicional de data planejada com o ícone `Calendar.svg` convertido em componente, embora o Figma original ainda não mostre essa data. A data planejada é opcional; quando informada, aceita somente dias reais do calendário a partir do dia atual do aparelho, inclusive, tanto no formulário quanto no serviço de persistência. Repetir uma lista concluída também permite deixar a nova data planejada em branco e não reutiliza a data anterior. A data real de `purchases.purchase_date` continua obrigatória no registro da compra e é definida automaticamente ao concluir a lista. O usuário confirmou que finalizar uma lista deve adicionar os itens marcados ao estoque local nesta etapa, solicitando o preço unitário de cada item antes de gravar. O serviço de conclusão valida os preços e grava os produtos e suas compras em uma única atualização local; após essa gravação, a lista persistida passa ao histórico. Esta solução temporária não substitui a futura integração hospedada das listas e compras.
 
@@ -127,7 +136,7 @@ Outra correção de 6 de outubro: a Navbar de listas abre uma tela intermediári
 - O campo `grocery_lists.estimated_price` é recalculado para listas ativas como a soma dos itens com histórico na própria despensa: busca por nome (incluindo nome curto pelo termo principal), preço pela mediana das até três compras recentes por item e preferência pela mesma medida quando informada. Categoria e medida não são chaves obrigatórias; itens sem histórico não entram na soma, e a tela mostra a cobertura. Listas concluídas preservam a estimativa. Em desenvolvimento, fixtures de histórico sintéticas são acrescentadas caso ainda não existam, inclusive em despensas com listas; produtos demonstrativos ficam excluídos do estoque visível. Nenhum mock é criado em produção.
 - Peso/volume é opcional e categoria obrigatória nos itens da lista. Sem peso/volume, a estimativa seleciona a apresentação de embalagem mais recorrente dentro da categoria escolhida, com desempate pela compra mais recente; se não houver histórico nela, usa ocorrências compatíveis pelo nome em outras categorias. Peso informado prioriza o tamanho exato ou estima o tamanho pedido pelo preço histórico normalizado por g/ml na mesma unidade.
 - Verificação registrada anteriormente: bundle Android via `npx expo export --platform android`; `node tests/grocery-list.cjs`, `node tests/grocery-checkout.cjs` e `node tests/product-addition.cjs`; `git diff --check`. Em 9 de outubro, o usuário considerou a página e o fluxo atual validados no Android.
-- Em 8 de outubro, o esquema local foi alinhado ao JSON oficial fechado e elevado à versão 8. Na próxima leitura, dados de versões anteriores serão descartados; status de listas é persistido em `grocery_lists.is_active` e convertido para o estado `active`/`finished` consumido pela interface. Essa inicialização ainda não foi verificada em aparelho.
+- Registro histórico: em 8 de outubro, o esquema local foi alinhado ao JSON recebido e chegou à versão 8. A decisão inicial de descartar dados anteriores foi substituída por migrações preservadoras; o esquema atual é versão 11. `grocery_lists.is_active` representa estado ativo/concluído e é convertido para o estado consumido pela interface.
 - Estado do Git ao registrar: alterações da funcionalidade presentes na branch e sem commit solicitado. Há exclusões de SVGs em `src/assets/icons/` no estado de trabalho; são trabalho humano pré-existente e não devem ser revertidas ou editadas automaticamente.
 
 ### CEPs de despensa e mercado — 8 de outubro de 2026
@@ -168,7 +177,7 @@ Os dropdowns com seta da página de listas e do seletor de categoria animam a mu
 
 Decisões fechadas em 9 de outubro: concluir e manter a lista no histórico ainda que alguns itens não sejam comprados; não adicionar esses itens ao estoque; aplicar conflito de categoria somente à nova ocorrência. A escolha de exibição das marcas é local por conta e despensa, específica a cada nome e tamanho; perguntar quando houver ao menos duas ocorrências com nome normalizado e tamanho compatível, mesmo que tenham marcas diferentes. O filtro não oferece a escolha de agrupamento.
 
-### Implementação em andamento — revisão da compra e estoque — 9 de outubro de 2026
+### Implementação local concluída; validação Android pendente — revisão da compra e estoque — 9 de outubro de 2026
 
 - A finalização da lista oferece entrada manual ou leitura de NFC-e. As duas entradas chegam à revisão antes de gravar; a entrada manual aceita data atual ou passada e preço unitário ou total, enquanto a NFC-e usa a data extraída sem edição. O mercado é opcional e vem das sugestões do Google. A conclusão grava compra, ocorrências de estoque e mudança da lista para o histórico numa única atualização local. Quando nenhum item é incluído, a NFC-e e a lista ficam registradas sem criar ocorrências de estoque.
 - A NFC-e é bloqueada assim que lida caso seu código já conste nas compras da mesma despensa, seja pela lista ou pela entrada direta na despensa. A confirmação faz a mesma verificação dentro da gravação local para cobrir leituras concorrentes. Outra despensa pode importar a mesma nota; a conclusão via lista também registra a nota mesmo quando nenhum produto for enviado ao estoque, preservando o bloqueio sem adicionar produtos.

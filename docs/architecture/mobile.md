@@ -1,6 +1,6 @@
 # Arquitetura mobile proposta
 
-Status: proposta inicial, sujeita à validação do spike e ao contrato futuro do backend.
+Status: arquitetura em uso no adaptador local, preparada para troca por API. Contratos hospedados e validações de NFC-e ainda dependem de confirmação externa e validação física.
 
 ## Princípio central
 
@@ -55,7 +55,7 @@ repository contracts
 - `purchaseRepository`.
 - `productAliasRepository`.
 
-As assinaturas públicas devem permanecer estáveis durante a troca de armazenamento local por API. Desde 8 de outubro de 2026, a chave principal de armazenamento espelha o JSON oficial fechado, preservado em `hosted-database-model-2026-10-08.json`, acrescido localmente da tabela `markets` e das referências `market_id` em compras e listas. Para listas, o modelo usa `grocery_lists.is_active` (`true` ativa, `false` concluída) e `grocery_list_products.category_id`. Somente a versão do esquema é mantida em chave separada. A migração local da versão 8 para a 9 preserva os dados e associa históricos com CEP a um mercado legado por CEP; não atribui coordenadas inexistentes.
+As assinaturas públicas devem permanecer estáveis durante a troca de armazenamento local por API. O esquema local atual, versão 11, espelha as entidades do JSON oficial recebido em 8 de outubro, acrescidas da tabela local `markets`, referências opcionais `market_id` em compras e listas e do cache local `pantries.location_name`. Para listas, o modelo usa `grocery_lists.is_active` (`true` ativa, `false` concluída) e `grocery_list_products.category_id`. Somente a versão do esquema é mantida em chave separada. As migrações desde a versão 8 preservam os dados existentes e criam associações legadas por CEP quando possível, sem inventar coordenadas. Esse esquema local não confirma a implantação do mesmo modelo no banco hospedado.
 
 ## Estado e persistência
 
@@ -102,7 +102,7 @@ camera -> QR validator -> state router -> SP extractor
 
 - `@react-native-async-storage/async-storage`: entidades locais versionadas, separadas por conta e acessadas apenas pelos adaptadores de armazenamento.
 - `expo-secure-store`: somente sessão e segredos pequenos; não será usado como banco de dados.
-- `expo-crypto`: hash de senha local com salt e impressão digital técnica do QR Code no MVP local; a integração hospedada usará o código do parâmetro `p` conforme a decisão posterior.
+- `expo-crypto`: hash de senha local com salt e, somente no protótipo histórico, impressão digital técnica do QR Code. O fluxo atual identifica a NFC-e pelo código do parâmetro `p`, conforme `purchases.qr_code_id` no modelo recebido.
 - `expo-camera`: leitura do QR Code dentro da despensa.
 - `react-native-webview`: alternativa controlada para páginas fiscais que não entreguem HTML utilizável por `fetch`.
 
@@ -112,6 +112,6 @@ Não será adicionada uma biblioteca global de estado, formulário ou banco rela
 
 ## Decisões ainda técnicas
 
-- Confirmar que o contrato da API e a implantação hospedada seguem o modelo oficial fechado de 8 de outubro, inclusive `grocery_lists.is_active` e `grocery_list_products.category_id`.
+- Confirmar com a equipe de backend o contrato da API e a implantação hospedada, inclusive `grocery_lists.is_active`, `grocery_list_products.category_id` e a futura entidade `markets`; a fotografia de 8 de outubro não confirma implantação.
 - Estratégia final do extrator da SEFAZ-SP após teste com uma nota real.
 - Biblioteca e configuração de testes compatíveis com a base atual.

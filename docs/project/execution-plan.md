@@ -54,13 +54,13 @@ O GPT-6 Sol opera no leve por padrão como orquestrador e escolhe diretamente o 
 - Relatórios de subagentes devem destacar achados, riscos, arquivos alterados e validações, evitando narrativas extensas.
 - Decisões duráveis são escritas nos documentos; detalhes transitórios permanecem no relatório da tarefa.
 
-## Ordem imediata recomendada
+## Próxima validação mobile
 
-Atualizada no encerramento da sessão de 8 de outubro de 2026. O ponto de parada detalhado está em `current-state.md`.
+Atualizada em 9 de outubro de 2026. A página de listas e as sugestões de mercados já foram validadas pelo usuário no Android; a fixture demonstrativa permanece desligada e não deve ser reativada como etapa de rotina. Consulte `current-state.md` antes de retomar.
 
-1. No outro computador, sincronizar a branch `feature/page-grocery-list` e configurar `.env.local` localmente com uma chave Maps válida; nunca copiar esse arquivo para o Git.
-2. No Android, cadastrar/editar uma despensa usando a Estação São Judas, Av. Jabaquara, 2438, e reabrir a página de listas para criar a fixture em desenvolvimento.
-3. Conferir visualmente a lista `Lista demonstrativa — Indianópolis` e as três sugestões; validar nomes/CEPs selecionados pelo Places, mercado mais perto, estimativas por mercado e marcas preferidas. Registrar o resultado em `current-state.md`.
-4. Depois dessa verificação, seguir a próxima fatia funcional acordada; o contrato da API hospedada e a migração de `markets` ainda precisam de confirmação da equipe de backend.
+1. Validar no Android o fluxo de conclusão manual, incluindo data real da compra, mercado opcional, preço unitário/total e itens planejados não comprados.
+2. Validar no Android o caminho NFC-e com QR real: leitura e extração, data fiscal somente leitura, duplicidade por despensa, vínculos da revisão e decisão sobre linhas sem vínculo/itens ausentes.
+3. Confirmar que os saldos agregados mantêm ocorrências, compras e marcas separadas e que as gravações locais falhas preservam os dados.
+4. Registrar resultados e problemas observados em `current-state.md`; abrir nova fatia apenas para correções concretas.
 
-Fundação, autenticação, criação/listagem de despensas e adição/listagem local de produtos já possuem implementação. Não reiniciar essas etapas ao retomar. O teste visual pendente é específico da nova fixture e não invalida a validação anterior do fluxo básico de sugestões.
+A API hospedada e a migração de `markets` permanecem fora do bloqueio atual do mobile e dependem da equipe responsável. Não reiniciar a fundação, autenticação, despensas, produtos ou a validação já concluída da página de listas.
