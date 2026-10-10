@@ -1,10 +1,14 @@
 import * as Crypto from 'expo-crypto';
 import { normalizeCep } from '../domain/locationValidation';
+import { COLOR_OPTIONS } from '../constants/colorOptions';
+import { clearPantryProductViewPreferences } from './pantryProductViewPreferenceService';
+import { clearGroceryListViewPreferences } from './groceryListViewPreferenceService';
 
 import {
   createPantry as savePantry,
   listPantriesByAccountId,
-  updatePantryLocation as savePantryLocation,
+  updatePantry as savePantryDetails,
+  deletePantryById,
 } from '../repositories/pantryRepository';
 
 export async function listPantries(accountId) {
@@ -53,8 +57,14 @@ export async function createPantry({ accountId, color, name, location, locationN
   return savePantry(pantry);
 }
 
-export async function updatePantryLocation({ accountId, pantryId, location, locationName }) {
+export async function updatePantry({ accountId, pantryId, name, color, location, locationName }) {
+  const normalizedName = name?.trim();
   if (!accountId || !pantryId) throw new Error('INVALID_PANTRY');
+  if (!normalizedName || normalizedName.length > 150) throw new Error('INVALID_PANTRY_NAME');
+  if (!COLOR_OPTIONS.some((option) => option.toLowerCase() === String(color).toLowerCase())) {
+    throw new Error('INVALID_PANTRY_COLOR');
+  }
+
   let normalizedLocation;
   try {
     normalizedLocation = normalizeCep(location);
@@ -63,6 +73,23 @@ export async function updatePantryLocation({ accountId, pantryId, location, loca
     error.fields = { location: error.message };
     throw error;
   }
-  await savePantryLocation({ accountId, pantryId, location: normalizedLocation, locationName });
+
+  await savePantryDetails({
+    accountId,
+    pantryId,
+    name: normalizedName,
+    color,
+    location: normalizedLocation,
+    locationName: normalizedLocation ? locationName?.trim() || null : null,
+  });
   return (await listPantriesByAccountId(accountId)).find((pantry) => pantry.id === pantryId);
+}
+
+export async function deletePantry({ accountId, pantryId }) {
+  if (!accountId || !pantryId) throw new Error('INVALID_PANTRY');
+  await deletePantryById({ accountId, pantryId });
+  await Promise.allSettled([
+    clearPantryProductViewPreferences(accountId, pantryId),
+    clearGroceryListViewPreferences(accountId, pantryId),
+  ]);
 }

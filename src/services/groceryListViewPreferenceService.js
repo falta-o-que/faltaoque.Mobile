@@ -20,3 +20,7 @@ export async function saveCollapsedGroceryListIds(accountId, pantryId, listIds) 
   const safeListIds = [...new Set(listIds.filter((id) => typeof id === 'string'))];
   await AsyncStorage.setItem(preferenceKey(accountId, pantryId), JSON.stringify(safeListIds));
 }
+
+export async function clearGroceryListViewPreferences(accountId, pantryId) {
+  await AsyncStorage.removeItem(preferenceKey(accountId, pantryId));
+}

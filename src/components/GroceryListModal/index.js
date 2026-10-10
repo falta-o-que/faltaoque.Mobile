@@ -18,6 +18,7 @@ import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../../domain/productValidatio
 import { ProductCartIcon } from '../AddProductModal/icons';
 import CategoryTag from '../CategoryTag';
 import AnimatedDropdown from '../AnimatedDropdown';
+import DangerActionButton from '../DangerActionButton';
 import FormField from '../FormField';
 import ModalActionButton from '../ModalActionButton';
 import PlaceSearchField from '../PlaceSearchField';
@@ -331,9 +332,7 @@ export default function GroceryListModal({
                     <CompactAction accessibilityRole="button" disabled={busy} onPress={onStartCheckout} $tone="complete">
                       <CompactActionLabel $tone="complete">Finalizar lista e adicionar à despensa</CompactActionLabel>
                     </CompactAction>
-                    <CompactAction accessibilityRole="button" disabled={busy} onPress={confirmDelete} $tone="danger">
-                      <CompactActionLabel $tone="danger">Excluir Lista de Compras</CompactActionLabel>
-                    </CompactAction>
+                    <DangerActionButton disabled={busy} onPress={confirmDelete} text="Excluir Lista de Compras" />
                   </Fields>
                 ) : null}
                 {isFinished ? (
