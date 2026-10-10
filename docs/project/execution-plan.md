@@ -6,7 +6,7 @@ O desenvolvimento seguirá fatias verticais pequenas e verificáveis. Antes de c
 
 As instruções técnicas dadas aos agentes ficam em inglês. Decisões, especificações e entregas destinadas à equipe ficam em português.
 
-O Terra opera no leve por padrão para economizar tokens e escolhe diretamente o executor adequado: Luna/médio para escopos fechados, Sol/médio ou alto para trabalhos de maior complexidade. Não há passagem obrigatória pelo Sol. O limite de três subagentes inclui toda a árvore. Quando necessário, o orquestrador recomenda ao usuário elevar seu raciocínio para médio ou trocar para Sol/Astra, com justificativa concreta. A política completa está em `docs/agents/workflow.md` e `docs/project/decisions.md`.
+O GPT-6 Sol opera no leve por padrão como orquestrador e escolhe diretamente o executor adequado: Luna/médio para escopos fechados, GPT-5.6 Sol/médio ou alto para trabalhos de maior complexidade. Não há passagem obrigatória por outro modelo. O limite de três subagentes inclui toda a árvore. Quando necessário, o orquestrador recomenda ao usuário elevar seu raciocínio para médio ou alto, com justificativa concreta. A política completa está em `docs/agents/workflow.md` e `docs/project/decisions.md`.
 
 ## Trilhas
 
@@ -54,13 +54,13 @@ O Terra opera no leve por padrão para economizar tokens e escolhe diretamente o
 - Relatórios de subagentes devem destacar achados, riscos, arquivos alterados e validações, evitando narrativas extensas.
 - Decisões duráveis são escritas nos documentos; detalhes transitórios permanecem no relatório da tarefa.
 
-## Ordem imediata recomendada
+## Próxima validação mobile
 
-Atualizada no encerramento da sessão de 12 de setembro de 2026. O ponto de parada detalhado está em `current-state.md`.
+Atualizada em 9 de outubro de 2026. A página de listas e as sugestões de mercados já foram validadas pelo usuário no Android; a fixture demonstrativa permanece desligada e não deve ser reativada como etapa de rotina. Consulte `current-state.md` antes de retomar.
 
-1. Retomar os ajustes pendentes da página da despensa e do modal de adição conforme o retorno do usuário; a interface ainda não está aprovada.
-2. Validar visualmente e interativamente o fluxo implementado no aplicativo, inclusive teclado, rolagem, estados vazios, produtos adicionados e persistência após reiniciar.
-3. Concluir informações, alteração de quantidade, edição e exclusão de produtos e edição/exclusão de despensas.
-4. Continuar histórico, aliases e fluxo fiscal após validação do spike.
+1. Validar no Android o fluxo de conclusão manual, incluindo data real da compra, mercado opcional, preço unitário/total e itens planejados não comprados.
+2. Validar no Android o caminho NFC-e com QR real: leitura e extração, data fiscal somente leitura, duplicidade por despensa, vínculos da revisão e decisão sobre linhas sem vínculo/itens ausentes.
+3. Confirmar que os saldos agregados mantêm ocorrências, compras e marcas separadas e que as gravações locais falhas preservam os dados.
+4. Registrar resultados e problemas observados em `current-state.md`; abrir nova fatia apenas para correções concretas.
 
-Fundação, autenticação, criação/listagem de despensas e adição/listagem local de produtos já possuem implementação. Não reiniciar essas etapas ao retomar. O spike fiscal deve ser validado em paralelo quando houver uma amostra real disponível.
+A API hospedada e a migração de `markets` permanecem fora do bloqueio atual do mobile e dependem da equipe responsável. Não reiniciar a fundação, autenticação, despensas, produtos ou a validação já concluída da página de listas.

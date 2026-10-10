@@ -132,11 +132,12 @@ export const QuantityButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7
   justify-content: center;
   border-radius: 8px;
   background-color: ${({ $disabled, theme }) =>
-    $disabled ? theme.colors.white[300] : theme.colors.primary[300]};
+    $disabled ? theme.colors.white[300] : theme.colors.success[400]};
 `;
 
 export const QuantityButtonLabel = styled.Text`
-  color: ${({ theme }) => theme.colors.white[100]};
+  color: ${({ $disabled, theme }) =>
+    $disabled ? theme.colors.black[400] : theme.colors.success[600]};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
   font-size: ${({ theme }) => theme.fonts.sizes['2']}px;
   font-weight: ${({ theme }) => theme.fonts.weights.bold};

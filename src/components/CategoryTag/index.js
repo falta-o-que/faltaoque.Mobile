@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Container, Label } from './styles';
+import { useTheme } from 'styled-components/native';
+import { TagIcon } from '../../assets/icons/export';
+import { Container, getTagForegroundColor, Label } from './styles';
 
 export const CATEGORY_LABELS = {
   integraisCereais: 'Integrais/Cereais',
@@ -8,6 +10,7 @@ export const CATEGORY_LABELS = {
   carnes: 'Carnes',
   bebidas: 'Bebidas',
   organicos: 'Orgânicos',
+  outros: 'Outros',
 };
 
 export function CategoryTag({
@@ -21,6 +24,7 @@ export function CategoryTag({
   ...props
 }) {
   const [internalSelected, setInternalSelected] = useState(defaultSelected);
+  const theme = useTheme();
   const resolvedCategory = CATEGORY_LABELS[category] ? category : 'organicos';
   const isControlled = selected !== undefined;
   const isSelected = isControlled ? selected : internalSelected;
@@ -46,6 +50,7 @@ export function CategoryTag({
       $variant={variant}
       {...props}
     >
+      <TagIcon color={getTagForegroundColor(theme, resolvedCategory)} />
       <Label $category={resolvedCategory} $variant={variant}>
         {label ?? CATEGORY_LABELS[resolvedCategory]}
       </Label>

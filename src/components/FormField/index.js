@@ -35,7 +35,7 @@ export function FormField({
           <IconContainer>{icon}</IconContainer>
         ) : null}
       </Container>
-      {error ? <ErrorText accessibilityLiveRegion="polite">{error}</ErrorText> : null}
+      {error ? <ErrorText accessibilityLiveRegion="polite" accessibilityRole="alert">{error}</ErrorText> : null}
     </FieldGroup>
   );
 }

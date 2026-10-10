@@ -6,6 +6,11 @@ const lightTextCategories = new Set([
   'carnes',
 ]);
 
+export const getTagForegroundColor = (theme, category) =>
+  lightTextCategories.has(category)
+    ? theme.colors.white[100]
+    : theme.colors.black.Black;
+
 export const Container = styled.TouchableOpacity.attrs({
   activeOpacity: 0.7,
 })`
@@ -13,7 +18,9 @@ export const Container = styled.TouchableOpacity.attrs({
   min-height: ${({ $variant }) => ($variant === 'product' ? 30 : 28)}px;
   align-items: center;
   justify-content: center;
-  padding: ${({ $variant }) => ($variant === 'product' ? '4px 8px' : '5px 12px')};
+  flex-direction: row;
+  gap: ${({ $variant }) => ($variant === 'product' ? 10 : 6)}px;
+  padding: ${({ $variant }) => ($variant === 'product' ? '3px 10px' : '4px 10px')};
   border-radius: 999px;
   border-width: 2px;
   border-color: ${({ theme, $category, $selected, $variant }) => {
@@ -31,10 +38,8 @@ export const Container = styled.TouchableOpacity.attrs({
 `;
 
 export const Label = styled.Text`
-  color: ${({ theme, $category }) =>
-    lightTextCategories.has($category)
-      ? theme.colors.white[100]
-      : theme.colors.black.Black};
+  color: ${({ theme, $category }) => getTagForegroundColor(theme, $category)};
+  flex-shrink: 1;
   font-family: ${({ theme, $variant }) => theme.fonts.families.inter[$variant === 'product' ? 'medium' : 'bold']};
   font-size: ${({ theme, $variant }) => theme.fonts.sizes[$variant === 'product' ? 1 : 0]}px;
 `;

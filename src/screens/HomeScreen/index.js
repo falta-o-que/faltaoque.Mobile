@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 
 import Navbar from '../../components/Navbar';
 import CreatePantryModal from '../../components/CreatePantryModal';
+import PantryLocationModal from '../../components/PantryLocationModal';
 import PantryCard from '../../components/PantryCard';
 import PantryDestinationModal from '../../components/PantryDestinationModal';
 import QuickActionButton from '../../components/QuickActionButton';
@@ -16,6 +17,7 @@ import {
 } from '../../assets/icons/export';
 import { useAuth } from '../../contexts/AuthContext';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
+import { showUserErrorAlert } from '../../utils/userErrors';
 import * as pantryService from '../../services/pantryService';
 import {
   Avatar,
@@ -24,6 +26,8 @@ import {
   EmptyText,
   Greeting,
   LoadError,
+  RetryButton,
+  RetryText,
   PantryList,
   PantryTitle,
   Question,
@@ -50,8 +54,11 @@ export function HomeScreen({ navigation }) {
   const [selectedAction, setSelectedAction] = useState('pantry');
   const [isCreatePantryModalOpen, setIsCreatePantryModalOpen] = useState(false);
   const [selectedPantry, setSelectedPantry] = useState(null);
+  const [pantryForLocationEdit, setPantryForLocationEdit] = useState(null);
+  const [isSavingPantryLocation, setIsSavingPantryLocation] = useState(false);
   const [pantries, setPantries] = useState([]);
   const [pantriesError, setPantriesError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useFocusEffect(useCallback(() => {
     let isMounted = true;
@@ -74,7 +81,7 @@ export function HomeScreen({ navigation }) {
     return () => {
       isMounted = false;
     };
-  }, [account?.id]));
+  }, [account?.id, reloadKey]));
 
   const handleActionPress = (key, label) => {
     if (key === 'pantry') {
@@ -86,13 +93,17 @@ export function HomeScreen({ navigation }) {
   };
 
   const handleNavbarItemChange = (key, item) => {
-    if (key !== 'profile') {
+    if (key === 'shopping-list') {
+      navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
+    } else if (key === 'pantry') {
+      navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
+    } else if (key !== 'profile') {
       showComingSoon(item.label);
     }
   };
 
-  const handlePantrySettingsPress = (pantryName) => {
-    showComingSoon(`A configuração de ${pantryName}`);
+  const handlePantrySettingsPress = (pantry) => {
+    setPantryForLocationEdit(pantry);
   };
 
   const handlePantryPress = (pantry) => {
@@ -109,19 +120,24 @@ export function HomeScreen({ navigation }) {
   };
 
   const handleOpenShoppingList = () => {
+    const pantryId = selectedPantry?.id;
     setSelectedPantry(null);
-    showComingSoon('A lista de compras desta despensa');
+    if (pantryId) {
+      navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_LIST, { pantryId });
+    }
   };
 
   const handleCreatePantryPress = () => {
     setIsCreatePantryModalOpen(true);
   };
 
-  const handleCreatePantry = async ({ color, name }) => {
+  const handleCreatePantry = async ({ color, name, location, locationName }) => {
     try {
       const pantry = await pantryService.createPantry({
         accountId: account?.id,
         color,
+        location,
+        locationName,
         name,
       });
 
@@ -129,10 +145,26 @@ export function HomeScreen({ navigation }) {
       setPantriesError(null);
       setIsCreatePantryModalOpen(false);
     } catch (error) {
-      Alert.alert(
-        'Não foi possível criar a despensa',
-        'Tente novamente em alguns instantes.',
-      );
+      showUserErrorAlert(error, { title: 'Não foi possível criar a despensa', fallback: 'Os dados preenchidos foram mantidos. Tente novamente em alguns instantes.' });
+    }
+  };
+
+  const handleSavePantryLocation = async (location, locationName) => {
+    if (isSavingPantryLocation) return;
+    setIsSavingPantryLocation(true);
+    try {
+      const updated = await pantryService.updatePantryLocation({
+        accountId: account?.id,
+        pantryId: pantryForLocationEdit?.id,
+        location,
+        locationName,
+      });
+      setPantries((current) => current.map((pantry) => pantry.id === updated.id ? updated : pantry));
+      setPantryForLocationEdit(null);
+    } catch {
+      Alert.alert('Não foi possível salvar o endereço', 'Escolha um endereço sugerido e tente novamente.');
+    } finally {
+      setIsSavingPantryLocation(false);
     }
   };
 
@@ -160,7 +192,14 @@ export function HomeScreen({ navigation }) {
         {selectedAction === 'pantry' ? (
           <PantrySection>
             <PantryTitle>Suas despensas</PantryTitle>
-            {pantriesError ? <LoadError>{pantriesError}</LoadError> : null}
+            {pantriesError ? (
+              <>
+                <LoadError accessibilityLiveRegion="polite" accessibilityRole="alert">{pantriesError}</LoadError>
+                <RetryButton accessibilityRole="button" onPress={() => setReloadKey((value) => value + 1)}>
+                  <RetryText>Tentar novamente</RetryText>
+                </RetryButton>
+              </>
+            ) : null}
             {pantries.length === 0 && !pantriesError ? (
               <EmptyText>Você ainda não possui despensas...</EmptyText>
             ) : null}
@@ -172,8 +211,9 @@ export function HomeScreen({ navigation }) {
                     color={pantry.color}
                     name={pantry.name}
                     productCount={pantry.productCount}
+                    shoppingListCount={pantry.shoppingListCount}
                     onPress={() => handlePantryPress(pantry)}
-                    onSettingsPress={() => handlePantrySettingsPress(pantry.name)}
+                    onSettingsPress={() => handlePantrySettingsPress(pantry)}
                   />
                 ))}
               </PantryList>
@@ -193,6 +233,13 @@ export function HomeScreen({ navigation }) {
         onCreate={handleCreatePantry}
         onRequestClose={() => setIsCreatePantryModalOpen(false)}
         visible={isCreatePantryModalOpen}
+      />
+      <PantryLocationModal
+        busy={isSavingPantryLocation}
+        onRequestClose={() => setPantryForLocationEdit(null)}
+        onSave={handleSavePantryLocation}
+        pantry={pantryForLocationEdit}
+        visible={Boolean(pantryForLocationEdit)}
       />
       <PantryDestinationModal
         onOpenPantry={handleOpenPantry}

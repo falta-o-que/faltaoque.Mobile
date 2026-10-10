@@ -7,6 +7,7 @@ import { EmailIcon, EyeClosedIcon, EyeIcon } from '../../assets/icons/export';
 import { hasValidationErrors, validateLogin } from '../../domain/authValidation';
 import { PUBLIC_ROUTES } from '../../navigation/routes';
 import { useAuth } from '../../contexts/AuthContext';
+import { showUserErrorAlert } from '../../utils/userErrors';
 import {
   Actions,
   Form,
@@ -48,11 +49,7 @@ export function LoginScreen({ navigation }) {
       setIsSubmitting(true);
       await login({ email, password });
     } catch (error) {
-      const message = error.message === 'INVALID_CREDENTIALS'
-        ? 'E-mail ou senha inválidos.'
-        : 'Não foi possível entrar. Tente novamente.';
-
-      Alert.alert('Não foi possível entrar', message);
+      showUserErrorAlert(error, { title: 'Não foi possível entrar', fallback: 'Verifique sua conexão e tente novamente.' });
     } finally {
       setIsSubmitting(false);
     }

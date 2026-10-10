@@ -1,0 +1,21 @@
+import styled from 'styled-components/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+export const Screen = styled(SafeAreaView)`flex: 1; background-color: ${({ theme }) => theme.colors.white[100]};`;
+export const Content = styled.View`flex: 1; padding: 8px 20px 20px; gap: 16px;`;
+export const Header = styled.View`flex-direction: row; align-items: center; justify-content: space-between; gap: 16px;`;
+export const HeadingGroup = styled.View`flex: 1; gap: 2px;`;
+export const Eyebrow = styled.Text`color: ${({ theme }) => theme.colors.primary[700]}; font-family: ${({ theme }) => theme.fonts.families.inter.bold}; font-size: 12px;`;
+export const Title = styled.Text`color: ${({ theme }) => theme.colors.black.Black}; font-family: ${({ theme }) => theme.fonts.families.poppins.medium}; font-size: 24px;`;
+export const Intro = styled.View`flex-direction: row; align-items: center; gap: 12px; padding: 14px; border-radius: 12px; background-color: ${({ theme }) => theme.colors.white[200]};`;
+export const IntroIcon = styled.View`width: 42px; height: 42px; align-items: center; justify-content: center; border-radius: 12px; background-color: ${({ theme }) => theme.colors.primary[300]};`;
+export const Help = styled.Text`flex: 1; color: ${({ theme }) => theme.colors.black[400]}; font-family: ${({ theme }) => theme.fonts.families.inter.regular}; font-size: 14px; line-height: 20px;`;
+export const CameraShell = styled.View`flex: 1; min-height: 280px; overflow: hidden; border-width: 2px; border-color: ${({ theme }) => theme.colors.primary.Green}; border-radius: 20px; background-color: ${({ theme }) => theme.colors.black.Black}; elevation: 4; shadow-color: ${({ theme }) => theme.colors.black.Black}; shadow-offset: 0px 2px; shadow-opacity: 0.16; shadow-radius: 6px;`;
+export const CameraArea = styled.View`flex: 1;`;
+export const Frame = styled.View`position: absolute; top: 50%; left: 50%; width: 210px; height: 210px; margin-top: -105px; margin-left: -105px; border-width: 3px; border-color: ${({ theme }) => theme.colors.primary[300]}; border-radius: 16px;`;
+export const CameraHint = styled.Text`position: absolute; right: 20px; bottom: 18px; left: 20px; color: ${({ theme }) => theme.colors.white[100]}; font-family: ${({ theme }) => theme.fonts.families.inter.medium}; font-size: 13px; text-align: center;`;
+export const Footer = styled.View`gap: 10px;`;
+export const Status = styled.View`min-height: 28px; flex-direction: row; align-items: center; justify-content: center; gap: 8px;`;
+export const StatusText = styled.Text`color: ${({ theme }) => theme.colors.black[400]}; font-family: ${({ theme }) => theme.fonts.families.inter.medium}; font-size: 13px;`;
+export const Error = styled.Text`color: ${({ theme }) => theme.colors.danger[600]}; font-family: ${({ theme }) => theme.fonts.families.inter.medium}; font-size: 13px; line-height: 19px; text-align: center;`;
+export const PermissionState = styled.View`flex: 1; justify-content: center; gap: 16px;`;

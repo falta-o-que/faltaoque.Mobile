@@ -37,8 +37,8 @@ export const Header = styled.View`
 `;
 
 export const Logo = styled(Image)`
-  width: 98px;
-  height: 95px;
+  width: 95px;
+  height: 103px;
   margin-bottom: 2px;
 `;
 

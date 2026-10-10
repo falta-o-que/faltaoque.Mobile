@@ -38,7 +38,7 @@ export function ProductCard({
 }) {
   const theme = useTheme();
   const hasInfoAction = typeof onInfoPress === 'function';
-  const canDecrement = !disabled && quantity > 1 && typeof onDecrement === 'function';
+  const canDecrement = !disabled && quantity > 0 && typeof onDecrement === 'function';
   const canIncrement = !disabled && typeof onIncrement === 'function';
   const measure = [weight, unit].filter(Boolean).join(' ');
   const categoryKey = CATEGORY_LABELS[category] ? category : 'organicos';
@@ -76,7 +76,7 @@ export function ProductCard({
           disabled={!canDecrement}
           onPress={canDecrement ? onDecrement : undefined}
         >
-          <QuantityButtonLabel>-</QuantityButtonLabel>
+          <QuantityButtonLabel $disabled={!canDecrement}>-</QuantityButtonLabel>
         </QuantityButton>
         <Quantity accessibilityLabel={`Quantidade: ${quantity}`}>{String(quantity)}</Quantity>
         <QuantityButton
@@ -87,7 +87,7 @@ export function ProductCard({
           disabled={!canIncrement}
           onPress={canIncrement ? onIncrement : undefined}
         >
-          <QuantityButtonLabel>+</QuantityButtonLabel>
+          <QuantityButtonLabel $disabled={!canIncrement}>+</QuantityButtonLabel>
         </QuantityButton>
       </QuantityControl>
     </Card>

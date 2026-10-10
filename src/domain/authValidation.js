@@ -6,6 +6,7 @@ function validateEmail(email) {
   const normalizedEmail = email.trim();
 
   if (!normalizedEmail) return 'Informe o e-mail.';
+  if (normalizedEmail.length > 254) return 'O e-mail deve ter até 254 caracteres.';
   if (!EMAIL_PATTERN.test(normalizedEmail)) return 'Informe um e-mail válido.';
   return undefined;
 }
@@ -34,7 +35,7 @@ export function validateRegistration({
   acceptedTerms,
 }) {
   return {
-    name: name.trim() ? undefined : 'Informe o nome.',
+    name: !name.trim() ? 'Informe o nome.' : name.trim().length > 50 ? 'O nome deve ter até 50 caracteres.' : undefined,
     email: validateEmail(email),
     avatarColor: avatarColor ? undefined : 'Escolha uma cor para o avatar.',
     password: validatePassword(password),

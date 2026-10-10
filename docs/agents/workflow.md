@@ -4,9 +4,13 @@
 
 Use subagents to reduce elapsed time and context usage while keeping one accountable orchestrator in control of scope, integration, and final verification.
 
+## Current project context
+
+Before work on backend integration or new product flows, read `docs/specs/integracao-e-fluxos-2026-10-05.md` and the newer dated entries in `docs/project/decisions.md`. The 14 September milestone remains the original local MVP specification. The 8 October hosted model JSON is the latest model snapshot; the 1 October SQL is an older received script, and neither alone confirms the deployed database or API contract. Hosted grocery lists use `grocery_lists`, and NFC-e identity uses the code between `p=` and the first `|` in the QR URL. Record later user corrections in the memory bank and SDD, marking unresolved contract details explicitly.
+
 ## Model policy
 
-- Orchestrator: `gpt-5.6-terra`, reasoning effort `low` by default, prioritizing token economy.
+- Orchestrator: `gpt-6-sol`, reasoning effort `low` by default.
 - Default worker: `gpt-5.6-luna`, reasoning effort `medium`.
 - Intermediate worker: `gpt-5.6-sol`, reasoning effort `medium`, or `high` for demanding bounded work.
 - Concurrency limit: three workers across the whole tree, including descendants, and never beyond runtime capacity. The current runtime supports four agents including the root.
@@ -15,13 +19,13 @@ The user controls the root model and reasoning setting in Codex. These instructi
 
 ## Routing and root reasoning
 
-Terra owns macro planning, SDD decisions, architectural boundaries, final integration and acceptance. Low is the routine starting point for clear requests, triage, delegation and small reviews. Keep reports concise and load only task-relevant context; use workers when independent work saves time or improves quality, not to satisfy a quota.
+The root agent owns macro planning, SDD decisions, architectural boundaries, final integration and acceptance. Low is the routine starting point for clear requests, triage, delegation and small reviews. Keep reports concise and load only task-relevant context; use workers when independent work saves time or improves quality, not to satisfy a quota.
 
 Use Luna/medium for closed scopes with clear acceptance criteria. Use Sol/medium for medium-complexity implementations spanning a few related modules, substantive documentation, structured-data work, investigations or independent technical reviews. Sol is an optional execution lead, not a mandatory management layer. Simple text work may remain with the root or Luna.
 
-Prefer Terra directly assigning Luna or Sol. Sol may delegate a genuinely independent subtask only within its assigned scope, exclusive file ownership and the global concurrency budget; it must not expand the task. Do not introduce a Terra-to-Sol-to-Luna chain without a concrete benefit.
+Prefer the root agent directly assigning Luna or Sol. A worker may delegate a genuinely independent subtask only within its assigned scope, exclusive file ownership and the global concurrency budget; it must not expand the task. Do not introduce a chain between models without a concrete benefit.
 
-Recommend raising the root Terra to medium when unresolved ambiguity or cross-module integration requires deeper reasoning. For demanding data migration, authentication/security decisions, fiscal extraction or difficult debugging, recommend switching the root to Sol or Astra when appropriate, or assign a bounded investigation to a stronger worker. Explain the actual issue and expected benefit in Portuguese. Do not repeat the recommendation for the same unchanged condition. High or higher is exceptional and needs a concrete difficult problem.
+Recommend raising the root's reasoning to medium when unresolved ambiguity or cross-module integration requires deeper reasoning. For demanding data migration, authentication/security decisions, fiscal extraction or difficult debugging, recommend high reasoning when appropriate, or assign a bounded investigation to a stronger worker. Explain the actual issue and expected benefit in Portuguese. Do not repeat the recommendation for the same unchanged condition. High or higher is exceptional and needs a concrete difficult problem.
 
 Continue useful independent work while the user adjusts the setting. A recommendation alone is not a blocker, and elapsed time is not confirmation that the setting changed. Report any actual blocker separately. After the demanding stage, suggest returning to low when appropriate.
 

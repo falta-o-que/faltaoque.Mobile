@@ -1,6 +1,8 @@
 # Spike técnico — NFC-e de São Paulo
 
-Status: pronto para execução quando houver uma amostra real.
+Status: registro histórico do spike/protótipo técnico. A extração atual e a revisão estão implementadas no app local, mas a leitura real e o fluxo completo ainda precisam de validação física no Android.
+
+Nota: este spike registra a estratégia técnica original. Para o fluxo atual, a identidade da NFC-e é o código entre `p=` e o primeiro `|` do link do QR Code, correspondente a `purchases.qr_code_id`, com duplicidade verificada por despensa. A impressão digital SHA-256 abaixo descreve apenas o experimento/protótipo anterior e não deve ser usada como identidade do fluxo atual.
 
 ## Objetivo
 
@@ -30,7 +32,7 @@ purchase: {
   purchasedAt,
   merchantName,
   totalAmount,
-  qrFingerprint,
+  qrCodeId,
   items: [{
     sourceDescription,
     quantity,
@@ -40,6 +42,8 @@ purchase: {
   }]
 }
 ```
+
+Neste registro, `qrCodeId` é o trecho do parâmetro `p` entre `p=` e o primeiro `|`. O protótipo antigo usava `qrFingerprint`; esse identificador foi substituído e não deve voltar ao fluxo atual.
 
 Campos ausentes devem ser representados explicitamente como indisponíveis; o extrator não pode inventar valores.
 

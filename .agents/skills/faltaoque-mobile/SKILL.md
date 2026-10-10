@@ -16,15 +16,19 @@ Before planning project work, read these files in order:
 3. `docs/project/current-state.md`
 4. `docs/agents/workflow.md`
 
-Then read only the specification and architecture documents relevant to the requested slice. For the current delivery, use `docs/specs/milestone-2026-09-14.md`. For fiscal work, also read `docs/specs/nfce-sp-spike.md` and `docs/architecture/mobile.md`.
+Then read only the specification and architecture documents relevant to the requested slice. Use `docs/specs/milestone-2026-09-14.md` for the original local MVP and `docs/specs/integracao-e-fluxos-2026-10-05.md` for the later backend and front-end decisions. For fiscal work, also read `docs/specs/nfce-sp-spike.md` and `docs/architecture/mobile.md`. For hosted data work, inspect the latest dated model snapshot (currently `docs/architecture/hosted-database-model-2026-10-08.json`) and compare it with the relevant SQL; a model snapshot does not prove a deployed migration.
 
 When a task changes a durable decision or completed project state, update the appropriate memory-bank file in Portuguese.
+
+When the user requests a handoff to another computer, record the current implementation, verification result, and the next concrete device or integration check in `docs/project/current-state.md`; update the applicable SDD and decisions as needed. Only commit or push when the user explicitly requests synchronization. Never include `.env.local`, API keys, or other local secrets in that handoff.
 
 ## Resolve conflicts
 
 For visual decisions, follow the precedence recorded in `docs/project/overview.md`. Preserve the approved Figma direction; do not introduce a new aesthetic or reinterpret the product branding.
 
 For functional behavior, the relevant SDD and confirmed entries in `docs/project/decisions.md` prevail over incomplete UI behavior. Surface unresolved conflicts instead of silently choosing a new requirement.
+
+Later dated decisions override conflicting descriptions of earlier flows. The 2026-10-06 correction makes grocery lists hosted through `grocery_lists` and related tables. For NFC-e identity, extract the code between `p=` and the first `|` in the QR URL; the backend field and API contract remain unconfirmed. Do not implement the older local-only list or QR fingerprint proposals as the target hosted behavior.
 
 ## Implement mobile code
 
