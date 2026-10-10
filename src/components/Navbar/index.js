@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from 'styled-components/native';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 
 import {
   DashboardIcon,
@@ -24,6 +25,17 @@ export function Navbar({
   ...props
 }) {
   const theme = useTheme();
+  const { t } = useAppPreferences();
+  const labelKeys = {
+    profile: 'navbar.profile',
+    'shopping-list': 'navbar.shoppingList',
+    pantry: 'navbar.pantry',
+    dashboard: 'navbar.dashboard',
+  };
+  const localizedItems = items.map((item) => ({
+    ...item,
+    label: labelKeys[item.key] ? t(labelKeys[item.key]) : item.label,
+  }));
   const initialItem = defaultActiveItem ?? items[0]?.key;
   const [internalActiveItem, setInternalActiveItem] = useState(initialItem);
   const isControlled = activeItem !== undefined;
@@ -41,7 +53,7 @@ export function Navbar({
   return (
     <SafeAreaContainer edges={['bottom']} {...props}>
       <Container accessibilityRole="tablist">
-        {items.map((item) => {
+        {localizedItems.map((item) => {
           const Icon = item.icon;
           const isSelected = selectedItem === item.key;
           const color = isSelected

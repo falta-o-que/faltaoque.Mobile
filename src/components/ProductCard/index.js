@@ -1,4 +1,5 @@
 import { useTheme } from 'styled-components/native';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 
 import { InfoIcon } from '../../assets/icons/export';
 import CategoryTag, { CATEGORY_LABELS } from '../CategoryTag';
@@ -37,6 +38,7 @@ export function ProductCard({
   disabled = false,
 }) {
   const theme = useTheme();
+  const { t } = useAppPreferences();
   const hasInfoAction = typeof onInfoPress === 'function';
   const canDecrement = !disabled && quantity > 0 && typeof onDecrement === 'function';
   const canIncrement = !disabled && typeof onIncrement === 'function';
@@ -48,9 +50,9 @@ export function ProductCard({
   return (
     <Card>
       <ProductDetails>
-        <ProductImage accessibilityLabel={`Imagem de ${name}`} source={productImage} />
+        <ProductImage accessibilityLabel={t('productCard.imageA11y', { name })} source={productImage} />
         <ProductHeader>
-          <CategoryIndicator accessibilityLabel={`Categoria: ${CATEGORY_LABELS[categoryKey]}`} $category={categoryKey} />
+          <CategoryIndicator accessibilityLabel={t('productCard.categoryA11y', { category: t(`product.category.${categoryKey}`) })} $category={categoryKey} />
           <ProductName>{name}</ProductName>
           {measure ? <ProductMeasure>{measure}</ProductMeasure> : null}
         </ProductHeader>
@@ -58,31 +60,31 @@ export function ProductCard({
         {expirationLabel ? <Expiration>{expirationLabel}</Expiration> : null}
         {showCategory && category ? <CategoryTag category={categoryKey} disabled variant="product" /> : null}
         <InfoButton
-          accessibilityLabel={`Informações sobre ${name}`}
+          accessibilityLabel={t('productCard.infoA11y', { name })}
           accessibilityRole="button"
           disabled={!hasInfoAction}
           onPress={hasInfoAction ? onInfoPress : undefined}
         >
           <InfoIcon color={theme.colors.black[400]} size={24} />
-          <InfoLabel>Info</InfoLabel>
+          <InfoLabel>{t('productCard.info')}</InfoLabel>
         </InfoButton>
       </ProductDetails>
       <QuantityControl>
         <QuantityButton
           $disabled={!canDecrement}
           $variant="minus"
-          accessibilityLabel={`Diminuir quantidade de ${name}`}
+          accessibilityLabel={t('productCard.decreaseA11y', { name })}
           accessibilityRole="button"
           disabled={!canDecrement}
           onPress={canDecrement ? onDecrement : undefined}
         >
           <QuantityButtonLabel $disabled={!canDecrement}>-</QuantityButtonLabel>
         </QuantityButton>
-        <Quantity accessibilityLabel={`Quantidade: ${quantity}`}>{String(quantity)}</Quantity>
+        <Quantity accessibilityLabel={t('productCard.quantityA11y', { quantity })}>{String(quantity)}</Quantity>
         <QuantityButton
           $disabled={!canIncrement}
           $variant="plus"
-          accessibilityLabel={`Aumentar quantidade de ${name}`}
+          accessibilityLabel={t('productCard.increaseA11y', { name })}
           accessibilityRole="button"
           disabled={!canIncrement}
           onPress={canIncrement ? onIncrement : undefined}

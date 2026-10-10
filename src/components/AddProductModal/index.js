@@ -17,7 +17,7 @@ import {
   PRODUCT_UNITS,
   validateProduct,
 } from '../../domain/productValidation';
-import { getUserErrorMessage } from '../../utils/userErrors';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import CategoryTag from '../CategoryTag';
 import FormField from '../FormField';
 import ModalActionButton from '../ModalActionButton';
@@ -67,7 +67,24 @@ const EMPTY_DRAFT = {
   location: '',
 };
 
+const PRODUCT_ERROR_KEYS = {
+  'Informe o nome do produto.': 'product.add.validationName',
+  'O nome do produto deve ter até 100 caracteres.': 'product.add.validationNameLength',
+  'A marca deve ter até 100 caracteres.': 'product.add.validationBrand',
+  'Informe um preço positivo com até duas casas decimais.': 'product.add.validationPrice',
+  'Escolha como o preço foi informado.': 'product.add.validationPriceType',
+  'Informe uma quantidade inteira maior que zero.': 'product.add.validationQuantity',
+  'O valor total é muito alto.': 'product.add.validationTotal',
+  'Informe um peso ou volume maior que zero.': 'product.add.validationWeight',
+  'Escolha a unidade de medida.': 'product.add.validationUnit',
+  'Escolha uma categoria.': 'product.add.validationCategory',
+  'Informe uma data válida no formato DD/MM/AAAA.': 'product.add.validationExpiration',
+  'A validade deve ser hoje ou uma data futura.': 'product.add.validationExpirationFuture',
+  'Selecione um mercado válido nas sugestões do Google ou limpe o campo.': 'product.add.validationMarket',
+};
+
 export function AddProductModal({ onCreate, onRequestClose, visible }) {
+  const { t } = useAppPreferences();
   const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [errors, setErrors] = useState({});
   const [selectedMarket, setSelectedMarket] = useState(null);
@@ -180,7 +197,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
       setErrors((currentErrors) => ({
         ...currentErrors,
         ...fieldErrors,
-        submit: getUserErrorMessage(error, 'Não foi possível adicionar o produto. Seus dados foram mantidos; tente novamente.'),
+        submit: t('product.add.submitError'),
       }));
     } finally {
       submittingRef.current = false;
@@ -189,6 +206,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
   }
 
   const hasWeight = draft.weight.trim() !== '';
+  const displayErrors = Object.fromEntries(Object.entries(errors).map(([field, message]) => [field, PRODUCT_ERROR_KEYS[message] ? t(PRODUCT_ERROR_KEYS[message]) : message]));
   const categoryPanelStyle = {
     opacity: categoryMenuProgress,
     transform: [
@@ -237,34 +255,34 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
               <TitleGroup>
                 <Header>
                   <ProductCartIcon size={24} />
-                  <Heading>Produto</Heading>
+                  <Heading>{t('product.add.heading')}</Heading>
                 </Header>
-                <ProductName>{draft.name.trim() || 'Adicionar produto'}</ProductName>
+              <ProductName>{draft.name.trim() || t('product.add.title')}</ProductName>
               </TitleGroup>
 
               <FormContent>
                 <Fields>
                   <FormField
-                  accessibilityLabel="Nome do produto, obrigatório"
+                  accessibilityLabel={t('product.add.nameA11y')}
                   autoCapitalize="sentences"
                   editable={!isSubmitting}
-                  error={errors.name}
+                  error={displayErrors.name}
                   Icon={PenIcon}
                   maxLength={120}
                   onChangeText={(value) => updateField('name', value)}
-                  placeholder="Nome *"
+                  placeholder={t('product.add.namePlaceholder')}
                   returnKeyType="next"
                   value={draft.name}
                 />
                   <FormField
-                    accessibilityLabel="Marca do produto, opcional"
+                    accessibilityLabel={t('product.add.brandA11y')}
                     autoCapitalize="words"
                     editable={!isSubmitting}
-                    error={errors.brand}
+                    error={displayErrors.brand}
                     Icon={PenIcon}
                     maxLength={100}
                     onChangeText={(value) => updateField('brand', value)}
-                    placeholder="Marca (opcional)"
+                    placeholder={t('product.add.brandPlaceholder')}
                     value={draft.brand}
                   />
                   <PriceTypeOptions accessibilityRole="radiogroup">
@@ -278,33 +296,33 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                         $selected={draft.priceType === priceType}
                       >
                         <PriceTypeLabel $selected={draft.priceType === priceType}>
-                          {priceType === 'unit' ? 'Por unidade' : 'Total do lote'}
+                          {t(priceType === 'unit' ? 'product.add.priceUnit' : 'product.add.priceTotal')}
                         </PriceTypeLabel>
                       </PriceTypeOption>
                     ))}
                   </PriceTypeOptions>
                   <FormField
-                  accessibilityLabel={draft.priceType === 'total' ? 'Preço total do lote, obrigatório' : 'Preço unitário do produto, obrigatório'}
+                  accessibilityLabel={t(draft.priceType === 'total' ? 'product.add.priceTotalA11y' : 'product.add.priceUnitA11y')}
                   editable={!isSubmitting}
-                  error={errors.price}
+                  error={displayErrors.price}
                   Icon={DeliveryIcon}
                   inputMode="decimal"
                   keyboardType="decimal-pad"
                   maxLength={16}
                   onChangeText={(value) => updateField('price', value)}
-                  placeholder={draft.priceType === 'total' ? 'Total do lote *' : 'Preço por unidade *'}
+                  placeholder={t(draft.priceType === 'total' ? 'product.add.priceTotalPlaceholder' : 'product.add.priceUnitPlaceholder')}
                   value={draft.price}
                 />
                   <FormField
-                  accessibilityLabel="Quantidade do produto, obrigatória"
+                  accessibilityLabel={t('product.add.quantityA11y')}
                   editable={!isSubmitting}
-                  error={errors.quantity}
+                  error={displayErrors.quantity}
                   Icon={DeliveryIcon}
                   inputMode="numeric"
                   keyboardType="number-pad"
                   maxLength={9}
                   onChangeText={(value) => updateField('quantity', value)}
-                  placeholder="Quantidade *"
+                  placeholder={t('product.add.quantityPlaceholder')}
                   value={draft.quantity}
                   />
                   <PlaceSearchField
@@ -312,9 +330,9 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                     selected={Boolean(selectedMarket)}
                     selectedPlace={selectedMarket}
                     disabled={isSubmitting}
-                    error={errors.location}
+                    error={displayErrors.location}
                     Icon={LocationIcon}
-                    placeholder="Mercado da compra (opcional)"
+                    placeholder={t('product.add.marketPlaceholder')}
                     onChangeText={(value) => updateField('location', value)}
                     onSelect={(market) => {
                       setSelectedMarket(market);
@@ -323,38 +341,38 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                     }}
                   />
                   <FormField
-                    accessibilityLabel="Data de validade, opcional, no formato dia-mês-ano"
+                    accessibilityLabel={t('product.add.expirationA11y')}
                     editable={!isSubmitting}
-                    error={errors.expirationDate}
+                    error={displayErrors.expirationDate}
                     Icon={CalendarIcon}
                     inputMode="numeric"
                     keyboardType="numbers-and-punctuation"
                     maxLength={10}
                     onChangeText={handleExpirationDateChange}
-                    placeholder="Validade (DD/MM/AAAA)"
+                    placeholder={t('product.add.expirationPlaceholder')}
                     value={draft.expirationDate}
                   />
                   <WeightGroup>
                     <FormField
-                    accessibilityLabel="Peso ou volume do produto, opcional"
+                    accessibilityLabel={t('product.add.weightA11y')}
                     editable={!isSubmitting}
-                    error={errors.weight}
+                    error={displayErrors.weight}
                     Icon={BoxIcon}
                     inputMode="decimal"
                     keyboardType="decimal-pad"
                     maxLength={16}
                     onChangeText={handleWeightChange}
-                    placeholder="Peso"
+                    placeholder={t('product.add.weightPlaceholder')}
                     value={draft.weight}
                   />
                   {hasWeight ? (
                     <WeightGroup>
-                      <AccordionLabel>Unidade *</AccordionLabel>
+                      <AccordionLabel>{t('product.add.unitRequired')}</AccordionLabel>
                       <UnitOptions accessibilityRole="radiogroup">
                         {PRODUCT_UNITS.map((unit) => (
                           <UnitOption
                             key={unit}
-                            accessibilityLabel={`Unidade ${unit}, obrigatória`}
+                            accessibilityLabel={t('product.add.unitA11y', { unit })}
                             accessibilityRole="radio"
                             accessibilityState={{ checked: draft.unit === unit }}
                             disabled={isSubmitting}
@@ -365,8 +383,8 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                           </UnitOption>
                         ))}
                       </UnitOptions>
-                      {errors.unit ? (
-                        <InlineError accessibilityLiveRegion="polite">{errors.unit}</InlineError>
+                      {displayErrors.unit ? (
+                        <InlineError accessibilityLiveRegion="polite">{displayErrors.unit}</InlineError>
                       ) : null}
                     </WeightGroup>
                   ) : null}
@@ -381,7 +399,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                   onPress={() => setIsCategoryOpen((currentValue) => !currentValue)}
                   $hasError={Boolean(errors.category)}
                 >
-                  <AccordionLabel>Categoria *</AccordionLabel>
+                  <AccordionLabel>{t('product.add.categoryRequired')}</AccordionLabel>
                   <Chevron style={categoryChevronStyle}>
                     <AngleIcon />
                   </Chevron>
@@ -402,33 +420,33 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                     ))}
                   </CategoryOptions>
                 ) : null}
-                {errors.category ? (
-                  <InlineError accessibilityLiveRegion="polite">{errors.category}</InlineError>
+                {displayErrors.category ? (
+                  <InlineError accessibilityLiveRegion="polite">{displayErrors.category}</InlineError>
                 ) : null}
                 </Accordion>
               </FormContent>
 
-                {errors.submit ? (
-                  <SubmitError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.submit}</SubmitError>
+                {displayErrors.submit ? (
+                  <SubmitError accessibilityLiveRegion="polite" accessibilityRole="alert">{displayErrors.submit}</SubmitError>
               ) : null}
 
               {isSubmitting ? (
                 <BusyStatus accessibilityLiveRegion="polite">
                   <BusyIndicator />
-                  <BusyText>Salvando...</BusyText>
+                  <BusyText>{t('product.add.saving')}</BusyText>
                 </BusyStatus>
               ) : null}
 
               <Actions>
                 <ModalActionButton
-                  accessibilityLabel="Cancelar adição do produto"
+                  accessibilityLabel={t('product.add.cancelA11y')}
                   disabled={isSubmitting}
                   Icon={CancelCircleIcon}
                   onPress={handleClose}
                   variant="cancel"
                 />
                 <ModalActionButton
-                  accessibilityLabel="Adicionar produto"
+                  accessibilityLabel={t('product.add.submitA11y')}
                   disabled={isSubmitting}
                   Icon={CheckIcon}
                   onPress={handleConfirm}

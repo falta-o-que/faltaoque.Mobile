@@ -34,7 +34,7 @@ export const Subtitle = styled.Text`
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
-  line-height: 20px;
+  line-height: ${({ theme }) => 20 * theme.fonts.scale}px;
   text-align: center;
 `;
 

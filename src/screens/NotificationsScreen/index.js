@@ -13,6 +13,7 @@ import {
   UserIcon,
 } from '../../assets/icons/export';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import * as groceryListService from '../../services/groceryListService';
 import {
@@ -56,14 +57,15 @@ import {
 } from './styles';
 
 const QUICK_ACTIONS = [
-  { key: 'pantry', label: 'Despensa', text: 'Despensa', icon: PantryIcon },
-  { key: 'notifications', label: 'Notificações', text: 'Notif.', icon: SinoIcon },
-  { key: 'profile', label: 'Perfil', text: 'Perfil', icon: UserIcon },
-  { key: 'settings', label: 'Configurações', text: 'Config.', icon: SettingsIcon },
+  { key: 'pantry', labelKey: 'notifications.pantry', textKey: 'notifications.pantry', icon: PantryIcon },
+  { key: 'notifications', labelKey: 'notifications.title', textKey: 'notifications.short', icon: SinoIcon },
+  { key: 'profile', labelKey: 'notifications.profile', textKey: 'notifications.profile', icon: UserIcon },
+  { key: 'settings', labelKey: 'notifications.settings', textKey: 'notifications.settings', icon: SettingsIcon },
 ];
 
 export default function NotificationsScreen({ navigation, route, embedded = false, onUnreadCountChange }) {
   const { account } = useAuth();
+  const { t } = useAppPreferences();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -104,7 +106,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
         if (active) {
           notificationLoadInProgress.current = false;
           setNotifications([]);
-          setError('Não foi possível carregar as notificações.');
+          setError(t('notifications.updateErrorTitle'));
         }
       })
       .finally(() => {
@@ -115,7 +117,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
       });
 
     return () => { active = false; };
-  }, [account?.id, reloadKey]));
+  }, [account?.id, reloadKey, t]));
 
   useEffect(() => {
     const subscription = Notifications.addNotificationReceivedListener(() => {
@@ -134,7 +136,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
     if (key === 'pantry') {
       navigation.navigate(AUTHENTICATED_ROUTES.HOME);
     } else if (key !== 'notifications') {
-      Alert.alert('Em breve', `${label} estará disponível em breve.`);
+      Alert.alert(t('notifications.comingSoon'), t('notifications.comingSoonMessage', { feature: label }), [{ text: t('common.ok') }]);
     }
   };
 
@@ -142,7 +144,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
     if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME);
     else if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
     else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
-    else Alert.alert('Em breve', `${item.label} estará disponível em breve.`);
+    else Alert.alert(t('notifications.comingSoon'), t('notifications.comingSoonMessage', { feature: item.label }), [{ text: t('common.ok') }]);
   };
 
   const handleOpenNotification = async (notification) => {
@@ -159,8 +161,9 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
       await markNotificationRead(account?.id, notification.id);
     } catch {
       showUserErrorAlert(null, {
-        title: 'Não foi possível atualizar a notificação',
-        fallback: 'Você ainda pode consultar os detalhes. Tente novamente mais tarde.',
+        title: t('notifications.updateErrorTitle'),
+        fallback: t('notifications.updateErrorFallback'),
+        dismissText: t('common.ok'),
       });
     }
 
@@ -169,7 +172,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
       const storedLists = await groceryListService.listGroceryLists(account?.id, notification.pantryId);
       setLists(storedLists.filter((list) => list.status === 'active'));
     } catch {
-      setListsError('Não foi possível carregar as listas desta despensa.');
+      setListsError(t('notifications.listsError'));
     } finally {
       setListsLoading(false);
     }
@@ -192,14 +195,16 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
       setSelectedNotification(null);
       if (!result.deviceCleared) {
         showUserErrorAlert(null, {
-          title: 'Notificações removidas da lista',
-          fallback: 'O aparelho não conseguiu limpar todas as notificações da barra.',
+          title: t('notifications.clearedTitle'),
+          fallback: t('notifications.clearedFallback'),
+          dismissText: t('common.ok'),
         });
       }
     } catch (clearError) {
       showUserErrorAlert(clearError, {
-        title: 'Não foi possível limpar as notificações',
-        fallback: 'Tente novamente em alguns instantes.',
+        title: t('notifications.clearErrorTitle'),
+        fallback: t('notifications.tryAgainSoon'),
+        dismissText: t('common.ok'),
       });
     } finally {
       setIsClearing(false);
@@ -209,11 +214,11 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
   const requestClearNotifications = () => {
     if (isClearing || notifications.length === 0) return;
     Alert.alert(
-      'Limpar notificações?',
-      'Os avisos atuais serão removidos desta lista e da barra do aparelho.',
+      t('notifications.clearConfirmTitle'),
+      t('notifications.clearConfirmMessage'),
       [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Limpar', style: 'destructive', onPress: handleClearNotifications },
+        { text: t('notifications.cancel'), style: 'cancel' },
+        { text: t('notifications.clearConfirmAction'), style: 'destructive', onPress: handleClearNotifications },
       ],
       { cancelable: true },
     );
@@ -237,14 +242,16 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
 
       if (!result.deviceCleared) {
         Alert.alert(
-          'Notificações marcadas como lidas',
-          'O aparelho não conseguiu remover todos os avisos da barra de notificações.',
+          t('notifications.markedTitle'),
+          t('notifications.markedFallback'),
+          [{ text: t('common.ok') }],
         );
       }
     } catch (error) {
       showUserErrorAlert(error, {
-        title: 'Não foi possível marcar as notificações como lidas',
-        fallback: 'Tente novamente em alguns instantes.',
+        title: t('notifications.markAllErrorTitle'),
+        fallback: t('notifications.tryAgainSoon'),
+        dismissText: t('common.ok'),
       });
     } finally {
       setIsMarkingAllRead(false);
@@ -254,11 +261,11 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
   const requestMarkAllRead = () => {
     if (isMarkingAllRead || isClearing || !notifications.some((item) => !item.isRead)) return;
     Alert.alert(
-      'Marcar todas como lidas?',
-      'As notificações não lidas serão marcadas como lidas.',
+      t('notifications.markAllConfirmTitle'),
+      t('notifications.markAllConfirmMessage'),
       [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Marcar como lidas', onPress: handleMarkAllRead },
+        { text: t('notifications.cancel'), style: 'cancel' },
+        { text: t('notifications.markAllConfirmAction'), onPress: handleMarkAllRead },
       ],
       { cancelable: true },
     );
@@ -294,14 +301,16 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
         await recordNotificationAddedToList(account?.id, notification.id, list);
       } catch {
         showUserErrorAlert(null, {
-          title: 'Produto adicionado à lista',
-          fallback: 'A notificação não pôde ser atualizada neste dispositivo.',
+          title: t('notifications.addedTitle'),
+          fallback: t('notifications.addedFallback'),
+          dismissText: t('common.ok'),
         });
       }
     } catch (saveError) {
       showUserErrorAlert(saveError, {
-        title: 'Não foi possível adicionar o produto',
-        fallback: 'A lista não foi alterada. Tente novamente.',
+        title: t('notifications.addErrorTitle'),
+        fallback: t('notifications.addErrorFallback'),
+        dismissText: t('common.ok'),
       });
     } finally {
       setIsSaving(false);
@@ -324,11 +333,11 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
     <NotificationSection>
           <NotificationHeading>
             <HeadingMarker $color={account?.avatarColor} />
-            <SectionTitle accessibilityRole="header">Notificações</SectionTitle>
+            <SectionTitle accessibilityRole="header">{t('notifications.title')}</SectionTitle>
           </NotificationHeading>
 
           {!notificationsPermissionGranted && !loading ? (
-            <PermissionHint>Ative as notificações do FaltaOquê nas configurações do aparelho para receber avisos na barra.</PermissionHint>
+            <PermissionHint>{t('notifications.permissionHint')}</PermissionHint>
           ) : null}
 
           {!loading && !error && notifications.length > 0 ? (
@@ -342,7 +351,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
                 onPress={requestMarkAllRead}
               >
                 <MarkAllReadText>
-                  {isMarkingAllRead ? 'Marcando...' : 'Marcar tudo como lido'}
+                  {isMarkingAllRead ? t('notifications.marking') : t('notifications.markAllRead')}
                 </MarkAllReadText>
               </MarkAllReadButton>
               <ClearButton
@@ -350,25 +359,25 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
                 disabled={isClearing || isMarkingAllRead}
                 onPress={requestClearNotifications}
               >
-                <ClearText>{isClearing ? 'Limpando...' : 'Limpar notificações'}</ClearText>
+                <ClearText>{isClearing ? t('notifications.clearing') : t('notifications.clear')}</ClearText>
               </ClearButton>
             </NotificationActions>
           ) : null}
 
           {loading ? (
             <StatusArea>
-              <ActivityIndicator accessibilityLabel="Carregando notificações" color="#00DD00" />
+              <ActivityIndicator accessibilityLabel={t('notifications.loading')} color="#00DD00" />
             </StatusArea>
           ) : error ? (
             <StatusArea>
               <StatusText $error accessibilityRole="alert">{error}</StatusText>
               <RetryButton accessibilityRole="button" onPress={() => setReloadKey((value) => value + 1)}>
-                <RetryText>Tentar novamente</RetryText>
+                <RetryText>{t('notifications.retry')}</RetryText>
               </RetryButton>
             </StatusArea>
           ) : notifications.length === 0 ? (
             <StatusArea>
-              <StatusText>Tudo em dia. Nenhuma notificação, por enquanto.</StatusText>
+              <StatusText>{t('notifications.empty')}</StatusText>
             </StatusArea>
           ) : (
             <NotificationList>
@@ -376,7 +385,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
                 <NotificationRow
                   key={notification.id}
                   accessibilityLabel={notification.title}
-                  accessibilityHint={`${notification.isRead ? 'Lida' : 'Não lida'}. Toque para ver os detalhes.`}
+                  accessibilityHint={`${notification.isRead ? t('notifications.read') : t('notifications.unread')}. ${t('notifications.openDetails')}`}
                   accessibilityRole="button"
                   onPress={() => handleOpenNotification(notification)}
                 >
@@ -414,14 +423,16 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
       <Content>
         <GreetingGroup>
           <Avatar $color={account?.avatarColor} />
-          <Greeting>Oi, {account?.name ?? 'pessoa viva'}</Greeting>
-          <Subtitle>Sua casa está no ritmo.</Subtitle>
+          <Greeting>{account?.name ? t('notifications.greeting', { name: account.name }) : t('notifications.greetingFallback')}</Greeting>
+          <Subtitle>{t('notifications.subtitle')}</Subtitle>
         </GreetingGroup>
 
         <QuickSection>
-          <Question>O que você quer fazer?</Question>
+          <Question>{t('notifications.question')}</Question>
           <QuickActions>
-            {QUICK_ACTIONS.map(({ icon, key, label, text }) => (
+            {QUICK_ACTIONS.map(({ icon, key, labelKey, textKey }) => {
+              const label = t(labelKey);
+              return (
               <QuickActionButton
                 key={key}
                 Icon={icon}
@@ -429,9 +440,10 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
                 onPress={() => handleQuickAction(key, label)}
                 selected={key === 'notifications'}
                 showBadge={key === 'notifications' && notifications.some((item) => !item.isRead)}
-                text={text}
+                text={t(textKey)}
               />
-            ))}
+              );
+            })}
           </QuickActions>
         </QuickSection>
         {notificationSection}

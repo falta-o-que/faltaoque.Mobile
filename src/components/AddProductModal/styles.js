@@ -55,8 +55,8 @@ export const ProductName = styled.Text.attrs({ numberOfLines: 2 })`
   text-align: center;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 24px;
-  line-height: 31px;
+  font-size: ${({ theme }) => 24 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 31 * theme.fonts.scale}px;
 `;
 
 export const FormContent = styled.View`
@@ -150,7 +150,7 @@ export const InlineError = styled.Text`
   margin-left: 4px;
   color: ${({ theme }) => theme.colors.danger[600]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
 `;
 
 export const SubmitError = styled(InlineError)`

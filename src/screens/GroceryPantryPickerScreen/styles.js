@@ -19,12 +19,12 @@ export const Header = styled.View`
 export const Title = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 24px;
+  font-size: ${({ theme }) => 24 * theme.fonts.scale}px;
 `;
 export const Subtitle = styled.Text`
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
   text-align: center;
 `;
 export const List = styled.ScrollView.attrs({
@@ -55,12 +55,12 @@ export const PantryName = styled.Text`
   flex: 1;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
 `;
 export const EmptyText = styled.Text`
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
   text-align: center;
 `;
 export const StatusText = styled(EmptyText)`
@@ -75,5 +75,5 @@ export const RetryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })
 export const RetryText = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
 `;

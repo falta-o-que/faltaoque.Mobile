@@ -60,7 +60,7 @@ export const Question = styled.Text`
   margin-bottom: 10px;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -109,7 +109,7 @@ export const MarkAllReadButton = styled.TouchableOpacity.attrs(({ disabled }) =>
 export const MarkAllReadText = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -127,7 +127,7 @@ export const ClearButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })
 export const ClearText = styled.Text`
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -135,7 +135,7 @@ export const PermissionHint = styled.Text`
   margin-top: 8px;
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -149,7 +149,7 @@ export const HeadingMarker = styled.View`
 export const SectionTitle = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 20px;
+  font-size: ${({ theme }) => 20 * theme.fonts.scale}px;
 `;
 
 export const NotificationList = styled.ScrollView.attrs({
@@ -185,7 +185,7 @@ export const NotificationText = styled.Text.attrs({ numberOfLines: 1, ellipsizeM
   flex: 1;
   color: ${({ theme }) => theme.colors.white[100]};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const StatusArea = styled.View`
@@ -198,7 +198,7 @@ export const StatusArea = styled.View`
 export const StatusText = styled.Text`
   color: ${({ theme, $error }) => $error ? theme.colors.danger[600] : theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -212,5 +212,5 @@ export const RetryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })
 export const RetryText = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
 `;

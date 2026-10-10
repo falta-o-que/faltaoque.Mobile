@@ -64,10 +64,14 @@ const SAFE_USER_MESSAGES = new Set([
 export function getUserErrorMessage(error, fallback = 'Não foi possível concluir esta ação. Tente novamente.') {
   const message = typeof error === 'string' ? error : error?.message;
   if (!message) return fallback;
+  // Screens provide a translated fallback through AppPreferencesContext. Prefer
+  // it for known API and validation messages so curated Portuguese server text
+  // never leaks into English or Spanish flows.
+  if (fallback !== undefined && (ERROR_CODE_MESSAGES[message] || SAFE_USER_MESSAGES.has(message))) return fallback;
   if (ERROR_CODE_MESSAGES[message]) return ERROR_CODE_MESSAGES[message];
   return SAFE_USER_MESSAGES.has(message) ? message : fallback;
 }
 
-export function showUserErrorAlert(error, { title = 'Não foi possível concluir esta ação', fallback } = {}) {
-  Alert.alert(title, getUserErrorMessage(error, fallback), [{ text: 'Entendi' }]);
+export function showUserErrorAlert(error, { title = 'Não foi possível concluir esta ação', fallback, dismissText = 'OK' } = {}) {
+  Alert.alert(title, getUserErrorMessage(error, fallback), [{ text: dismissText }]);
 }

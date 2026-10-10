@@ -16,6 +16,7 @@ import {
   validateRegistration,
 } from '../../domain/authValidation';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { COLOR_OPTION_ROWS } from '../../constants/colorOptions';
 import { showUserErrorAlert } from '../../utils/userErrors';
 import {
@@ -55,6 +56,8 @@ export function RegisterScreen({ navigation }) {
   const [isSubmitActive, setIsSubmitActive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { completeRegistration, register } = useAuth();
+  const { t } = useAppPreferences();
+  const localizedErrors = (values) => Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value ? t(value) : value]));
   const avatarColorMenuProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -129,7 +132,7 @@ export function RegisterScreen({ navigation }) {
     const nextValues = { ...formValues, [field]: value };
 
     if (errors[field] || (field === 'password' && errors.passwordConfirmation)) {
-      const nextErrors = validateRegistration(nextValues);
+      const nextErrors = localizedErrors(validateRegistration(nextValues));
       setErrors((currentErrors) => ({
         ...currentErrors,
         [field]: nextErrors[field],
@@ -144,7 +147,7 @@ export function RegisterScreen({ navigation }) {
 
   const handleCreateAccount = async () => {
     const validationErrors = validateRegistration(formValues);
-    setErrors(validationErrors);
+    setErrors(localizedErrors(validationErrors));
 
     if (hasValidationErrors(validationErrors)) {
       return;
@@ -155,49 +158,49 @@ export function RegisterScreen({ navigation }) {
       const account = await register({ name, email, avatarColor, password });
 
       Alert.alert(
-        'Conta criada!',
-        'Sua conta foi criada. Você será direcionado para o aplicativo.',
-        [{ text: 'Continuar', onPress: () => completeRegistration(account) }],
+        t('auth.register.createdTitle'),
+        t('auth.register.createdBody'),
+        [{ text: t('auth.common.continue'), onPress: () => completeRegistration(account) }],
         { cancelable: false },
       );
     } catch (error) {
       if (error.message === 'EMAIL_ALREADY_EXISTS') {
         setErrors((currentErrors) => ({
           ...currentErrors,
-          email: 'Este e-mail já está cadastrado.',
+          email: t('auth.errors.emailExists'),
         }));
         return;
       }
 
-      showUserErrorAlert(error, { title: 'Não foi possível criar a conta', fallback: 'Verifique sua conexão e tente novamente.' });
+      showUserErrorAlert(error, { title: t('auth.errors.registerTitle'), fallback: t('auth.errors.connection'), dismissText: t('auth.common.ok') });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <AuthScreenLayout title="Crie sua conta" subtitle="Leva menos de dois minutos.">
+    <AuthScreenLayout title={t('auth.register.title')} subtitle={t('auth.register.subtitle')}>
       <Form
         $expanded={isAvatarColorOpen || shouldRenderAvatarColorPanel}
         scrollEnabled={formNeedsScroll}
       >
         <FormField
-          accessibilityLabel="Nome"
+          accessibilityLabel={t('auth.common.name')}
           autoComplete="name"
           error={errors.name}
           onChangeText={(value) => setName(updateField('name', value))}
-          placeholder="Nome"
+          placeholder={t('auth.common.name')}
           value={name}
           Icon={UserIcon}
         />
         <FormField
-          accessibilityLabel="E-mail"
+          accessibilityLabel={t('auth.login.email')}
           autoCapitalize="none"
           autoComplete="email"
           error={errors.email}
           keyboardType="email-address"
           onChangeText={(value) => setEmail(updateField('email', value))}
-          placeholder="Email"
+          placeholder={t('auth.login.email')}
           value={email}
           Icon={EmailIcon}
         />
@@ -207,7 +210,7 @@ export function RegisterScreen({ navigation }) {
             accessibilityState={{ expanded: isAvatarColorOpen }}
             onPress={() => setIsAvatarColorOpen((value) => !value)}
           >
-            <FieldLabel>Cor do avatar</FieldLabel>
+            <FieldLabel>{t('auth.common.avatarColor')}</FieldLabel>
             <ColorChevron style={avatarColorChevronStyle}>
               <AngleIcon />
             </ColorChevron>
@@ -220,7 +223,7 @@ export function RegisterScreen({ navigation }) {
                     {row.map((color) => (
                       <ColorOption
                         key={color}
-                        accessibilityLabel={`Selecionar cor ${color}`}
+                        accessibilityLabel={t('auth.common.selectColor', { color })}
                         accessibilityRole="radio"
                         accessibilityState={{ checked: avatarColor === color }}
                         onPress={() => setAvatarColor(updateField('avatarColor', color))}
@@ -236,29 +239,29 @@ export function RegisterScreen({ navigation }) {
           {errors.avatarColor ? <InlineError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.avatarColor}</InlineError> : null}
         </ColorField>
         <FormField
-          accessibilityLabel="Senha"
+          accessibilityLabel={t('auth.login.password')}
           autoCapitalize="none"
           autoComplete="new-password"
           error={errors.password}
           onChangeText={(value) => setPassword(updateField('password', value))}
-          placeholder="Senha"
+          placeholder={t('auth.login.password')}
           secureTextEntry={!isPasswordVisible}
           value={password}
           Icon={isPasswordVisible ? EyeIcon : EyeClosedIcon}
-          iconAccessibilityLabel={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+          iconAccessibilityLabel={isPasswordVisible ? t('auth.login.hidePassword') : t('auth.login.showPassword')}
           onIconPress={() => setIsPasswordVisible((value) => !value)}
         />
         <FormField
-          accessibilityLabel="Confirmar senha"
+          accessibilityLabel={t('auth.common.confirmPassword')}
           autoCapitalize="none"
           autoComplete="new-password"
           error={errors.passwordConfirmation}
           onChangeText={(value) => setPasswordConfirmation(updateField('passwordConfirmation', value))}
-          placeholder="Confirmar senha"
+          placeholder={t('auth.common.confirmPassword')}
           secureTextEntry={!isConfirmationVisible}
           value={passwordConfirmation}
           Icon={isConfirmationVisible ? EyeIcon : EyeClosedIcon}
-          iconAccessibilityLabel={isConfirmationVisible ? 'Ocultar confirmação de senha' : 'Mostrar confirmação de senha'}
+          iconAccessibilityLabel={isConfirmationVisible ? t('auth.common.hideConfirmation') : t('auth.common.showConfirmation')}
           onIconPress={() => setIsConfirmationVisible((value) => !value)}
         />
       </Form>
@@ -270,7 +273,7 @@ export function RegisterScreen({ navigation }) {
         <Checkbox>
           {acceptedTerms ? <CheckIcon width={22} height={23} /> : <EmptyCheckbox />}
         </Checkbox>
-        <TermsText>Concordo com os Termos de Uso e a Política de Privacidade.</TermsText>
+        <TermsText>{t('auth.register.agreeTerms')}</TermsText>
       </Terms>
       {errors.acceptedTerms ? <InlineError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.acceptedTerms}</InlineError> : null}
       <PrimaryButton
@@ -283,10 +286,10 @@ export function RegisterScreen({ navigation }) {
         onPressIn={() => setIsSubmitActive(true)}
         onPressOut={() => setIsSubmitActive(false)}
       >
-        <PrimaryLabel>{isSubmitting ? 'Criando...' : 'Criar conta'}</PrimaryLabel>
+        <PrimaryLabel>{isSubmitting ? t('auth.register.submitting') : t('auth.register.submit')}</PrimaryLabel>
       </PrimaryButton>
       <BackLink accessibilityRole="button" onPress={() => navigation.goBack()}>
-        <BackText><Muted>Já possui conta?</Muted> Logar</BackText>
+        <BackText><Muted>{t('auth.register.hasAccount')}</Muted> {t('auth.register.login')}</BackText>
       </BackLink>
     </AuthScreenLayout>
   );

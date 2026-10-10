@@ -53,7 +53,7 @@ export const ColorRow = styled.View`
 export const FieldLabel = styled.Text`
   color: ${({ theme }) => theme.colors.primary.Green};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const InlineError = styled.Text`
@@ -61,7 +61,7 @@ export const InlineError = styled.Text`
   margin-left: 4px;
   color: ${({ theme }) => theme.colors.danger[600]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
 `;
 
 export const ColorChevron = styled(Animated.View)`
@@ -107,8 +107,8 @@ export const TermsText = styled.Text`
   flex: 1;
   color: ${({ theme }) => theme.colors.black[200]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 13px;
-  line-height: 18px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 18 * theme.fonts.scale}px;
 `;
 
 export const PrimaryButton = styled.Pressable.attrs(({ $active }) => ({
@@ -128,7 +128,7 @@ export const PrimaryButton = styled.Pressable.attrs(({ $active }) => ({
 export const PrimaryLabel = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
 `;
 
 export const BackLink = styled.TouchableOpacity`
@@ -139,7 +139,7 @@ export const BackLink = styled.TouchableOpacity`
 export const BackText = styled.Text`
   color: ${({ theme }) => theme.colors.primary.Green};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const Muted = styled.Text`

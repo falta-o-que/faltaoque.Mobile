@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
@@ -15,8 +16,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from 'styled-components/native';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AppPreferencesProvider, useAppPreferences } from './contexts/AppPreferencesContext';
 import RootNavigator from './navigation/RootNavigator';
-import theme from './theme';
+import { createTheme } from './theme';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -29,12 +31,19 @@ Notifications.setNotificationHandler({
 
 function AppContent() {
   const { account, isRestoringSession } = useAuth();
+  const { isPreferencesLoading } = useAppPreferences();
 
-  if (isRestoringSession) {
+  if (isRestoringSession || isPreferencesLoading) {
     return <ActivityIndicator accessibilityLabel="Carregando sessão" size="large" />;
   }
 
   return <RootNavigator accountId={account?.id} isAuthenticated={Boolean(account)} />;
+}
+
+function AppTheme({ children }) {
+  const { fontScale } = useAppPreferences();
+  const theme = useMemo(() => createTheme(fontScale), [fontScale]);
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 }
 
 export default function App() {
@@ -53,11 +62,13 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider theme={theme}>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </ThemeProvider>
+      <AppPreferencesProvider>
+        <AppTheme>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </AppTheme>
+      </AppPreferencesProvider>
     </SafeAreaProvider>
   );
 }

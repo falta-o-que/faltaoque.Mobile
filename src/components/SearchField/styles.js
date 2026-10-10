@@ -19,7 +19,7 @@ export const Input = styled.TextInput.attrs(({ theme }) => ({
   min-width: 0;
   padding: 8px 12px;
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
   color: ${({ theme }) => theme.colors.black[500]};
 `;
 

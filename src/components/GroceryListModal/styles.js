@@ -171,14 +171,14 @@ export const HelpText = styled.Text`
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 11px;
-  line-height: 15px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 15 * theme.fonts.scale}px;
 `;
 
 export const ErrorText = styled.Text`
   color: ${({ theme }) => theme.colors.danger[600]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
 `;
 
 export const CompactAction = styled.TouchableOpacity.attrs(({ disabled }) => ({
@@ -200,7 +200,7 @@ export const CompactActionLabel = styled.Text`
   color: ${({ $tone, theme }) =>
     $tone === 'danger' ? theme.colors.white[100] : theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const CheckoutList = styled.View`
@@ -221,7 +221,7 @@ export const CheckoutItemMeta = styled.Text`
   margin-bottom: 2px;
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
 `;
 
 export const Actions = styled.View`

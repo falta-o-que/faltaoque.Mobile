@@ -71,7 +71,7 @@ export const InlineError = styled.Text`
   margin-left: 4px;
   color: ${({ theme }) => theme.colors.danger[600]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
 `;
 
 export const ColorPanel = styled(Animated.View)`

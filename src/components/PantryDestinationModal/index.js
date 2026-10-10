@@ -1,4 +1,5 @@
 import { Modal } from 'react-native';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 
 import {
   Card,
@@ -8,7 +9,6 @@ import {
   DestinationText,
   Heading,
   Overlay,
-  PantryName,
   Subtitle,
 } from './styles';
 
@@ -19,6 +19,7 @@ export function PantryDestinationModal({
   pantryName,
   visible,
 }) {
+  const { t } = useAppPreferences();
   return (
     <Modal
       animationType="fade"
@@ -28,28 +29,28 @@ export function PantryDestinationModal({
     >
       <Overlay accessibilityViewIsModal>
         <Card>
-          <Heading>O que você quer acessar?</Heading>
+          <Heading>{t('pantry.destination.question')}</Heading>
           <Subtitle>
-            Escolha uma opção para <PantryName>{pantryName}</PantryName>
+            {t('pantry.destination.choose', { pantry: pantryName })}
           </Subtitle>
           <DestinationButton
             $primary
-            accessibilityLabel="Ir para sua despensa"
+            accessibilityLabel={t('pantry.destination.openPantry')}
             accessibilityRole="button"
             onPress={onOpenPantry}
           >
-            <DestinationText>Ir para sua despensa</DestinationText>
+            <DestinationText>{t('pantry.destination.openPantry')}</DestinationText>
           </DestinationButton>
           <DestinationButton
             $secondary
-            accessibilityLabel="Ir para lista de compras"
+            accessibilityLabel={t('pantry.destination.openList')}
             accessibilityRole="button"
             onPress={onOpenShoppingList}
           >
-            <DestinationText>Ir para lista de compras</DestinationText>
+            <DestinationText>{t('pantry.destination.openList')}</DestinationText>
           </DestinationButton>
           <CancelButton accessibilityRole="button" onPress={onRequestClose}>
-            <CancelText>Cancelar</CancelText>
+            <CancelText>{t('common.cancel')}</CancelText>
           </CancelButton>
         </Card>
       </Overlay>

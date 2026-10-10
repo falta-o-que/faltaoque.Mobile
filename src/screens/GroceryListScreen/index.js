@@ -15,9 +15,10 @@ import GroceryCheckoutReview from '../../components/GroceryCheckoutReview';
 import NfceScannerModal from '../../components/NfceScannerModal';
 import Navbar from '../../components/Navbar';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { showUserErrorAlert } from '../../utils/userErrors';
 import { PRODUCT_CATEGORIES } from '../../domain/productValidation';
-import { GROCERY_SUGGESTION_OPTIONS, GROCERY_SUGGESTION_TYPES } from '../../domain/grocerySuggestionOptions';
+import { GROCERY_SUGGESTION_TYPES } from '../../domain/grocerySuggestionOptions';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import * as groceryListService from '../../services/groceryListService';
 import { getGroceryMarketSuggestions } from '../../services/groceryMarketSuggestionService';
@@ -53,13 +54,22 @@ function ListChevron({ expanded }) {
   return <Chevron style={style}><AngleIcon width={21} height={13} color="#303030" /></Chevron>;
 }
 
-function formatEstimatedPrice(value) {
-  return `R$ ${Number(value).toFixed(2).replace('.', ',')}`;
+function formatEstimatedPrice(value, language) {
+  return new Intl.NumberFormat(language, { style: 'currency', currency: 'BRL' }).format(Number(value));
 }
 
-function formatMarketLocation(market) {
+function formatMarketLocation(market, unknownMarket) {
   if (!market) return '';
-  return market.local_name || 'Mercado não identificado';
+  return market.local_name || unknownMarket;
+}
+
+function getSuggestionLabel(type, t) {
+  const keyByType = {
+    [GROCERY_SUGGESTION_TYPES.NEAREST]: 'shopping.suggestionNearest',
+    [GROCERY_SUGGESTION_TYPES.BEST_VALUE]: 'shopping.suggestionBestValue',
+    [GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS]: 'shopping.suggestionFavoriteBrands',
+  };
+  return t(keyByType[type]);
 }
 
 const localToday = () => {
@@ -83,6 +93,7 @@ function withPantryConflict(draft, existingProducts) {
 
 export default function GroceryListScreen({ navigation, route }) {
   const { account } = useAuth();
+  const { t, language } = useAppPreferences();
   const pantryId = route.params?.pantryId;
   const [pantry, setPantry] = useState(null);
   const [lists, setLists] = useState([]);
@@ -152,11 +163,11 @@ export default function GroceryListScreen({ navigation, route }) {
         setCollapsedIds(validCollapsedIds);
         setPantry(found ?? null);
         setLists(storedLists);
-        setError(found ? null : 'Esta despensa não está disponível para sua conta.');
+        setError(found ? null : t('shopping.pantryUnavailable'));
       })
       .catch((loadError) => {
         console.error('[GroceryListScreen] Falha ao carregar listas:', loadError);
-        if (active) { setPantry(null); setError('Não foi possível carregar as listas desta despensa.'); }
+        if (active) { setPantry(null); setError(t('shopping.loadListsError')); }
       })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -179,7 +190,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setError(null);
       return true;
     } catch (operationError) {
-      showUserErrorAlert(operationError, { title: 'Não foi possível concluir a ação', fallback: 'Seus dados foram mantidos. Tente novamente em alguns instantes.' });
+      showUserErrorAlert(operationError, { title: t('shopping.actionError'), fallback: t('shopping.actionErrorFallback'), dismissText: t('common.ok') });
       return false;
     } finally {
       setBusy(false);
@@ -223,7 +234,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setSuggestionOptionsByList((current) => ({ ...current, [list.id]: options }));
     } catch (suggestionError) {
       console.error('[GroceryListScreen] Falha ao calcular sugestões:', suggestionError);
-      showUserErrorAlert(suggestionError, { title: 'Sugestões indisponíveis', fallback: 'Não foi possível consultar os mercados agora. Tente novamente.' });
+      showUserErrorAlert(suggestionError, { title: t('shopping.suggestionsUnavailable'), fallback: t('shopping.suggestionsErrorFallback'), dismissText: t('common.ok') });
       setSuggestionPanelListId(null);
     } finally {
       setLoadingSuggestionListId((current) => current === list.id ? null : current);
@@ -263,13 +274,13 @@ export default function GroceryListScreen({ navigation, route }) {
 
   const confirmRemoval = (list) => {
     if (!removalItemIds.length) {
-      Alert.alert('Nenhum produto selecionado', 'Selecione os produtos que deseja remover.');
+      Alert.alert(t('shopping.noProductSelected'), t('shopping.selectProductsToRemove'), [{ text: t('common.ok') }]);
       return;
     }
     const selectedIds = [...removalItemIds];
-    Alert.alert('Remover produtos?', `${selectedIds.length} ${selectedIds.length === 1 ? 'produto será removido' : 'produtos serão removidos'} de ${list.name}.`, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Remover', style: 'destructive', onPress: async () => {
+    Alert.alert(t('shopping.removeProductsQuestion'), t('shopping.removeProductsMessage', { count: selectedIds.length, name: list.name }), [
+      { text: t('shared.cancel'), style: 'cancel' },
+      { text: t('shopping.remove'), style: 'destructive', onPress: async () => {
         const succeeded = await perform(() => groceryListService.removeGroceryItems({ accountId: account?.id, pantryId, listId: list.id, itemIds: selectedIds }));
         if (succeeded) cancelRemoval();
       } },
@@ -301,7 +312,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setCheckoutError('');
       setActiveModal('checkout-review');
     } catch (cause) {
-      showUserErrorAlert(cause, { title: 'Não foi possível preparar a compra' });
+      showUserErrorAlert(cause, { title: t('shopping.preparePurchaseError'), fallback: t('shopping.preparePurchaseFallback'), dismissText: t('common.ok') });
     }
   };
 
@@ -353,7 +364,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setActiveModal('checkout-review');
     } catch (cause) {
       if (cause?.message === 'DUPLICATE_FISCAL_NOTE') throw cause;
-      showUserErrorAlert(cause, { title: 'Não foi possível preparar a nota' });
+      showUserErrorAlert(cause, { title: t('shopping.prepareReceiptError'), fallback: t('shopping.prepareReceiptFallback'), dismissText: t('common.ok') });
       setActiveModal('checkout-choice');
     }
   };
@@ -361,7 +372,7 @@ export default function GroceryListScreen({ navigation, route }) {
   const changeCheckoutItem = (id, patch) => {
     if (Object.hasOwn(patch, 'listItemId') && patch.listItemId && checkoutItems.some((item) =>
       item.id !== id && item.sourceDescription && item.listItemId === patch.listItemId)) {
-      setCheckoutError('Esse produto da lista já está relacionado a outra linha da nota.');
+      setCheckoutError(t('shopping.itemAlreadyLinked'));
       return;
     }
     setCheckoutItems((current) => {
@@ -429,7 +440,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setCheckoutItems([]);
     } catch (cause) {
       setCheckoutError(cause.message === 'DUPLICATE_FISCAL_NOTE'
-        ? 'Esta nota fiscal já foi adicionada a esta despensa.' : cause.message);
+        ? t('shopping.receiptAlreadyAdded') : cause.message);
     } finally {
       setBusy(false);
     }
@@ -439,7 +450,7 @@ export default function GroceryListScreen({ navigation, route }) {
     if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME);
     else if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
     else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
-    else if (key !== 'shopping-list') Alert.alert('Em breve', `${item.label} estará disponível em breve.`);
+    else if (key !== 'shopping-list') Alert.alert(t('shopping.upcoming'), t('shopping.availableSoon', { label: item.label }), [{ text: t('common.ok') }]);
   };
 
   return (
@@ -449,8 +460,8 @@ export default function GroceryListScreen({ navigation, route }) {
           <TitleRow>
             <ColorCircle $color={pantry?.color} />
             <TitleBlock>
-              <Title>Lista de compras</Title>
-              <PantryIndicator numberOfLines={1} ellipsizeMode="tail">Despensa: {pantry?.name ?? '...'}</PantryIndicator>
+              <Title>{t('shopping.title')}</Title>
+              <PantryIndicator numberOfLines={1} ellipsizeMode="tail">{t('shopping.pantryLabel', { name: pantry?.name ?? '...' })}</PantryIndicator>
             </TitleBlock>
           </TitleRow>
           <CategoryScroll>
@@ -465,27 +476,27 @@ export default function GroceryListScreen({ navigation, route }) {
             ))}
           </CategoryScroll>
           <HeaderActions>
-            <RoundButton $disabled={!pantry || loading || busy} disabled={!pantry || loading || busy} accessibilityRole="button" accessibilityLabel="Criar lista de compras" onPress={() => openModal('create')}>
+            <RoundButton $disabled={!pantry || loading || busy} disabled={!pantry || loading || busy} accessibilityRole="button" accessibilityLabel={t('shopping.createListA11y')} onPress={() => openModal('create')}>
               <AddCircleIcon size={20} color="#000000" />
             </RoundButton>
-            <RoundButton $disabled={!pantry || loading || busy} disabled={!pantry || loading || busy} accessibilityRole="button" accessibilityLabel="Filtrar listas" onPress={() => openModal('filter')}>
+            <RoundButton $disabled={!pantry || loading || busy} disabled={!pantry || loading || busy} accessibilityRole="button" accessibilityLabel={t('shopping.filterLists')} onPress={() => openModal('filter')}>
               <FilterIcon size={20} color="#000000" />
             </RoundButton>
-            <RoundButton $disabled={!pantry || loading || busy} disabled={!pantry || loading || busy} accessibilityRole="button" accessibilityLabel="Abrir histórico de listas" onPress={() => setHistoryOpen(true)}>
+            <RoundButton $disabled={!pantry || loading || busy} disabled={!pantry || loading || busy} accessibilityRole="button" accessibilityLabel={t('shopping.openHistory')} onPress={() => setHistoryOpen(true)}>
               <HistoryIcon size={20} color="#000000" />
             </RoundButton>
           </HeaderActions>
         </Header>
         <ListScroll>
-          {loading ? <ActivityIndicator accessibilityLabel="Carregando listas" /> : error ? (
+          {loading ? <ActivityIndicator accessibilityLabel={t('shopping.loadingLists')} /> : error ? (
             <>
               <StatusText accessibilityRole="alert">{error}</StatusText>
-              <RetryButton accessibilityRole="button" onPress={() => { setLoading(true); refresh().then(() => setError(null)).catch((loadError) => { console.error('[GroceryListScreen] Falha ao recarregar listas:', loadError); setPantry(null); setError('Não foi possível carregar as listas desta despensa.'); }).finally(() => setLoading(false)); }}>
-                <RetryText>Tentar novamente</RetryText>
+              <RetryButton accessibilityRole="button" onPress={() => { setLoading(true); refresh().then(() => setError(null)).catch((loadError) => { console.error('[GroceryListScreen] Falha ao recarregar listas:', loadError); setPantry(null); setError(t('shopping.loadListsError')); }).finally(() => setLoading(false)); }}>
+                <RetryText>{t('shopping.retry')}</RetryText>
               </RetryButton>
             </>
           ) : visibleLists.length === 0 ? (
-            <EmptyText>{lists.some((list) => list.status === 'active') ? 'Nenhuma lista corresponde aos filtros.' : 'Você ainda não possui listas ativas.'}</EmptyText>
+            <EmptyText>{lists.some((list) => list.status === 'active') ? t('shopping.noFilteredLists') : t('shopping.noActiveLists')}</EmptyText>
           ) : visibleLists.map((list) => {
             const expanded = !collapsedIds.includes(list.id);
             const items = sortItems(selectedCategories.length ? list.items.filter((item) => selectedCategories.includes(item.category)) : list.items);
@@ -495,8 +506,8 @@ export default function GroceryListScreen({ navigation, route }) {
             const selectedSuggestion = suggestionOptions.find((option) => option.type === selectedSuggestionType);
             const selectedCandidate = selectedSuggestion?.candidate;
             const selectedEstimate = selectedCandidate?.estimate;
-            const selectedSuggestionLabel = GROCERY_SUGGESTION_OPTIONS.find((option) => option.type === selectedSuggestionType)?.label;
-            const selectedMarketLabel = formatMarketLocation(selectedCandidate?.market);
+            const selectedSuggestionLabel = getSuggestionLabel(selectedSuggestionType, t);
+            const selectedMarketLabel = formatMarketLocation(selectedCandidate?.market, t('shopping.unknownMarket'));
             return (
               <ListSection key={list.id}>
                 <ListHeading>
@@ -504,18 +515,18 @@ export default function GroceryListScreen({ navigation, route }) {
                   <ListActions>
                     {list.status === 'active' ? (
                       <>
-                          <IconButton accessibilityRole="button" accessibilityLabel={`Selecionar produtos para remover de ${list.name}`} onPress={() => startRemoval(list.id)}>
+                          <IconButton accessibilityRole="button" accessibilityLabel={t('shopping.selectForRemoval', { name: list.name })} onPress={() => startRemoval(list.id)}>
                           <CartRemoveIcon size={24} color="#494949" />
                         </IconButton>
-                        <IconButton accessibilityRole="button" accessibilityLabel={`Adicionar item a ${list.name}`} onPress={() => openModal('item', list.id)}>
+                        <IconButton accessibilityRole="button" accessibilityLabel={t('shopping.addItemTo', { name: list.name })} onPress={() => openModal('item', list.id)}>
                           <CartAddIcon size={24} color="#494949" />
                         </IconButton>
                       </>
                     ) : null}
-                    <IconButton accessibilityRole="button" accessibilityLabel={expanded ? `Recolher ${list.name}` : `Expandir ${list.name}`} onPress={() => toggleCollapsed(list.id)}>
+                    <IconButton accessibilityRole="button" accessibilityLabel={expanded ? t('shopping.collapse', { name: list.name }) : t('shopping.expand', { name: list.name })} onPress={() => toggleCollapsed(list.id)}>
                       <ListChevron expanded={expanded} />
                     </IconButton>
-                    <IconButton accessibilityRole="button" accessibilityLabel={`Configurar ${list.name}`} onPress={() => openModal('settings', list.id)}>
+                    <IconButton accessibilityRole="button" accessibilityLabel={t('shopping.configure', { name: list.name })} onPress={() => openModal('settings', list.id)}>
                       <SettingsIcon size={24} color="#494949" />
                     </IconButton>
                   </ListActions>
@@ -525,52 +536,52 @@ export default function GroceryListScreen({ navigation, route }) {
                     <EstimateBox
                       accessibilityRole="button"
                       accessibilityLabel={selectedCandidate?.market
-                        ? `${selectedSuggestionLabel}: ${selectedMarketLabel}, ${selectedEstimate?.estimatedPrice == null ? 'sem estimativa de preço' : `preço estimado ${formatEstimatedPrice(selectedEstimate.estimatedPrice)}`}. Toque para trocar a sugestão.`
-                        : 'Sugestões de mercado. Toque para escolher Mais perto, Melhor custo-benefício ou Marcas mais compradas.'}
+                        ? t('shopping.selectedSuggestionA11y', { suggestion: selectedSuggestionLabel, market: selectedMarketLabel, estimate: selectedEstimate?.estimatedPrice == null ? t('shopping.noEstimate') : t('shopping.estimatedPrice', { price: formatEstimatedPrice(selectedEstimate.estimatedPrice, language) }) })
+                        : t('shopping.marketSuggestionsA11y')}
                       disabled={loadingSuggestionListId === list.id}
                       onPress={() => toggleSuggestionPanel(list)}
                     >
                       <EstimateCopy>
-                      <EstimateTitle>{selectedCandidate?.market ? selectedSuggestionLabel : 'Sugestões de mercado'}</EstimateTitle>
+                      <EstimateTitle>{selectedCandidate?.market ? selectedSuggestionLabel : t('shopping.marketSuggestions')}</EstimateTitle>
                         {selectedCandidate?.market ? (
                           <>
                             <EstimateDetail>{selectedSuggestionType === GROCERY_SUGGESTION_TYPES.NEAREST
-                              ? `${selectedMarketLabel} · aprox. ${selectedCandidate.distanceKm.toFixed(1).replace('.', ',')} km`
+                              ? t('shopping.nearestSuggestionDetail', { market: selectedMarketLabel, distance: new Intl.NumberFormat(language, { maximumFractionDigits: 1 }).format(selectedCandidate.distanceKm) })
                               : selectedSuggestionType === GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS
-                                ? `${selectedMarketLabel} · marcas favoritas em ${selectedCandidate.brandCoverage.available} de ${selectedCandidate.brandCoverage.total} produtos`
-                                : `${selectedMarketLabel} · histórico para ${selectedEstimate.matchedItems} de ${selectedEstimate.totalItems} itens`}</EstimateDetail>
+                                ? t('shopping.favoriteBrandsDetail', { market: selectedMarketLabel, available: selectedCandidate.brandCoverage.available, total: selectedCandidate.brandCoverage.total })
+                                : `${selectedMarketLabel} · ${t('shopping.purchaseHistoryFor', { matched: selectedEstimate.matchedItems, total: selectedEstimate.totalItems })}`}</EstimateDetail>
                             {selectedEstimate.missingItems?.length ? (
                               <EstimateMissingAction accessibilityRole="button" onPress={(event) => {
                                 event.stopPropagation();
-                                Alert.alert('Produtos sem histórico neste mercado', selectedEstimate.missingItems.join('\n'));
+                                Alert.alert(t('shopping.productsWithoutHistoryAlert'), selectedEstimate.missingItems.join('\n'), [{ text: t('common.ok') }]);
                               }}>
-                                <EstimateMissingText>Ver produtos sem histórico</EstimateMissingText>
+                                <EstimateMissingText>{t('shopping.viewProductsWithoutHistory')}</EstimateMissingText>
                               </EstimateMissingAction>
                             ) : null}
                           </>
-                        ) : <EstimateDetail>Toque para comparar proximidade, preço e marcas.</EstimateDetail>}
+                        ) : <EstimateDetail>{t('shopping.compareSuggestions')}</EstimateDetail>}
                       </EstimateCopy>
                       {selectedEstimate?.estimatedPrice != null ? (
                         <EstimateAmount>
-                          <EstimatePriceLabel>Preço estimado</EstimatePriceLabel>
-                          <EstimatePrice>{formatEstimatedPrice(selectedEstimate.estimatedPrice)}</EstimatePrice>
+                          <EstimatePriceLabel>{t('shopping.estimatedPriceLabel')}</EstimatePriceLabel>
+                          <EstimatePrice>{formatEstimatedPrice(selectedEstimate.estimatedPrice, language)}</EstimatePrice>
                         </EstimateAmount>
                       ) : null}
                     </EstimateBox>
                     {suggestionPanelListId === list.id ? (
                       <EstimateSuggestionOptions>
                         <EstimateDisclaimer>
-                          <EstimateDisclaimerText>Estimativa baseada no histórico de compras. O valor pode variar.</EstimateDisclaimerText>
+                          <EstimateDisclaimerText>{t('shopping.estimateDisclaimer')}</EstimateDisclaimerText>
                         </EstimateDisclaimer>
-                        {loadingSuggestionListId === list.id ? <EstimateDetail>Consultando histórico e localização…</EstimateDetail> : null}
+                        {loadingSuggestionListId === list.id ? <EstimateDetail>{t('shopping.loadingHistory')}</EstimateDetail> : null}
                         {suggestionOptions.map((option) => {
                           const candidate = option.candidate;
                           const detail = option.disabled ? option.message
                             : option.type === GROCERY_SUGGESTION_TYPES.NEAREST
-                              ? `${formatMarketLocation(candidate.market)} · aprox. ${candidate.distanceKm.toFixed(1).replace('.', ',')} km`
+                              ? t('shopping.nearestSuggestionDetail', { market: formatMarketLocation(candidate.market, t('shopping.unknownMarket')), distance: new Intl.NumberFormat(language, { maximumFractionDigits: 1 }).format(candidate.distanceKm) })
                               : option.type === GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS
-                                ? `${formatMarketLocation(candidate.market)} · marcas favoritas em ${candidate.brandCoverage.available} de ${candidate.brandCoverage.total} produtos`
-                                : `${formatMarketLocation(candidate.market)} · ${candidate.estimate.estimatedPrice == null ? 'sem preço estimado' : `preço estimado: ${formatEstimatedPrice(candidate.estimate.estimatedPrice)}`}`;
+                                ? t('shopping.favoriteBrandsDetail', { market: formatMarketLocation(candidate.market, t('shopping.unknownMarket')), available: candidate.brandCoverage.available, total: candidate.brandCoverage.total })
+                                : `${formatMarketLocation(candidate.market, t('shopping.unknownMarket'))} · ${candidate.estimate.estimatedPrice == null ? t('shopping.noEstimate') : t('shopping.estimatedPrice', { price: formatEstimatedPrice(candidate.estimate.estimatedPrice, language) })}`;
                           return (
                             <EstimateSuggestionOption
                               key={option.type}
@@ -580,7 +591,7 @@ export default function GroceryListScreen({ navigation, route }) {
                               onPress={() => selectSuggestion(list.id, option.type)}
                               $selected={selectedSuggestionType === option.type}
                             >
-                              <EstimateSuggestionOptionTitle>{GROCERY_SUGGESTION_OPTIONS.find((entry) => entry.type === option.type)?.label}</EstimateSuggestionOptionTitle>
+                              <EstimateSuggestionOptionTitle>{getSuggestionLabel(option.type, t)}</EstimateSuggestionOptionTitle>
                               <EstimateSuggestionOptionDetail>{detail}</EstimateSuggestionOptionDetail>
                             </EstimateSuggestionOption>
                           );
@@ -590,21 +601,22 @@ export default function GroceryListScreen({ navigation, route }) {
                   </>
                 ) : expanded && list.items.length > 0 ? (
                   <EstimateBox accessibilityLabel={list.estimatedPrice == null
-                    ? `Histórico disponível para ${list.matchedItems} de ${list.totalItems} itens`
-                    : `${list.matchedItems < list.totalItems ? 'Estimativa parcial' : 'Total estimado'}: ${formatEstimatedPrice(list.estimatedPrice)}; histórico para ${list.matchedItems} de ${list.totalItems} itens`}>
+                    ? t('shopping.availableHistoryFor', { matched: list.matchedItems, total: list.totalItems })
+                    : `${t(list.matchedItems < list.totalItems ? 'shopping.estimatePartial' : 'shopping.estimateTotal')}: ${formatEstimatedPrice(list.estimatedPrice, language)}; ${t('shopping.purchaseHistoryFor', { matched: list.matchedItems, total: list.totalItems })}`}>
                     {list.estimatedPrice == null ? (
                       <>
                         <EstimateCopy>
-                          <EstimateTitle>{list.location ? 'Sem estimativa neste mercado' : 'Estimativa parcial'}</EstimateTitle>
+                          <EstimateTitle>{list.location ? t('shopping.noEstimateAtMarket') : t('shopping.estimatePartial')}</EstimateTitle>
                           <EstimateDetail>{list.location
-                            ? `${list.market?.localName || 'Mercado selecionado'} · histórico para ${list.matchedItems} de ${list.totalItems} itens.`
-                            : `Histórico disponível para ${list.matchedItems} de ${list.totalItems} itens.`}</EstimateDetail>
+                            ? `${list.market?.localName || t('shopping.selectedMarket')} · ${t('shopping.purchaseHistoryFor', { matched: list.matchedItems, total: list.totalItems })}.`
+                            : t('shopping.availableHistoryFor', { matched: list.matchedItems, total: list.totalItems })}</EstimateDetail>
                           {list.missingItems?.length ? (
                             <EstimateMissingAction accessibilityRole="button" onPress={() => Alert.alert(
-                              'Produtos sem histórico',
+                              t('shopping.productsWithoutHistoryTitle'),
                               list.missingItems.join('\n'),
+                              [{ text: t('common.ok') }],
                             )}>
-                              <EstimateMissingText>Ver produtos sem histórico</EstimateMissingText>
+                              <EstimateMissingText>{t('shopping.viewProductsWithoutHistory')}</EstimateMissingText>
                             </EstimateMissingAction>
                           ) : null}
                         </EstimateCopy>
@@ -612,39 +624,40 @@ export default function GroceryListScreen({ navigation, route }) {
                     ) : (
                       <>
                         <EstimateCopy>
-                          <EstimateTitle>{list.location ? 'Preço estimado neste mercado' : list.matchedItems < list.totalItems ? 'Estimativa parcial' : 'Total estimado'}</EstimateTitle>
+                          <EstimateTitle>{list.location ? t('shopping.estimatedAtMarket') : t(list.matchedItems < list.totalItems ? 'shopping.estimatePartial' : 'shopping.estimateTotal')}</EstimateTitle>
                           <EstimateDetail>{list.matchedItems < list.totalItems
-                            ? `${list.location ? `${list.market?.localName || 'Mercado selecionado'} · ` : ''}Soma de ${list.matchedItems} de ${list.totalItems} itens com histórico.`
-                            : list.location ? `${list.market?.localName || 'Mercado selecionado'} · com base no histórico de compras.` : 'Com base no histórico de compras.'}</EstimateDetail>
+                            ? t('shopping.estimateSumDetail', { market: list.location ? `${list.market?.localName || t('shopping.selectedMarket')} · ` : '', matched: list.matchedItems, total: list.totalItems })
+                            : list.location ? `${list.market?.localName || t('shopping.selectedMarket')} · ${t('shopping.estimateBasedOnHistory')}` : t('shopping.estimateBasedOnHistory')}</EstimateDetail>
                           {list.missingItems?.length ? (
                             <EstimateMissingAction accessibilityRole="button" onPress={() => Alert.alert(
-                              'Produtos sem histórico',
+                              t('shopping.productsWithoutHistoryTitle'),
                               list.missingItems.join('\n'),
+                              [{ text: t('common.ok') }],
                             )}>
-                              <EstimateMissingText>Ver produtos sem histórico</EstimateMissingText>
+                              <EstimateMissingText>{t('shopping.viewProductsWithoutHistory')}</EstimateMissingText>
                             </EstimateMissingAction>
                           ) : null}
                         </EstimateCopy>
                         <EstimateAmount>
-                          <EstimatePriceLabel>Preço estimado</EstimatePriceLabel>
-                          <EstimatePrice>{formatEstimatedPrice(list.estimatedPrice)}</EstimatePrice>
+                          <EstimatePriceLabel>{t('shopping.estimatedPriceLabel')}</EstimatePriceLabel>
+                          <EstimatePrice>{formatEstimatedPrice(list.estimatedPrice, language)}</EstimatePrice>
                         </EstimateAmount>
                       </>
                     )}
                   </EstimateBox>
                 ) : expanded && list.location ? (
-                  <EstimateBox accessibilityLabel={`Mercado selecionado: ${list.market?.localName || 'mercado não identificado'}; a estimativa aparecerá quando a lista tiver produtos.`}>
+                  <EstimateBox accessibilityLabel={t('shopping.selectedMarketA11y', { market: list.market?.localName || t('shopping.unknownMarket'), hint: t('shopping.addProductsToEstimate') })}>
                     <EstimateCopy>
-                      <EstimateTitle>Mercado selecionado</EstimateTitle>
-                      <EstimateDetail>{list.market?.localName || 'Mercado não identificado'} · adicione produtos para estimar o preço.</EstimateDetail>
+                      <EstimateTitle>{t('shopping.selectedMarket')}</EstimateTitle>
+                      <EstimateDetail>{list.market?.localName || t('shopping.unknownMarket')} · {t('shopping.addProductsToEstimate')}</EstimateDetail>
                     </EstimateCopy>
                   </EstimateBox>
                 ) : null}
                 {removalListId === list.id ? (
                   <SelectionBar>
-                    <SelectionHint>Selecione os produtos ({removalItemIds.length})</SelectionHint>
-                    <SelectionButton accessibilityRole="button" onPress={cancelRemoval}><SelectionButtonText>Cancelar</SelectionButtonText></SelectionButton>
-                    <SelectionButton accessibilityRole="button" onPress={() => confirmRemoval(list)} $confirm><SelectionButtonText $confirm>Remover</SelectionButtonText></SelectionButton>
+                    <SelectionHint>{t('shopping.removeCount', { count: removalItemIds.length })}</SelectionHint>
+                    <SelectionButton accessibilityRole="button" onPress={cancelRemoval}><SelectionButtonText>{t('shopping.cancel')}</SelectionButtonText></SelectionButton>
+                    <SelectionButton accessibilityRole="button" onPress={() => confirmRemoval(list)} $confirm><SelectionButtonText $confirm>{t('shopping.removeSelected')}</SelectionButtonText></SelectionButton>
                   </SelectionBar>
                 ) : null}
                 <AnimatedDropdown open={expanded}>
@@ -661,7 +674,7 @@ export default function GroceryListScreen({ navigation, route }) {
                         onEdit={removalListId === list.id ? undefined : () => openModal('editItem', list.id, item)}
                         onToggle={removalListId === list.id ? () => toggleRemovalItem(item.id) : () => perform(() => groceryListService.setGroceryItemChecked({ accountId: account?.id, pantryId, listId: list.id, itemId: item.id, checked: !item.checked }))}
                       />
-                    )) : <EmptyText>Esta lista ainda não tem itens.</EmptyText>}
+                    )) : <EmptyText>{t('shopping.noItemsInList')}</EmptyText>}
                   </ItemStack>
                 </AnimatedDropdown>
               </ListSection>

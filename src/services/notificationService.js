@@ -2,10 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { translate } from '../localization';
 import { listPantries } from './pantryService';
 import { listProductOccurrences, listProducts } from './productService';
 
 const CHANNEL_ID = 'pantry-alerts';
+const PREFERENCES_KEY = '@faltaoque/app-preferences:v1';
 const operationTails = new Map();
 const metadataKey = (accountId) => {
   if (!accountId) throw new Error('Entre na sua conta para consultar notificações.');
@@ -35,9 +37,11 @@ function localDateKey(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
-function formatDate(expirationDate) {
+function formatDate(expirationDate, language) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(expirationDate);
-  return match ? `${match[3]}/${match[2]}/${match[1]}` : expirationDate;
+  if (!match) return expirationDate;
+  return new Intl.DateTimeFormat(language, { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))));
 }
 
 function defaultMetadata() {
@@ -61,6 +65,16 @@ async function readMetadata(accountId) {
   }
 }
 
+async function preferredLanguage() {
+  try {
+    const rawValue = await AsyncStorage.getItem(PREFERENCES_KEY);
+    const language = rawValue ? JSON.parse(rawValue)?.language : null;
+    return ['pt-BR', 'en', 'es'].includes(language) ? language : 'pt-BR';
+  } catch {
+    return 'pt-BR';
+  }
+}
+
 async function updateMetadata(accountId, update) {
   const key = metadataKey(accountId);
   const current = await readMetadata(accountId);
@@ -69,7 +83,7 @@ async function updateMetadata(accountId, update) {
   return next;
 }
 
-function buildExpirationNotification(pantry, product) {
+function buildExpirationNotification(pantry, product, language) {
   const expirationDate = String(product.expirationDate ?? '').slice(0, 10);
   return {
     id: `expiration:${pantry.id}:${product.id}:${expirationDate}`,
@@ -78,11 +92,11 @@ function buildExpirationNotification(pantry, product) {
     pantryName: pantry.name,
     product,
     expirationDate,
-    title: `${product.name} venceu`,
+    title: translate(language, 'notifications.productExpiredTitle', { product: product.name }),
   };
 }
 
-function buildDepletedNotification(pantry, product) {
+function buildDepletedNotification(pantry, product, language) {
   const productName = product.baseName || product.name;
   return {
     id: `depleted:${pantry.id}:${product.id}`,
@@ -90,14 +104,15 @@ function buildDepletedNotification(pantry, product) {
     pantryId: pantry.id,
     pantryName: pantry.name,
     product,
-    title: `${productName} acabou na despensa`,
+    title: translate(language, 'notifications.productDepletedTitle', { product: productName }),
   };
 }
 
 async function loadNotificationState(accountId) {
-  const [pantries, metadata] = await Promise.all([
+  const [pantries, metadata, language] = await Promise.all([
     listPantries(accountId),
     readMetadata(accountId),
+    preferredLanguage(),
   ]);
   const today = localDateKey();
   const byPantry = await Promise.all(pantries.map(async (pantry) => {
@@ -107,10 +122,10 @@ async function loadNotificationState(accountId) {
     ]);
     const eligibleOccurrences = occurrences
       .filter((product) => Number(product.quantity) > 0 && product.expirationDate)
-      .map((product) => buildExpirationNotification(pantry, product));
+      .map((product) => buildExpirationNotification(pantry, product, language));
     const depleted = products
       .filter((product) => Number(product.quantity) === 0)
-      .map((product) => buildDepletedNotification(pantry, product));
+      .map((product) => buildDepletedNotification(pantry, product, language));
     return {
       expired: eligibleOccurrences.filter((item) => item.expirationDate <= today),
       upcoming: eligibleOccurrences.filter((item) => item.expirationDate > today),
@@ -146,7 +161,7 @@ async function loadNotificationState(accountId) {
       handled: nextMetadata.handledById[notification.id] ?? null,
     }));
 
-  return { notifications, upcoming, metadata: nextMetadata, allIds };
+  return { notifications, upcoming, metadata: nextMetadata, allIds, language };
 }
 
 export async function listNotifications(accountId) {
@@ -162,9 +177,10 @@ function isPermissionGranted(status) {
 
 async function ensureChannel() {
   if (Platform.OS !== 'android') return;
+  const language = await preferredLanguage();
   await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-    name: 'Avisos da despensa',
-    description: 'Validade dos produtos e itens que acabaram na despensa.',
+    name: translate(language, 'notifications.channelName'),
+    description: translate(language, 'notifications.channelDescription'),
     importance: Notifications.AndroidImportance.DEFAULT,
     vibrationPattern: [0, 250, 250, 250],
     lightColor: '#00DD00',
@@ -192,13 +208,15 @@ function expirationTriggerDate(expirationDate) {
   return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 9, 0, 0, 0);
 }
 
-function notificationContent(accountId, notification) {
+function notificationContent(accountId, notification, language) {
   const productName = notification.product.baseName || notification.product.name;
   return {
-    title: notification.type === 'expiration' ? 'Produto venceu' : 'Produto acabou',
+    title: notification.type === 'expiration'
+      ? translate(language, 'notifications.expirationTitle')
+      : translate(language, 'notifications.depletedTitle'),
     body: notification.type === 'expiration'
-      ? `A validade de ${notification.product.name} chegou em ${formatDate(notification.expirationDate)} na despensa ${notification.pantryName}.`
-      : `${productName} chegou a zero na despensa ${notification.pantryName}.`,
+      ? translate(language, 'notifications.expirationBody', { product: notification.product.name, date: formatDate(notification.expirationDate, language), pantry: notification.pantryName })
+      : translate(language, 'notifications.depletedBody', { product: productName, pantry: notification.pantryName }),
     data: {
       accountId,
       notificationId: notification.id,
@@ -241,7 +259,7 @@ async function reconcileDeviceNotifications(accountId, { requestPermission = fal
     if (!belongsToThisFeature(request)) continue;
     const notificationId = notificationIdFromRequest(request);
     const desired = candidatesById.get(notificationId);
-    const expectedContent = desired ? notificationContent(accountId, desired) : null;
+    const expectedContent = desired ? notificationContent(accountId, desired, state.language) : null;
     const matchesContent = expectedContent &&
       request.content.title === expectedContent.title &&
       request.content.body === expectedContent.body;
@@ -260,7 +278,7 @@ async function reconcileDeviceNotifications(accountId, { requestPermission = fal
     if (!belongsToThisFeature(request)) continue;
     const notificationId = notificationIdFromRequest(request);
     const desired = candidatesById.get(notificationId);
-    const expectedContent = desired ? notificationContent(accountId, desired) : null;
+    const expectedContent = desired ? notificationContent(accountId, desired, state.language) : null;
     const matchesContent = expectedContent &&
       request.content.title === expectedContent.title &&
       request.content.body === expectedContent.body;
@@ -289,7 +307,7 @@ async function reconcileDeviceNotifications(accountId, { requestPermission = fal
       }
       : Platform.OS === 'android' ? { channelId: CHANNEL_ID } : null;
     await Notifications.scheduleNotificationAsync({
-      content: notificationContent(accountId, notification),
+      content: notificationContent(accountId, notification, state.language),
       trigger,
     });
     announcedIds.add(notification.id);

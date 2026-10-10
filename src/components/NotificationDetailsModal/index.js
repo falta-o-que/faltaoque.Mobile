@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal } from 'react-native';
 import { useTheme } from 'styled-components/native';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 
 import { BoxIcon, CalendarIcon, CancelCircleIcon } from '../../assets/icons/export';
 import {
@@ -33,14 +34,14 @@ import {
   Summary,
 } from './styles';
 
-const formatDate = (value) => {
+const formatDate = (value, fallback) => {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value ?? '').slice(0, 10));
-  return match ? `${match[3]}/${match[2]}/${match[1]}` : 'Não informada';
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : fallback;
 };
 
-const formatQuantity = (value) => {
+const formatQuantity = (value, t) => {
   const quantity = Number(value);
-  return `${quantity} ${quantity === 1 ? 'unidade' : 'unidades'}`;
+  return `${quantity} ${t(quantity === 1 ? 'notifications.modal.unit.one' : 'notifications.modal.unit.other')}`;
 };
 
 function NotificationDetailsModal({
@@ -56,10 +57,11 @@ function NotificationDetailsModal({
   onClose,
 }) {
   const theme = useTheme();
+  const { t } = useAppPreferences();
   const [selectedListId, setSelectedListId] = useState(null);
   const isDepleted = notification?.type === 'depleted';
   const product = notification?.product;
-  const productName = product?.baseName || product?.name || 'Produto';
+  const productName = product?.baseName || product?.name || t('notifications.modal.productFallback');
   const listsToShow = lists.filter((list) => list.status === 'active');
   const isAlreadyHandled = notification?.handled?.action === 'added-to-list';
 
@@ -89,9 +91,9 @@ function NotificationDetailsModal({
                 {isDepleted
                   ? <BoxIcon color={theme.colors.primary.Green} size={24} />
                   : <CalendarIcon color={theme.colors.primary.Green} size={24} />}
-                <Heading>{isDepleted ? 'Produto acabou' : 'Validade do produto'}</Heading>
+                <Heading>{isDepleted ? t('notifications.modal.depletedTitle') : t('notifications.modal.expirationTitle')}</Heading>
                 <CloseButton
-                  accessibilityLabel="Fechar detalhes da notificação"
+                  accessibilityLabel={t('notifications.modal.closeDetails')}
                   accessibilityRole="button"
                   onPress={onClose}
                 >
@@ -103,53 +105,53 @@ function NotificationDetailsModal({
               <Summary>
                 {isDepleted
                   ? isAlreadyHandled
-                    ? `Este produto já foi adicionado à lista “${notification.handled.listName}”.`
-                    : 'O saldo deste produto chegou a zero. Quer incluí-lo em uma lista de compras?'
-                  : 'A data de validade deste produto já chegou. Confira as informações antes de decidir o que fazer.'}
+                    ? t('notifications.modal.handledSummary', { list: notification.handled.listName })
+                    : t('notifications.modal.depletedSummary')
+                  : t('notifications.modal.expirationSummary')}
               </Summary>
 
               <Details>
                 <DetailRow>
-                  <DetailLabel>Despensa</DetailLabel>
-                  <DetailValue>{notification?.pantryName ?? 'Não identificada'}</DetailValue>
+                  <DetailLabel>{t('notifications.modal.pantry')}</DetailLabel>
+                  <DetailValue>{notification?.pantryName ?? t('notifications.modal.pantryFallback')}</DetailValue>
                 </DetailRow>
                 {isDepleted ? (
                   <DetailRow>
-                    <DetailLabel>Estoque atual</DetailLabel>
-                    <DetailValue>{formatQuantity(product?.quantity ?? 0)}</DetailValue>
+                    <DetailLabel>{t('notifications.modal.stock')}</DetailLabel>
+                    <DetailValue>{formatQuantity(product?.quantity ?? 0, t)}</DetailValue>
                   </DetailRow>
                 ) : (
                   <DetailRow>
-                    <DetailLabel>Validade</DetailLabel>
-                    <DetailValue>{formatDate(notification?.expirationDate)}</DetailValue>
+                    <DetailLabel>{t('notifications.modal.expiration')}</DetailLabel>
+                    <DetailValue>{formatDate(notification?.expirationDate, t('notifications.modal.notProvided'))}</DetailValue>
                   </DetailRow>
                 )}
                 {product?.weight != null ? (
                   <DetailRow>
-                    <DetailLabel>Embalagem</DetailLabel>
+                    <DetailLabel>{t('notifications.modal.package')}</DetailLabel>
                     <DetailValue>{`${String(product.weight).replace('.', ',')} ${product.unit ?? ''}`.trim()}</DetailValue>
                   </DetailRow>
                 ) : null}
                 {product?.brand || product?.brands?.length ? (
                   <DetailRow>
-                    <DetailLabel>Marca</DetailLabel>
-                    <DetailValue>{product.brand || product.brands.filter(Boolean).join(', ') || 'Não informada'}</DetailValue>
+                    <DetailLabel>{t('notifications.modal.brand')}</DetailLabel>
+                    <DetailValue>{product.brand || product.brands.filter(Boolean).join(', ') || t('notifications.modal.notProvided')}</DetailValue>
                   </DetailRow>
                 ) : null}
               </Details>
 
               {isDepleted && !isAlreadyHandled ? (
                 <>
-                  <ListPrompt>Adicionar a qual lista?</ListPrompt>
+                  <ListPrompt>{t('notifications.modal.addToListPrompt')}</ListPrompt>
                   {listsLoading ? (
                     <BusyArea>
                       <ActivityIndicator color={theme.colors.primary.Green} size="small" />
-                      <BusyText>Carregando listas...</BusyText>
+                      <BusyText>{t('notifications.modal.loadingLists')}</BusyText>
                     </BusyArea>
                   ) : null}
                   {listsError ? <ErrorText accessibilityRole="alert">{listsError}</ErrorText> : null}
                   {!listsLoading && !listsError && listsToShow.length === 0 ? (
-                    <EmptyLists>Esta despensa não tem listas ativas. Crie uma lista para adicionar o produto.</EmptyLists>
+                    <EmptyLists>{t('notifications.modal.emptyLists')}</EmptyLists>
                   ) : null}
                   {!listsLoading && !listsError && listsToShow.length > 0 ? (
                     <ListOptions>
@@ -178,13 +180,13 @@ function NotificationDetailsModal({
               <Actions>
                 {isDepleted && isAlreadyHandled ? (
                   <ActionButton onPress={onClose}>
-                    <ActionText>Fechar</ActionText>
+                    <ActionText>{t('notifications.modal.close')}</ActionText>
                   </ActionButton>
                 ) : isDepleted ? (
                   <>
                     {listsToShow.length === 0 && !listsLoading && !listsError ? (
                       <ActionButton disabled={busy} onPress={onCreateList}>
-                        <ActionText>Criar lista</ActionText>
+                        <ActionText>{t('notifications.modal.createList')}</ActionText>
                       </ActionButton>
                     ) : (
                       <ActionButton
@@ -192,21 +194,21 @@ function NotificationDetailsModal({
                         onPress={handleAdd}
                       >
                         {busy
-                          ? <BusyArea><ActivityIndicator color={theme.colors.white[100]} size="small" /><BusyText $inverse>Adicionando...</BusyText></BusyArea>
-                          : <ActionText>Adicionar à lista</ActionText>}
+                          ? <BusyArea><ActivityIndicator color={theme.colors.white[100]} size="small" /><BusyText $inverse>{t('notifications.modal.adding')}</BusyText></BusyArea>
+                          : <ActionText>{t('notifications.modal.addToList')}</ActionText>}
                       </ActionButton>
                     )}
                     <ActionButton $secondary onPress={onClose}>
-                      <ActionText $secondary>Agora não</ActionText>
+                      <ActionText $secondary>{t('notifications.modal.notNow')}</ActionText>
                     </ActionButton>
                   </>
                 ) : (
                   <>
                     <ActionButton onPress={onOpenPantry}>
-                      <ActionText>Abrir despensa</ActionText>
+                      <ActionText>{t('notifications.modal.pantry')}</ActionText>
                     </ActionButton>
                     <ActionButton $secondary onPress={onClose}>
-                      <ActionText $secondary>Fechar</ActionText>
+                      <ActionText $secondary>{t('notifications.modal.close')}</ActionText>
                     </ActionButton>
                   </>
                 )}

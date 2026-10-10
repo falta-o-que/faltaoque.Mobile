@@ -7,17 +7,18 @@ import { AngleIcon, EmailIcon, EyeClosedIcon, EyeIcon, PantryIcon, SettingsIcon,
 import AnimatedDropdown from '../../components/AnimatedDropdown';
 import FormField from '../../components/FormField';
 import Navbar from '../../components/Navbar';
+import FormActions from '../../components/FormActions';
+import ScreenSectionHeading from '../../components/ScreenSectionHeading';
 import QuickActionButton from '../../components/QuickActionButton';
 import { COLOR_OPTION_ROWS } from '../../constants/colorOptions';
 import { hasValidationErrors, validateProfile } from '../../domain/authValidation';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import { listNotifications, syncDeviceNotifications } from '../../services/notificationService';
 import { showUserErrorAlert } from '../../utils/userErrors';
 import {
   Avatar,
-  CancelButton,
-  CancelLabel,
   ColorField,
   ColorFieldHeader,
   ColorGrid,
@@ -31,32 +32,28 @@ import {
   GradientBackground,
   Greeting,
   GreetingGroup,
-  HeadingMarker,
   InlineError,
   KeyboardArea,
-  ProfileHeading,
   ProfileSection,
-  ProfileTitle,
   QuickActions,
   QuickSection,
   Question,
-  SaveButton,
-  SaveLabel,
   Screen,
-  SectionTitleGroup,
   Subtitle,
   Chevron,
 } from './styles';
 
 const QUICK_ACTIONS = [
-  { key: 'pantry', label: 'Despensa', text: 'Despensa', icon: PantryIcon },
-  { key: 'notifications', label: 'Notificações', text: 'Notif.', icon: SinoIcon },
-  { key: 'profile', label: 'Perfil', text: 'Perfil', icon: UserIcon },
-  { key: 'settings', label: 'Configurações', text: 'Config.', icon: SettingsIcon },
+  { key: 'pantry', labelKey: 'auth.quick.pantry', textKey: 'auth.quick.pantry', icon: PantryIcon },
+  { key: 'notifications', labelKey: 'auth.quick.notifications', textKey: 'auth.quick.notificationsShort', icon: SinoIcon },
+  { key: 'profile', labelKey: 'auth.quick.profile', textKey: 'auth.quick.profile', icon: UserIcon },
+  { key: 'settings', labelKey: 'auth.quick.settings', textKey: 'auth.quick.settingsShort', icon: SettingsIcon },
 ];
 
 export default function ProfileScreen({ navigation, embedded = false }) {
   const { account, updateProfile } = useAuth();
+  const { t } = useAppPreferences();
+  const localizedErrors = (values) => Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value ? t(value) : value]));
   const [name, setName] = useState(account?.name ?? '');
   const [email, setEmail] = useState(account?.email ?? '');
   const [avatarColor, setAvatarColor] = useState(account?.avatarColor ?? '#1E2B5E');
@@ -134,7 +131,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
       ? ['password', 'passwordConfirmation']
       : [field];
     if (relatedFields.some((relatedField) => errors[relatedField])) {
-      const validationErrors = validateProfile({ ...currentValues, [field]: value });
+      const validationErrors = localizedErrors(validateProfile({ ...currentValues, [field]: value }));
       setErrors((current) => ({
         ...current,
         ...Object.fromEntries(relatedFields.map((relatedField) => [relatedField, validationErrors[relatedField]])),
@@ -155,7 +152,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
   };
 
   const handleSave = async () => {
-    const validationErrors = validateProfile({ name, email, avatarColor, password, passwordConfirmation });
+    const validationErrors = localizedErrors(validateProfile({ name, email, avatarColor, password, passwordConfirmation }));
     setErrors(validationErrors);
     if (hasValidationErrors(validationErrors) || isSaving) return;
 
@@ -166,15 +163,16 @@ export default function ProfileScreen({ navigation, embedded = false }) {
       setPasswordConfirmation('');
       setIsPasswordVisible(false);
       setIsPasswordConfirmationVisible(false);
-      Alert.alert('Perfil atualizado', 'Suas alterações foram salvas.');
+      Alert.alert(t('auth.profile.updatedTitle'), t('auth.profile.updatedBody'), [{ text: t('common.ok') }]);
     } catch (error) {
       if (error?.message === 'EMAIL_ALREADY_EXISTS') {
-        setErrors((current) => ({ ...current, email: 'Este e-mail já está cadastrado.' }));
+        setErrors((current) => ({ ...current, email: t('auth.errors.emailExists') }));
         return;
       }
       showUserErrorAlert(error, {
-        title: 'Não foi possível salvar o perfil',
-        fallback: 'Seus dados não foram alterados. Tente novamente.',
+        title: t('auth.profile.saveErrorTitle'),
+        fallback: t('auth.profile.saveErrorBody'),
+        dismissText: t('auth.common.ok'),
       });
     } finally {
       setIsSaving(false);
@@ -184,46 +182,41 @@ export default function ProfileScreen({ navigation, embedded = false }) {
   const handleQuickAction = (key, label) => {
     if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.HOME);
     else if (key === 'notifications') navigation.navigate(AUTHENTICATED_ROUTES.NOTIFICATIONS);
-    else if (key === 'settings') Alert.alert('Em breve', `${label} estará disponível em breve.`);
+    else if (key === 'settings') Alert.alert(t('auth.common.comingSoon'), t('auth.common.willBeAvailable', { label }), [{ text: t('common.ok') }]);
   };
 
   const handleNavbar = (key, item) => {
     if (key === 'profile') return;
     if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
     else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
-    else Alert.alert('Em breve', `${item.label} estará disponível em breve.`);
+    else Alert.alert(t('auth.common.comingSoon'), t('auth.common.willBeAvailable', { label: item.label }), [{ text: t('common.ok') }]);
   };
 
   const profileSection = (
     <ProfileSection>
-          <ProfileHeading>
-            <SectionTitleGroup>
-              <HeadingMarker $color={account?.avatarColor} />
-              <ProfileTitle>Configurações de Perfil</ProfileTitle>
-            </SectionTitleGroup>
-          </ProfileHeading>
+          <ScreenSectionHeading color={account?.avatarColor} title={t('auth.profile.title')} />
 
           <KeyboardArea>
           <FormScroll>
           <Form>
           <FormField
-            accessibilityLabel="Nome"
+            accessibilityLabel={t('auth.common.name')}
             autoComplete="name"
             error={errors.name}
             onChangeText={(value) => { updateField('name', value); setName(value); }}
-            placeholder="Nome"
+            placeholder={t('auth.common.name')}
             returnKeyType="next"
             value={name}
             Icon={UserIcon}
           />
           <FormField
-            accessibilityLabel="E-mail"
+            accessibilityLabel={t('auth.login.email')}
             autoCapitalize="none"
             autoComplete="email"
             error={errors.email}
             keyboardType="email-address"
             onChangeText={(value) => { updateField('email', value); setEmail(value); }}
-            placeholder="Email"
+            placeholder={t('auth.login.email')}
             returnKeyType="next"
             value={email}
             Icon={EmailIcon}
@@ -235,7 +228,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
               accessibilityState={{ expanded: isColorOpen }}
               onPress={() => setIsColorOpen((open) => !open)}
             >
-              <FieldLabel>Cor do avatar</FieldLabel>
+              <FieldLabel>{t('auth.common.avatarColor')}</FieldLabel>
               <Chevron style={chevronStyle}><AngleIcon /></Chevron>
             </ColorFieldHeader>
             <AnimatedDropdown open={isColorOpen}>
@@ -246,7 +239,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
                       {row.map((color) => (
                         <ColorOption
                           key={color}
-                          accessibilityLabel={`Selecionar cor ${color}`}
+                          accessibilityLabel={t('auth.common.selectColor', { color })}
                           accessibilityRole="radio"
                           accessibilityState={{ checked: avatarColor === color }}
                           onPress={() => { setAvatarColor(color); updateField('avatarColor', color); }}
@@ -263,41 +256,43 @@ export default function ProfileScreen({ navigation, embedded = false }) {
           </ColorField>
 
           <FormField
-            accessibilityLabel="Nova senha para alterar a senha"
-            accessibilityHint="Preencha para atualizar a senha. Deixe vazio para manter a senha atual."
+            accessibilityLabel={t('auth.profile.newPasswordLabel')}
+            accessibilityHint={t('auth.profile.newPasswordHint')}
             autoCapitalize="none"
             autoComplete="new-password"
             error={errors.password}
             onChangeText={(value) => { updateField('password', value); setPassword(value); }}
-            placeholder="Nova senha"
+            placeholder={t('auth.profile.newPassword')}
             returnKeyType="done"
             secureTextEntry={!isPasswordVisible}
             value={password}
             Icon={isPasswordVisible ? EyeIcon : EyeClosedIcon}
-            iconAccessibilityLabel={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+            iconAccessibilityLabel={isPasswordVisible ? t('auth.profile.hidePassword') : t('auth.profile.showPassword')}
             onIconPress={() => setIsPasswordVisible((visible) => !visible)}
           />
           <FormField
-            accessibilityLabel="Confirmar nova senha"
+            accessibilityLabel={t('auth.profile.newPasswordConfirm')}
             autoCapitalize="none"
             autoComplete="new-password"
             error={errors.passwordConfirmation}
             onChangeText={(value) => { updateField('passwordConfirmation', value); setPasswordConfirmation(value); }}
-            placeholder="Confirmar nova senha"
+            placeholder={t('auth.profile.newPasswordConfirm')}
             returnKeyType="done"
             secureTextEntry={!isPasswordConfirmationVisible}
             value={passwordConfirmation}
             Icon={isPasswordConfirmationVisible ? EyeIcon : EyeClosedIcon}
-            iconAccessibilityLabel={isPasswordConfirmationVisible ? 'Ocultar confirmação da senha' : 'Mostrar confirmação da senha'}
+            iconAccessibilityLabel={isPasswordConfirmationVisible ? t('auth.profile.hideConfirmation') : t('auth.profile.showConfirmation')}
             onIconPress={() => setIsPasswordConfirmationVisible((visible) => !visible)}
           />
 
-          <SaveButton accessibilityRole="button" disabled={isSaving} onPress={handleSave}>
-            <SaveLabel>{isSaving ? 'Salvando...' : 'Salvar'}</SaveLabel>
-          </SaveButton>
-          <CancelButton accessibilityRole="button" disabled={isSaving} onPress={resetForm}>
-            <CancelLabel>Cancelar</CancelLabel>
-          </CancelButton>
+          <FormActions
+            cancelText={t('auth.profile.cancel')}
+            isSaving={isSaving}
+            onCancel={resetForm}
+            onSave={handleSave}
+            saveText={t('auth.profile.save')}
+            savingText={t('auth.profile.saving')}
+          />
           </Form>
           </FormScroll>
           </KeyboardArea>
@@ -312,22 +307,22 @@ export default function ProfileScreen({ navigation, embedded = false }) {
       <Content>
         <GreetingGroup>
           <Avatar $color={account?.avatarColor ?? '#1E2B5E'} />
-          <Greeting numberOfLines={1}>Oi, {account?.name ?? 'pessoa viva'}</Greeting>
-          <Subtitle>Sua casa está no ritmo.</Subtitle>
+          <Greeting numberOfLines={1}>{t('auth.profile.greeting', { name: account?.name ?? 'pessoa viva' })}</Greeting>
+          <Subtitle>{t('auth.profile.subtitle')}</Subtitle>
         </GreetingGroup>
 
         <QuickSection>
-          <Question>O que você quer fazer?</Question>
+          <Question>{t('auth.profile.question')}</Question>
           <QuickActions>
-            {QUICK_ACTIONS.map(({ icon, key, label, text }) => (
+            {QUICK_ACTIONS.map(({ icon, key, labelKey, textKey }) => (
               <QuickActionButton
                 key={key}
                 Icon={icon}
-                accessibilityLabel={label}
-                onPress={() => handleQuickAction(key, label)}
+                accessibilityLabel={t(labelKey)}
+                onPress={() => handleQuickAction(key, t(labelKey))}
                 selected={key === 'profile'}
                 showBadge={key === 'notifications' && hasUnreadNotifications}
-                text={text}
+                text={t(textKey)}
               />
             ))}
           </QuickActions>

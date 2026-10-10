@@ -20,7 +20,7 @@ const tagColors = Object.fromEntries(
 );
 tagColors.outros = readValue(standard.White[200]);
 
-export const theme = {
+const baseTheme = {
   colors: {
     primary: readScale(primitive.Green),
     secondary: readScale(primitive.RedOrange),
@@ -57,5 +57,18 @@ export const theme = {
     sizes: readScale(primitive.fontSize),
   },
 };
+
+export function createTheme(fontScale = 1) {
+  return {
+    ...baseTheme,
+    fonts: {
+      ...baseTheme.fonts,
+      scale: fontScale,
+      sizes: Object.fromEntries(Object.entries(baseTheme.fonts.sizes).map(([key, value]) => [key, value * fontScale])),
+    },
+  };
+}
+
+export const theme = createTheme();
 
 export default theme;

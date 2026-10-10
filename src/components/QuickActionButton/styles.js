@@ -19,10 +19,10 @@ export const ActionButton = styled.TouchableOpacity.attrs({
 export const TextButton = styled.Text`
   color: ${({ theme }) => theme.colors.white[100]};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 10px;
+  font-size: ${({ theme }) => 10 * theme.fonts.scale}px;
   font-style: normal;
   font-weight: 500;
-  line-height: 12px;
+  line-height: ${({ theme }) => 12 * theme.fonts.scale}px;
   letter-spacing: 0.2px;
 `;
 
