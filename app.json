@@ -14,7 +14,7 @@
     "android": {
       "icon": "./src/assets/branding/app-icon.png",
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/branding/app-icon.png",
+        "foregroundImage": "./src/assets/branding/adaptive-icon-foreground.png",
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.faltaoque.app"
