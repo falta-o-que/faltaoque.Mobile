@@ -5,6 +5,7 @@ export const PUBLIC_ROUTES = {
 
 export const AUTHENTICATED_ROUTES = {
   HOME: 'Home',
+  PANTRIES: 'Pantries',
   PANTRY: 'Pantry',
   GROCERY_LIST: 'GroceryList',
   GROCERY_PANTRY_PICKER: 'GroceryPantryPicker',

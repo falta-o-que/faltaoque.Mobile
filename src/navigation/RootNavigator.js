@@ -2,6 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from '../screens/HomeScreen';
+import PantriesScreen from '../screens/PantriesScreen';
 import PantryScreen from '../screens/PantryScreen';
 import GroceryListScreen from '../screens/GroceryListScreen';
 import GroceryPantryPickerScreen from '../screens/GroceryPantryPickerScreen';
@@ -40,6 +41,7 @@ function AuthenticatedNavigator() {
       screenOptions={authenticatedScreenOptions}
     >
       <Stack.Screen name={AUTHENTICATED_ROUTES.HOME} component={HomeScreen} />
+      <Stack.Screen name={AUTHENTICATED_ROUTES.PANTRIES} component={PantriesScreen} />
       <Stack.Screen name={AUTHENTICATED_ROUTES.PANTRY} component={PantryScreen} />
       <Stack.Screen name={AUTHENTICATED_ROUTES.GROCERY_LIST} component={GroceryListScreen} />
       <Stack.Screen name={AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER} component={GroceryPantryPickerScreen} />

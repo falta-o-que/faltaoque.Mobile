@@ -9,6 +9,7 @@ Este documento é a referência para os metadados dos builds Android e para mate
 - Descrição curta configurada no Expo: “Organize a despensa, acompanhe produtos e planeje as compras da casa.”
 - Identificador Android (`applicationId`): `com.faltaoque.app`.
 - Perfil EAS `production`: APK para instalação direta, com distribuição interna.
+- Ambiente EAS do perfil `production`: `production` (definido explicitamente em `eas.json`, pois distribuição interna sem esse campo selecionaria `preview`).
 - Versão atual declarada: `1.0.0`.
 - Slug Expo mantido: `FaltaOQueFront`, associado ao projeto EAS já configurado. Não é o nome exibido ao usuário.
 - Repositório do projeto: [`falta-o-que/faltaoque.Mobile`](https://github.com/falta-o-que/faltaoque.Mobile); o proprietário/organização GitHub é `falta-o-que`.
@@ -39,3 +40,5 @@ Os créditos devem ser usados nos materiais do projeto e na futura tela Sobre/Cr
 ## Limite dos metadados do APK
 
 O APK usa metadados técnicos do aplicativo, como nome de exibição, package, versão, ícone e permissões. O arquivo de build não oferece campos padrão para declarar empresa e lista de desenvolvedores como créditos visíveis ao usuário. Essas informações pertencem aos materiais do projeto e, futuramente, à tela Sobre/Créditos. Caso o app seja distribuído por uma loja, a entidade publicadora e os dados de contato devem ser configurados na conta e na página da loja.
+
+O serviço de endereços/mercados lê `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`. Para builds EAS na nuvem, a variável precisa existir no ambiente EAS escolhido; `.env.local` é local e ignorado pelo Git. Como a variável tem prefixo `EXPO_PUBLIC_`, seu valor é compilado no JavaScript do app e pode ser extraído do APK; não é um segredo após o empacotamento.

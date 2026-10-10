@@ -95,6 +95,8 @@ export function HomeScreen({ navigation }) {
   const handleNavbarItemChange = (key, item) => {
     if (key === 'shopping-list') {
       navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
+    } else if (key === 'pantry') {
+      navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
     } else if (key !== 'profile') {
       showComingSoon(item.label);
     }
