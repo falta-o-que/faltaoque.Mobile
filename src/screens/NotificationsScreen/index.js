@@ -18,6 +18,7 @@ import * as groceryListService from '../../services/groceryListService';
 import {
   clearNotifications,
   listNotifications,
+  markAllNotificationsRead,
   markNotificationRead,
   recordNotificationAddedToList,
   syncDeviceNotifications,
@@ -25,7 +26,6 @@ import {
 import { showUserErrorAlert } from '../../utils/userErrors';
 import {
   Avatar,
-  ClearAction,
   ClearButton,
   ClearText,
   Content,
@@ -34,11 +34,14 @@ import {
   GreetingGroup,
   HeadingMarker,
   NotificationHeading,
+  NotificationActions,
   NotificationList,
   NotificationRow,
   NotificationSection,
   NotificationText,
   NotificationDot,
+  MarkAllReadButton,
+  MarkAllReadText,
   PermissionHint,
   QuickActions,
   QuickSection,
@@ -59,7 +62,7 @@ const QUICK_ACTIONS = [
   { key: 'settings', label: 'Configurações', text: 'Config.', icon: SettingsIcon },
 ];
 
-export default function NotificationsScreen({ navigation, route }) {
+export default function NotificationsScreen({ navigation, route, embedded = false, onUnreadCountChange }) {
   const { account } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,6 +74,7 @@ export default function NotificationsScreen({ navigation, route }) {
   const [listsError, setListsError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [isMarkingAllRead, setIsMarkingAllRead] = useState(false);
   const [notificationsPermissionGranted, setNotificationsPermissionGranted] = useState(true);
   const notificationLoadInProgress = useRef(false);
 
@@ -121,6 +125,10 @@ export default function NotificationsScreen({ navigation, route }) {
     });
     return () => subscription.remove();
   }, [account?.id]);
+
+  useEffect(() => {
+    if (!loading) onUnreadCountChange?.(notifications.filter((item) => !item.isRead).length);
+  }, [loading, notifications, onUnreadCountChange]);
 
   const handleQuickAction = (key, label) => {
     if (key === 'pantry') {
@@ -211,6 +219,51 @@ export default function NotificationsScreen({ navigation, route }) {
     );
   };
 
+  const handleMarkAllRead = async () => {
+    if (isMarkingAllRead || isClearing) return;
+    const unreadIds = new Set(notifications.filter((item) => !item.isRead).map((item) => item.id));
+    if (unreadIds.size === 0) return;
+
+    setIsMarkingAllRead(true);
+    try {
+      const result = await markAllNotificationsRead(account?.id);
+      const markedIds = new Set(result.ids);
+      setNotifications((current) => current.map((item) => markedIds.has(item.id)
+        ? { ...item, isRead: true }
+        : item));
+      setSelectedNotification((current) => current && markedIds.has(current.id)
+        ? { ...current, isRead: true }
+        : current);
+
+      if (!result.deviceCleared) {
+        Alert.alert(
+          'Notificações marcadas como lidas',
+          'O aparelho não conseguiu remover todos os avisos da barra de notificações.',
+        );
+      }
+    } catch (error) {
+      showUserErrorAlert(error, {
+        title: 'Não foi possível marcar as notificações como lidas',
+        fallback: 'Tente novamente em alguns instantes.',
+      });
+    } finally {
+      setIsMarkingAllRead(false);
+    }
+  };
+
+  const requestMarkAllRead = () => {
+    if (isMarkingAllRead || isClearing || !notifications.some((item) => !item.isRead)) return;
+    Alert.alert(
+      'Marcar todas como lidas?',
+      'As notificações não lidas serão marcadas como lidas.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Marcar como lidas', onPress: handleMarkAllRead },
+      ],
+      { cancelable: true },
+    );
+  };
+
   const handleAddToList = async (list) => {
     if (!selectedNotification || isSaving) return;
     setIsSaving(true);
@@ -267,34 +320,8 @@ export default function NotificationsScreen({ navigation, route }) {
     if (pantryId) navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_LIST, { pantryId });
   };
 
-  return (
-    <Screen edges={['top', 'left', 'right']}>
-      <GradientBackground />
-      <Content>
-        <GreetingGroup>
-          <Avatar $color={account?.avatarColor} />
-          <Greeting>Oi, {account?.name ?? 'pessoa viva'}</Greeting>
-          <Subtitle>Sua casa está no ritmo.</Subtitle>
-        </GreetingGroup>
-
-        <QuickSection>
-          <Question>O que você quer fazer?</Question>
-          <QuickActions>
-            {QUICK_ACTIONS.map(({ icon, key, label, text }) => (
-              <QuickActionButton
-                key={key}
-                Icon={icon}
-                accessibilityLabel={label}
-                onPress={() => handleQuickAction(key, label)}
-                selected={key === 'notifications'}
-                showBadge={key === 'notifications' && notifications.some((item) => !item.isRead)}
-                text={text}
-              />
-            ))}
-          </QuickActions>
-        </QuickSection>
-
-        <NotificationSection>
+  const notificationSection = (
+    <NotificationSection>
           <NotificationHeading>
             <HeadingMarker $color={account?.avatarColor} />
             <SectionTitle accessibilityRole="header">Notificações</SectionTitle>
@@ -305,11 +332,27 @@ export default function NotificationsScreen({ navigation, route }) {
           ) : null}
 
           {!loading && !error && notifications.length > 0 ? (
-            <ClearAction>
-              <ClearButton accessibilityRole="button" disabled={isClearing} onPress={requestClearNotifications}>
+            <NotificationActions>
+              <MarkAllReadButton
+                accessibilityRole="button"
+                accessibilityState={{
+                  disabled: isMarkingAllRead || isClearing || !notifications.some((item) => !item.isRead),
+                }}
+                disabled={isMarkingAllRead || isClearing || !notifications.some((item) => !item.isRead)}
+                onPress={requestMarkAllRead}
+              >
+                <MarkAllReadText>
+                  {isMarkingAllRead ? 'Marcando...' : 'Marcar tudo como lido'}
+                </MarkAllReadText>
+              </MarkAllReadButton>
+              <ClearButton
+                accessibilityRole="button"
+                disabled={isClearing || isMarkingAllRead}
+                onPress={requestClearNotifications}
+              >
                 <ClearText>{isClearing ? 'Limpando...' : 'Limpar notificações'}</ClearText>
               </ClearButton>
-            </ClearAction>
+            </NotificationActions>
           ) : null}
 
           {loading ? (
@@ -343,10 +386,11 @@ export default function NotificationsScreen({ navigation, route }) {
               ))}
             </NotificationList>
           )}
-        </NotificationSection>
-      </Content>
+    </NotificationSection>
+  );
 
-      <NotificationDetailsModal
+  const notificationDetailsModal = (
+    <NotificationDetailsModal
         busy={isSaving}
         lists={lists}
         listsError={listsError}
@@ -357,7 +401,43 @@ export default function NotificationsScreen({ navigation, route }) {
         onCreateList={handleCreateList}
         onOpenPantry={handleOpenPantry}
         visible={Boolean(selectedNotification)}
-      />
+    />
+  );
+
+  if (embedded) {
+    return <>{notificationSection}{notificationDetailsModal}</>;
+  }
+
+  return (
+    <Screen edges={['top', 'left', 'right']}>
+      <GradientBackground />
+      <Content>
+        <GreetingGroup>
+          <Avatar $color={account?.avatarColor} />
+          <Greeting>Oi, {account?.name ?? 'pessoa viva'}</Greeting>
+          <Subtitle>Sua casa está no ritmo.</Subtitle>
+        </GreetingGroup>
+
+        <QuickSection>
+          <Question>O que você quer fazer?</Question>
+          <QuickActions>
+            {QUICK_ACTIONS.map(({ icon, key, label, text }) => (
+              <QuickActionButton
+                key={key}
+                Icon={icon}
+                accessibilityLabel={label}
+                onPress={() => handleQuickAction(key, label)}
+                selected={key === 'notifications'}
+                showBadge={key === 'notifications' && notifications.some((item) => !item.isRead)}
+                text={text}
+              />
+            ))}
+          </QuickActions>
+        </QuickSection>
+        {notificationSection}
+      </Content>
+
+      {notificationDetailsModal}
       <Navbar activeItem="profile" onItemChange={handleNavbar} />
     </Screen>
   );

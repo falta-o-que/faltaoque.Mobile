@@ -12,6 +12,7 @@
 - Próximas verificações mobile: instalar o APK no Android e conferir o ícone no launcher; percorrer a finalização manual e por NFC-e, incluindo vínculo, itens ausentes/sem vínculo, duplicidade por despensa e gravação local. Registrar os resultados aqui e ajustar apenas problemas observados.
 - A edição da despensa foi concluída nas telas Home e Despensas: o modal baseado em `750:3139` altera nome, cor e localização; o seletor aberto segue `775:2517` sem amostra circular, e participantes foram removidos enquanto o compartilhamento segue desativado. Excluir exige confirmação e limpa os registros locais dependentes. O botão destrutivo reutilizável mantém o mesmo formato arredondado para despensas, produtos e listas, variando o texto. Bundle Android exportado com sucesso em 10 de outubro; a validação em aparelho desta feature ainda não foi feita.
 - A permissão de notificações é solicitada uma vez ao abrir a Home autenticada; tocar no sino não abre o pedido. A tela de notificações continua sincronizando os avisos sem solicitar permissão.
+- Feature de edição do Perfil concluída: o componente na Home permite alterar nome, e-mail e cor do avatar; a nova senha opcional exige confirmação correspondente, e cada campo controla sua própria visibilidade. As alterações são salvas na conta local e e-mails duplicados são rejeitados. Após a exportação Android, o usuário testou no aparelho e informou que aparentemente está tudo correto. O contrato de perfil hospedado continua indefinido.
 
 ## Marco original do MVP (referência histórica)
 

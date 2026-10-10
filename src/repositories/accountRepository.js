@@ -34,3 +34,28 @@ export async function createAccount(account) {
   return account;
 }
 
+export async function updateAccount({ accountId, name, email, avatarColor, passwordHash }) {
+  await updateDatabase((database) => {
+    const currentAccount = database.users.find((item) => item.id === accountId && item.is_active);
+    if (!currentAccount) throw new Error('ACCOUNT_NOT_FOUND');
+    if (database.users.some((item) => item.id !== accountId && item.email === email)) {
+      throw new Error('EMAIL_ALREADY_EXISTS');
+    }
+
+    return {
+      ...database,
+      users: database.users.map((item) => item.id === accountId
+        ? {
+          ...item,
+          name,
+          email,
+          avatar_id: getColorId(database, avatarColor),
+          ...(passwordHash ? { password: passwordHash } : {}),
+        }
+        : item),
+    };
+  });
+
+  return findAccountById(accountId);
+}
+

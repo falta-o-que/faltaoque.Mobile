@@ -45,6 +45,27 @@ export const PantrySection = styled.View`
   margin-top: 30px;
 `;
 
+export const HomeActionSection = styled.View`
+  width: 100%;
+  flex: 1;
+  margin-top: 30px;
+`;
+
+export const HomeActionTitle = styled.Text`
+  color: ${({ theme }) => theme.colors.black.Black};
+  font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
+  font-size: 20px;
+  text-align: center;
+`;
+
+export const HomeActionText = styled.Text`
+  margin-top: 16px;
+  color: ${({ theme }) => theme.colors.black[400]};
+  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
+  font-size: 14px;
+  text-align: center;
+`;
+
 export const CreateAction = styled.View`
   position: absolute;
   right: 0;
