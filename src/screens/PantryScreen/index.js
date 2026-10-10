@@ -16,6 +16,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getProductPresentationKey } from '../../domain/pantryProductGrouping';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import { listPantries } from '../../services/pantryService';
+import { syncDeviceNotifications } from '../../services/notificationService';
 import {
   addProduct,
   assertFiscalNoteUnused,
@@ -155,6 +156,7 @@ export default function PantryScreen({ route, navigation }) {
 
   useFocusEffect(useCallback(() => {
     let active = true;
+    syncDeviceNotifications(account?.id).catch(() => {});
     setLoading(true);
     setPantry(null);
     setError(null);
@@ -217,6 +219,7 @@ export default function PantryScreen({ route, navigation }) {
         quantity,
       });
       await refreshProducts();
+      await syncDeviceNotifications(account?.id).catch(() => {});
     } catch {
       showUserErrorAlert(null, { title: 'Não foi possível atualizar a quantidade', fallback: 'A quantidade anterior foi mantida. Tente novamente em alguns instantes.' });
     } finally {
@@ -255,6 +258,7 @@ export default function PantryScreen({ route, navigation }) {
     const previousOccurrences = productOccurrencesRef.current ?? [];
     await addProduct({ ...draft, accountId: account?.id, pantryId });
     const occurrences = await refreshProducts();
+    await syncDeviceNotifications(account?.id).catch(() => {});
     setQuery('');
     setSelectedCategories([]);
     setIsAddOpen(false);
@@ -274,6 +278,7 @@ export default function PantryScreen({ route, navigation }) {
       productId: selectedProduct.id,
     });
     const occurrences = await refreshProducts();
+    await syncDeviceNotifications(account?.id).catch(() => {});
     setSelectedProduct(null);
     if (previousOccurrences.length) {
       setTimeout(() => promptForDuplicateProducts(occurrences), 250);
@@ -294,6 +299,7 @@ export default function PantryScreen({ route, navigation }) {
             try {
               await deleteProduct({ accountId: account?.id, pantryId, productId: selectedProduct.id });
               const occurrences = await refreshProducts();
+              await syncDeviceNotifications(account?.id).catch(() => {});
               await promptForDuplicateProducts(occurrences);
               setSelectedProduct(null);
             } catch {

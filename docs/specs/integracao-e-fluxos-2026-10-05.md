@@ -1,6 +1,6 @@
-# SDD — integração e fluxos definidos até 9 de outubro de 2026
+# SDD — integração e fluxos definidos até 10 de outubro de 2026
 
-Status: especificação funcional atualizada até 9 de outubro de 2026. Não confirma API implementada nem migração aplicada no banco hospedado.
+Status: especificação funcional atualizada até 10 de outubro de 2026. Não confirma API implementada nem migração aplicada no banco hospedado.
 
 ## Fontes e precedência
 
@@ -9,6 +9,7 @@ Status: especificação funcional atualizada até 9 de outubro de 2026. Não con
 - `../architecture/hosted-database-model-2026-10-05.json` é o retrato inicial da modelagem MySQL recebido em 5 de outubro. `../architecture/hosted-database.sql` é o último script SQL recebido, de 1º de outubro, e já não representa as mudanças dos retratos posteriores.
 - O modelo oficial fechado recebido em 8 de outubro está preservado em `../architecture/hosted-database-model-2026-10-08.json`; ele atualiza a referência recebida em 6 de outubro. Ainda não confirma o esquema implantado nem o contrato da API.
 - As decisões de 9 de outubro em `../project/decisions.md` atualizam os fluxos de finalização, revisão fiscal, normalização e comportamento da página de listas descritos anteriormente neste documento.
+- As decisões de 10 de outubro em `../project/decisions.md` registram a edição local da despensa e o respiro do ícone adaptável Android; elas não confirmam nem alteram o contrato do backend.
 - O backend e o banco são mantidos por outra parte da equipe. Este documento especifica comportamento do mobile e contratos a confirmar; não autoriza presumir que campos ou rotas já estejam disponíveis.
 
 ## Compras, produtos e estoque
@@ -71,6 +72,15 @@ Peso/volume de um item planejado é opcional; a categoria é obrigatória, confo
 - A despensa receberá um indicador para deixar de ser exibida sem apagar compras e histórico. Todos os participantes convidados terão as mesmas ações na despensa; não haverá papéis individuais por participante neste escopo.
 - O indicador do usuário é `users.is_active`. O modelo final de 6 de outubro contém tanto `pantry_products.is_in_pantry` quanto `pantry_products.is_deleted`; a remoção lógica usa `is_deleted`, iniciado em `false` e alterado para `true`. Confirmar a implantação do JSON antes da integração.
 
+## Atualização de 10 de outubro — edição local da despensa concluída
+
+- O ícone de configuração nos cards da Home e da página `Despensas` abre o mesmo modal de edição. Nome e cor são obrigatórios; a localização é opcional e continua no modal. A localização atual é preservada ao salvar os outros campos, pode ser removida e, para substituí-la, o usuário seleciona uma sugestão válida do Places.
+- O modal segue o Figma `750:3139`. O seletor de cores aberto segue `775:2517`: o controle mostra o rótulo e a seta; ao abrir, exibe as doze opções sem uma amostra circular ao lado do rótulo. A seção de participantes foi retirada enquanto compartilhar despensas permanecer desativado.
+- A exclusão da despensa apresenta confirmação explícita, avisando que os dados vinculados serão removidos deste dispositivo. A gravação local remove atomicamente a despensa, associações de conta, compras, produtos vinculados, listas e itens; remove também mercados sem referências restantes e o convite se órfão. Após a exclusão, o serviço tenta remover as preferências locais de visualização da despensa.
+- O botão de exclusão usa o componente comum `DangerActionButton`, com raio de 20 px, altura mínima de 45 px, espaçamento interno e estilo de perigo. Produto, lista e despensa passam o texto por propriedade ao mesmo componente.
+- Critérios concluídos no simulador local: editar nome/cor/localização em ambas as telas; preservar ou limpar localização; validar os campos obrigatórios; confirmar ou cancelar exclusão; atualizar imediatamente a listagem e remover vínculos locais sem deixar registros dependentes órfãos. O bundle Android foi exportado com sucesso em 10 de outubro. Validação em aparelho permanece pendente.
+- O comportamento de exclusão acima é do adaptador local. Não determina exclusão física ou lógica, retenção histórica, sincronização de participantes ou cascatas no banco hospedado; esses pontos dependem do contrato de backend e não devem ser inferidos desta implementação.
+
 ## Tela de Configurações
 
 - Escopo previsto: idioma, ajuste de tamanho de fonte, ativação/desativação de notificações, guia de uso, seção Sobre com versão, nomes da equipe e link do projeto, Política de Privacidade e Termos de Uso.
@@ -89,3 +99,12 @@ Peso/volume de um item planejado é opcional; a categoria é obrigatória, confo
 - O vínculo é um para um nos dois sentidos: cada linha fiscal pode usar no máximo um item planejado, e cada item planejado pode estar relacionado a no máximo uma linha fiscal. Correspondências automáticas e manuais obedecem à mesma restrição; a tela desabilita itens já usados e o serviço valida novamente antes de salvar.
 - A normalização de descrições reconhece abreviações fiscais comuns, como `Bic.` e `Bisc.` para biscoito, e `Rech.` para recheio; remove os pontos do nome normalizado e preserva a descrição original visível para revisão. Correspondências aproximadas só são automáticas quando há um candidato claramente seguro.
 - A revisão da lista e a entrada direta por QR na despensa reutilizam o mesmo card e editor de produto, com os mesmos campos e ordem: nome, marca, quantidade, preço unitário/total, embalagem, unidade e categoria. Informações específicas da lista, como vínculo e conflito de categoria, aparecem no card recolhido e não alteram esse editor. A etapa atualiza apenas a interface mobile e o simulador local; não altera o esquema hospedado.
+
+## Atualização de 10 de outubro — área segura na finalização da compra
+
+- O modal em tela cheia de revisão/finalização da lista deve respeitar as áreas seguras superior, inferior e laterais em Android edge-to-edge. Cabeçalho, conteúdo e ações não podem ficar sob a barra de status ou a navegação do sistema.
+- A implementação aplica os insets ao contêiner do modal; a alteração é apenas de interface mobile e não muda o contrato de compras nem o esquema local ou hospedado. Ela foi incluída no APK de produção `e0cca5a0-3cb9-4398-bfd9-12be32a5b79b`; a validação física no Android continua registrada em `../project/current-state.md`.
+
+## Atualização de 10 de outubro — solicitação da permissão de notificações
+
+- O app solicita a permissão uma vez quando a Home autenticada abre pela primeira vez na sessão. Abrir a tela pelo sino não solicita permissão novamente; essa tela apenas sincroniza o estado local e os avisos do aparelho. A sincronização inicial respeita o resultado do sistema e segue a API de permissões do `expo-notifications` no SDK 57.

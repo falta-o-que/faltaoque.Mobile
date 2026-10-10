@@ -1,6 +1,20 @@
 # Decisões do projeto
 
-As decisões mais recentes prevalecem quando uma proposta ou anotação anterior descreve outro fluxo. O SDD `../specs/integracao-e-fluxos-2026-10-05.md` reúne os fluxos posteriores ao MVP, com atualizações datadas até 9 de outubro de 2026. Ele descreve requisitos e decisões, sem afirmar que a API ou o banco hospedado estejam implementados.
+As decisões mais recentes prevalecem quando uma proposta ou anotação anterior descreve outro fluxo. O SDD `../specs/integracao-e-fluxos-2026-10-05.md` reúne os fluxos posteriores ao MVP, com atualizações datadas até 10 de outubro de 2026. Ele descreve requisitos e decisões, sem afirmar que a API ou o banco hospedado estejam implementados.
+
+## 2026-10-10 - Permissão de notificações ao abrir o app
+
+A solicitação de permissão de notificações ocorre na primeira abertura da área autenticada (Home) durante a sessão do app. Tocar no sino e abrir a tela de notificações apenas consulta/sincroniza o estado; não deve iniciar um pedido de permissão. Se o sistema não permitir nova solicitação, o app respeita esse estado.
+
+## 2026-10-10 - Edição local completa da despensa
+
+O modal acionado pela engrenagem da despensa permite editar nome, cor e localização opcional na mesma operação. A interface segue o modal `750:3139` e o estado aberto do seletor de cores `775:2517`; a grade contém as opções de cor e não exibe uma amostra circular junto ao rótulo. O painel de participantes não faz parte do modal enquanto o compartilhamento estiver desativado. A gravação local preserva a localização existente se ela não for alterada; uma localização nova precisa ser escolhida entre as sugestões, e o campo pode ser limpo.
+
+A exclusão pede confirmação explícita e, no armazenamento local, remove despensa, associação de conta, compras, produtos vinculados, listas e itens das listas em uma única atualização; mercados sem referências restantes e convite órfão também são removidos, e o serviço tenta limpar as preferências locais da despensa. A exclusão é local e não define política de retenção do banco hospedado. O botão usa o componente destrutivo arredondado compartilhado com as exclusões de produto e lista; somente o texto varia.
+
+## 2026-10-10 - Respiro da marca no ícone adaptável Android
+
+O foreground do ícone adaptável usa `src/assets/branding/adaptive-icon-foreground.png`, que mantém a marca centralizada e com margem transparente dentro da zona segura do launcher, sobre fundo branco. O ícone geral do app e a logo exibida na interface permanecem sem alteração. O APK de produção com o ajuste foi gerado; a aparência no launcher deve ser conferida após instalação no aparelho.
 
 ## 2026-10-09 - Identidade do APK de produção
 

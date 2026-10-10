@@ -25,3 +25,21 @@ export const TextButton = styled.Text`
   line-height: 12px;
   letter-spacing: 0.2px;
 `;
+
+export const IconArea = styled.View`
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const NotificationBadge = styled.View`
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  width: 9px;
+  height: 9px;
+  border: 1px solid ${({ theme }) => theme.colors.white[100]};
+  border-radius: 5px;
+  background-color: ${({ theme }) => theme.colors.danger[500]};
+`;

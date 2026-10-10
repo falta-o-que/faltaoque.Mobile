@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import * as Notifications from 'expo-notifications';
 import { useFocusEffect } from '@react-navigation/native';
 import { Alert } from 'react-native';
 
@@ -18,6 +19,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import { showUserErrorAlert } from '../../utils/userErrors';
 import * as pantryService from '../../services/pantryService';
+import { listNotifications, syncDeviceNotifications } from '../../services/notificationService';
 import {
   Avatar,
   Content,
@@ -58,9 +60,13 @@ export function HomeScreen({ navigation }) {
   const [pantries, setPantries] = useState([]);
   const [pantriesError, setPantriesError] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  const requestedNotificationPermission = useRef(false);
 
   useFocusEffect(useCallback(() => {
     let isMounted = true;
+    const shouldRequestNotificationPermission = !requestedNotificationPermission.current;
+    requestedNotificationPermission.current = true;
 
     pantryService
       .listPantries(account?.id)
@@ -77,14 +83,40 @@ export function HomeScreen({ navigation }) {
         }
       });
 
+    syncDeviceNotifications(account?.id, shouldRequestNotificationPermission
+      ? { requestPermission: true }
+      : undefined)
+      .then(({ unreadCount }) => {
+        if (isMounted) setUnreadNotificationCount(unreadCount);
+      })
+      .catch(() => listNotifications(account?.id)
+        .then((items) => {
+          if (isMounted) setUnreadNotificationCount(items.filter((item) => !item.isRead).length);
+        })
+        .catch(() => {}));
+
     return () => {
       isMounted = false;
     };
   }, [account?.id, reloadKey]));
 
+  useEffect(() => {
+    const subscription = Notifications.addNotificationReceivedListener(() => {
+      syncDeviceNotifications(account?.id)
+        .then(({ unreadCount }) => setUnreadNotificationCount(unreadCount))
+        .catch(() => {});
+    });
+    return () => subscription.remove();
+  }, [account?.id]);
+
   const handleActionPress = (key, label) => {
     if (key === 'pantry') {
       setSelectedAction(key);
+      return;
+    }
+
+    if (key === 'notifications') {
+      navigation.navigate(AUTHENTICATED_ROUTES.NOTIFICATIONS);
       return;
     }
 
@@ -158,6 +190,7 @@ export function HomeScreen({ navigation }) {
         ...changes,
       });
       setPantries((current) => current.map((pantry) => pantry.id === updated.id ? updated : pantry));
+      await syncDeviceNotifications(account?.id).catch(() => {});
       setPantryForEdit(null);
     } catch (error) {
       showUserErrorAlert(error, { title: 'Não foi possível salvar a despensa', fallback: 'Confira os dados e tente novamente.' });
@@ -176,6 +209,7 @@ export function HomeScreen({ navigation }) {
         try {
           await pantryService.deletePantry({ accountId: account?.id, pantryId: pantry.id });
           setPantries((current) => current.filter((item) => item.id !== pantry.id));
+          await syncDeviceNotifications(account?.id).catch(() => {});
           setSelectedPantry((current) => current?.id === pantry.id ? null : current);
           setPantryForEdit(null);
         } catch (error) {
@@ -203,6 +237,7 @@ export function HomeScreen({ navigation }) {
                 accessibilityLabel={label}
                 onPress={() => handleActionPress(key, label)}
                 selected={selectedAction === key}
+                showBadge={key === 'notifications' && unreadNotificationCount > 0}
                 text={text}
               />
             ))}

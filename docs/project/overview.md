@@ -1,6 +1,6 @@
 # Visão do projeto
 
-Última revisão: 9 de outubro de 2026. Este arquivo resume o produto e aponta para as fontes mantidas no repositório; a implementação está em `current-state.md`, decisões confirmadas em `decisions.md` e requisitos detalhados nos SDDs de `../specs/`.
+Última revisão: 10 de outubro de 2026. Este arquivo resume o produto e aponta para as fontes mantidas no repositório; a implementação está em `current-state.md`, decisões confirmadas em `decisions.md` e requisitos detalhados nos SDDs de `../specs/`.
 
 ## Produto
 
@@ -35,7 +35,7 @@ Documentação funcional de referência: `C:\Users\Miguel\Downloads\FaltaOquê_ 
 Para desenvolvimento e retomada, use também esta ordem documental:
 
 1. `decisions.md` para decisões posteriores confirmadas pelo usuário.
-2. `../specs/integracao-e-fluxos-2026-10-05.md` para fluxos e contratos mobile definidos após o MVP, com atualizações até 9 de outubro de 2026.
+2. `../specs/integracao-e-fluxos-2026-10-05.md` para fluxos e contratos mobile definidos após o MVP, com atualizações até 10 de outubro de 2026.
 3. `current-state.md` para distinguir o que foi implementado, validado e ainda precisa de verificação.
 4. `../specs/milestone-2026-09-14.md` como registro do escopo original do MVP local, não como descrição completa do comportamento atual.
 5. Documentos em `../architecture/`; os retratos JSON recebidos descrevem modelos, não comprovam esquema implantado nem API disponível.
@@ -43,7 +43,7 @@ Para desenvolvimento e retomada, use também esta ordem documental:
 ## Escopo funcional geral do mobile
 
 - Cadastro e autenticação de usuários.
-- Criação e configuração de despensas compartilhadas.
+- Criação e configuração local de despensas; o compartilhamento permanece desativado até a integração com o backend.
 - Cadastro, edição e acompanhamento de produtos.
 - Listas de compras.
 - Importação de produtos por QR Code de nota fiscal.
