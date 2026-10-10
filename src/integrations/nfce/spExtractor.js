@@ -26,11 +26,12 @@ export function extractSaoPauloNfce(html) {
   const items = blocks.map((block) => {
     const sourceDescription = span(block, 'txtTit');
     const quantity = decimal(span(block, 'Rqtd').replace(/^Qtde\.?\s*:\s*/i, ''));
-    const unitLabel = span(block, 'RUN').replace(/^UN\s*:\s*/i, '').toLowerCase();
+    const sourceUnitLabel = span(block, 'RUN').replace(/^UN\s*:\s*/i, '').toLowerCase();
+    const unitLabel = /^und\d+$/.test(sourceUnitLabel) ? 'un.' : sourceUnitLabel;
     const unitPrice = decimal(span(block, 'RvlUnit').replace(/^Vl\.\s*Unit\.\s*:\s*/i, ''));
     const totalPrice = decimal(span(block, 'valor'));
     if (!sourceDescription || !(quantity > 0) || unitPrice === null || totalPrice === null) throw new Error('UNSUPPORTED_FISCAL_PAGE');
-    return { sourceDescription, quantity, unitLabel: unitLabel || null, unitPrice, totalPrice };
+    return { sourceDescription, quantity, unitLabel: unitLabel || null, sourceUnitLabel: sourceUnitLabel || null, unitPrice, totalPrice };
   });
   const merchantName = clean(source.match(/<div\b[^>]*id=["']u20["'][^>]*>([\s\S]*?)<\/div>/i)?.[1]);
   const totalAmount = decimal(span(source, 'txtMax'));

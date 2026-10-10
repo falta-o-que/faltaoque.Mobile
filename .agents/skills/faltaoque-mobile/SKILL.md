@@ -16,9 +16,11 @@ Before planning project work, read these files in order:
 3. `docs/project/current-state.md`
 4. `docs/agents/workflow.md`
 
-Then read only the specification and architecture documents relevant to the requested slice. Use `docs/specs/milestone-2026-09-14.md` for the original local MVP and `docs/specs/integracao-e-fluxos-2026-10-05.md` for the later backend and front-end decisions. For fiscal work, also read `docs/specs/nfce-sp-spike.md` and `docs/architecture/mobile.md`. For hosted data work, compare the dated model snapshot in `docs/architecture/hosted-database-model-2026-10-05.json` with `docs/architecture/hosted-database.sql`; the snapshot is not proof of a deployed migration.
+Then read only the specification and architecture documents relevant to the requested slice. Use `docs/specs/milestone-2026-09-14.md` for the original local MVP and `docs/specs/integracao-e-fluxos-2026-10-05.md` for the later backend and front-end decisions. For fiscal work, also read `docs/specs/nfce-sp-spike.md` and `docs/architecture/mobile.md`. For hosted data work, inspect the latest dated model snapshot (currently `docs/architecture/hosted-database-model-2026-10-08.json`) and compare it with the relevant SQL; a model snapshot does not prove a deployed migration.
 
 When a task changes a durable decision or completed project state, update the appropriate memory-bank file in Portuguese.
+
+When the user requests a handoff to another computer, record the current implementation, verification result, and the next concrete device or integration check in `docs/project/current-state.md`; update the applicable SDD and decisions as needed. Only commit or push when the user explicitly requests synchronization. Never include `.env.local`, API keys, or other local secrets in that handoff.
 
 ## Resolve conflicts
 

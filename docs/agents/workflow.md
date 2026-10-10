@@ -6,7 +6,7 @@ Use subagents to reduce elapsed time and context usage while keeping one account
 
 ## Current project context
 
-Before work on backend integration or new product flows, read `docs/specs/integracao-e-fluxos-2026-10-05.md` and the newer dated entries in `docs/project/decisions.md`. The 14 September milestone remains the original local MVP specification. The 5 October hosted model JSON is a diagram snapshot; the 1 October SQL is an older received script, and neither alone confirms the deployed database or API contract. The 6 October corrections require hosted grocery lists through `grocery_lists` and NFC-e identity from the code between `p=` and the first `|` in the QR URL. Record later user corrections in the memory bank and SDD, marking unresolved contract details explicitly.
+Before work on backend integration or new product flows, read `docs/specs/integracao-e-fluxos-2026-10-05.md` and the newer dated entries in `docs/project/decisions.md`. The 14 September milestone remains the original local MVP specification. The 8 October hosted model JSON is the latest model snapshot; the 1 October SQL is an older received script, and neither alone confirms the deployed database or API contract. Hosted grocery lists use `grocery_lists`, and NFC-e identity uses the code between `p=` and the first `|` in the QR URL. Record later user corrections in the memory bank and SDD, marking unresolved contract details explicitly.
 
 ## Model policy
 

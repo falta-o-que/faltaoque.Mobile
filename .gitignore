@@ -6,6 +6,7 @@ node_modules/
 # Expo
 .expo/
 .expo-export-*/
+.tmp-*/
 .expo-check
 dist/
 web-build/
@@ -43,4 +44,6 @@ yarn-error.*
 /android
 
 .idea
+
+
 

@@ -17,6 +17,7 @@ import {
 } from '../../domain/authValidation';
 import { useAuth } from '../../contexts/AuthContext';
 import { COLOR_OPTION_ROWS } from '../../constants/colorOptions';
+import { showUserErrorAlert } from '../../utils/userErrors';
 import {
   BackLink,
   BackText,
@@ -168,10 +169,7 @@ export function RegisterScreen({ navigation }) {
         return;
       }
 
-      Alert.alert(
-        'Não foi possível criar a conta',
-        'Verifique os dados e tente novamente.',
-      );
+      showUserErrorAlert(error, { title: 'Não foi possível criar a conta', fallback: 'Verifique sua conexão e tente novamente.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -235,7 +233,7 @@ export function RegisterScreen({ navigation }) {
               </ColorGrid>
             </ColorPanel>
           ) : null}
-          {errors.avatarColor ? <InlineError>{errors.avatarColor}</InlineError> : null}
+          {errors.avatarColor ? <InlineError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.avatarColor}</InlineError> : null}
         </ColorField>
         <FormField
           accessibilityLabel="Senha"
@@ -274,7 +272,7 @@ export function RegisterScreen({ navigation }) {
         </Checkbox>
         <TermsText>Concordo com os Termos de Uso e a Política de Privacidade.</TermsText>
       </Terms>
-      {errors.acceptedTerms ? <InlineError>{errors.acceptedTerms}</InlineError> : null}
+      {errors.acceptedTerms ? <InlineError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.acceptedTerms}</InlineError> : null}
       <PrimaryButton
         $active={isSubmitActive}
         accessibilityRole="button"

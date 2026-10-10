@@ -3,9 +3,15 @@
 const normalize = (value) => String(value ?? '').normalize('NFD')
   .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
 
+// Retail checkout bags are fiscal charges, not pantry products.
+export function isDisposableBagFiscalItem(description) {
+  return /\bsacolas?\b/.test(normalize(description).replace(/[^a-z0-9]+/g, ' '));
+}
+
 export function groupFiscalItems(items) {
   const groups = new Map();
   for (const item of items) {
+    if (isDisposableBagFiscalItem(item?.sourceDescription)) continue;
     const key = JSON.stringify([normalize(item.sourceDescription), normalize(item.unitLabel)]);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(item);
@@ -20,8 +26,8 @@ export function groupFiscalItems(items) {
     return {
       ...lines[0], quantity, totalPrice, unitPrice, hasDifferentPrices,
       // Preserve the fiscal lines independently of subsequent review edits.
-      sourceItems: lines.map(({ sourceDescription, quantity: count, unitLabel, unitPrice: price, totalPrice: total }) => ({
-        sourceDescription, quantity: count, unitLabel, unitPrice: price, totalPrice: total,
+      sourceItems: lines.map(({ sourceDescription, quantity: count, unitLabel, sourceUnitLabel, unitPrice: price, totalPrice: total }) => ({
+        sourceDescription, quantity: count, unitLabel, sourceUnitLabel, unitPrice: price, totalPrice: total,
       })),
     };
   });

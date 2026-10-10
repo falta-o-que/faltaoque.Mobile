@@ -16,6 +16,7 @@ import {
 } from './styles';
 
 const formatProductCount = (count) => `${count} ${count === 1 ? 'Produto' : 'Produtos'}`;
+const formatShoppingListCount = (count) => `${count} ${count === 1 ? 'Lista' : 'Listas'}`;
 
 export function PantryCard({
   color,
@@ -41,9 +42,9 @@ export function PantryCard({
           </QuantityBadge>
         </DetailRow>
         <DetailRow>
-          <Label>Lista:</Label>
+          <Label>Listas:</Label>
           <QuantityBadge>
-            <QuantityText>{formatProductCount(shoppingListCount)}</QuantityText>
+            <QuantityText>{formatShoppingListCount(shoppingListCount)}</QuantityText>
           </QuantityBadge>
         </DetailRow>
       </Details>

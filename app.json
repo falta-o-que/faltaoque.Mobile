@@ -1,8 +1,10 @@
 {
   "expo": {
-    "name": "Falta Oquê?",
+    "name": "FaltaOquê?",
+    "description": "Organize a despensa, acompanhe produtos e planeje as compras da casa.",
     "slug": "FaltaOQueFront",
     "version": "1.0.0",
+    "primaryColor": "#00DD00",
     "orientation": "portrait",
     "icon": "./src/assets/branding/app-icon.png",
     "userInterfaceStyle": "light",
@@ -11,7 +13,11 @@
     },
     "android": {
       "icon": "./src/assets/branding/app-icon.png",
-      "package": "com.faltaoque.front"
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/branding/app-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.faltaoque.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -23,9 +29,16 @@
         "expo-camera",
         {
           "cameraPermission": "Permita que o FaltaOquê use a câmera para ler o QR Code da nota fiscal.",
-          "barcodeScannerEnabled": true
+          "barcodeScannerEnabled": true,
+          "recordAudioAndroid": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "73ea38cc-3585-408a-bd46-eaceabefa581"
+      }
+    },
+    "owner": "miguelzack"
   }
 }

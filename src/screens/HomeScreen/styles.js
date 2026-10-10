@@ -106,3 +106,17 @@ export const LoadError = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
 `;
+
+export const RetryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.colors.white[200]};
+`;
+
+export const RetryText = styled.Text`
+  color: ${({ theme }) => theme.colors.black.Black};
+  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
+  font-size: 13px;
+`;
