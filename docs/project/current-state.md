@@ -1,6 +1,14 @@
 # Estado atual
 
-Última atualização: 10 de outubro de 2026. As seções mais antigas deste arquivo são registros cronológicos; para a situação vigente, use primeiro o resumo abaixo e depois os registros datados mais recentes.
+Última atualização: 11 de outubro de 2026. As seções mais antigas deste arquivo são registros cronológicos; para a situação vigente, use primeiro o resumo abaixo e depois os registros datados mais recentes.
+
+## Revisão de traduções — 11 de outubro de 2026
+
+- Configurações: controles de idioma e fonte ficam bloqueados durante o salvamento; falhas ao abrir ajustes do sistema ou o projeto mostram aviso traduzido. Falhas de sincronização de notificações informam que as preferências já foram salvas e oferecem nova tentativa no idioma salvo, sem exigir outra alteração das preferências. Validação no aparelho desses caminhos de falha permanece pendente.
+
+- Corrigidos os 13 pontos solicitados: chaves ausentes de botões, 18 mensagens de notificações, sugestões de mercados, estados da revisão de compra, dica da importação por QR, erros específicos, callbacks com idioma antigo, ordenação por idioma, fallbacks, acessibilidade de carregamento, permissão nativa de câmera e 39 definições duplicadas do catálogo de compras.
+- Erros aprovados preservam sua causa nos três idiomas; sugestões retornam chaves e são traduzidas na interface. A configuração nativa inclui textos de câmera em português, inglês e espanhol; no iOS seguem o idioma do sistema para o app e exigem nova build. O diálogo de permissão Android é traduzido pelo sistema.
+- Revisão estática: 154 arquivos JavaScript analisados sem erro de sintaxe; 810 chaves por idioma, com paridade de placeholders; arquivos de tradução nativa resolvidos pelo plugin Expo. A validação dos fluxos no aparelho permanece pendente.
 
 ## Estado consolidado — 10 de outubro de 2026
 

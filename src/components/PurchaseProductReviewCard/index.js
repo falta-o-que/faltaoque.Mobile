@@ -12,15 +12,15 @@ import {
   EditorError, FieldGroup, Selection, SelectionStatus, SelectionText,
 } from './styles';
 
-const currency = (value, pendingLabel = 'Preço pendente') => {
+const currency = (value, pendingLabel) => {
   if (String(value ?? '').trim() === '') return pendingLabel;
   const parsed = Number(String(value ?? '').replace(',', '.'));
-  return Number.isFinite(parsed) ? `R$ ${parsed.toFixed(2).replace('.', ',')}` : 'Preço pendente';
+  return Number.isFinite(parsed) ? `R$ ${parsed.toFixed(2).replace('.', ',')}` : pendingLabel;
 };
 
-const displayUnitLabel = (value) => {
+const displayUnitLabel = (value, defaultLabel) => {
   const label = String(value ?? '').trim().toLowerCase();
-  return /^und\d+$/.test(label) ? 'un.' : label || 'un.';
+  return /^und\d+$/.test(label) ? defaultLabel : label || defaultLabel;
 };
 
 export default function PurchaseProductReviewCard({
@@ -29,17 +29,18 @@ export default function PurchaseProductReviewCard({
   readOnly = false,
   categoryOpen = false, onToggleIncluded, onToggleEdit, onToggleCategory,
   onSelectCategory, categoryOptions = PRODUCT_CATEGORIES, editorValues, editorErrors = {},
-  editorNotice, priceHint = 'Os preços da nota são independentes e podem incluir descontos.',
+  editorNotice, priceHint,
   onEditorChange, children,
 }) {
   const theme = useTheme();
   const { t } = useAppPreferences();
-  const name = title ?? item.name ?? 'Produto sem nome';
+  const name = String(title ?? item.name ?? '').trim() || t('shopping.productWithoutName');
   const packageLabel = item.weight
     ? `${item.weight} ${item.unit || ''}`.trim()
     : item.contentValue && item.unit ? `${item.contentValue} ${item.unit}` : '';
   const quantity = item.quantity || '—';
-  const unitLabel = displayUnitLabel(item.unitLabel);
+  const unitLabel = displayUnitLabel(item.unitLabel, t('shopping.unitAbbreviation'));
+  const resolvedPriceHint = priceHint ?? t('shopping.receiptPriceHint');
   const total = editorValues?.totalPrice ?? item.totalPrice ?? itemTotal(item);
   const perUnit = editorValues?.unitPrice ?? item.unitPrice ?? itemUnitPrice(item);
   const values = editorValues ?? {
@@ -121,7 +122,7 @@ export default function PurchaseProductReviewCard({
         {field('quantity', t('shopping.quantityRequired', { unit: item.unitLabel ? ` (${item.unitLabel})` : '' }), { Icon: DeliveryIcon, keyboardType: 'decimal-pad', maxLength: 16 })}
         {field('unitPrice', t('shopping.unitPrice', { unit: item.unitLabel || t('shopping.unitLabel') }), { Icon: DeliveryIcon, keyboardType: 'decimal-pad', maxLength: 16 })}
         {field('totalPrice', t('shopping.itemTotal'), { Icon: DeliveryIcon, keyboardType: 'decimal-pad', maxLength: 16 })}
-        <Muted>{priceHint}</Muted>
+        <Muted>{resolvedPriceHint}</Muted>
         {field('weight', t('shopping.packageMeasure'), { keyboardType: 'decimal-pad', maxLength: 16, placeholder: t('shopping.exampleWeight') })}
         {String(values.weight ?? '').trim() ? <FieldGroup>
           <Label>{t('shopping.requiredUnit')}</Label>

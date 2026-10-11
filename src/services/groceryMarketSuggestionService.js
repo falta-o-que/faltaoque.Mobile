@@ -1,7 +1,7 @@
 import { normalizeCep } from '../domain/locationValidation';
 import { GROCERY_SUGGESTION_TYPES } from '../domain/grocerySuggestionOptions';
 import { readDatabase } from '../storage/localDatabase';
-import { getUserErrorMessage } from '../utils/userErrors';
+import { getUserErrorTranslationKey } from '../utils/userErrors';
 import { estimateGroceryListPrices } from './groceryPriceEstimateService';
 
 const geocodeCache = new Map();
@@ -129,11 +129,11 @@ export async function getGroceryMarketSuggestions({ pantryId, pantryCep, list })
   let nearest = null;
   let nearestError = null;
   if (!pantryCep) {
-    nearestError = 'Cadastre o endereço da despensa para encontrar o mercado mais perto.';
+    nearestError = 'errors.suggestionAddressRequired';
   } else {
     const locatedCandidates = candidates.filter(({ market }) => Number.isFinite(market.latitude) && Number.isFinite(market.longitude));
     if (!locatedCandidates.length) {
-      nearestError = 'O histórico ainda não tem coordenadas de mercados para comparar.';
+      nearestError = 'errors.suggestionCoordinatesRequired';
     } else {
       try {
         const pantryCoordinates = await geocodePantryCep(pantryCep);
@@ -142,7 +142,7 @@ export async function getGroceryMarketSuggestions({ pantryId, pantryCep, list })
           distanceKm: distanceKm(pantryCoordinates, candidate.market),
         })).sort((first, second) => first.distanceKm - second.distanceKm)[0] ?? null;
       } catch (error) {
-        nearestError = getUserErrorMessage(error, 'Não foi possível calcular a distância agora. Tente novamente mais tarde.');
+        nearestError = getUserErrorTranslationKey(error) ?? 'errors.suggestionDistanceFailed';
       }
     }
   }
@@ -154,8 +154,8 @@ export async function getGroceryMarketSuggestions({ pantryId, pantryCep, list })
     missingItems: (list.items ?? []).map((item) => item.name),
   };
   return [
-    { type: GROCERY_SUGGESTION_TYPES.NEAREST, candidate: nearest, disabled: !nearest, message: nearestError },
-    { type: GROCERY_SUGGESTION_TYPES.BEST_VALUE, candidate: bestValue, disabled: !bestValue, message: bestValue ? null : 'Ainda não há histórico de preços para comparar os mercados.' },
-    { type: GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS, candidate: bestBrands, disabled: !bestBrands, message: bestBrands ? null : 'Ainda não há histórico de marcas para comparar os mercados.' },
+    { type: GROCERY_SUGGESTION_TYPES.NEAREST, candidate: nearest, disabled: !nearest, messageKey: nearestError },
+    { type: GROCERY_SUGGESTION_TYPES.BEST_VALUE, candidate: bestValue, disabled: !bestValue, messageKey: bestValue ? null : 'errors.suggestionPricesRequired' },
+    { type: GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS, candidate: bestBrands, disabled: !bestBrands, messageKey: bestBrands ? null : 'errors.suggestionBrandsRequired' },
   ].map((option) => ({ ...option, candidate: option.candidate ?? { market: null, estimate: emptyEstimate } }));
 }

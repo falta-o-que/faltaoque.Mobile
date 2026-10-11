@@ -1,5 +1,11 @@
 # Decisões do projeto
 
+## 2026-10-11 — Tradução de erros e permissões
+
+Mensagens de erro aprovadas são mapeadas para chaves estáveis e traduzidas na interface, preservando a causa específica. Erros desconhecidos usam o fallback contextual, sem expor detalhes internos. Sugestões de mercados retornam chaves, evitando guardar mensagens no idioma anterior.
+
+O texto nativo de câmera no iOS possui traduções em português, inglês e espanhol por meio de `expo.locales`. Seu idioma segue a configuração do sistema para o app; a preferência interna traduz a interface JavaScript. Alterações nesses textos exigem nova build nativa. No Android, o diálogo de permissão é fornecido e traduzido pelo sistema.
+
 As decisões mais recentes prevalecem quando uma proposta ou anotação anterior descreve outro fluxo. O SDD `../specs/integracao-e-fluxos-2026-10-05.md` reúne os fluxos posteriores ao MVP, com atualizações datadas até 10 de outubro de 2026. Ele descreve requisitos e decisões, sem afirmar que a API ou o banco hospedado estejam implementados.
 
 ## 2026-10-10 - Permissão de notificações ao abrir o app

@@ -1,0 +1,5 @@
+{
+  "ios": {
+    "NSCameraUsageDescription": "Permite que FaltaOquê use la cámara para leer el código QR del ticket."
+  }
+}

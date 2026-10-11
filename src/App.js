@@ -31,10 +31,10 @@ Notifications.setNotificationHandler({
 
 function AppContent() {
   const { account, isRestoringSession } = useAuth();
-  const { isPreferencesLoading } = useAppPreferences();
+  const { isPreferencesLoading, t } = useAppPreferences();
 
   if (isRestoringSession || isPreferencesLoading) {
-    return <ActivityIndicator accessibilityLabel="Carregando sessão" size="large" />;
+    return <ActivityIndicator accessibilityLabel={t('common.loadingSession')} size="large" />;
   }
 
   return <RootNavigator accountId={account?.id} isAuthenticated={Boolean(account)} />;
@@ -46,7 +46,8 @@ function AppTheme({ children }) {
   return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 }
 
-export default function App() {
+function AppWithFonts() {
+  const { t } = useAppPreferences();
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -57,17 +58,23 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return <ActivityIndicator accessibilityLabel="Carregando fontes" size="large" />;
+    return <ActivityIndicator accessibilityLabel={t('common.loadingFonts')} size="large" />;
   }
 
   return (
+    <AppTheme>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </AppTheme>
+  );
+}
+
+export default function App() {
+  return (
     <SafeAreaProvider>
       <AppPreferencesProvider>
-        <AppTheme>
-          <AuthProvider>
-            <AppContent />
-          </AuthProvider>
-        </AppTheme>
+        <AppWithFonts />
       </AppPreferencesProvider>
     </SafeAreaProvider>
   );

@@ -84,7 +84,7 @@ export default function GroceryListHistoryModal({
 
                 return (
                   <HistoryCard key={list.id}>
-                    <ListName numberOfLines={2}>{list.name || 'Lista sem nome'}</ListName>
+                    <ListName numberOfLines={2}>{list.name || t('shopping.unnamedList')}</ListName>
 
                     <DateRow>
                       <DateLabel>{t('shopping.planned')}</DateLabel>
@@ -109,7 +109,7 @@ export default function GroceryListHistoryModal({
                     <Items>
                       {items.length ? items.map((item, index) => (
                         <ItemRow key={item.id ?? `${list.id}-item-${index}`}>
-                          <ItemName numberOfLines={2}>{item.name || 'Item sem nome'}</ItemName>
+                          <ItemName numberOfLines={2}>{item.name || t('shopping.unnamedItem')}</ItemName>
                           <ItemMeta>{formatMeasure(item)}</ItemMeta>
                         </ItemRow>
                       )) : <EmptyText>{t('shopping.noItemsFinished')}</EmptyText>}

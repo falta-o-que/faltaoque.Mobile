@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, AppState, Linking, Modal, Platform, ScrollView, Switch } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
@@ -10,6 +10,7 @@ import { CancelCircleIcon } from '../../assets/icons/export';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { syncDeviceNotifications } from '../../services/notificationService';
+import { translate } from '../../localization';
 import { Screen, SettingsSection, Content, Section, SectionTitle, Description, LanguageRow, LanguageOption, LanguageLabel, FontControls, FontButton, FontValue, PreferenceRow, LinkRow, LinkLabel, LinkArrow, AboutRow, AboutLabel, AboutValue, TeamList, TeamMember, ModalBackdrop, ModalCard, ModalHeader, ModalTitle, ModalBody } from './styles';
 
 const LANGUAGES = [
@@ -39,6 +40,7 @@ export default function SettingsScreen({ embedded = false }) {
   const { language, fontScale, isPreferencesLoading, savePreferences, t } = useAppPreferences();
   const [draft, setDraft] = useState({ language, fontScale });
   const [isSaving, setIsSaving] = useState(false);
+  const savingRef = useRef(false);
   const [notificationPermission, setNotificationPermission] = useState(false);
   const [isPermissionLoading, setIsPermissionLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
@@ -68,15 +70,39 @@ export default function SettingsScreen({ embedded = false }) {
 
   const handleCancel = () => setDraft({ language, fontScale });
 
+  const syncNotifications = async (savedLanguage) => {
+    const savedT = (key) => translate(savedLanguage, key);
+    try {
+      await syncDeviceNotifications(account?.id);
+    } catch {
+      Alert.alert(savedT('settings.notificationSyncErrorTitle'), savedT('settings.notificationSyncErrorMessage'), [
+        { text: savedT('common.ok'), style: 'cancel' },
+        { text: savedT('common.retry'), onPress: async () => {
+          if (savingRef.current) return;
+          savingRef.current = true;
+          setIsSaving(true);
+          try {
+            await syncNotifications(savedLanguage);
+          } finally {
+            savingRef.current = false;
+            setIsSaving(false);
+          }
+        } },
+      ]);
+    }
+  };
+
   const handleSave = async () => {
-    if (!hasChanges || isSaving) return;
+    if (!hasChanges || savingRef.current || isPreferencesLoading) return;
+    savingRef.current = true;
     try {
       setIsSaving(true);
-      await savePreferences(draft);
-      await syncDeviceNotifications(account?.id).catch(() => {});
+      const saved = await savePreferences(draft);
+      await syncNotifications(saved.language);
     } catch {
       Alert.alert(t('settings.saveErrorTitle'), t('settings.saveErrorMessage'), [{ text: t('common.ok') }]);
     } finally {
+      savingRef.current = false;
       setIsSaving(false);
     }
   };
@@ -85,7 +111,15 @@ export default function SettingsScreen({ embedded = false }) {
     try {
       await Linking.openSettings();
     } catch {
-      // The permission remains controlled by the operating system.
+      Alert.alert(t('settings.openErrorTitle'), t('settings.openSystemSettingsError'), [{ text: t('common.ok') }]);
+    }
+  };
+
+  const handleProjectPress = async () => {
+    try {
+      await Linking.openURL(PROJECT_URL);
+    } catch {
+      Alert.alert(t('settings.openErrorTitle'), t('settings.openProjectError'), [{ text: t('common.ok') }]);
     }
   };
 
@@ -120,7 +154,8 @@ export default function SettingsScreen({ embedded = false }) {
                 <LanguageOption
                   key={key}
                   accessibilityRole="radio"
-                  accessibilityState={{ checked: draft.language === key }}
+                  disabled={isSaving || isPreferencesLoading}
+                  accessibilityState={{ checked: draft.language === key, disabled: isSaving || isPreferencesLoading }}
                   onPress={() => setDraft((current) => ({ ...current, language: key }))}
                   $selected={draft.language === key}
                 >
@@ -133,11 +168,11 @@ export default function SettingsScreen({ embedded = false }) {
           <Section>
             <SectionTitle>{t('settings.fontSize')}</SectionTitle>
             <FontControls>
-              <FontButton accessibilityLabel={t('settings.fontSize.decrease')} accessibilityRole="button" disabled={draft.fontScale <= 0.9} onPress={() => setDraft((current) => ({ ...current, fontScale: Math.max(0.9, Number((current.fontScale - 0.1).toFixed(1))) }))}>
+              <FontButton accessibilityLabel={t('settings.fontSize.decrease')} accessibilityRole="button" disabled={isSaving || isPreferencesLoading || draft.fontScale <= 0.9} onPress={() => setDraft((current) => ({ ...current, fontScale: Math.max(0.9, Number((current.fontScale - 0.1).toFixed(1))) }))}>
                 <FontValue>−</FontValue>
               </FontButton>
               <Description>{draft.fontScale === 1 ? t('settings.fontSize.default') : `${Math.round(draft.fontScale * 100)}%`}</Description>
-              <FontButton accessibilityLabel={t('settings.fontSize.increase')} accessibilityRole="button" disabled={draft.fontScale >= 1.1} onPress={() => setDraft((current) => ({ ...current, fontScale: Math.min(1.1, Number((current.fontScale + 0.1).toFixed(1))) }))}>
+              <FontButton accessibilityLabel={t('settings.fontSize.increase')} accessibilityRole="button" disabled={isSaving || isPreferencesLoading || draft.fontScale >= 1.1} onPress={() => setDraft((current) => ({ ...current, fontScale: Math.min(1.1, Number((current.fontScale + 0.1).toFixed(1))) }))}>
                 <FontValue>+</FontValue>
               </FontButton>
             </FontControls>
@@ -163,7 +198,7 @@ export default function SettingsScreen({ embedded = false }) {
             <SectionTitle>{t('settings.about')}</SectionTitle>
             <AboutRow><AboutLabel>{t('settings.version')}</AboutLabel><AboutValue>{t('settings.betaVersion', { version: '0.9' })}</AboutValue></AboutRow>
             <AboutRow><AboutLabel>{t('settings.project')}</AboutLabel><AboutValue>{t('settings.projectName')}</AboutValue></AboutRow>
-            <LinkRow accessibilityRole="link" onPress={() => Linking.openURL(PROJECT_URL).catch(() => {})}>
+            <LinkRow accessibilityRole="link" onPress={handleProjectPress}>
               <LinkLabel>github.com/falta-o-que</LinkLabel>
               <LinkArrow>›</LinkArrow>
             </LinkRow>

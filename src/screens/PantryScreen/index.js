@@ -48,7 +48,7 @@ const formatExpirationDate = (value) => {
 
 export default function PantryScreen({ route, navigation }) {
   const { account } = useAuth();
-  const { t } = useAppPreferences();
+  const { t, language } = useAppPreferences();
   const [pantry, setPantry] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -132,6 +132,7 @@ export default function PantryScreen({ route, navigation }) {
                     title: t('pantry.displaySaveErrorTitle'),
                     fallback: t('pantry.displaySaveError'),
                     dismissText: t('common.ok'),
+                    t,
                   });
                 } finally {
                   resolve();
@@ -155,7 +156,7 @@ export default function PantryScreen({ route, navigation }) {
         showChoice();
       });
     }
-  }, [account?.id, applyBrandGrouping, pantryId]);
+  }, [account?.id, applyBrandGrouping, pantryId, t]);
 
   useFocusEffect(useCallback(() => {
     let active = true;
@@ -191,14 +192,14 @@ export default function PantryScreen({ route, navigation }) {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [account?.id, pantryId, reloadKey, promptForDuplicateProducts]));
+  }, [account?.id, pantryId, reloadKey, promptForDuplicateProducts, t]));
 
   const products = storedProducts
     .filter((product) => normalize(product.name).includes(normalize(query)) &&
       (selectedCategories.length === 0 || selectedCategories.includes(product.category)))
     .sort((first, second) => {
-      if (sortOption === 'nameAsc') return first.name.localeCompare(second.name, 'pt-BR');
-      if (sortOption === 'nameDesc') return second.name.localeCompare(first.name, 'pt-BR');
+      if (sortOption === 'nameAsc') return first.name.localeCompare(second.name, language);
+      if (sortOption === 'nameDesc') return second.name.localeCompare(first.name, language);
       if (sortOption === 'priceAsc') return first.unitPrice - second.unitPrice;
       if (sortOption === 'priceDesc') return second.unitPrice - first.unitPrice;
       if (sortOption === 'quantityDesc') return second.quantity - first.quantity;
@@ -224,7 +225,7 @@ export default function PantryScreen({ route, navigation }) {
       await refreshProducts();
       await syncDeviceNotifications(account?.id).catch(() => {});
     } catch {
-      showUserErrorAlert(null, { title: t('pantry.quantityErrorTitle'), fallback: t('pantry.quantityError'), dismissText: t('common.ok') });
+      showUserErrorAlert(null, { title: t('pantry.quantityErrorTitle'), fallback: t('pantry.quantityError'), dismissText: t('common.ok'), t });
     } finally {
       setUpdatingProductIds((current) => current.filter((id) => id !== product.id));
     }
@@ -306,7 +307,7 @@ export default function PantryScreen({ route, navigation }) {
               await promptForDuplicateProducts(occurrences);
               setSelectedProduct(null);
             } catch {
-              showUserErrorAlert(null, { title: t('pantry.deleteProductErrorTitle'), fallback: t('pantry.deleteProductError'), dismissText: t('common.ok') });
+              showUserErrorAlert(null, { title: t('pantry.deleteProductErrorTitle'), fallback: t('pantry.deleteProductError'), dismissText: t('common.ok'), t });
             }
           },
         },

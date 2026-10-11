@@ -170,7 +170,7 @@ export function HomeScreen({ navigation }) {
       setPantriesError(null);
       setIsCreatePantryModalOpen(false);
     } catch (error) {
-      showUserErrorAlert(error, { title: t('home.createPantryError'), fallback: t('home.createPantryFallback'), dismissText: t('common.ok') });
+      showUserErrorAlert(error, { title: t('home.createPantryError'), fallback: t('home.createPantryFallback'), dismissText: t('common.ok'), t });
     }
   };
 
@@ -187,7 +187,7 @@ export function HomeScreen({ navigation }) {
       await syncDeviceNotifications(account?.id).catch(() => {});
       setPantryForEdit(null);
     } catch (error) {
-      showUserErrorAlert(error, { title: t('home.savePantryError'), fallback: t('home.savePantryFallback'), dismissText: t('common.ok') });
+      showUserErrorAlert(error, { title: t('home.savePantryError'), fallback: t('home.savePantryFallback'), dismissText: t('common.ok'), t });
     } finally {
       setIsSavingPantry(false);
     }
@@ -207,7 +207,7 @@ export function HomeScreen({ navigation }) {
           setSelectedPantry((current) => current?.id === pantry.id ? null : current);
           setPantryForEdit(null);
         } catch (error) {
-          showUserErrorAlert(error, { title: t('home.deletePantryError'), fallback: t('home.deletePantryFallback'), dismissText: t('common.ok') });
+          showUserErrorAlert(error, { title: t('home.deletePantryError'), fallback: t('home.deletePantryFallback'), dismissText: t('common.ok'), t });
         } finally {
           setIsSavingPantry(false);
         }

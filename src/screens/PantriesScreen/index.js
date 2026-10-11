@@ -67,7 +67,7 @@ export default function PantriesScreen({ navigation }) {
     return () => {
       isMounted = false;
     };
-  }, [account?.id, reloadKey]));
+  }, [account?.id, reloadKey, t]));
 
   const filteredPantries = searchQuery.trim()
     ? pantries.filter((pantry) => normalizeSearchText(pantry.name).includes(normalizeSearchText(searchQuery)))
@@ -85,7 +85,7 @@ export default function PantriesScreen({ navigation }) {
       setPantries((current) => current.map((pantry) => pantry.id === updated.id ? updated : pantry));
       setPantryForEdit(null);
     } catch (error) {
-      showUserErrorAlert(error, { title: t('pantries.saveErrorTitle'), fallback: t('pantries.saveError'), dismissText: t('common.ok') });
+      showUserErrorAlert(error, { title: t('pantries.saveErrorTitle'), fallback: t('pantries.saveError'), dismissText: t('common.ok'), t });
     } finally {
       setIsSavingPantry(false);
     }
@@ -104,7 +104,7 @@ export default function PantriesScreen({ navigation }) {
           setSelectedPantry((current) => current?.id === pantry.id ? null : current);
           setPantryForEdit(null);
         } catch (error) {
-      showUserErrorAlert(error, { title: t('pantries.deleteErrorTitle'), fallback: t('pantries.deleteError'), dismissText: t('common.ok') });
+          showUserErrorAlert(error, { title: t('pantries.deleteErrorTitle'), fallback: t('pantries.deleteError'), dismissText: t('common.ok'), t });
         } finally {
           setIsSavingPantry(false);
         }

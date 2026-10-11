@@ -55,7 +55,7 @@ export function LoginScreen({ navigation }) {
       if (error?.message === 'INVALID_CREDENTIALS') {
         Alert.alert(t('auth.errors.loginTitle'), t('auth.validation.invalidCredentials'), [{ text: t('auth.common.ok') }]);
       } else {
-        showUserErrorAlert(error, { title: t('auth.errors.loginTitle'), fallback: t('auth.errors.connection'), dismissText: t('auth.common.ok') });
+        showUserErrorAlert(error, { title: t('auth.errors.loginTitle'), fallback: t('auth.errors.connection'), dismissText: t('auth.common.ok'), t });
       }
     } finally {
       setIsSubmitting(false);

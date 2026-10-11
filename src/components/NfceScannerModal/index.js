@@ -19,7 +19,7 @@ export default function NfceScannerModal({ visible, onRequestClose, onPurchaseLo
     if (processing) return;
     setProcessing(true); setError(null);
     try { await onPurchaseLoaded(await loadFiscalPurchase(data)); }
-    catch (cause) { setError(getUserErrorMessage(cause, t('shopping.readReceiptError'))); setProcessing(false); }
+    catch (cause) { setError(getUserErrorMessage(cause, t('shopping.readReceiptError'), t)); setProcessing(false); }
   }
   const title = permission?.granted ? t('shopping.readQr') : t('shopping.useCamera');
   return <Modal visible={visible} onRequestClose={onRequestClose} animationType="slide"><Screen edges={['top', 'left', 'right', 'bottom']}><Content>

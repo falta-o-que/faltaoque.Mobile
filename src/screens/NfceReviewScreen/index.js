@@ -98,7 +98,7 @@ export default function NfceReviewScreen({ route, navigation }) {
       // Leave after the navigation guard has rendered its unlocked state.
       setCompleted(true);
     } catch (error) {
-      setSubmitError(getUserErrorMessage(error, t('nfce.submitError')));
+      setSubmitError(getUserErrorMessage(error, t('nfce.submitError'), t));
       busy.current = false;
       setSaving(false);
     }

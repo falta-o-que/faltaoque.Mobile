@@ -41,7 +41,7 @@ export default function PlaceSearchField({ value, selected, onChangeText, onSele
         if (sequence.current === requestId) {
           setPredictions([]);
           setHasNoResults(false);
-          setMessage(getUserErrorMessage(requestError, t('placeSearch.searchError')));
+          setMessage(getUserErrorMessage(requestError, t('placeSearch.searchError'), t));
         }
       } finally {
         if (sequence.current === requestId) setLoading(false);
@@ -51,7 +51,7 @@ export default function PlaceSearchField({ value, selected, onChangeText, onSele
       clearTimeout(timer);
       if (sequence.current === requestId) sequence.current += 1;
     };
-  }, [value, selected]);
+  }, [value, selected, t]);
 
   async function choose(prediction) {
     setLoading(true);
@@ -63,7 +63,7 @@ export default function PlaceSearchField({ value, selected, onChangeText, onSele
       token.current = createPlacesSessionToken();
       setPredictions([]);
     } catch (requestError) {
-      setMessage(getUserErrorMessage(requestError, t('placeSearch.selectError')));
+      setMessage(getUserErrorMessage(requestError, t('placeSearch.selectError'), t));
     } finally { setLoading(false); }
   }
 

@@ -272,7 +272,7 @@ export default function GroceryCheckoutReview({
       <PurchaseProductReviewCard item={draft} title={draft.name || item.name}
         included={Boolean(draft.included)} selectionPending={!draft.reviewed}
         selectionLabel={draft.reviewed
-          ? draft.included ? 'Confirmado para adicionar manualmente' : 'Confirmado para deixar fora da despensa'
+          ? draft.included ? t('shopping.confirmedManualAddition') : t('shopping.confirmedExcluded')
           : draft.included ? t('shopping.reviewAndConfirm') : t('shopping.waitingDecision')}
         expanded={isOpen} busy={busy}
         editorValues={editorValues(draft)} editorErrors={checkoutEditorErrors(draft, t)}

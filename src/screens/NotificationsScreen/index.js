@@ -164,6 +164,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
         title: t('notifications.updateErrorTitle'),
         fallback: t('notifications.updateErrorFallback'),
         dismissText: t('common.ok'),
+        t,
       });
     }
 
@@ -184,7 +185,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
     const notification = notifications.find((item) => item.id === notificationId);
     if (notification) handleOpenNotification(notification);
     navigation.setParams({ notificationId: undefined });
-  }, [route?.params?.notificationId, loading, notifications, navigation]);
+  }, [route?.params?.notificationId, loading, notifications, navigation, t]);
 
   const handleClearNotifications = async () => {
     if (isClearing || notifications.length === 0) return;
@@ -198,6 +199,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
           title: t('notifications.clearedTitle'),
           fallback: t('notifications.clearedFallback'),
           dismissText: t('common.ok'),
+          t,
         });
       }
     } catch (clearError) {
@@ -205,6 +207,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
         title: t('notifications.clearErrorTitle'),
         fallback: t('notifications.tryAgainSoon'),
         dismissText: t('common.ok'),
+        t,
       });
     } finally {
       setIsClearing(false);
@@ -252,6 +255,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
         title: t('notifications.markAllErrorTitle'),
         fallback: t('notifications.tryAgainSoon'),
         dismissText: t('common.ok'),
+        t,
       });
     } finally {
       setIsMarkingAllRead(false);
@@ -304,6 +308,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
           title: t('notifications.addedTitle'),
           fallback: t('notifications.addedFallback'),
           dismissText: t('common.ok'),
+          t,
         });
       }
     } catch (saveError) {
@@ -311,6 +316,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
         title: t('notifications.addErrorTitle'),
         fallback: t('notifications.addErrorFallback'),
         dismissText: t('common.ok'),
+        t,
       });
     } finally {
       setIsSaving(false);

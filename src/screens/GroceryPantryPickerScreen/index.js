@@ -29,7 +29,7 @@ export default function GroceryPantryPickerScreen({ navigation }) {
       .catch(() => { if (active) setError(t('shopping.loadPantriesError')); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [account?.id, reloadKey]));
+  }, [account?.id, reloadKey, t]));
 
   const handleNavbar = (key, item) => {
     if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME);

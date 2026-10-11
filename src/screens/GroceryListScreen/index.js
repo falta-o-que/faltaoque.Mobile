@@ -171,7 +171,7 @@ export default function GroceryListScreen({ navigation, route }) {
       })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [account?.id, pantryId]));
+  }, [account?.id, pantryId, t]));
 
   const activeList = lists.find((list) => list.id === activeListId) ?? null;
   const visibleLists = useMemo(() => lists.filter((list) => {
@@ -190,7 +190,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setError(null);
       return true;
     } catch (operationError) {
-      showUserErrorAlert(operationError, { title: t('shopping.actionError'), fallback: t('shopping.actionErrorFallback'), dismissText: t('common.ok') });
+      showUserErrorAlert(operationError, { title: t('shopping.actionError'), fallback: t('shopping.actionErrorFallback'), dismissText: t('common.ok'), t });
       return false;
     } finally {
       setBusy(false);
@@ -234,7 +234,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setSuggestionOptionsByList((current) => ({ ...current, [list.id]: options }));
     } catch (suggestionError) {
       console.error('[GroceryListScreen] Falha ao calcular sugestões:', suggestionError);
-      showUserErrorAlert(suggestionError, { title: t('shopping.suggestionsUnavailable'), fallback: t('shopping.suggestionsErrorFallback'), dismissText: t('common.ok') });
+      showUserErrorAlert(suggestionError, { title: t('shopping.suggestionsUnavailable'), fallback: t('shopping.suggestionsErrorFallback'), dismissText: t('common.ok'), t });
       setSuggestionPanelListId(null);
     } finally {
       setLoadingSuggestionListId((current) => current === list.id ? null : current);
@@ -249,8 +249,8 @@ export default function GroceryListScreen({ navigation, route }) {
   const sortItems = (items) => {
     if (!sortOption) return items;
     return [...items].sort((first, second) => {
-      if (sortOption === 'nameAsc') return first.name.localeCompare(second.name, 'pt-BR');
-      if (sortOption === 'nameDesc') return second.name.localeCompare(first.name, 'pt-BR');
+      if (sortOption === 'nameAsc') return first.name.localeCompare(second.name, language);
+      if (sortOption === 'nameDesc') return second.name.localeCompare(first.name, language);
       if (sortOption === 'quantityDesc') return second.quantity - first.quantity;
       return 0;
     });
@@ -279,7 +279,7 @@ export default function GroceryListScreen({ navigation, route }) {
     }
     const selectedIds = [...removalItemIds];
     Alert.alert(t('shopping.removeProductsQuestion'), t('shopping.removeProductsMessage', { count: selectedIds.length, name: list.name }), [
-      { text: t('shared.cancel'), style: 'cancel' },
+      { text: t('common.cancel'), style: 'cancel' },
       { text: t('shopping.remove'), style: 'destructive', onPress: async () => {
         const succeeded = await perform(() => groceryListService.removeGroceryItems({ accountId: account?.id, pantryId, listId: list.id, itemIds: selectedIds }));
         if (succeeded) cancelRemoval();
@@ -312,7 +312,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setCheckoutError('');
       setActiveModal('checkout-review');
     } catch (cause) {
-      showUserErrorAlert(cause, { title: t('shopping.preparePurchaseError'), fallback: t('shopping.preparePurchaseFallback'), dismissText: t('common.ok') });
+      showUserErrorAlert(cause, { title: t('shopping.preparePurchaseError'), fallback: t('shopping.preparePurchaseFallback'), dismissText: t('common.ok'), t });
     }
   };
 
@@ -364,7 +364,7 @@ export default function GroceryListScreen({ navigation, route }) {
       setActiveModal('checkout-review');
     } catch (cause) {
       if (cause?.message === 'DUPLICATE_FISCAL_NOTE') throw cause;
-      showUserErrorAlert(cause, { title: t('shopping.prepareReceiptError'), fallback: t('shopping.prepareReceiptFallback'), dismissText: t('common.ok') });
+      showUserErrorAlert(cause, { title: t('shopping.prepareReceiptError'), fallback: t('shopping.prepareReceiptFallback'), dismissText: t('common.ok'), t });
       setActiveModal('checkout-choice');
     }
   };
@@ -576,7 +576,8 @@ export default function GroceryListScreen({ navigation, route }) {
                         {loadingSuggestionListId === list.id ? <EstimateDetail>{t('shopping.loadingHistory')}</EstimateDetail> : null}
                         {suggestionOptions.map((option) => {
                           const candidate = option.candidate;
-                          const detail = option.disabled ? option.message
+                          const detail = option.disabled
+                            ? (option.messageKey ? t(option.messageKey, option.messageValues) : t('shopping.suggestionsErrorFallback'))
                             : option.type === GROCERY_SUGGESTION_TYPES.NEAREST
                               ? t('shopping.nearestSuggestionDetail', { market: formatMarketLocation(candidate.market, t('shopping.unknownMarket')), distance: new Intl.NumberFormat(language, { maximumFractionDigits: 1 }).format(candidate.distanceKm) })
                               : option.type === GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS

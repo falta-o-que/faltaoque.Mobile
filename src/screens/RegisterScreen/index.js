@@ -172,7 +172,7 @@ export function RegisterScreen({ navigation }) {
         return;
       }
 
-      showUserErrorAlert(error, { title: t('auth.errors.registerTitle'), fallback: t('auth.errors.connection'), dismissText: t('auth.common.ok') });
+      showUserErrorAlert(error, { title: t('auth.errors.registerTitle'), fallback: t('auth.errors.connection'), dismissText: t('auth.common.ok'), t });
     } finally {
       setIsSubmitting(false);
     }

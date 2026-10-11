@@ -10,4 +10,46 @@ const overrides = {
   es: { 'notifications.pantry': 'Despensa', 'notifications.title': 'Notificaciones', 'notifications.short': 'Avisos', 'notifications.profile': 'Perfil', 'notifications.settings': 'Configuración', 'notifications.greeting': 'Hola, {{name}}', 'notifications.greetingFallback': 'Hola', 'notifications.subtitle': 'Tu hogar está en orden.', 'notifications.question': '¿Qué quieres hacer?', 'notifications.permissionHint': 'Activa las notificaciones de FaltaOquê en los ajustes del dispositivo para recibir avisos en la barra.', 'notifications.marking': 'Marcando...', 'notifications.markAllRead': 'Marcar todo como leído', 'notifications.clearing': 'Limpiando...', 'notifications.clear': 'Limpiar notificaciones', 'notifications.loading': 'Cargando notificaciones', 'notifications.empty': 'Todo en orden. No hay notificaciones por ahora.', 'notifications.retry': 'Intentar de nuevo', 'notifications.read': 'Leída', 'notifications.unread': 'No leída', 'notifications.openDetails': 'Toca para ver los detalles.', 'notifications.comingSoon': 'Próximamente', 'notifications.comingSoonMessage': '{{feature}} estará disponible pronto.', 'notifications.cancel': 'Cancelar', 'notifications.clearConfirmAction': 'Limpiar', 'notifications.markAllConfirmAction': 'Marcar como leídas', 'notifications.modal.closeDetails': 'Cerrar detalles de la notificación', 'notifications.modal.depletedTitle': 'Producto agotado', 'notifications.modal.expirationTitle': 'Caducidad del producto', 'notifications.modal.handledSummary': 'Este producto ya se añadió a la lista “{{list}}”.', 'notifications.modal.depletedSummary': 'La existencia de este producto llegó a cero. ¿Quieres añadirlo a una lista de compras?', 'notifications.modal.expirationSummary': 'La fecha de caducidad de este producto ya llegó. Revisa la información antes de decidir qué hacer.', 'notifications.modal.productFallback': 'Producto', 'notifications.modal.pantry': 'Despensa', 'notifications.modal.pantryFallback': 'No identificada', 'notifications.modal.stock': 'Existencia actual', 'notifications.modal.expiration': 'Caducidad', 'notifications.modal.package': 'Presentación', 'notifications.modal.brand': 'Marca', 'notifications.modal.notProvided': 'No informada', 'notifications.modal.addToListPrompt': '¿A qué lista añadirlo?', 'notifications.modal.loadingLists': 'Cargando listas...', 'notifications.modal.emptyLists': 'Esta despensa no tiene listas activas. Crea una lista para añadir el producto.', 'notifications.modal.close': 'Cerrar', 'notifications.modal.createList': 'Crear lista', 'notifications.modal.addToList': 'Añadir a la lista', 'notifications.modal.adding': 'Añadiendo...', 'notifications.modal.notNow': 'Ahora no', 'notifications.modal.unit.one': 'unidad', 'notifications.modal.unit.other': 'unidades', 'notifications.productExpiredTitle': 'Caducado: {{product}}', 'notifications.productDepletedTitle': 'Agotado: {{product}}', 'notifications.channelName': 'FaltaOquê', 'notifications.channelDescription': 'Avisos sobre productos y despensas', 'notifications.expirationTitle': 'Caducidad del producto', 'notifications.depletedTitle': 'Producto agotado', 'notifications.expirationBody': '{{product}} caduca el {{date}} en la despensa {{pantry}}.', 'notifications.depletedBody': '{{product}} se agotó en la despensa {{pantry}}.' },
 };
 
+Object.assign(overrides.en, {
+  'notifications.updateErrorTitle': 'Could not update the notification',
+  'notifications.updateErrorFallback': 'You can still view the details. Try again later.',
+  'notifications.listsError': 'Could not load this pantry’s lists.',
+  'notifications.clearedTitle': 'Notifications removed from the list',
+  'notifications.clearedFallback': 'The device could not clear all notifications from the notification bar.',
+  'notifications.clearErrorTitle': 'Could not clear notifications',
+  'notifications.tryAgainSoon': 'Try again in a few moments.',
+  'notifications.clearConfirmTitle': 'Clear notifications?',
+  'notifications.clearConfirmMessage': 'The current alerts will be removed from this list and the device’s notification bar.',
+  'notifications.markAllConfirmTitle': 'Mark all as read?',
+  'notifications.markAllConfirmMessage': 'Unread notifications will be marked as read.',
+  'notifications.markedTitle': 'Notifications marked as read',
+  'notifications.markedFallback': 'The device could not remove all alerts from the notification bar.',
+  'notifications.markAllErrorTitle': 'Could not mark notifications as read',
+  'notifications.addedTitle': 'Product added to the list',
+  'notifications.addedFallback': 'The notification could not be updated on this device.',
+  'notifications.addErrorTitle': 'Could not add the product',
+  'notifications.addErrorFallback': 'The list was not changed. Try again.',
+});
+
+Object.assign(overrides.es, {
+  'notifications.updateErrorTitle': 'No se pudo actualizar la notificación',
+  'notifications.updateErrorFallback': 'Aún puedes consultar los detalles. Inténtalo de nuevo más tarde.',
+  'notifications.listsError': 'No se pudieron cargar las listas de esta despensa.',
+  'notifications.clearedTitle': 'Notificaciones eliminadas de la lista',
+  'notifications.clearedFallback': 'El dispositivo no pudo limpiar todas las notificaciones de la barra.',
+  'notifications.clearErrorTitle': 'No se pudieron limpiar las notificaciones',
+  'notifications.tryAgainSoon': 'Inténtalo de nuevo dentro de unos instantes.',
+  'notifications.clearConfirmTitle': '¿Limpiar notificaciones?',
+  'notifications.clearConfirmMessage': 'Los avisos actuales se eliminarán de esta lista y de la barra del dispositivo.',
+  'notifications.markAllConfirmTitle': '¿Marcar todas como leídas?',
+  'notifications.markAllConfirmMessage': 'Las notificaciones no leídas se marcarán como leídas.',
+  'notifications.markedTitle': 'Notificaciones marcadas como leídas',
+  'notifications.markedFallback': 'El dispositivo no pudo eliminar todos los avisos de la barra de notificaciones.',
+  'notifications.markAllErrorTitle': 'No se pudieron marcar las notificaciones como leídas',
+  'notifications.addedTitle': 'Producto añadido a la lista',
+  'notifications.addedFallback': 'No se pudo actualizar la notificación en este dispositivo.',
+  'notifications.addErrorTitle': 'No se pudo añadir el producto',
+  'notifications.addErrorFallback': 'La lista no se modificó. Inténtalo de nuevo.',
+});
+
 export default { 'pt-BR': shared, en: { ...shared, ...overrides.en }, es: { ...shared, ...overrides.es } };

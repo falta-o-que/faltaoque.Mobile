@@ -3,8 +3,9 @@ import auth from './catalogs/auth';
 import pantry from './catalogs/pantry';
 import shopping from './catalogs/shopping';
 import notifications from './catalogs/notifications';
+import errors from './catalogs/errors';
 
-const catalogues = [shared, auth, pantry, shopping, notifications];
+const catalogues = [shared, auth, pantry, shopping, notifications, errors];
 const languages = ['pt-BR', 'en', 'es'];
 const messages = Object.fromEntries(languages.map((language) => [
   language,

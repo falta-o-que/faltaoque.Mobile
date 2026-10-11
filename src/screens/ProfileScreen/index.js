@@ -173,6 +173,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
         title: t('auth.profile.saveErrorTitle'),
         fallback: t('auth.profile.saveErrorBody'),
         dismissText: t('auth.common.ok'),
+        t,
       });
     } finally {
       setIsSaving(false);
