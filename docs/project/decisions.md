@@ -1,5 +1,11 @@
 # Decisões do projeto
 
+## 2026-10-11 — Configurações finalizadas
+
+O usuário encerrou a feature após validação inicial no front e correções de tradução e tratamento de falhas. Esta decisão substitui o escopo provisório de 5 de outubro: idiomas português brasileiro, inglês e espanhol; fonte em 90%, 100% e 110%; permissões de notificações controladas nos ajustes do sistema; Sobre com Beta 0.9, equipe em ordem alfabética e `https://github.com/falta-o-que`; saída da conta com confirmação. Modo claro/escuro fica fora desta entrega.
+
+Guia, Política de Privacidade e Termos são modais internos com estrutura concluída e textos definitivos pendentes de envio/aprovação. O título fixo reutiliza o padrão das abas e a cor do avatar; o conteúdo abaixo é rolável. Salvar e Cancelar reutilizam as ações do perfil. Preferências de idioma/fonte são locais e persistentes; falha na atualização das notificações não desfaz o salvamento e oferece nova tentativa.
+
 ## 2026-10-11 — Tradução de erros e permissões
 
 Mensagens de erro aprovadas são mapeadas para chaves estáveis e traduzidas na interface, preservando a causa específica. Erros desconhecidos usam o fallback contextual, sem expor detalhes internos. Sugestões de mercados retornam chaves, evitando guardar mensagens no idioma anterior.

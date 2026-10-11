@@ -4,11 +4,14 @@
 
 ## Revisão de traduções — 11 de outubro de 2026
 
+- **Feature Configurações finalizada por confirmação do usuário.** Inclui português/inglês/espanhol, fonte de 90% a 110%, Salvar/Cancelar reutilizados, controle de notificações pelo sistema, Sobre (`Beta 0.9`, equipe em ordem alfabética e GitHub), modais de Guia/Política/Termos e saída da conta com confirmação. Título fixo segue as demais abas; conteúdo rola abaixo.
+- O usuário confirmou a validação inicial das traduções no front e encerrou a feature após as três correções adicionais de Configurações. Os textos definitivos dos modais seguem pendentes de envio/aprovação. Não houve relato de validação específica dos últimos caminhos de falha ou das permissões nativas.
+
 - Configurações: controles de idioma e fonte ficam bloqueados durante o salvamento; falhas ao abrir ajustes do sistema ou o projeto mostram aviso traduzido. Falhas de sincronização de notificações informam que as preferências já foram salvas e oferecem nova tentativa no idioma salvo, sem exigir outra alteração das preferências. Validação no aparelho desses caminhos de falha permanece pendente.
 
 - Corrigidos os 13 pontos solicitados: chaves ausentes de botões, 18 mensagens de notificações, sugestões de mercados, estados da revisão de compra, dica da importação por QR, erros específicos, callbacks com idioma antigo, ordenação por idioma, fallbacks, acessibilidade de carregamento, permissão nativa de câmera e 39 definições duplicadas do catálogo de compras.
 - Erros aprovados preservam sua causa nos três idiomas; sugestões retornam chaves e são traduzidas na interface. A configuração nativa inclui textos de câmera em português, inglês e espanhol; no iOS seguem o idioma do sistema para o app e exigem nova build. O diálogo de permissão Android é traduzido pelo sistema.
-- Revisão estática: 154 arquivos JavaScript analisados sem erro de sintaxe; 810 chaves por idioma, com paridade de placeholders; arquivos de tradução nativa resolvidos pelo plugin Expo. A validação dos fluxos no aparelho permanece pendente.
+- Revisão estática da etapa dos 13 problemas: 154 arquivos JavaScript analisados sem erro de sintaxe; 810 chaves por idioma, com paridade de placeholders; arquivos de tradução nativa resolvidos pelo plugin Expo. Depois dessa etapa, foram adicionadas cinco mensagens por idioma para as falhas de Configurações e o usuário confirmou a validação inicial no front.
 
 ## Estado consolidado — 10 de outubro de 2026
 

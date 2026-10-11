@@ -88,11 +88,16 @@ Peso/volume de um item planejado é opcional; a categoria é obrigatória, confo
 - Critérios concluídos no simulador local: editar nome/cor/localização em ambas as telas; preservar ou limpar localização; validar os campos obrigatórios; confirmar ou cancelar exclusão; atualizar imediatamente a listagem e remover vínculos locais sem deixar registros dependentes órfãos. O bundle Android foi exportado com sucesso em 10 de outubro. Validação em aparelho permanece pendente.
 - O comportamento de exclusão acima é do adaptador local. Não determina exclusão física ou lógica, retenção histórica, sincronização de participantes ou cascatas no banco hospedado; esses pontos dependem do contrato de backend e não devem ser inferidos desta implementação.
 
-## Tela de Configurações
+## Tela de Configurações — finalizada em 11 de outubro de 2026
 
-- Escopo previsto: idioma, ajuste de tamanho de fonte, ativação/desativação de notificações, guia de uso, seção Sobre com versão, nomes da equipe e link do projeto, Política de Privacidade e Termos de Uso.
-- Modo claro/escuro é desejado se houver tempo para implementar e validar o tema completo. A organização sugerida é preferências, notificações, ajuda, Sobre e documentos legais; não constitui uma ordem obrigatória de implementação.
-- Ao iniciar essa tela, definir idiomas oferecidos, alcance do ajuste de fonte, notificações controladas, conteúdos e links. A entrada atual da navegação ainda informa `Em breve`.
+- Feature encerrada por confirmação do usuário, após validação inicial no front. Disponível na Home, com título fixo `Configurações do Aplicativo`, marcador na cor do avatar e conteúdo rolável abaixo, seguindo o padrão das demais abas.
+- Idiomas: português brasileiro, inglês e espanhol. Idioma e tamanho de fonte são preferências locais persistentes; Salvar aplica as alterações e Cancelar restaura os valores salvos. A fonte oferece escalas de 90%, 100% e 110%. Os controles ficam bloqueados durante o salvamento. As ações reutilizam o componente do perfil.
+- Notificações: o controle mostra a permissão atual e abre os ajustes do sistema para alterá-la; o estado é consultado novamente ao retornar ao app. Não é uma preferência pendente do botão Salvar.
+- Ao salvar, os avisos do dispositivo são sincronizados no idioma escolhido. Se a sincronização falhar, o app informa que as preferências foram salvas e oferece nova tentativa. Falhas ao abrir os ajustes do sistema ou o projeto mostram mensagens nos três idiomas.
+- Sobre apresenta `Beta 0.9`, equipe em ordem alfabética e link `https://github.com/falta-o-que`. Sair da conta exige confirmação.
+- Guia, Política de Privacidade e Termos de Uso abrem modais internos roláveis com o mesmo botão circular vermelho de fechamento das outras abas. A estrutura está concluída; os textos definitivos dependem do envio/aprovação do usuário.
+- Modo claro/escuro ficou fora desta feature por decisão do usuário.
+- A revisão de traduções corrigiu os 13 problemas apontados, incluindo chaves ausentes, notificações, sugestões, revisão de compra, erros específicos e callbacks. A validação inicial no front foi confirmada pelo usuário; os últimos caminhos de falha e as permissões nativas ainda não tiveram validação específica relatada.
 
 ## Fora do escopo atual e validações pendentes
 
