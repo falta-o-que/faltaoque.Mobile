@@ -45,7 +45,7 @@ export const Logo = styled(Image)`
 export const Title = styled.Text`
   color: ${({ theme }) => theme.colors.primary.Green};
   font-family: ${({ theme }) => theme.fonts.families.poppins.bold};
-  font-size: 40px;
+  font-size: ${({ theme }) => 40 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -53,6 +53,6 @@ export const Subtitle = styled.Text`
   margin-top: 4px;
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.poppins.regular};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
   text-align: center;
 `;

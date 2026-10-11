@@ -10,6 +10,7 @@ import PantryDestinationModal from '../../components/PantryDestinationModal';
 import QuickActionButton from '../../components/QuickActionButton';
 import NotificationsScreen from '../NotificationsScreen';
 import ProfileScreen from '../ProfileScreen';
+import SettingsScreen from '../SettingsScreen';
 import {
   AddCircleIcon,
   PantryIcon,
@@ -18,6 +19,7 @@ import {
   UserIcon,
 } from '../../assets/icons/export';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import { showUserErrorAlert } from '../../utils/userErrors';
 import * as pantryService from '../../services/pantryService';
@@ -28,9 +30,6 @@ import {
   CreateAction,
   EmptyText,
   Greeting,
-  HomeActionSection,
-  HomeActionTitle,
-  HomeActionText,
   LoadError,
   RetryButton,
   RetryText,
@@ -44,26 +43,15 @@ import {
   Subtitle,
 } from './styles';
 
-const QUICK_ACTIONS = [
-  { key: 'pantry', label: 'Despensa', text: 'Despensa', icon: PantryIcon },
-  { key: 'notifications', label: 'Notificações', text: 'Notif.', icon: SinoIcon },
-  { key: 'profile', label: 'Perfil', text: 'Perfil', icon: UserIcon },
-  { key: 'settings', label: 'Configurações', text: 'Config.', icon: SettingsIcon },
-];
-
-const showComingSoon = (feature) => {
-  Alert.alert('Em breve', `${feature} estará disponível em breve.`);
-};
-
-const HOME_ACTION_CONTENT = {
-  settings: {
-    title: 'Configurações',
-    message: 'As configurações estarão disponíveis em breve.',
-  },
-};
-
 export function HomeScreen({ navigation }) {
   const { account } = useAuth();
+  const { t } = useAppPreferences();
+  const quickActions = [
+    { key: 'pantry', label: t('home.action.pantry'), text: t('home.action.pantry'), icon: PantryIcon },
+    { key: 'notifications', label: t('home.action.notifications'), text: t('home.action.notificationsShort'), icon: SinoIcon },
+    { key: 'profile', label: t('home.action.profile'), text: t('home.action.profile'), icon: UserIcon },
+    { key: 'settings', label: t('home.action.settings'), text: t('home.action.settingsShort'), icon: SettingsIcon },
+  ];
   const [selectedAction, setSelectedAction] = useState('pantry');
   const [isCreatePantryModalOpen, setIsCreatePantryModalOpen] = useState(false);
   const [selectedPantry, setSelectedPantry] = useState(null);
@@ -91,7 +79,7 @@ export function HomeScreen({ navigation }) {
       .catch(() => {
         if (isMounted) {
           setPantries([]);
-          setPantriesError('Não foi possível carregar suas despensas.');
+          setPantriesError(t('home.loadPantriesError'));
         }
       });
 
@@ -110,7 +98,7 @@ export function HomeScreen({ navigation }) {
     return () => {
       isMounted = false;
     };
-  }, [account?.id, reloadKey]));
+  }, [account?.id, reloadKey, t]));
 
   useEffect(() => {
     const subscription = Notifications.addNotificationReceivedListener(() => {
@@ -135,7 +123,7 @@ export function HomeScreen({ navigation }) {
     } else if (key === 'pantry') {
       navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
     } else if (key !== 'profile') {
-      showComingSoon(item.label);
+      Alert.alert(t('common.comingSoon'), t('common.comingSoonMessage', { feature: item.label }), [{ text: t('common.ok') }]);
     }
   };
 
@@ -182,7 +170,7 @@ export function HomeScreen({ navigation }) {
       setPantriesError(null);
       setIsCreatePantryModalOpen(false);
     } catch (error) {
-      showUserErrorAlert(error, { title: 'Não foi possível criar a despensa', fallback: 'Os dados preenchidos foram mantidos. Tente novamente em alguns instantes.' });
+      showUserErrorAlert(error, { title: t('home.createPantryError'), fallback: t('home.createPantryFallback'), dismissText: t('common.ok'), t });
     }
   };
 
@@ -199,7 +187,7 @@ export function HomeScreen({ navigation }) {
       await syncDeviceNotifications(account?.id).catch(() => {});
       setPantryForEdit(null);
     } catch (error) {
-      showUserErrorAlert(error, { title: 'Não foi possível salvar a despensa', fallback: 'Confira os dados e tente novamente.' });
+      showUserErrorAlert(error, { title: t('home.savePantryError'), fallback: t('home.savePantryFallback'), dismissText: t('common.ok'), t });
     } finally {
       setIsSavingPantry(false);
     }
@@ -208,9 +196,9 @@ export function HomeScreen({ navigation }) {
   const handleDeletePantry = () => {
     const pantry = pantryForEdit;
     if (!pantry || isSavingPantry) return;
-    Alert.alert('Excluir despensa?', `A despensa “${pantry.name}”, seus produtos, compras e listas serão removidos deste dispositivo. Esta ação não pode ser desfeita.`, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Excluir', style: 'destructive', onPress: async () => {
+    Alert.alert(t('home.deletePantryTitle'), t('home.deletePantryMessage', { name: pantry.name }), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('home.delete'), style: 'destructive', onPress: async () => {
         setIsSavingPantry(true);
         try {
           await pantryService.deletePantry({ accountId: account?.id, pantryId: pantry.id });
@@ -219,7 +207,7 @@ export function HomeScreen({ navigation }) {
           setSelectedPantry((current) => current?.id === pantry.id ? null : current);
           setPantryForEdit(null);
         } catch (error) {
-          showUserErrorAlert(error, { title: 'Não foi possível excluir a despensa', fallback: 'Tente novamente em alguns instantes.' });
+          showUserErrorAlert(error, { title: t('home.deletePantryError'), fallback: t('home.deletePantryFallback'), dismissText: t('common.ok'), t });
         } finally {
           setIsSavingPantry(false);
         }
@@ -231,12 +219,12 @@ export function HomeScreen({ navigation }) {
     <Screen edges={['top', 'right', 'left']}>
       <Content>
         <Avatar $color={account?.avatarColor} />
-        <Greeting>Oi, {account?.name ?? 'pessoa viva'}</Greeting>
-        <Subtitle>Sua casa está no ritmo.</Subtitle>
+        <Greeting>{account?.name ? t('home.greeting', { name: account.name }) : t('home.greetingFallback')}</Greeting>
+        <Subtitle>{t('home.subtitle')}</Subtitle>
         <Section>
-          <Question>O que você quer fazer?</Question>
+          <Question>{t('home.question')}</Question>
           <QuickActions>
-            {QUICK_ACTIONS.map(({ icon, key, label, text }) => (
+            {quickActions.map(({ icon, key, label, text }) => (
               <QuickActionButton
                 key={key}
                 Icon={icon}
@@ -251,17 +239,17 @@ export function HomeScreen({ navigation }) {
         </Section>
         {selectedAction === 'pantry' ? (
           <PantrySection>
-            <PantryTitle>Suas despensas</PantryTitle>
+            <PantryTitle>{t('home.pantries')}</PantryTitle>
             {pantriesError ? (
               <>
                 <LoadError accessibilityLiveRegion="polite" accessibilityRole="alert">{pantriesError}</LoadError>
                 <RetryButton accessibilityRole="button" onPress={() => setReloadKey((value) => value + 1)}>
-                  <RetryText>Tentar novamente</RetryText>
+                  <RetryText>{t('common.retry')}</RetryText>
                 </RetryButton>
               </>
             ) : null}
             {pantries.length === 0 && !pantriesError ? (
-              <EmptyText>Você ainda não possui despensas...</EmptyText>
+              <EmptyText>{t('home.noPantries')}</EmptyText>
             ) : null}
             {pantries.length > 0 ? (
               <PantryList>
@@ -281,9 +269,9 @@ export function HomeScreen({ navigation }) {
             <CreateAction>
               <QuickActionButton
                 Icon={AddCircleIcon}
-                accessibilityLabel="Criar despensa"
+                accessibilityLabel={t('home.createPantry')}
                 onPress={handleCreatePantryPress}
-                text="Criar"
+                text={t('home.create')}
               />
             </CreateAction>
           </PantrySection>
@@ -298,12 +286,7 @@ export function HomeScreen({ navigation }) {
         {selectedAction === 'profile' ? (
           <ProfileScreen embedded navigation={navigation} />
         ) : null}
-        {HOME_ACTION_CONTENT[selectedAction] ? (
-          <HomeActionSection>
-            <HomeActionTitle>{HOME_ACTION_CONTENT[selectedAction].title}</HomeActionTitle>
-            <HomeActionText>{HOME_ACTION_CONTENT[selectedAction].message}</HomeActionText>
-          </HomeActionSection>
-        ) : null}
+        {selectedAction === 'settings' ? <SettingsScreen embedded /> : null}
       </Content>
       <CreatePantryModal
         onCreate={handleCreatePantry}

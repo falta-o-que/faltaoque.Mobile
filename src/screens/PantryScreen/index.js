@@ -13,6 +13,7 @@ import ProductFilterModal from '../../components/ProductFilterModal';
 import AddProductMethodModal from '../../components/AddProductMethodModal';
 import NfceScannerModal from '../../components/NfceScannerModal';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { getProductPresentationKey } from '../../domain/pantryProductGrouping';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import { listPantries } from '../../services/pantryService';
@@ -47,6 +48,7 @@ const formatExpirationDate = (value) => {
 
 export default function PantryScreen({ route, navigation }) {
   const { account } = useAuth();
+  const { t, language } = useAppPreferences();
   const [pantry, setPantry] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -115,20 +117,22 @@ export default function PantryScreen({ route, navigation }) {
       await new Promise((resolve) => {
         let showChoice;
         const confirmChoice = (mode) => () => Alert.alert(
-          'Confirmar exibição?',
-          'Essa escolha não poderá ser desfeita. Uma nova ocorrência duplicada poderá gerar uma nova escolha.',
+          t('pantry.confirmDisplayTitle'),
+          t('pantry.confirmDisplayMessage'),
           [
-            { text: 'Voltar', style: 'cancel', onPress: showChoice },
+            { text: t('pantry.back'), style: 'cancel', onPress: showChoice },
             {
-              text: 'Confirmar',
+              text: t('pantry.confirm'),
               onPress: async () => {
                 try {
                   await applyBrandGrouping(prompt.presentationKey, mode);
                   await saveProductDuplicatePromptCount(account?.id, pantryId, prompt.duplicateKey, prompt.count);
                 } catch {
                   showUserErrorAlert(null, {
-                    title: 'Não foi possível salvar a exibição',
-                    fallback: 'Tente escolher novamente quando este produto aparecer na despensa.',
+                    title: t('pantry.displaySaveErrorTitle'),
+                    fallback: t('pantry.displaySaveError'),
+                    dismissText: t('common.ok'),
+                    t,
                   });
                 } finally {
                   resolve();
@@ -140,11 +144,11 @@ export default function PantryScreen({ route, navigation }) {
         );
 
         showChoice = () => Alert.alert(
-          'Como exibir este produto?',
-          `Há mais de um ${prompt.product.name} com o mesmo tamanho na despensa. Como você prefere exibir as marcas deste produto?`,
+          t('pantry.displayTitle'),
+          t('pantry.displayMessage', { name: prompt.product.name }),
           [
-            { text: 'Juntar marcas', onPress: confirmChoice(PANTRY_BRAND_GROUPING.GROUPED) },
-            { text: 'Separar marcas', onPress: confirmChoice(PANTRY_BRAND_GROUPING.SEPARATE) },
+            { text: t('pantry.groupBrands'), onPress: confirmChoice(PANTRY_BRAND_GROUPING.GROUPED) },
+            { text: t('pantry.separateBrands'), onPress: confirmChoice(PANTRY_BRAND_GROUPING.SEPARATE) },
           ],
           { cancelable: false },
         );
@@ -152,7 +156,7 @@ export default function PantryScreen({ route, navigation }) {
         showChoice();
       });
     }
-  }, [account?.id, applyBrandGrouping, pantryId]);
+  }, [account?.id, applyBrandGrouping, pantryId, t]);
 
   useFocusEffect(useCallback(() => {
     let active = true;
@@ -179,23 +183,23 @@ export default function PantryScreen({ route, navigation }) {
       brandGroupingRef.current = groupings;
       productOccurrencesRef.current = occurrences;
       setStoredProducts(items);
-      if (!found) setError('Esta despensa não está disponível para sua conta.');
+      if (!found) setError(t('pantry.unavailable'));
       setLoading(false);
       if (found) await promptForDuplicateProducts(occurrences);
     }).catch(() => {
-      if (active) setError('Não foi possível carregar esta despensa.');
+      if (active) setError(t('pantry.loadError'));
     }).finally(() => {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [account?.id, pantryId, reloadKey, promptForDuplicateProducts]));
+  }, [account?.id, pantryId, reloadKey, promptForDuplicateProducts, t]));
 
   const products = storedProducts
     .filter((product) => normalize(product.name).includes(normalize(query)) &&
       (selectedCategories.length === 0 || selectedCategories.includes(product.category)))
     .sort((first, second) => {
-      if (sortOption === 'nameAsc') return first.name.localeCompare(second.name, 'pt-BR');
-      if (sortOption === 'nameDesc') return second.name.localeCompare(first.name, 'pt-BR');
+      if (sortOption === 'nameAsc') return first.name.localeCompare(second.name, language);
+      if (sortOption === 'nameDesc') return second.name.localeCompare(first.name, language);
       if (sortOption === 'priceAsc') return first.unitPrice - second.unitPrice;
       if (sortOption === 'priceDesc') return second.unitPrice - first.unitPrice;
       if (sortOption === 'quantityDesc') return second.quantity - first.quantity;
@@ -221,7 +225,7 @@ export default function PantryScreen({ route, navigation }) {
       await refreshProducts();
       await syncDeviceNotifications(account?.id).catch(() => {});
     } catch {
-      showUserErrorAlert(null, { title: 'Não foi possível atualizar a quantidade', fallback: 'A quantidade anterior foi mantida. Tente novamente em alguns instantes.' });
+      showUserErrorAlert(null, { title: t('pantry.quantityErrorTitle'), fallback: t('pantry.quantityError'), dismissText: t('common.ok'), t });
     } finally {
       setUpdatingProductIds((current) => current.filter((id) => id !== product.id));
     }
@@ -244,9 +248,9 @@ export default function PantryScreen({ route, navigation }) {
         const openOccurrence = () => setSelectedProduct(item.primaryOccurrence);
         if (item.occurrenceCount > 1) {
           Alert.alert(
-            'Produto com várias compras',
-            `Este saldo reúne ${item.occurrenceCount} compras. A edição e a exclusão abaixo serão aplicadas somente à compra mais recente; os botões de quantidade continuam atualizando o saldo total pela ordem das compras.`,
-            [{ text: 'Cancelar', style: 'cancel' }, { text: 'Ver compra mais recente', onPress: openOccurrence }],
+            t('pantry.multiPurchaseTitle'),
+            t('pantry.multiPurchaseMessage', { count: item.occurrenceCount }),
+            [{ text: t('pantry.cancel'), style: 'cancel' }, { text: t('pantry.latestPurchase'), onPress: openOccurrence }],
           );
         } else openOccurrence();
       }}
@@ -288,12 +292,12 @@ export default function PantryScreen({ route, navigation }) {
   const handleDelete = () => {
     if (!selectedProduct) return;
     Alert.alert(
-      'Excluir produto?',
-      `"${selectedProduct.name}" será removido desta despensa. O histórico da compra será preservado.`,
+      t('pantry.deleteProductTitle'),
+      t('pantry.deleteProductMessage', { name: selectedProduct.name }),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('pantry.cancel'), style: 'cancel' },
         {
-          text: 'Excluir',
+          text: t('pantries.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -303,7 +307,7 @@ export default function PantryScreen({ route, navigation }) {
               await promptForDuplicateProducts(occurrences);
               setSelectedProduct(null);
             } catch {
-              showUserErrorAlert(null, { title: 'Não foi possível excluir o produto', fallback: 'O produto continua na despensa. Tente novamente em alguns instantes.' });
+              showUserErrorAlert(null, { title: t('pantry.deleteProductErrorTitle'), fallback: t('pantry.deleteProductError'), dismissText: t('common.ok'), t });
             }
           },
         },
@@ -315,17 +319,17 @@ export default function PantryScreen({ route, navigation }) {
     if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME);
     else if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
     else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
-    else Alert.alert('Em breve', `${item.label} estará disponível em breve.`);
+    else Alert.alert(t('pantries.comingSoon'), t('pantries.comingSoonMessage', { feature: item.label }), [{ text: t('common.ok') }]);
   };
 
   return (
     <Screen edges={['top', 'left', 'right']}>
       <Content>
-        {loading ? <StatusArea><ActivityIndicator accessibilityLabel="Carregando despensa" /></StatusArea> : error ? (
+        {loading ? <StatusArea><ActivityIndicator accessibilityLabel={t('pantry.loading')} /></StatusArea> : error ? (
           <StatusArea>
             <ErrorText accessibilityRole="alert">{error}</ErrorText>
             <Retry accessibilityRole="button" onPress={() => setReloadKey((value) => value + 1)}>
-              <RetryText>Tentar novamente</RetryText>
+              <RetryText>{t('pantries.retry')}</RetryText>
             </Retry>
           </StatusArea>
         ) : (
@@ -336,9 +340,9 @@ export default function PantryScreen({ route, navigation }) {
                 <Title accessibilityRole="header">{pantry.name}</Title>
               </TitleRow>
               <Actions>
-                <ModalActionButton Icon={AddUserIcon} accessibilityLabel="Compartilhar despensa" onPress={() => Alert.alert('Compartilhamento indisponível', 'O compartilhamento de despensas estará disponível em uma próxima atualização.')} />
-                <ModalActionButton Icon={AddCircleIcon} accessibilityLabel="Adicionar produto" onPress={() => setIsAddMethodOpen(true)} />
-                <ModalActionButton Icon={FilterIcon} accessibilityLabel="Filtrar produtos" onPress={() => setIsFilterOpen(true)} />
+                <ModalActionButton Icon={AddUserIcon} accessibilityLabel={t('pantry.share')} onPress={() => Alert.alert(t('pantry.shareUnavailableTitle'), t('pantry.shareUnavailable'), [{ text: t('common.ok') }])} />
+                <ModalActionButton Icon={AddCircleIcon} accessibilityLabel={t('pantry.addProduct')} onPress={() => setIsAddMethodOpen(true)} />
+                <ModalActionButton Icon={FilterIcon} accessibilityLabel={t('pantry.filter')} onPress={() => setIsFilterOpen(true)} />
               </Actions>
               <SearchField value={query} onChangeText={setQuery} />
               <Categories horizontal showsHorizontalScrollIndicator={false}>
@@ -349,7 +353,7 @@ export default function PantryScreen({ route, navigation }) {
             </Header>
             {products.length === 0 ? (
               <EmptyState>
-                <EmptyText>{storedProducts.length === 0 ? 'Você ainda não possui produtos nesta despensa...' : 'Nenhum produto encontrado.'}</EmptyText>
+                <EmptyText>{storedProducts.length === 0 ? t('pantry.empty') : t('pantry.noneFound')}</EmptyText>
               </EmptyState>
             ) : (
               <SectionList

@@ -29,7 +29,7 @@ export const CategoryButton = styled.TouchableOpacity`
 `;
 export const CategoryButtonText = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
   color: ${({ theme }) => theme.colors.primary[700]};
 `;
 export const Editor = styled.View`
@@ -41,14 +41,14 @@ export const Editor = styled.View`
 export const EditorTitle = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 18px;
+  font-size: ${({ theme }) => 18 * theme.fonts.scale}px;
 `;
 export const FieldGroup = styled.View`
   gap: 8px;
 `;
 export const EditorError = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 13px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
   color: ${({ theme }) => theme.colors.danger[600]};
 `;
 export const Group = styled.View`
@@ -60,23 +60,23 @@ export const Group = styled.View`
 export const Label = styled.Text`
   flex-shrink: 1;
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
   color: ${({ theme }) => theme.colors.black.Black};
 `;
 export const Muted = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
-  line-height: 21px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 21 * theme.fonts.scale}px;
   color: ${({ theme }) => theme.colors.black[400]};
 `;
 export const Name = styled.Text.attrs({ numberOfLines: 2 })`
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 18px;
+  font-size: ${({ theme }) => 18 * theme.fonts.scale}px;
   color: ${({ theme }) => theme.colors.black[500]};
 `;
 export const Price = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 18px;
+  font-size: ${({ theme }) => 18 * theme.fonts.scale}px;
   color: ${({ theme }) => theme.colors.primary.Green};
 `;
 export const ProductBody = styled.View`
@@ -95,7 +95,7 @@ export const ProductRow = styled.View`
 `;
 export const ReceiptLabel = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
   color: ${({ theme }) => theme.colors.black[400]};
 `;
 export const Selection = styled.TouchableOpacity`

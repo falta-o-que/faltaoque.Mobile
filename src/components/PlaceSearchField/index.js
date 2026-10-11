@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import FormField from '../FormField';
 import { createPlacesSessionToken, getPlaceDetails, searchPlaces } from '../../services/googlePlacesService';
 import { getUserErrorMessage } from '../../utils/userErrors';
 import { Attribution, GoogleLetter, Helper, Option, OptionSubtitle, OptionTitle, Options, Status } from './styles';
 
 export default function PlaceSearchField({ value, selected, onChangeText, onSelect, disabled, error, accessibilityLabel = 'Endereço ou mercado', placeholder = 'Busque um endereço ou mercado', Icon }) {
+  const { t } = useAppPreferences();
   const [predictions, setPredictions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -39,7 +41,7 @@ export default function PlaceSearchField({ value, selected, onChangeText, onSele
         if (sequence.current === requestId) {
           setPredictions([]);
           setHasNoResults(false);
-          setMessage(getUserErrorMessage(requestError, 'Não foi possível buscar endereços agora. Tente novamente.'));
+          setMessage(getUserErrorMessage(requestError, t('placeSearch.searchError'), t));
         }
       } finally {
         if (sequence.current === requestId) setLoading(false);
@@ -49,7 +51,7 @@ export default function PlaceSearchField({ value, selected, onChangeText, onSele
       clearTimeout(timer);
       if (sequence.current === requestId) sequence.current += 1;
     };
-  }, [value, selected]);
+  }, [value, selected, t]);
 
   async function choose(prediction) {
     setLoading(true);
@@ -61,13 +63,13 @@ export default function PlaceSearchField({ value, selected, onChangeText, onSele
       token.current = createPlacesSessionToken();
       setPredictions([]);
     } catch (requestError) {
-      setMessage(getUserErrorMessage(requestError, 'Não foi possível selecionar este endereço. Escolha outro resultado e tente novamente.'));
+      setMessage(getUserErrorMessage(requestError, t('placeSearch.selectError'), t));
     } finally { setLoading(false); }
   }
 
   return <>
-    <FormField accessibilityLabel={accessibilityLabel} autoCapitalize="words" editable={!disabled} error={error} Icon={Icon} onChangeText={onChangeText} placeholder={placeholder} value={value} />
-    {loading ? <Status><ActivityIndicator size="small" /><Helper>Buscando endereço…</Helper></Status> : null}
+    <FormField accessibilityLabel={accessibilityLabel === 'Endereço ou mercado' ? t('placeSearch.addressA11y') : accessibilityLabel} autoCapitalize="words" editable={!disabled} error={error} Icon={Icon} onChangeText={onChangeText} placeholder={placeholder === 'Busque um endereço ou mercado' ? t('placeSearch.placeholder') : placeholder} value={value} />
+    {loading ? <Status><ActivityIndicator size="small" /><Helper>{t('placeSearch.searching')}</Helper></Status> : null}
     {predictions.length ? <Options keyboardShouldPersistTaps="handled">
       {predictions.map((prediction) => <Option key={prediction.placeId} accessibilityRole="button" disabled={disabled} onPress={() => choose(prediction)}>
         <OptionTitle>{prediction.title}</OptionTitle>{prediction.subtitle ? <OptionSubtitle>{prediction.subtitle}</OptionSubtitle> : null}
@@ -77,7 +79,7 @@ export default function PlaceSearchField({ value, selected, onChangeText, onSele
     {message ? <Helper $error accessibilityLiveRegion="polite" accessibilityRole="alert">{message}</Helper> : null}
     {!message && hasNoResults ? (
       <Helper $error accessibilityLiveRegion="polite" accessibilityRole="alert">
-        Não encontramos esse endereço. Digite um endereço válido e selecione uma sugestão do Google.
+        {t('placeSearch.noResults')}
       </Helper>
     ) : null}
   </>;

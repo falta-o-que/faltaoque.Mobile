@@ -44,14 +44,14 @@ export const Greeting = styled.Text`
   max-width: 100%;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 24px;
+  font-size: ${({ theme }) => 24 * theme.fonts.scale}px;
 `;
 
 export const Subtitle = styled.Text`
   margin-top: 4px;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const QuickSection = styled.View`
@@ -63,7 +63,7 @@ export const Question = styled.Text`
   margin-bottom: 10px;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -99,30 +99,6 @@ export const FormScroll = styled.ScrollView.attrs({
   width: 100%;
 `;
 
-export const ProfileHeading = styled.View`
-  width: 100%;
-  align-items: center;
-`;
-
-export const SectionTitleGroup = styled.View`
-  align-items: center;
-  gap: 10px;
-`;
-
-export const HeadingMarker = styled.View`
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  background-color: ${({ $color }) => $color ?? '#202e67'};
-`;
-
-export const ProfileTitle = styled.Text`
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 20px;
-  text-align: center;
-`;
-
 export const ColorField = styled.View`
   width: 100%;
   gap: 10px;
@@ -143,7 +119,7 @@ export const ColorFieldHeader = styled.TouchableOpacity.attrs({ activeOpacity: 0
 export const FieldLabel = styled.Text`
   color: ${({ theme }) => theme.colors.primary.Green};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const Chevron = styled(Animated.View)`
@@ -189,7 +165,7 @@ export const InlineError = styled.Text`
   margin-left: 4px;
   color: ${({ theme }) => theme.colors.danger[600]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
 `;
 
 export const SaveButton = styled.TouchableOpacity.attrs(({ disabled }) => ({
@@ -209,7 +185,7 @@ export const SaveButton = styled.TouchableOpacity.attrs(({ disabled }) => ({
 export const SaveLabel = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const CancelButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })`
@@ -226,5 +202,5 @@ export const CancelButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 
 export const CancelLabel = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;

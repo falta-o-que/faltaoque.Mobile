@@ -1,4 +1,5 @@
 import { useTheme } from 'styled-components/native';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 
 import { DespensaIconEspecifico, SettingsIcon } from '../../assets/icons/export';
 import {
@@ -15,9 +16,6 @@ import {
   TitleGroup,
 } from './styles';
 
-const formatProductCount = (count) => `${count} ${count === 1 ? 'Produto' : 'Produtos'}`;
-const formatShoppingListCount = (count) => `${count} ${count === 1 ? 'Lista' : 'Listas'}`;
-
 export function PantryCard({
   color,
   name,
@@ -27,6 +25,7 @@ export function PantryCard({
   shoppingListCount = 0,
 }) {
   const theme = useTheme();
+  const { t } = useAppPreferences();
 
   return (
     <Card accessibilityRole="button" onPress={onPress}>
@@ -36,22 +35,22 @@ export function PantryCard({
       </TitleGroup>
       <Details>
         <DetailRow>
-          <Label>Despensa:</Label>
+          <Label>{t('pantryCard.pantry')}:</Label>
           <QuantityBadge>
-            <QuantityText>{formatProductCount(productCount)}</QuantityText>
+            <QuantityText>{t(productCount === 1 ? 'pantryCard.productOne' : 'pantryCard.productMany', { count: productCount })}</QuantityText>
           </QuantityBadge>
         </DetailRow>
         <DetailRow>
-          <Label>Listas:</Label>
+          <Label>{t('pantryCard.lists')}:</Label>
           <QuantityBadge>
-            <QuantityText>{formatShoppingListCount(shoppingListCount)}</QuantityText>
+            <QuantityText>{t(shoppingListCount === 1 ? 'pantryCard.listOne' : 'pantryCard.listMany', { count: shoppingListCount })}</QuantityText>
           </QuantityBadge>
         </DetailRow>
       </Details>
       <Footer>
         <ColorCircle $color={color} />
         <IconButton
-          accessibilityLabel={`Configurar ${name}`}
+          accessibilityLabel={t('pantryCard.configure', { name })}
           accessibilityRole="button"
           onPress={onSettingsPress}
         >

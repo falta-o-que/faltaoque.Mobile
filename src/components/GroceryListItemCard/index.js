@@ -1,4 +1,5 @@
 import { PenIcon, SimpleCheckIcon } from '../../assets/icons/export';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import {
   Accent,
   Card,
@@ -22,6 +23,7 @@ export function GroceryListItemCard({
   disabled = false,
   showCheckbox = true,
 }) {
+  const { t } = useAppPreferences();
   const metadata = [weight, size].filter(Boolean).join(' · ');
   const canToggle = !disabled && typeof onToggle === 'function';
 
@@ -31,16 +33,16 @@ export function GroceryListItemCard({
       <Content>
         <ProductName $checked={checked}>{name}</ProductName>
         {metadata ? <Metadata>{metadata}</Metadata> : null}
-        <Quantity accessibilityLabel={`Quantidade: ${quantity}`}>{quantity}</Quantity>
+        <Quantity accessibilityLabel={t('shopping.quantity', { quantity })}>{quantity}</Quantity>
       </Content>
       {onEdit ? (
-        <EditButton accessibilityRole="button" accessibilityLabel={`Editar ${name}`} disabled={disabled} onPress={onEdit}>
+        <EditButton accessibilityRole="button" accessibilityLabel={t('shopping.edit', { name })} disabled={disabled} onPress={onEdit}>
           <PenIcon size={16} color="#494949" />
         </EditButton>
       ) : null}
       {showCheckbox ? <Checkbox
         $checked={checked}
-        accessibilityLabel={checked ? `Desmarcar ${name}` : `Marcar ${name}`}
+        accessibilityLabel={checked ? t('shopping.uncheck', { name }) : t('shopping.check', { name })}
         accessibilityRole="checkbox"
         accessibilityState={{ checked, disabled: !canToggle }}
         disabled={!canToggle}

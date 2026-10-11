@@ -17,5 +17,5 @@ export const Button = styled.TouchableOpacity.attrs(({ disabled }) => ({
 export const Label = styled.Text`
   color: ${({ theme }) => theme.colors.white[100]};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;

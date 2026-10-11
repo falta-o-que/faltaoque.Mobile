@@ -1,0 +1,5 @@
+{
+  "ios": {
+    "NSCameraUsageDescription": "Permita que o FaltaOquê use a câmera para ler o QR Code da nota fiscal."
+  }
+}

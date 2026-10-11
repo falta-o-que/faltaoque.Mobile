@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Modal } from 'react-native';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 
 import { COLOR_OPTION_ROWS } from '../../constants/colorOptions';
 import { AngleIcon, CancelCircleIcon, CheckIcon, LocationIcon, PantryIcon, PenIcon } from '../../assets/icons/export';
@@ -27,6 +28,7 @@ import {
 } from './styles';
 
 export function PantryFormModal({ busy = false, onCreate, onDelete, onRequestClose, onSave, pantry = null, visible }) {
+  const { t } = useAppPreferences();
   const isEditing = Boolean(pantry?.id);
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
@@ -131,10 +133,10 @@ export function PantryFormModal({ busy = false, onCreate, onDelete, onRequestClo
 
   const handleConfirm = async () => {
     const nextErrors = {
-      name: name.trim() ? undefined : 'Informe o nome da despensa.',
-      color: color ? undefined : 'Escolha uma cor para a despensa.',
+      name: name.trim() ? undefined : t('pantryForm.nameError'),
+      color: color ? undefined : t('pantryForm.colorError'),
       location: isLocationDirty && location.trim() && !selectedPlace
-        ? 'Selecione um endereço válido nas sugestões do Google ou deixe o campo em branco.' : undefined,
+        ? t('pantryForm.locationError') : undefined,
     };
 
     setErrors(nextErrors);
@@ -166,7 +168,7 @@ export function PantryFormModal({ busy = false, onCreate, onDelete, onRequestClo
         onPress={() => setIsColorPickerOpen((currentValue) => !currentValue)}
         $hasError={Boolean(errors.color)}
       >
-        <FieldLabel>Cor da despensa *</FieldLabel>
+        <FieldLabel>{t('pantryForm.color')}</FieldLabel>
         <ColorChevron style={colorPickerChevronStyle}><AngleIcon /></ColorChevron>
       </ColorHeader>
       {shouldRenderColorPicker ? (
@@ -177,7 +179,7 @@ export function PantryFormModal({ busy = false, onCreate, onDelete, onRequestClo
                 {row.map((option) => (
                   <ColorOption
                     key={option}
-                    accessibilityLabel={`Selecionar cor ${option}`}
+                    accessibilityLabel={t('pantryForm.selectColor', { color: option })}
                     accessibilityRole="radio"
                     accessibilityState={{ checked: color === option }}
                     disabled={busy || isSubmitting}
@@ -204,9 +206,9 @@ export function PantryFormModal({ busy = false, onCreate, onDelete, onRequestClo
         <Card>
           <Scroller bounces={false} contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <Content>
-              <Header><PantryIcon size={24} /><Heading>{isEditing ? 'Editar Despensa' : 'Criar Despensa'}</Heading></Header>
+              <Header><PantryIcon size={24} /><Heading>{t(isEditing ? 'pantryForm.editTitle' : 'pantryForm.createTitle')}</Heading></Header>
               <FormField
-                accessibilityLabel="Nome da despensa, obrigatório"
+                accessibilityLabel={t('pantryForm.nameA11y')}
                 autoCapitalize="sentences"
                 editable={!busy && !isSubmitting}
                 error={errors.name}
@@ -216,19 +218,19 @@ export function PantryFormModal({ busy = false, onCreate, onDelete, onRequestClo
                   setName(value);
                   setErrors((currentErrors) => ({ ...currentErrors, name: undefined }));
                 }}
-                placeholder="Nome *"
+                placeholder={t('pantryForm.namePlaceholder')}
                 value={name}
               />
               {isEditing ? renderColorPicker() : null}
               <PlaceSearchField
-                accessibilityLabel="Endereço da despensa, opcional"
+                accessibilityLabel={t('pantryForm.locationA11y')}
                 value={location}
                 selected={Boolean(selectedPlace?.displayName)}
                 selectedPlace={selectedPlace}
                 disabled={busy || isSubmitting}
                 error={errors.location}
                 Icon={LocationIcon}
-                placeholder="Endereço da despensa (opcional)"
+                placeholder={t('pantryForm.locationPlaceholder')}
                 onChangeText={(value) => {
                   setLocation(value);
                   setSelectedPlace(null);
@@ -243,10 +245,10 @@ export function PantryFormModal({ busy = false, onCreate, onDelete, onRequestClo
                 }}
               />
               {!isEditing ? renderColorPicker() : null}
-              {isEditing ? <DangerActionButton disabled={busy || isSubmitting} onPress={onDelete} text="Excluir Despensa" /> : null}
+              {isEditing ? <DangerActionButton disabled={busy || isSubmitting} onPress={onDelete} text={t('pantryForm.delete')} /> : null}
               <Actions>
-                <ModalActionButton accessibilityLabel={isEditing ? 'Cancelar edição da despensa' : 'Cancelar criação da despensa'} disabled={busy || isSubmitting} Icon={CancelCircleIcon} onPress={handleClose} variant="cancel" />
-                <ModalActionButton accessibilityLabel={isEditing ? 'Salvar alterações da despensa' : 'Criar despensa'} disabled={busy || isSubmitting} Icon={CheckIcon} onPress={handleConfirm} variant="confirm" />
+                <ModalActionButton accessibilityLabel={t(isEditing ? 'pantryForm.cancelEdit' : 'pantryForm.cancelCreate')} disabled={busy || isSubmitting} Icon={CancelCircleIcon} onPress={handleClose} variant="cancel" />
+                <ModalActionButton accessibilityLabel={t(isEditing ? 'pantryForm.save' : 'pantryForm.create')} disabled={busy || isSubmitting} Icon={CheckIcon} onPress={handleConfirm} variant="confirm" />
               </Actions>
             </Content>
           </Scroller>

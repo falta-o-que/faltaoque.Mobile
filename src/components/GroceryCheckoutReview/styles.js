@@ -20,7 +20,7 @@ export const Title = styled.Text`
   flex: 1;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 22px;
+  font-size: ${({ theme }) => 22 * theme.fonts.scale}px;
 `;
 export const Content = styled.ScrollView.attrs({ keyboardShouldPersistTaps: 'handled' })`
   flex: 1;
@@ -35,7 +35,7 @@ export const Section = styled.View`
 export const SectionTitle = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 18px;
+  font-size: ${({ theme }) => 18 * theme.fonts.scale}px;
 `;
 export const StepHeader = styled.View`
   padding: 14px;
@@ -62,29 +62,29 @@ export const ProgressChip = styled.View`
 export const ProgressChipText = styled.Text`
   color: ${({ $active, $complete, theme }) => ($active ? theme.colors.white[100] : $complete ? theme.colors.primary[700] : theme.colors.black[400])};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
 `;
 export const StepCounter = styled.Text`
   color: ${({ theme }) => theme.colors.primary.Green};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
   letter-spacing: 0.8px;
 `;
 export const StepTitle = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 18px;
+  font-size: ${({ theme }) => 18 * theme.fonts.scale}px;
 `;
 export const Label = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 export const Muted = styled.Text`
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 13px;
-  line-height: 19px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 19 * theme.fonts.scale}px;
 `;
 export const DateSummary = styled.View`
   min-height: 64px;
@@ -98,7 +98,7 @@ export const DateSummary = styled.View`
 export const DateValue = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
 `;
 export const PurchaseContext = styled.View`
   padding: 14px;
@@ -116,7 +116,7 @@ export const ContextHeader = styled.View`
 export const ContextEyebrow = styled.Text`
   color: ${({ theme }) => theme.colors.primary[700]};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
   letter-spacing: 0.7px;
 `;
 export const ContextRow = styled.View`
@@ -129,13 +129,13 @@ export const ContextLabel = styled.Text`
   flex: 0 0 78px;
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
 `;
 export const ContextValue = styled.Text`
   flex: 1;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
   text-align: right;
 `;
 export const LinkRoute = styled.View`
@@ -147,13 +147,13 @@ export const LinkRoute = styled.View`
 export const LinkRouteLabel = styled.Text`
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 10px;
+  font-size: ${({ theme }) => 10 * theme.fonts.scale}px;
   letter-spacing: 0.6px;
 `;
 export const LinkRouteValue = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 export const DecisionList = styled.View`
   gap: 8px;
@@ -172,13 +172,13 @@ export const DecisionOption = styled.TouchableOpacity`
 export const DecisionTitle = styled.Text`
   color: ${({ $selected, theme }) => ($selected ? theme.colors.primary[700] : theme.colors.black.Black)};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 export const DecisionHint = styled.Text`
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
-  line-height: 17px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 17 * theme.fonts.scale}px;
 `;
 export const SummaryBanner = styled.View`
   padding: 14px;
@@ -189,13 +189,13 @@ export const SummaryBanner = styled.View`
 export const SummaryBannerTitle = styled.Text`
   color: ${({ theme }) => theme.colors.primary[700]};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 15px;
+  font-size: ${({ theme }) => 15 * theme.fonts.scale}px;
 `;
 export const SummaryBannerText = styled.Text`
   color: ${({ theme }) => theme.colors.black[500]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 13px;
-  line-height: 19px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 19 * theme.fonts.scale}px;
 `;
 export const ChoiceRow = styled.View`
   flex-direction: row;
@@ -215,12 +215,12 @@ export const Choice = styled.TouchableOpacity`
 export const ChoiceText = styled.Text`
   color: ${({ $selected, theme }) => $selected ? theme.colors.primary.Green : theme.colors.black[500]};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
 `;
 export const ErrorText = styled.Text`
   color: ${({ theme }) => theme.colors.danger[600]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 13px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
 `;
 export const Footer = styled.View`
   padding: 12px 20px;
@@ -237,5 +237,5 @@ export const SummaryRow = styled.View`
 export const SummaryValue = styled.Text`
   color: ${({ theme }) => theme.colors.primary.Green};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 18px;
+  font-size: ${({ theme }) => 18 * theme.fonts.scale}px;
 `;

@@ -4,6 +4,7 @@ import FormField from '../FormField';
 import { useTheme } from 'styled-components/native';
 import { CheckIcon, CancelCircleIcon, PenIcon, DeliveryIcon, InfoIcon } from '../../assets/icons/export';
 import { PRODUCT_CATEGORIES, PRODUCT_UNITS } from '../../domain/productValidation';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { UnitOptions, UnitOption, UnitLabel } from '../AddProductModal/styles';
 import {
   Card, CardActions, CategoryButton, CategoryButtonText, Editor, EditorTitle, Group, Label,
@@ -11,15 +12,15 @@ import {
   EditorError, FieldGroup, Selection, SelectionStatus, SelectionText,
 } from './styles';
 
-const currency = (value) => {
-  if (String(value ?? '').trim() === '') return 'Preço pendente';
+const currency = (value, pendingLabel) => {
+  if (String(value ?? '').trim() === '') return pendingLabel;
   const parsed = Number(String(value ?? '').replace(',', '.'));
-  return Number.isFinite(parsed) ? `R$ ${parsed.toFixed(2).replace('.', ',')}` : 'Preço pendente';
+  return Number.isFinite(parsed) ? `R$ ${parsed.toFixed(2).replace('.', ',')}` : pendingLabel;
 };
 
-const displayUnitLabel = (value) => {
+const displayUnitLabel = (value, defaultLabel) => {
   const label = String(value ?? '').trim().toLowerCase();
-  return /^und\d+$/.test(label) ? 'un.' : label || 'un.';
+  return /^und\d+$/.test(label) ? defaultLabel : label || defaultLabel;
 };
 
 export default function PurchaseProductReviewCard({
@@ -28,16 +29,18 @@ export default function PurchaseProductReviewCard({
   readOnly = false,
   categoryOpen = false, onToggleIncluded, onToggleEdit, onToggleCategory,
   onSelectCategory, categoryOptions = PRODUCT_CATEGORIES, editorValues, editorErrors = {},
-  editorNotice, priceHint = 'Os preços da nota são independentes e podem incluir descontos.',
+  editorNotice, priceHint,
   onEditorChange, children,
 }) {
   const theme = useTheme();
-  const name = title ?? item.name ?? 'Produto sem nome';
+  const { t } = useAppPreferences();
+  const name = String(title ?? item.name ?? '').trim() || t('shopping.productWithoutName');
   const packageLabel = item.weight
     ? `${item.weight} ${item.unit || ''}`.trim()
     : item.contentValue && item.unit ? `${item.contentValue} ${item.unit}` : '';
   const quantity = item.quantity || '—';
-  const unitLabel = displayUnitLabel(item.unitLabel);
+  const unitLabel = displayUnitLabel(item.unitLabel, t('shopping.unitAbbreviation'));
+  const resolvedPriceHint = priceHint ?? t('shopping.receiptPriceHint');
   const total = editorValues?.totalPrice ?? item.totalPrice ?? itemTotal(item);
   const perUnit = editorValues?.unitPrice ?? item.unitPrice ?? itemUnitPrice(item);
   const values = editorValues ?? {
@@ -71,35 +74,35 @@ export default function PurchaseProductReviewCard({
         {selectionPending ? <InfoIcon size={18} color={theme.colors.primary[700]} />
           : included ? <CheckIcon size={18} color={theme.colors.primary[700]} />
             : <CancelCircleIcon size={18} color={theme.colors.black[400]} />}
-        <SelectionText>{selectionLabel || (selectionPending ? 'Aguardando sua decisão' : included ? 'Será adicionado à despensa' : 'Não será adicionado')}</SelectionText>
+        <SelectionText>{selectionLabel || (selectionPending ? t('shopping.waitingDecision') : included ? t('shopping.addedToPantry') : t('shopping.notAdded'))}</SelectionText>
       </SelectionStatus>
       <ProductRow>
         <ProductImage source={require('../../assets/grocery/legumesGrocery.png')} accessible={false} />
         <ProductBody>
           <Name>{name}</Name>
-          {item.sourceDescription ? <Muted>Na nota: {item.sourceDescription}</Muted> : null}
-          {item.brand ? <Muted>Marca: {item.brand}</Muted> : null}
-          {packageLabel ? <Muted>Embalagem: {packageLabel}</Muted> : null}
-          <Muted>{quantity} {unitLabel}{perUnit ? ` · ${currency(perUnit)}/${unitLabel}` : ''}</Muted>
-          {total != null ? <Price>{currency(total)} <ReceiptLabel>no total</ReceiptLabel></Price> : null}
+          {item.sourceDescription ? <Muted>{t('shopping.receipt', { description: item.sourceDescription })}</Muted> : null}
+          {item.brand ? <Muted>{t('shopping.brand', { brand: item.brand })}</Muted> : null}
+          {packageLabel ? <Muted>{t('shopping.package', { package: packageLabel })}</Muted> : null}
+          <Muted>{quantity} {unitLabel}{perUnit ? ` · ${currency(perUnit, t('shopping.pendingPrice'))}/${unitLabel}` : ''}</Muted>
+          {total != null ? <Price>{currency(total, t('shopping.pendingPrice'))} <ReceiptLabel>{t('shopping.total')}</ReceiptLabel></Price> : null}
         </ProductBody>
       </ProductRow>
       {item.sourceItems?.length > 1 ? <Muted>
-        {item.sourceItems.length} registros iguais na nota · quantidade somada{item.hasDifferentPrices ? ' · preço unitário médio' : ''}
+        {t('shopping.receiptDuplicates', { count: item.sourceItems.length })}{item.hasDifferentPrices ? ` · ${t('shopping.averageUnitPrice')}` : ''}
       </Muted> : null}
       {!readOnly ? <CardActions>
         {item.category ? <CategoryTag category={item.category} variant="product" selected={false} disabled={busy}
           onPress={onToggleCategory} /> : <CategoryButton accessibilityRole="button" disabled={busy}
-          onPress={onToggleCategory}><CategoryButtonText>+ Escolher categoria</CategoryButtonText></CategoryButton>}
+          onPress={onToggleCategory}><CategoryButtonText>{t('shopping.chooseCategory')}</CategoryButtonText></CategoryButton>}
         <Group>
-          <ReceiptLabel>{expanded ? 'Concluir' : 'Editar'}</ReceiptLabel>
+          <ReceiptLabel>{expanded ? t('shopping.finishEdit') : t('shopping.editAction')}</ReceiptLabel>
           <ModalActionButton Icon={expanded ? CheckIcon : PenIcon}
-            accessibilityLabel={expanded ? 'Concluir edição' : `Editar ${item.sourceDescription || name}`}
+            accessibilityLabel={expanded ? t('shopping.finishEditing') : t('shopping.edit', { name: item.sourceDescription || name })}
             disabled={busy} variant="confirm" onPress={onToggleEdit} />
         </Group>
       </CardActions> : null}
       {!readOnly && categoryOpen && !expanded ? <Editor>
-        <Label>Qual é a categoria?</Label>
+        <Label>{t('shopping.categoryQuestion')}</Label>
         <Group>
           {categoryOptions.map((category) => <CategoryTag key={category} category={category}
             variant="product" selected={item.category === category} disabled={busy}
@@ -107,33 +110,33 @@ export default function PurchaseProductReviewCard({
         </Group>
       </Editor> : null}
       {!readOnly && onToggleIncluded ? <Selection accessibilityRole="button"
-        accessibilityLabel={`${included ? 'Não adicionar' : 'Adicionar'} ${item.sourceDescription || name}`}
+        accessibilityLabel={`${included ? t('shopping.doNotAdd') : t('shopping.addProduct')} ${item.sourceDescription || name}`}
         accessibilityState={{ disabled: busy }} disabled={busy} onPress={onToggleIncluded}>
-        <SelectionText>{included ? 'Não adicionar este produto' : 'Adicionar este produto'}</SelectionText>
+        <SelectionText>{included ? t('shopping.doNotAdd') : t('shopping.addProduct')}</SelectionText>
       </Selection> : null}
       {!readOnly && expanded ? <Editor>
-        <EditorTitle>Editar produto</EditorTitle>
-        {field('name', 'Nome na despensa *', { Icon: PenIcon, maxLength: 120 })}
-        {field('brand', 'Marca (opcional)', { Icon: PenIcon, maxLength: 100 })}
+        <EditorTitle>{t('shopping.editProduct')}</EditorTitle>
+        {field('name', t('shopping.pantryName'), { Icon: PenIcon, maxLength: 120 })}
+        {field('brand', t('shopping.optionalBrand'), { Icon: PenIcon, maxLength: 100 })}
         {editorNotice ? <Muted>{editorNotice}</Muted> : null}
-        {field('quantity', `Quantidade${item.unitLabel ? ` (${item.unitLabel})` : ''} *`, { Icon: DeliveryIcon, keyboardType: 'decimal-pad', maxLength: 16 })}
-        {field('unitPrice', `Preço por ${item.unitLabel || 'unidade'} (R$) *`, { Icon: DeliveryIcon, keyboardType: 'decimal-pad', maxLength: 16 })}
-        {field('totalPrice', 'Total do item (R$) *', { Icon: DeliveryIcon, keyboardType: 'decimal-pad', maxLength: 16 })}
-        <Muted>{priceHint}</Muted>
-        {field('weight', 'Peso/volume da embalagem', { keyboardType: 'decimal-pad', maxLength: 16, placeholder: 'Ex.: 500' })}
+        {field('quantity', t('shopping.quantityRequired', { unit: item.unitLabel ? ` (${item.unitLabel})` : '' }), { Icon: DeliveryIcon, keyboardType: 'decimal-pad', maxLength: 16 })}
+        {field('unitPrice', t('shopping.unitPrice', { unit: item.unitLabel || t('shopping.unitLabel') }), { Icon: DeliveryIcon, keyboardType: 'decimal-pad', maxLength: 16 })}
+        {field('totalPrice', t('shopping.itemTotal'), { Icon: DeliveryIcon, keyboardType: 'decimal-pad', maxLength: 16 })}
+        <Muted>{resolvedPriceHint}</Muted>
+        {field('weight', t('shopping.packageMeasure'), { keyboardType: 'decimal-pad', maxLength: 16, placeholder: t('shopping.exampleWeight') })}
         {String(values.weight ?? '').trim() ? <FieldGroup>
-          <Label>Unidade *</Label>
+          <Label>{t('shopping.requiredUnit')}</Label>
           <UnitOptions accessibilityRole="radiogroup">{PRODUCT_UNITS.map((unit) => <UnitOption key={unit}
-            accessibilityRole="radio" accessibilityLabel={`Unidade ${unit}, obrigatória`}
+            accessibilityRole="radio" accessibilityLabel={t('shopping.unitRequired', { unit })}
             accessibilityState={{ checked: values.unit === unit, disabled: busy }} $selected={values.unit === unit}
             disabled={busy} onPress={() => change('unit', unit)}>
             <UnitLabel $selected={values.unit === unit}>{unit}</UnitLabel>
           </UnitOption>)}</UnitOptions>
           {editorErrors.unit ? <EditorError accessibilityLiveRegion="polite">{editorErrors.unit}</EditorError> : null}
         </FieldGroup> : null}
-        <Muted>Medida de cada embalagem, sem multiplicar pela quantidade comprada.</Muted>
+        <Muted>{t('shopping.packageMeasureHelp')}</Muted>
         <FieldGroup>
-          <Label>Categoria *</Label>
+          <Label>{t('shopping.requiredCategory')}</Label>
           <Group>{categoryOptions.map((category) => <CategoryTag key={category} category={category}
             variant="product" selected={values.category === category} disabled={busy}
             onSelectionChange={() => { if (onSelectCategory) onSelectCategory(category); else change('category', category); }} />)}</Group>

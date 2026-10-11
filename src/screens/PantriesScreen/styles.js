@@ -49,7 +49,7 @@ export const Avatar = styled.View`
 export const PantryTitle = styled.Text.attrs({ numberOfLines: 1 })`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 24px;
+  font-size: ${({ theme }) => 24 * theme.fonts.scale}px;
 `;
 
 export const SearchArea = styled.View`
@@ -86,7 +86,7 @@ export const EmptyText = styled.Text`
   margin-top: 16px;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -108,5 +108,5 @@ export const RetryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })
 export const RetryText = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
 `;

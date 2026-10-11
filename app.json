@@ -9,7 +9,16 @@
     "icon": "./src/assets/branding/app-icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "pt-BR",
+        "CFBundleLocalizations": ["pt-BR", "en", "es"]
+      }
+    },
+    "locales": {
+      "pt-BR": "./src/localization/native/pt-BR.json",
+      "en": "./src/localization/native/en.json",
+      "es": "./src/localization/native/es.json"
     },
     "android": {
       "icon": "./src/assets/branding/app-icon.png",

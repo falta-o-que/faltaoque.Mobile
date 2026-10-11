@@ -66,7 +66,7 @@ export const ListName = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
   font-size: ${({ theme }) => theme.fonts.sizes[2]}px;
-  line-height: 22px;
+  line-height: ${({ theme }) => 22 * theme.fonts.scale}px;
 `;
 
 export const DateRow = styled.View`
@@ -118,14 +118,14 @@ export const ItemName = styled.Text`
   color: ${({ theme }) => theme.colors.black[500]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: ${({ theme }) => theme.fonts.sizes[1]}px;
-  line-height: 20px;
+  line-height: ${({ theme }) => 20 * theme.fonts.scale}px;
 `;
 
 export const ItemMeta = styled.Text`
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
   font-size: ${({ theme }) => theme.fonts.sizes[0]}px;
-  line-height: 20px;
+  line-height: ${({ theme }) => 20 * theme.fonts.scale}px;
 `;
 
 export const EmptyText = styled.Text`
@@ -134,7 +134,7 @@ export const EmptyText = styled.Text`
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: ${({ theme }) => theme.fonts.sizes[1]}px;
-  line-height: 20px;
+  line-height: ${({ theme }) => 20 * theme.fonts.scale}px;
   text-align: center;
 `;
 

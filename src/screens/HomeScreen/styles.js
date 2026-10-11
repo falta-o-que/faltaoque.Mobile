@@ -54,7 +54,7 @@ export const HomeActionSection = styled.View`
 export const HomeActionTitle = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 20px;
+  font-size: ${({ theme }) => 20 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -62,7 +62,7 @@ export const HomeActionText = styled.Text`
   margin-top: 16px;
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -96,7 +96,7 @@ export const Question = styled.Text`
   margin-bottom: 10px;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -111,14 +111,14 @@ export const QuickActions = styled.View`
 export const PantryTitle = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 20px;
+  font-size: ${({ theme }) => 20 * theme.fonts.scale}px;
 `;
 
 export const EmptyText = styled.Text`
   margin-top: 16px;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
 `;
 
 export const LoadError = styled.Text`
@@ -139,5 +139,5 @@ export const RetryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })
 export const RetryText = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
 `;

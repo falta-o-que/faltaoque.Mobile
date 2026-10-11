@@ -22,7 +22,7 @@ export const Input = styled.TextInput.attrs(({ theme }) => ({
   padding: 0;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const IconContainer = styled.View`
@@ -47,5 +47,5 @@ export const ErrorText = styled.Text`
   margin-left: 4px;
   color: ${({ theme }) => theme.colors.danger[600]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
 `;

@@ -141,7 +141,7 @@ export const QuantityButtonLabel = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
   font-size: ${({ theme }) => theme.fonts.sizes['2']}px;
   font-weight: ${({ theme }) => theme.fonts.weights.bold};
-  line-height: 20px;
+  line-height: ${({ theme }) => 20 * theme.fonts.scale}px;
 `;
 
 export const Quantity = styled.Text.attrs({

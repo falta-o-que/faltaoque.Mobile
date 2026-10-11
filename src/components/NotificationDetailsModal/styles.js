@@ -73,16 +73,16 @@ export const CloseButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })
 export const ProductName = styled.Text.attrs({ numberOfLines: 2 })`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 22px;
-  line-height: 29px;
+  font-size: ${({ theme }) => 22 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 29 * theme.fonts.scale}px;
   text-align: center;
 `;
 
 export const Summary = styled.Text`
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
-  line-height: 21px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 21 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -104,21 +104,21 @@ export const DetailLabel = styled.Text`
   flex: 1;
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
 `;
 
 export const DetailValue = styled.Text`
   flex: 1.5;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
   text-align: right;
 `;
 
 export const ListPrompt = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const ListOptions = styled.View`
@@ -157,21 +157,21 @@ export const ListOptionText = styled.Text.attrs({ numberOfLines: 2 })`
   flex: 1;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const EmptyLists = styled.Text`
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 13px;
-  line-height: 19px;
+  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 19 * theme.fonts.scale}px;
   text-align: center;
 `;
 
 export const ErrorText = styled.Text`
   color: ${({ theme }) => theme.colors.danger[600]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -192,7 +192,7 @@ export const ActionButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 
 export const ActionText = styled.Text`
   color: ${({ $secondary, theme }) => $secondary ? theme.colors.black.Black : theme.colors.white[100]};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
   text-align: center;
 `;
 
@@ -207,5 +207,5 @@ export const BusyArea = styled.View`
 export const BusyText = styled.Text`
   color: ${({ $inverse, theme }) => $inverse ? theme.colors.white[100] : theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
 `;

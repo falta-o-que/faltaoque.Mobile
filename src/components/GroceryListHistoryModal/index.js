@@ -1,4 +1,5 @@
 import { Modal } from 'react-native';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 
 import { CancelCircleIcon, ShoppingListIcon } from '../../assets/icons/export';
 import ModalActionButton from '../ModalActionButton';
@@ -25,19 +26,6 @@ import {
   SectionLabel,
 } from './styles';
 
-const formatDate = (value) => {
-  if (!value) return 'Não informada';
-
-  const text = String(value);
-  const brDate = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(text);
-  if (brDate) return text;
-
-  const isoDate = /^(\d{4})-(\d{2})-(\d{2})/.exec(text);
-  if (isoDate) return `${isoDate[3]}/${isoDate[2]}/${isoDate[1]}`;
-
-  return 'Não informada';
-};
-
 const formatMeasure = (item) => {
   const quantity = Number(item?.quantity);
   const parts = [`${Number.isFinite(quantity) && quantity > 0 ? quantity : 1}x`];
@@ -49,10 +37,6 @@ const formatMeasure = (item) => {
   return parts.join(' · ');
 };
 
-const formatPrice = (value) => value == null
-  ? 'Valor não registrado'
-  : `R$ ${Number(value).toFixed(2).replace('.', ',')}`;
-
 export default function GroceryListHistoryModal({
   visible,
   lists = [],
@@ -60,7 +44,20 @@ export default function GroceryListHistoryModal({
   onRepeat,
   onClose,
 }) {
+  const { t } = useAppPreferences();
   const finishedLists = lists.filter((list) => list?.status === 'finished');
+  const formatDate = (value) => {
+    if (!value) return t('shopping.unknownDate');
+    const text = String(value);
+    const brDate = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(text);
+    if (brDate) return text;
+    const isoDate = /^(\d{4})-(\d{2})-(\d{2})/.exec(text);
+    if (isoDate) return `${isoDate[3]}/${isoDate[2]}/${isoDate[1]}`;
+    return t('shopping.unknownDate');
+  };
+  const formatPrice = (value) => value == null
+    ? t('shopping.unregisteredValue')
+    : `R$ ${Number(value).toFixed(2).replace('.', ',')}`;
 
   return (
     <Modal
@@ -74,7 +71,7 @@ export default function GroceryListHistoryModal({
           <Content>
             <Header>
               <ShoppingListIcon color="#00DD00" size={24} />
-              <Heading>Histórico de listas</Heading>
+              <Heading>{t('shopping.historyTitle')}</Heading>
             </Header>
 
             <Scroll
@@ -87,56 +84,56 @@ export default function GroceryListHistoryModal({
 
                 return (
                   <HistoryCard key={list.id}>
-                    <ListName numberOfLines={2}>{list.name || 'Lista sem nome'}</ListName>
+                    <ListName numberOfLines={2}>{list.name || t('shopping.unnamedList')}</ListName>
 
                     <DateRow>
-                      <DateLabel>Planejada</DateLabel>
+                      <DateLabel>{t('shopping.planned')}</DateLabel>
                       <DateText>{formatDate(list.plannedDate)}</DateText>
                     </DateRow>
                     <DateRow>
-                      <DateLabel>Concluída</DateLabel>
+                      <DateLabel>{t('shopping.finished')}</DateLabel>
                       <DateText>{formatDate(list.finishedAt)}</DateText>
                     </DateRow>
                     <DateRow>
-                      <DateLabel>Mercado</DateLabel>
-                      <DateText>{list.market?.localName || 'Mercado não identificado'}</DateText>
+                      <DateLabel>{t('shopping.market')}</DateLabel>
+                      <DateText>{list.market?.localName || t('shopping.unknownMarket')}</DateText>
                     </DateRow>
                     <DateRow>
-                      <DateLabel>Total da compra</DateLabel>
+                      <DateLabel>{t('shopping.purchaseTotal')}</DateLabel>
                       <DateText>{formatPrice(list.estimatedPrice)}</DateText>
                     </DateRow>
 
                     <SectionLabel>
-                      {items.length} {items.length === 1 ? 'item' : 'itens'}
+                      {items.length} {items.length === 1 ? t('shopping.item') : t('shopping.items')}
                     </SectionLabel>
                     <Items>
                       {items.length ? items.map((item, index) => (
                         <ItemRow key={item.id ?? `${list.id}-item-${index}`}>
-                          <ItemName numberOfLines={2}>{item.name || 'Item sem nome'}</ItemName>
+                          <ItemName numberOfLines={2}>{item.name || t('shopping.unnamedItem')}</ItemName>
                           <ItemMeta>{formatMeasure(item)}</ItemMeta>
                         </ItemRow>
-                      )) : <EmptyText>Esta lista foi concluída sem itens.</EmptyText>}
+                      )) : <EmptyText>{t('shopping.noItemsFinished')}</EmptyText>}
                     </Items>
 
                     <RepeatButton
-                      accessibilityLabel={`Repetir a lista ${list.name || 'sem nome'}`}
+                      accessibilityLabel={t('shopping.repeatList', { name: list.name || t('shopping.noName') })}
                       accessibilityRole="button"
                       accessibilityState={{ disabled: busy }}
                       disabled={busy}
                       onPress={() => onRepeat?.(list)}
                     >
-                      <RepeatButtonText>Repetir como nova lista</RepeatButtonText>
+                      <RepeatButtonText>{t('shopping.repeatAsNew')}</RepeatButtonText>
                     </RepeatButton>
                   </HistoryCard>
                 );
               }) : (
-                <EmptyText>As listas concluídas aparecerão aqui.</EmptyText>
+                <EmptyText>{t('shopping.historyEmpty')}</EmptyText>
               )}
             </Scroll>
 
             <Actions>
               <ModalActionButton
-                accessibilityLabel="Fechar histórico de listas"
+                accessibilityLabel={t('shopping.closeHistory')}
                 disabled={busy}
                 Icon={CancelCircleIcon}
                 onPress={onClose}

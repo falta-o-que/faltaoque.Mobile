@@ -8,6 +8,7 @@ import PantryCard from '../../components/PantryCard';
 import PantryDestinationModal from '../../components/PantryDestinationModal';
 import SearchField from '../../components/SearchField';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import * as pantryService from '../../services/pantryService';
 import { showUserErrorAlert } from '../../utils/userErrors';
@@ -34,12 +35,9 @@ const normalizeSearchText = (value) => value
   .toLowerCase()
   .trim();
 
-const showComingSoon = (feature) => {
-  Alert.alert('Em breve', `${feature} estará disponível em breve.`);
-};
-
 export default function PantriesScreen({ navigation }) {
   const { account } = useAuth();
+  const { t } = useAppPreferences();
   const [pantries, setPantries] = useState([]);
   const [pantriesError, setPantriesError] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -62,14 +60,14 @@ export default function PantriesScreen({ navigation }) {
       .catch(() => {
         if (isMounted) {
           setPantries([]);
-          setPantriesError('Não foi possível carregar suas despensas.');
+          setPantriesError(t('pantries.loadError'));
         }
       });
 
     return () => {
       isMounted = false;
     };
-  }, [account?.id, reloadKey]));
+  }, [account?.id, reloadKey, t]));
 
   const filteredPantries = searchQuery.trim()
     ? pantries.filter((pantry) => normalizeSearchText(pantry.name).includes(normalizeSearchText(searchQuery)))
@@ -87,7 +85,7 @@ export default function PantriesScreen({ navigation }) {
       setPantries((current) => current.map((pantry) => pantry.id === updated.id ? updated : pantry));
       setPantryForEdit(null);
     } catch (error) {
-      showUserErrorAlert(error, { title: 'Não foi possível salvar a despensa', fallback: 'Confira os dados e tente novamente.' });
+      showUserErrorAlert(error, { title: t('pantries.saveErrorTitle'), fallback: t('pantries.saveError'), dismissText: t('common.ok'), t });
     } finally {
       setIsSavingPantry(false);
     }
@@ -96,9 +94,9 @@ export default function PantriesScreen({ navigation }) {
   const handleDeletePantry = () => {
     const pantry = pantryForEdit;
     if (!pantry || isSavingPantry) return;
-    Alert.alert('Excluir despensa?', `A despensa “${pantry.name}”, seus produtos, compras e listas serão removidos deste dispositivo. Esta ação não pode ser desfeita.`, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Excluir', style: 'destructive', onPress: async () => {
+    Alert.alert(t('pantries.deleteTitle'), t('pantries.deleteMessage', { name: pantry.name }), [
+      { text: t('pantries.cancel'), style: 'cancel' },
+      { text: t('pantries.delete'), style: 'destructive', onPress: async () => {
         setIsSavingPantry(true);
         try {
           await pantryService.deletePantry({ accountId: account?.id, pantryId: pantry.id });
@@ -106,7 +104,7 @@ export default function PantriesScreen({ navigation }) {
           setSelectedPantry((current) => current?.id === pantry.id ? null : current);
           setPantryForEdit(null);
         } catch (error) {
-          showUserErrorAlert(error, { title: 'Não foi possível excluir a despensa', fallback: 'Tente novamente em alguns instantes.' });
+          showUserErrorAlert(error, { title: t('pantries.deleteErrorTitle'), fallback: t('pantries.deleteError'), dismissText: t('common.ok'), t });
         } finally {
           setIsSavingPantry(false);
         }
@@ -129,7 +127,7 @@ export default function PantriesScreen({ navigation }) {
   const handleNavbarItemChange = (key, item) => {
     if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME);
     else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
-    else if (key !== 'pantry') showComingSoon(item.label);
+    else if (key !== 'pantry') Alert.alert(t('pantries.comingSoon'), t('pantries.comingSoonMessage', { feature: item.label }), [{ text: t('common.ok') }]);
   };
 
   return (
@@ -139,13 +137,13 @@ export default function PantriesScreen({ navigation }) {
         <Header>
           <TitleRow>
             <Avatar $color={account?.avatarColor} />
-            <PantryTitle>Despensas</PantryTitle>
+            <PantryTitle>{t('pantries.title')}</PantryTitle>
           </TitleRow>
           <SearchArea>
             <SearchField
-              accessibilityLabel="Pesquisar despensas"
+              accessibilityLabel={t('pantries.searchA11y')}
               onChangeText={setSearchQuery}
-              placeholder="Pesquisa"
+              placeholder={t('pantries.search')}
               value={searchQuery}
             />
           </SearchArea>
@@ -155,13 +153,13 @@ export default function PantriesScreen({ navigation }) {
             <>
               <LoadError accessibilityLiveRegion="polite" accessibilityRole="alert">{pantriesError}</LoadError>
               <RetryButton accessibilityRole="button" onPress={() => setReloadKey((value) => value + 1)}>
-                <RetryText>Tentar novamente</RetryText>
+              <RetryText>{t('pantries.retry')}</RetryText>
               </RetryButton>
             </>
           ) : null}
           {filteredPantries.length === 0 && !pantriesError ? (
             <EmptyText>
-              {pantries.length === 0 ? 'Você ainda não possui despensas...' : 'Nenhuma despensa encontrada.'}
+              {pantries.length === 0 ? t('pantries.empty') : t('pantries.noneFound')}
             </EmptyText>
           ) : null}
           {filteredPantries.length > 0 ? (

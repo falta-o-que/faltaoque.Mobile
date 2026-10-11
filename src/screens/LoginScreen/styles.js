@@ -28,7 +28,7 @@ export const PrimaryButton = styled(Pressable).attrs(({ $active }) => ({
 export const PrimaryLabel = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
 `;
 
 export const Link = styled.TouchableOpacity.attrs({ activeOpacity: 0.65 })`
@@ -38,7 +38,7 @@ export const Link = styled.TouchableOpacity.attrs({ activeOpacity: 0.65 })`
 export const LinkText = styled.Text`
   color: ${({ theme }) => theme.colors.primary.Green};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;
 
 export const Muted = styled.Text`

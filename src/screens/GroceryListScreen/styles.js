@@ -34,7 +34,7 @@ export const ColorCircle = styled.View`
 export const Title = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 24px;
+  font-size: ${({ theme }) => 24 * theme.fonts.scale}px;
 `;
 
 export const TitleBlock = styled.View`
@@ -45,7 +45,7 @@ export const PantryIndicator = styled.Text`
   max-width: 245px;
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
 `;
 
 export const CategoryScroll = styled.ScrollView.attrs({
@@ -207,7 +207,7 @@ export const ListName = styled.Text`
   flex: 1;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
 `;
 
 export const ListActions = styled.View`
@@ -246,19 +246,19 @@ export const SelectionButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.
 export const SelectionButtonText = styled.Text`
   color: ${({ $confirm, theme }) => $confirm ? theme.colors.white[100] : theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
 `;
 export const SelectionHint = styled.Text`
   flex: 1;
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
 `;
 
 export const EmptyText = styled.Text`
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
   text-align: center;
   margin-top: 8px;
 `;
@@ -266,7 +266,7 @@ export const EmptyText = styled.Text`
 export const StatusText = styled.Text`
   color: ${({ theme }) => theme.colors.black[300]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
   text-align: center;
   margin-top: 20px;
 `;
@@ -282,5 +282,5 @@ export const RetryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 }
 export const RetryText = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 14px;
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
 `;

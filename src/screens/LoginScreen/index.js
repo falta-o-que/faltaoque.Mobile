@@ -8,6 +8,7 @@ import { hasValidationErrors, validateLogin } from '../../domain/authValidation'
 import { PUBLIC_ROUTES } from '../../navigation/routes';
 import { useAuth } from '../../contexts/AuthContext';
 import { showUserErrorAlert } from '../../utils/userErrors';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import {
   Actions,
   Form,
@@ -26,6 +27,8 @@ export function LoginScreen({ navigation }) {
   const [isSubmitActive, setIsSubmitActive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
+  const { t } = useAppPreferences();
+  const errorText = (error) => error ? t(error) : undefined;
 
   const handleEmailChange = (value) => {
     setEmail(value);
@@ -41,7 +44,7 @@ export function LoginScreen({ navigation }) {
     const validationErrors = validateLogin({ email, password });
 
     if (hasValidationErrors(validationErrors)) {
-      setErrors(validationErrors);
+      setErrors(Object.fromEntries(Object.entries(validationErrors).map(([key, value]) => [key, errorText(value)])));
       return;
     }
 
@@ -49,7 +52,11 @@ export function LoginScreen({ navigation }) {
       setIsSubmitting(true);
       await login({ email, password });
     } catch (error) {
-      showUserErrorAlert(error, { title: 'Não foi possível entrar', fallback: 'Verifique sua conexão e tente novamente.' });
+      if (error?.message === 'INVALID_CREDENTIALS') {
+        Alert.alert(t('auth.errors.loginTitle'), t('auth.validation.invalidCredentials'), [{ text: t('auth.common.ok') }]);
+      } else {
+        showUserErrorAlert(error, { title: t('auth.errors.loginTitle'), fallback: t('auth.errors.connection'), dismissText: t('auth.common.ok'), t });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -57,37 +64,37 @@ export function LoginScreen({ navigation }) {
 
   const handleForgotPassword = () => {
     Alert.alert(
-      'Recuperação de senha',
-      'Este recurso será implementado em breve.',
-      [{ text: 'Entendi' }],
+      t('auth.login.forgotTitle'),
+      t('auth.login.forgotBody'),
+      [{ text: t('auth.common.ok') }],
     );
   };
 
   return (
-    <AuthScreenLayout title="FaltaOquê?" subtitle="Sua casa abastecida na hora certa.">
+    <AuthScreenLayout title="FaltaOquê?" subtitle={t('auth.login.subtitle')}>
       <Form>
         <FormField
-          accessibilityLabel="E-mail"
+          accessibilityLabel={t('auth.login.email')}
           autoCapitalize="none"
           autoComplete="email"
           keyboardType="email-address"
-          placeholder="Email"
+          placeholder={t('auth.login.email')}
           value={email}
           onChangeText={handleEmailChange}
           error={errors.email}
           Icon={EmailIcon}
         />
         <FormField
-          accessibilityLabel="Senha"
+          accessibilityLabel={t('auth.login.password')}
           autoCapitalize="none"
           autoComplete="password"
-          placeholder="Senha"
+          placeholder={t('auth.login.password')}
           secureTextEntry={!isPasswordVisible}
           value={password}
           onChangeText={handlePasswordChange}
           error={errors.password}
           Icon={isPasswordVisible ? EyeIcon : EyeClosedIcon}
-          iconAccessibilityLabel={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+          iconAccessibilityLabel={isPasswordVisible ? t('auth.login.hidePassword') : t('auth.login.showPassword')}
           onIconPress={() => setIsPasswordVisible((value) => !value)}
         />
       </Form>
@@ -102,16 +109,16 @@ export function LoginScreen({ navigation }) {
           onPressIn={() => setIsSubmitActive(true)}
           onPressOut={() => setIsSubmitActive(false)}
         >
-          <PrimaryLabel>{isSubmitting ? 'Entrando...' : 'Entrar'}</PrimaryLabel>
+          <PrimaryLabel>{isSubmitting ? t('auth.login.submitting') : t('auth.login.submit')}</PrimaryLabel>
         </PrimaryButton>
         <Link accessibilityRole="button" onPress={handleForgotPassword}>
-          <LinkText>Esqueci a Senha</LinkText>
+          <LinkText>{t('auth.login.forgotPassword')}</LinkText>
         </Link>
         <Link
           accessibilityRole="button"
           onPress={() => navigation.navigate(PUBLIC_ROUTES.REGISTER)}
         >
-          <LinkText><Muted>Ainda não tem conta?</Muted> Criar conta</LinkText>
+          <LinkText><Muted>{t('auth.login.noAccount')}</Muted> {t('auth.login.createAccount')}</LinkText>
         </Link>
       </Actions>
     </AuthScreenLayout>

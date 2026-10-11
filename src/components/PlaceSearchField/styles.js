@@ -23,18 +23,18 @@ export const OptionSubtitle = styled.Text`
   margin-top: 2px;
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
 `;
 export const Attribution = styled.Text`
   padding: 8px 12px;
   color: ${({ theme }) => theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
 `;
 export const GoogleLetter = styled.Text`
   color: ${({ $color }) => $color};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: 11px;
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
 `;
 export const Status = styled.View`
   flex-direction: row;
@@ -44,5 +44,5 @@ export const Status = styled.View`
 export const Helper = styled.Text`
   color: ${({ $error, theme }) => $error ? theme.colors.danger[600] : theme.colors.black[400]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
 `;

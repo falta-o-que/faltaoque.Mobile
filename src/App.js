@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
@@ -15,8 +16,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from 'styled-components/native';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AppPreferencesProvider, useAppPreferences } from './contexts/AppPreferencesContext';
 import RootNavigator from './navigation/RootNavigator';
-import theme from './theme';
+import { createTheme } from './theme';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -29,15 +31,23 @@ Notifications.setNotificationHandler({
 
 function AppContent() {
   const { account, isRestoringSession } = useAuth();
+  const { isPreferencesLoading, t } = useAppPreferences();
 
-  if (isRestoringSession) {
-    return <ActivityIndicator accessibilityLabel="Carregando sessão" size="large" />;
+  if (isRestoringSession || isPreferencesLoading) {
+    return <ActivityIndicator accessibilityLabel={t('common.loadingSession')} size="large" />;
   }
 
   return <RootNavigator accountId={account?.id} isAuthenticated={Boolean(account)} />;
 }
 
-export default function App() {
+function AppTheme({ children }) {
+  const { fontScale } = useAppPreferences();
+  const theme = useMemo(() => createTheme(fontScale), [fontScale]);
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+}
+
+function AppWithFonts() {
+  const { t } = useAppPreferences();
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -48,16 +58,24 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return <ActivityIndicator accessibilityLabel="Carregando fontes" size="large" />;
+    return <ActivityIndicator accessibilityLabel={t('common.loadingFonts')} size="large" />;
   }
 
   return (
+    <AppTheme>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </AppTheme>
+  );
+}
+
+export default function App() {
+  return (
     <SafeAreaProvider>
-      <ThemeProvider theme={theme}>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </ThemeProvider>
+      <AppPreferencesProvider>
+        <AppWithFonts />
+      </AppPreferencesProvider>
     </SafeAreaProvider>
   );
 }

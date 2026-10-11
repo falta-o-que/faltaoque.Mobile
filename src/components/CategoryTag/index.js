@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTheme } from 'styled-components/native';
 import { TagIcon } from '../../assets/icons/export';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { Container, getTagForegroundColor, Label } from './styles';
 
 export const CATEGORY_LABELS = {
@@ -25,6 +26,7 @@ export function CategoryTag({
 }) {
   const [internalSelected, setInternalSelected] = useState(defaultSelected);
   const theme = useTheme();
+  const { t } = useAppPreferences();
   const resolvedCategory = CATEGORY_LABELS[category] ? category : 'organicos';
   const isControlled = selected !== undefined;
   const isSelected = isControlled ? selected : internalSelected;
@@ -52,7 +54,7 @@ export function CategoryTag({
     >
       <TagIcon color={getTagForegroundColor(theme, resolvedCategory)} />
       <Label $category={resolvedCategory} $variant={variant}>
-        {label ?? CATEGORY_LABELS[resolvedCategory]}
+        {label ?? t(`product.category.${resolvedCategory}`)}
       </Label>
     </Container>
   );

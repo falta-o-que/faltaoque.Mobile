@@ -3,7 +3,7 @@ import { Easing, Animated, Modal, Platform } from 'react-native';
 
 import { AngleIcon, BoxIcon, CalendarIcon, CancelCircleIcon, CheckIcon, DeliveryIcon, InfoIcon, PenIcon } from '../../assets/icons/export';
 import { PRODUCT_CATEGORIES, PRODUCT_PRICE_TYPES, PRODUCT_UNITS, validateProduct } from '../../domain/productValidation';
-import { getUserErrorMessage } from '../../utils/userErrors';
+import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import CategoryTag, { CATEGORY_LABELS } from '../CategoryTag';
 import DangerActionButton from '../DangerActionButton';
 import FormField from '../FormField';
@@ -17,7 +17,22 @@ import {
 
 const EMPTY_DRAFT = { name: '', brand: '', price: '', priceType: 'unit', quantity: '', expirationDate: '', weight: '', unit: '', category: null };
 
-const formatPrice = (value) => Number.isFinite(Number(value)) ? `R$ ${Number(value).toFixed(2).replace('.', ',')}` : '—';
+const formatPrice = (value, language) => Number.isFinite(Number(value)) ? new Intl.NumberFormat(language, { style: 'currency', currency: 'BRL' }).format(Number(value)) : '—';
+
+const PRODUCT_ERROR_KEYS = {
+  'Informe o nome do produto.': 'product.add.validationName',
+  'O nome do produto deve ter até 100 caracteres.': 'product.add.validationNameLength',
+  'A marca deve ter até 100 caracteres.': 'product.add.validationBrand',
+  'Informe um preço positivo com até duas casas decimais.': 'product.add.validationPrice',
+  'Escolha como o preço foi informado.': 'product.add.validationPriceType',
+  'Informe uma quantidade inteira maior que zero.': 'product.add.validationQuantity',
+  'O valor total é muito alto.': 'product.add.validationTotal',
+  'Informe um peso ou volume maior que zero.': 'product.add.validationWeight',
+  'Escolha a unidade de medida.': 'product.add.validationUnit',
+  'Escolha uma categoria.': 'product.add.validationCategory',
+  'Informe uma data válida no formato DD/MM/AAAA.': 'product.add.validationExpiration',
+  'A validade deve ser hoje ou uma data futura.': 'product.add.validationExpirationFuture',
+};
 
 function toDraft(product = {}) {
   const expirationDate = product.expirationDate ?? '';
@@ -38,6 +53,7 @@ function toDraft(product = {}) {
 }
 
 export function ProductInfoModal({ visible, product, onDelete, onRequestClose, onSave }) {
+  const { language, t } = useAppPreferences();
   const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [originalDraft, setOriginalDraft] = useState(EMPTY_DRAFT);
   const [isEditing, setIsEditing] = useState(false);
@@ -84,21 +100,22 @@ export function ProductInfoModal({ visible, product, onDelete, onRequestClose, o
     if (Object.keys(nextErrors).length) return;
     submittingRef.current = true; setIsSubmitting(true);
     try { await onSave?.({ ...draft }); setOriginalDraft({ ...draft }); setIsEditing(false); setIsCategoryOpen(false); }
-    catch (error) { setErrors({ ...(error?.fields ?? {}), submit: getUserErrorMessage(error, 'Não foi possível salvar o produto. Seus dados foram mantidos; tente novamente.') }); }
+    catch (error) { setErrors({ ...(error?.fields ?? {}), submit: t('product.add.submitError') }); }
     finally { submittingRef.current = false; setIsSubmitting(false); }
   }
 
   const categoryKey = CATEGORY_LABELS[draft.category] ? draft.category : 'organicos';
+  const displayErrors = Object.fromEntries(Object.entries(errors).map(([field, message]) => [field, PRODUCT_ERROR_KEYS[message] ? t(PRODUCT_ERROR_KEYS[message]) : message]));
   const categoryPanelStyle = { opacity: categoryProgress, transform: [{ scaleY: categoryProgress.interpolate({ inputRange: [0, 1], outputRange: [0.92, 1] }) }, { translateY: categoryProgress.interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) }] };
   const categoryChevronStyle = { transform: [{ rotate: categoryProgress.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] }) }] };
   const details = [
-    ['Preço unitário', formatPrice(product?.unitPrice)],
-    ['Preço total', formatPrice(product?.totalPrice)],
-    ['Marca', draft.brand || 'Sem marca'],
-    ['Quantidade', draft.quantity || '—'],
-    ['Validade', draft.expirationDate || 'Sem validade'],
-    ['Peso/volume', [draft.weight, draft.unit].filter(Boolean).join(' ') || '—'],
-    ['Categoria', draft.category ? CATEGORY_LABELS[categoryKey] : '—'],
+    ['product.info.unitPrice', formatPrice(product?.unitPrice, language)],
+    ['product.info.totalPrice', formatPrice(product?.totalPrice, language)],
+    ['product.info.brand', draft.brand || t('product.info.noBrand')],
+    ['product.info.quantity', draft.quantity || '—'],
+    ['product.info.expiration', draft.expirationDate || t('product.info.noExpiration')],
+    ['product.info.weight', [draft.weight, draft.unit].filter(Boolean).join(' ') || '—'],
+    ['product.info.category', draft.category ? t(`product.category.${categoryKey}`) : '—'],
   ];
 
   return (
@@ -106,21 +123,21 @@ export function ProductInfoModal({ visible, product, onDelete, onRequestClose, o
       <Overlay behavior={Platform.OS === 'ios' ? 'padding' : 'height'} accessibilityViewIsModal>
         <Card><Scroller bounces={false} contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <Content>
-            <TitleGroup><Header><InfoIcon size={24} /><Heading>{isEditing ? 'Editar produto' : 'Informações do produto'}</Heading></Header><ProductName>{draft.name.trim() || 'Produto'}</ProductName></TitleGroup>
-            {!isEditing ? <ReadonlyPanel>{details.map(([label, value]) => <DetailRow key={label}><DetailLabel>{label}</DetailLabel><DetailValue>{value}</DetailValue></DetailRow>)}</ReadonlyPanel> : (
+          <TitleGroup><Header><InfoIcon size={24} /><Heading>{isEditing ? t('product.info.edit') : t('product.info.title')}</Heading></Header><ProductName>{draft.name.trim() || t('product.info.fallback')}</ProductName></TitleGroup>
+            {!isEditing ? <ReadonlyPanel>{details.map(([labelKey, value]) => <DetailRow key={labelKey}><DetailLabel>{t(labelKey)}</DetailLabel><DetailValue>{value}</DetailValue></DetailRow>)}</ReadonlyPanel> : (
               <FormContent><Fields>
-                <FormField accessibilityLabel="Nome do produto, obrigatório" autoCapitalize="sentences" editable={!isSubmitting} error={errors.name} Icon={PenIcon} maxLength={120} onChangeText={(value) => updateField('name', value)} placeholder="Nome *" value={draft.name} />
-                <FormField accessibilityLabel="Marca do produto, opcional" autoCapitalize="words" editable={!isSubmitting} error={errors.brand} Icon={PenIcon} maxLength={100} onChangeText={(value) => updateField('brand', value)} placeholder="Marca (opcional)" value={draft.brand} />
-                <PriceTypeOptions accessibilityRole="radiogroup">{PRODUCT_PRICE_TYPES.map((priceType) => <PriceTypeOption key={priceType} accessibilityRole="radio" accessibilityState={{ checked: draft.priceType === priceType }} disabled={isSubmitting} onPress={() => updateField('priceType', priceType)} $selected={draft.priceType === priceType}><PriceTypeLabel $selected={draft.priceType === priceType}>{priceType === 'unit' ? 'Por unidade' : 'Total do lote'}</PriceTypeLabel></PriceTypeOption>)}</PriceTypeOptions>
-                <FormField accessibilityLabel={draft.priceType === 'total' ? 'Preço total do lote, obrigatório' : 'Preço unitário, obrigatório'} editable={!isSubmitting} error={errors.price} Icon={DeliveryIcon} keyboardType="decimal-pad" onChangeText={(value) => updateField('price', value)} placeholder={draft.priceType === 'total' ? 'Total do lote *' : 'Preço por unidade *'} value={draft.price} />
-                <FormField accessibilityLabel="Quantidade, obrigatória" editable={!isSubmitting} error={errors.quantity} Icon={DeliveryIcon} keyboardType="number-pad" onChangeText={(value) => updateField('quantity', value)} placeholder="Quantidade *" value={draft.quantity} />
-                <FormField accessibilityLabel="Data de validade" editable={!isSubmitting} error={errors.expirationDate} Icon={CalendarIcon} keyboardType="numbers-and-punctuation" maxLength={10} onChangeText={handleExpiration} placeholder="Validade (DD/MM/AAAA)" value={draft.expirationDate} />
-                <WeightGroup><FormField accessibilityLabel="Peso ou volume" editable={!isSubmitting} error={errors.weight} Icon={BoxIcon} keyboardType="decimal-pad" onChangeText={(value) => updateField('weight', value)} placeholder="Peso" value={draft.weight} />{draft.weight.trim() ? <><AccordionLabel>Unidade *</AccordionLabel><UnitOptions accessibilityRole="radiogroup">{PRODUCT_UNITS.map((unit) => <UnitOption key={unit} accessibilityLabel={`Unidade ${unit}, obrigatória`} accessibilityRole="radio" accessibilityState={{ checked: draft.unit === unit }} disabled={isSubmitting} onPress={() => updateField('unit', unit)} $selected={draft.unit === unit}><UnitLabel $selected={draft.unit === unit}>{unit}</UnitLabel></UnitOption>)}</UnitOptions>{errors.unit ? <InlineError>{errors.unit}</InlineError> : null}</> : null}</WeightGroup>
-              </Fields><Accordion><AccordionHeader disabled={isSubmitting} onPress={() => setIsCategoryOpen((open) => !open)} $hasError={Boolean(errors.category)}><AccordionLabel>Categoria *</AccordionLabel><Chevron style={categoryChevronStyle}><AngleIcon /></Chevron></AccordionHeader>{isCategoryOpen ? <CategoryOptions style={categoryPanelStyle}>{PRODUCT_CATEGORIES.map((category) => <CategoryTag key={category} category={category} disabled={isSubmitting} onSelectionChange={(selected) => updateField('category', selected ? category : null)} selected={draft.category === category} variant="product" />)}</CategoryOptions> : null}{errors.category ? <InlineError>{errors.category}</InlineError> : null}</Accordion></FormContent>
+                <FormField accessibilityLabel={t('product.add.nameA11y')} autoCapitalize="sentences" editable={!isSubmitting} error={displayErrors.name} Icon={PenIcon} maxLength={120} onChangeText={(value) => updateField('name', value)} placeholder={t('product.add.namePlaceholder')} value={draft.name} />
+                <FormField accessibilityLabel={t('product.add.brandA11y')} autoCapitalize="words" editable={!isSubmitting} error={displayErrors.brand} Icon={PenIcon} maxLength={100} onChangeText={(value) => updateField('brand', value)} placeholder={t('product.add.brandPlaceholder')} value={draft.brand} />
+                <PriceTypeOptions accessibilityRole="radiogroup">{PRODUCT_PRICE_TYPES.map((priceType) => <PriceTypeOption key={priceType} accessibilityRole="radio" accessibilityState={{ checked: draft.priceType === priceType }} disabled={isSubmitting} onPress={() => updateField('priceType', priceType)} $selected={draft.priceType === priceType}><PriceTypeLabel $selected={draft.priceType === priceType}>{t(priceType === 'unit' ? 'product.add.priceUnit' : 'product.add.priceTotal')}</PriceTypeLabel></PriceTypeOption>)}</PriceTypeOptions>
+                <FormField accessibilityLabel={t(draft.priceType === 'total' ? 'product.info.priceTotalA11y' : 'product.info.priceUnitA11y')} editable={!isSubmitting} error={displayErrors.price} Icon={DeliveryIcon} keyboardType="decimal-pad" onChangeText={(value) => updateField('price', value)} placeholder={t(draft.priceType === 'total' ? 'product.add.priceTotalPlaceholder' : 'product.add.priceUnitPlaceholder')} value={draft.price} />
+                <FormField accessibilityLabel={t('product.add.quantityA11y')} editable={!isSubmitting} error={displayErrors.quantity} Icon={DeliveryIcon} keyboardType="number-pad" onChangeText={(value) => updateField('quantity', value)} placeholder={t('product.add.quantityPlaceholder')} value={draft.quantity} />
+                <FormField accessibilityLabel={t('product.add.expirationA11y')} editable={!isSubmitting} error={displayErrors.expirationDate} Icon={CalendarIcon} keyboardType="numbers-and-punctuation" maxLength={10} onChangeText={handleExpiration} placeholder={t('product.add.expirationPlaceholder')} value={draft.expirationDate} />
+                <WeightGroup><FormField accessibilityLabel={t('product.add.weightA11y')} editable={!isSubmitting} error={displayErrors.weight} Icon={BoxIcon} keyboardType="decimal-pad" onChangeText={(value) => updateField('weight', value)} placeholder={t('product.add.weightPlaceholder')} value={draft.weight} />{draft.weight.trim() ? <><AccordionLabel>{t('product.add.unitRequired')}</AccordionLabel><UnitOptions accessibilityRole="radiogroup">{PRODUCT_UNITS.map((unit) => <UnitOption key={unit} accessibilityLabel={t('product.add.unitA11y', { unit })} accessibilityRole="radio" accessibilityState={{ checked: draft.unit === unit }} disabled={isSubmitting} onPress={() => updateField('unit', unit)} $selected={draft.unit === unit}><UnitLabel $selected={draft.unit === unit}>{unit}</UnitLabel></UnitOption>)}</UnitOptions>{displayErrors.unit ? <InlineError>{displayErrors.unit}</InlineError> : null}</> : null}</WeightGroup>
+              </Fields><Accordion><AccordionHeader disabled={isSubmitting} onPress={() => setIsCategoryOpen((open) => !open)} $hasError={Boolean(errors.category)}><AccordionLabel>{t('product.add.categoryRequired')}</AccordionLabel><Chevron style={categoryChevronStyle}><AngleIcon /></Chevron></AccordionHeader>{isCategoryOpen ? <CategoryOptions style={categoryPanelStyle}>{PRODUCT_CATEGORIES.map((category) => <CategoryTag key={category} category={category} disabled={isSubmitting} onSelectionChange={(selected) => updateField('category', selected ? category : null)} selected={draft.category === category} variant="product" />)}</CategoryOptions> : null}{displayErrors.category ? <InlineError>{displayErrors.category}</InlineError> : null}</Accordion></FormContent>
             )}
-            {errors.submit ? <SubmitError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.submit}</SubmitError> : null}{isSubmitting ? <BusyStatus><BusyIndicator /><BusyText>Salvando...</BusyText></BusyStatus> : null}
-            {!isEditing ? <DangerActionButton accessibilityLabel="Excluir produto" disabled={isSubmitting} onPress={onDelete} text="Excluir produto" /> : null}
-            <Actions><ModalActionButton accessibilityLabel={isEditing ? 'Cancelar edição' : 'Fechar informações'} disabled={isSubmitting} Icon={CancelCircleIcon} onPress={handleCancel} variant="cancel" /><ModalActionButton accessibilityLabel={isEditing ? 'Salvar produto' : 'Editar produto'} disabled={isSubmitting} Icon={isEditing ? CheckIcon : PenIcon} onPress={isEditing ? handleSave : () => setIsEditing(true)} variant="confirm" /></Actions>
+            {displayErrors.submit ? <SubmitError accessibilityLiveRegion="polite" accessibilityRole="alert">{displayErrors.submit}</SubmitError> : null}{isSubmitting ? <BusyStatus><BusyIndicator /><BusyText>{t('product.add.saving')}</BusyText></BusyStatus> : null}
+            {!isEditing ? <DangerActionButton accessibilityLabel={t('product.info.delete')} disabled={isSubmitting} onPress={onDelete} text={t('product.info.delete')} /> : null}
+            <Actions><ModalActionButton accessibilityLabel={isEditing ? t('product.info.cancelEdit') : t('product.info.close')} disabled={isSubmitting} Icon={CancelCircleIcon} onPress={handleCancel} variant="cancel" /><ModalActionButton accessibilityLabel={isEditing ? t('product.info.save') : t('product.info.editAction')} disabled={isSubmitting} Icon={isEditing ? CheckIcon : PenIcon} onPress={isEditing ? handleSave : () => setIsEditing(true)} variant="confirm" /></Actions>
           </Content>
         </Scroller></Card>
       </Overlay>

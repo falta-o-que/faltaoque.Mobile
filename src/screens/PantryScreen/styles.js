@@ -28,7 +28,7 @@ export const ColorCircle = styled.View`
 export const Title = styled.Text.attrs({ numberOfLines: 1, ellipsizeMode: 'tail' })`
   flex-shrink: 1;
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: 24px;
+  font-size: ${({ theme }) => 24 * theme.fonts.scale}px;
   color: ${({ theme }) => theme.colors.black.Black};
 `;
 export const Actions = styled.View`
@@ -52,7 +52,7 @@ export const CategorySection = styled.View`
 export const EmptyText = styled.Text`
   max-width: 260px;
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: 16px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
   color: ${({ theme }) => theme.colors.black.Black};
   text-align: center;
 `;
