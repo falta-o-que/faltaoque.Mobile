@@ -3,11 +3,12 @@ import { ActivityIndicator, Alert, Animated, Easing } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import {
-  AddCircleIcon, AngleIcon, CartAddIcon, CartRemoveIcon, FilterIcon, HistoryIcon, SettingsIcon,
+  AddCircleIcon, AngleIcon, FilterIcon, HistoryIcon, SettingsIcon,
 } from '../../assets/icons/export';
 import CategoryTag from '../../components/CategoryTag';
 import AnimatedDropdown from '../../components/AnimatedDropdown';
 import GroceryListItemCard from '../../components/GroceryListItemCard';
+import RemoveItemCircleIcon from '../../components/RemoveItemCircleIcon';
 import GroceryListHistoryModal from '../../components/GroceryListHistoryModal';
 import GroceryListModal from '../../components/GroceryListModal';
 import AddProductMethodModal from '../../components/AddProductMethodModal';
@@ -516,10 +517,10 @@ export default function GroceryListScreen({ navigation, route }) {
                     {list.status === 'active' ? (
                       <>
                           <IconButton accessibilityRole="button" accessibilityLabel={t('shopping.selectForRemoval', { name: list.name })} onPress={() => startRemoval(list.id)}>
-                          <CartRemoveIcon size={24} color="#494949" />
+                          <RemoveItemCircleIcon size={24} color="#494949" />
                         </IconButton>
                         <IconButton accessibilityRole="button" accessibilityLabel={t('shopping.addItemTo', { name: list.name })} onPress={() => openModal('item', list.id)}>
-                          <CartAddIcon size={24} color="#494949" />
+                          <RemoveItemCircleIcon add size={24} color="#494949" />
                         </IconButton>
                       </>
                     ) : null}
