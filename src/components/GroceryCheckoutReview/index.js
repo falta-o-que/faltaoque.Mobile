@@ -403,11 +403,11 @@ export default function GroceryCheckoutReview({
         {isFiscal && purchase?.merchantName ? <ContextRow><ContextLabel>{t('shopping.receiptLabel')}</ContextLabel><ContextValue>{purchase.merchantName}</ContextValue></ContextRow> : null}
         {isFiscal && purchase?.totalAmount != null ? <ContextRow><ContextLabel>{t('shopping.receiptTotal')}</ContextLabel><ContextValue>{formatMoney(purchase.totalAmount, language)}</ContextValue></ContextRow> : null}
         <Section>
-          <Label>{isFiscal ? t('shopping.receiptDate') : t('shopping.purchaseDate')}</Label>
+          <Label>{isFiscal ? t('shopping.receiptDate') : `${t('shopping.purchaseDate')} *`}</Label>
           {dateReadOnly ? <DateSummary accessible accessibilityLabel={t('shopping.receiptDateA11y', { date: dateValue || t('shopping.unavailable') })}>
             <DateValue>{dateValue || t('shopping.unidentifiedDate')}</DateValue>
           </DateSummary> : <FormField accessibilityLabel={t('shopping.purchaseDateA11y')} value={dateValue}
-            editable={!busy} placeholder={t('shopping.dateFormat')} onChangeText={onChangeDate} />}
+            editable={!busy} placeholder={`${t('shopping.dateFormat')} *`} onChangeText={onChangeDate} />}
         </Section>
         <Section>
           <Label>{t('shopping.purchaseMarketOptional')}</Label>

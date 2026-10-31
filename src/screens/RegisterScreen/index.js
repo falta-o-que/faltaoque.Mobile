@@ -194,7 +194,7 @@ export function RegisterScreen({ navigation }) {
           autoComplete="name"
           error={errors.name}
           onChangeText={(value) => setName(updateField('name', value))}
-          placeholder={t('auth.common.name')}
+          placeholder={`${t('auth.common.name')} *`}
           value={name}
           Icon={UserIcon}
         />
@@ -205,7 +205,7 @@ export function RegisterScreen({ navigation }) {
           error={errors.email}
           keyboardType="email-address"
           onChangeText={(value) => setEmail(updateField('email', value))}
-          placeholder={t('auth.login.email')}
+          placeholder={`${t('auth.login.email')} *`}
           value={email}
           Icon={EmailIcon}
         />
@@ -215,7 +215,7 @@ export function RegisterScreen({ navigation }) {
             accessibilityState={{ expanded: isAvatarColorOpen }}
             onPress={() => setIsAvatarColorOpen((value) => !value)}
           >
-            <FieldLabel>{t('auth.common.avatarColor')}</FieldLabel>
+            <FieldLabel>{t('auth.common.avatarColor')} *</FieldLabel>
             <ColorChevron style={avatarColorChevronStyle}>
               <AngleIcon />
             </ColorChevron>
@@ -249,7 +249,7 @@ export function RegisterScreen({ navigation }) {
           autoComplete="new-password"
           error={errors.password}
           onChangeText={(value) => setPassword(updateField('password', value))}
-          placeholder={t('auth.login.password')}
+          placeholder={`${t('auth.login.password')} *`}
           secureTextEntry={!isPasswordVisible}
           value={password}
           Icon={isPasswordVisible ? EyeIcon : EyeClosedIcon}
@@ -262,7 +262,7 @@ export function RegisterScreen({ navigation }) {
           autoComplete="new-password"
           error={errors.passwordConfirmation}
           onChangeText={(value) => setPasswordConfirmation(updateField('passwordConfirmation', value))}
-          placeholder={t('auth.common.confirmPassword')}
+          placeholder={`${t('auth.common.confirmPassword')} *`}
           secureTextEntry={!isConfirmationVisible}
           value={passwordConfirmation}
           Icon={isConfirmationVisible ? EyeIcon : EyeClosedIcon}

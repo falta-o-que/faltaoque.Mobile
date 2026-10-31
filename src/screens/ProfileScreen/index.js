@@ -205,7 +205,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
             autoComplete="name"
             error={errors.name}
             onChangeText={(value) => { updateField('name', value); setName(value); }}
-            placeholder={t('auth.common.name')}
+            placeholder={`${t('auth.common.name')} *`}
             returnKeyType="next"
             value={name}
             Icon={UserIcon}
@@ -217,7 +217,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
             error={errors.email}
             keyboardType="email-address"
             onChangeText={(value) => { updateField('email', value); setEmail(value); }}
-            placeholder={t('auth.login.email')}
+            placeholder={`${t('auth.login.email')} *`}
             returnKeyType="next"
             value={email}
             Icon={EmailIcon}
@@ -229,7 +229,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
               accessibilityState={{ expanded: isColorOpen }}
               onPress={() => setIsColorOpen((open) => !open)}
             >
-              <FieldLabel>{t('auth.common.avatarColor')}</FieldLabel>
+              <FieldLabel>{t('auth.common.avatarColor')} *</FieldLabel>
               <Chevron style={chevronStyle}><AngleIcon /></Chevron>
             </ColorFieldHeader>
             <AnimatedDropdown open={isColorOpen}>

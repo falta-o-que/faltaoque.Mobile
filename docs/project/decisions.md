@@ -1,5 +1,9 @@
 # Decisões do projeto
 
+## 2026-10-31 — Indicação visual dos campos
+
+Os formulários indicam campos obrigatórios com `*`, exceto na tela de login, que não exibe asteriscos. Campos opcionais não exibem `*` nem a palavra “opcional” no placeholder; descrições de acessibilidade podem informar que o preenchimento é opcional. As validações existentes continuam definindo a obrigatoriedade.
+
 ## 2026-10-11 — Configurações finalizadas
 
 O usuário encerrou a feature após validação inicial no front e correções de tradução e tratamento de falhas. Esta decisão substitui o escopo provisório de 5 de outubro: idiomas português brasileiro, inglês e espanhol; fonte em 90%, 100% e 110%; permissões de notificações controladas nos ajustes do sistema; Sobre com Beta 0.9, equipe em ordem alfabética e `https://github.com/falta-o-que`; saída da conta com confirmação. Modo claro/escuro fica fora desta entrega.
