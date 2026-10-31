@@ -75,7 +75,7 @@ export const EditButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })
   height: 28px;
   align-items: center;
   justify-content: center;
-  margin-right: 4px;
+  margin-right: 12px;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 `;
 
