@@ -17,7 +17,12 @@ const ptBR = {
   'auth.register.createdTitle': 'Conta criada!', 'auth.register.createdBody': 'Sua conta foi criada. Você será direcionado para o aplicativo.',
   'auth.common.continue': 'Continuar', 'auth.errors.emailExists': 'Este e-mail já está cadastrado.',
   'auth.errors.loginTitle': 'Não foi possível entrar', 'auth.errors.registerTitle': 'Não foi possível criar a conta',
-  'auth.errors.connection': 'Verifique sua conexão e tente novamente.', 'auth.validation.invalidCredentials': 'E-mail ou senha inválidos.',
+  'auth.errors.connection': 'Verifique sua conexão e tente novamente.', 'auth.validation.invalidCredentials': 'Confira seu e-mail e sua senha e tente novamente. Se ainda não tem uma conta, crie uma para começar.',
+  'auth.login.checkCredentials': 'Verificar dados',
+  'auth.login.accountNotFoundTitle': 'Conta não encontrada',
+  'auth.login.accountNotFoundMessage': 'Não encontramos uma conta com esse e-mail. Confira o endereço ou crie uma conta.',
+  'auth.login.incorrectPasswordTitle': 'Senha incorreta',
+  'auth.login.incorrectPasswordMessage': 'Confira sua senha e tente novamente.',
   'auth.profile.title': 'Configurações de Perfil', 'auth.profile.newPassword': 'Nova senha',
   'auth.profile.newPasswordConfirm': 'Confirmar nova senha', 'auth.profile.newPasswordLabel': 'Nova senha para alterar a senha',
   'auth.profile.newPasswordHint': 'Preencha para atualizar a senha. Deixe vazio para manter a senha atual.',
@@ -41,7 +46,12 @@ const ptBR = {
 };
 
 const en = {
-  'auth.validation.invalidCredentials': 'Invalid email or password.',
+  'auth.validation.invalidCredentials': 'Check your email and password and try again. If you don’t have an account yet, create one to get started.',
+  'auth.login.checkCredentials': 'Check details',
+  'auth.login.accountNotFoundTitle': 'Account not found',
+  'auth.login.accountNotFoundMessage': 'We couldn’t find an account with this email. Check the address or create an account.',
+  'auth.login.incorrectPasswordTitle': 'Incorrect password',
+  'auth.login.incorrectPasswordMessage': 'Check your password and try again.',
   'auth.login.subtitle': 'Your home stocked at the right time.', 'auth.login.email': 'Email', 'auth.login.password': 'Password',
   'auth.login.hidePassword': 'Hide password', 'auth.login.showPassword': 'Show password', 'auth.login.submitting': 'Signing in...',
   'auth.login.submit': 'Sign in', 'auth.login.forgotPassword': 'Forgot password', 'auth.login.noAccount': "Don't have an account?",
@@ -54,7 +64,12 @@ const en = {
 };
 
 const es = {
-  'auth.validation.invalidCredentials': 'Correo o contraseña inválidos.',
+  'auth.validation.invalidCredentials': 'Revisa tu correo y contraseña e inténtalo de nuevo. Si aún no tienes una cuenta, crea una para empezar.',
+  'auth.login.checkCredentials': 'Revisar datos',
+  'auth.login.accountNotFoundTitle': 'Cuenta no encontrada',
+  'auth.login.accountNotFoundMessage': 'No encontramos una cuenta con este correo. Revisa la dirección o crea una cuenta.',
+  'auth.login.incorrectPasswordTitle': 'Contraseña incorrecta',
+  'auth.login.incorrectPasswordMessage': 'Revisa tu contraseña e inténtalo de nuevo.',
   'auth.login.subtitle': 'Tu hogar abastecido en el momento adecuado.', 'auth.login.email': 'Correo electrónico', 'auth.login.password': 'Contraseña', 'auth.login.hidePassword': 'Ocultar contraseña', 'auth.login.showPassword': 'Mostrar contraseña', 'auth.login.submitting': 'Iniciando sesión...', 'auth.login.submit': 'Entrar', 'auth.login.forgotPassword': 'Olvidé mi contraseña', 'auth.login.noAccount': '¿Aún no tienes cuenta?', 'auth.login.createAccount': 'Crear cuenta', 'auth.login.forgotTitle': 'Recuperación de contraseña', 'auth.login.forgotBody': 'Esta función estará disponible pronto.', 'auth.common.ok': 'Entendido', 'auth.register.title': 'Crea tu cuenta', 'auth.register.subtitle': 'Tarda menos de dos minutos.', 'auth.common.name': 'Nombre', 'auth.common.avatarColor': 'Color del avatar', 'auth.common.selectColor': 'Seleccionar color {{color}}', 'auth.common.confirmPassword': 'Confirmar contraseña', 'auth.common.hideConfirmation': 'Ocultar confirmación de contraseña', 'auth.common.showConfirmation': 'Mostrar confirmación de contraseña', 'auth.register.agreePrefix': 'Acepto los', 'auth.register.agreeAnd': 'y la', 'auth.register.agreeTerms': 'Acepto los Términos de Uso y la Política de Privacidad.', 'auth.register.submitting': 'Creando...', 'auth.register.submit': 'Crear cuenta', 'auth.register.hasAccount': '¿Ya tienes una cuenta?', 'auth.register.login': 'Entrar', 'auth.register.createdTitle': '¡Cuenta creada!', 'auth.register.createdBody': 'Tu cuenta fue creada. Serás dirigido a la aplicación.', 'auth.common.continue': 'Continuar', 'auth.errors.emailExists': 'Este correo ya está registrado.', 'auth.errors.loginTitle': 'No se pudo iniciar sesión', 'auth.errors.registerTitle': 'No se pudo crear la cuenta', 'auth.errors.connection': 'Comprueba tu conexión e inténtalo de nuevo.', 'auth.profile.title': 'Configuración del perfil', 'auth.profile.newPassword': 'Nueva contraseña', 'auth.profile.newPasswordConfirm': 'Confirmar nueva contraseña', 'auth.profile.newPasswordLabel': 'Nueva contraseña para cambiar la contraseña', 'auth.profile.newPasswordHint': 'Complétalo para actualizar la contraseña. Déjalo vacío para mantener la actual.', 'auth.profile.hidePassword': 'Ocultar contraseña', 'auth.profile.showPassword': 'Mostrar contraseña', 'auth.profile.hideConfirmation': 'Ocultar confirmación de contraseña', 'auth.profile.showConfirmation': 'Mostrar confirmación de contraseña', 'auth.profile.saving': 'Guardando...', 'auth.profile.save': 'Guardar', 'auth.profile.cancel': 'Cancelar', 'auth.profile.updatedTitle': 'Perfil actualizado', 'auth.profile.updatedBody': 'Tus cambios fueron guardados.', 'auth.profile.saveErrorTitle': 'No se pudo guardar el perfil', 'auth.profile.saveErrorBody': 'Tus datos no cambiaron. Inténtalo de nuevo.', 'auth.profile.greeting': 'Hola, {{name}}', 'auth.profile.subtitle': 'Tu hogar está en ritmo.', 'auth.profile.question': '¿Qué quieres hacer?', 'auth.quick.pantry': 'Despensa', 'auth.quick.notifications': 'Notificaciones', 'auth.quick.notificationsShort': 'Notif.', 'auth.quick.profile': 'Perfil', 'auth.quick.settings': 'Configuración', 'auth.quick.settingsShort': 'Config.', 'auth.common.comingSoon': 'Próximamente', 'auth.common.willBeAvailable': '{{label}} estará disponible pronto.', 'auth.validation.emailRequired': 'Ingresa tu correo.', 'auth.validation.emailMaxLength': 'El correo debe tener 254 caracteres o menos.', 'auth.validation.emailInvalid': 'Ingresa un correo válido.', 'auth.validation.passwordRequired': 'Ingresa la contraseña.', 'auth.validation.passwordLength': 'La contraseña debe tener entre 8 y 20 caracteres.', 'auth.validation.nameRequired': 'Ingresa tu nombre.', 'auth.validation.nameMaxLength': 'El nombre debe tener 50 caracteres o menos.', 'auth.validation.avatarColorRequired': 'Elige un color para el avatar.', 'auth.validation.passwordConfirmationRequired': 'Confirma la contraseña.', 'auth.validation.newPasswordConfirmationRequired': 'Confirma la nueva contraseña.', 'auth.validation.newPasswordRequired': 'Ingresa la nueva contraseña.', 'auth.validation.passwordMismatch': 'Las contraseñas no coinciden.', 'auth.validation.termsRequired': 'Acepta los Términos de Uso y la Política de Privacidad.',
 };
 

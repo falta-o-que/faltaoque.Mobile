@@ -52,8 +52,13 @@ export function LoginScreen({ navigation }) {
       setIsSubmitting(true);
       await login({ email, password });
     } catch (error) {
-      if (error?.message === 'INVALID_CREDENTIALS') {
-        Alert.alert(t('auth.errors.loginTitle'), t('auth.validation.invalidCredentials'), [{ text: t('auth.common.ok') }]);
+      if (error?.message === 'LOGIN_ACCOUNT_NOT_FOUND') {
+        Alert.alert(t('auth.login.accountNotFoundTitle'), t('auth.login.accountNotFoundMessage'), [
+          { text: t('auth.login.checkCredentials'), style: 'cancel' },
+          { text: t('auth.login.createAccount'), onPress: () => navigation.navigate(PUBLIC_ROUTES.REGISTER) },
+        ]);
+      } else if (error?.message === 'INVALID_CREDENTIALS') {
+        Alert.alert(t('auth.login.incorrectPasswordTitle'), t('auth.login.incorrectPasswordMessage'), [{ text: t('auth.common.ok') }]);
       } else {
         showUserErrorAlert(error, { title: t('auth.errors.loginTitle'), fallback: t('auth.errors.connection'), dismissText: t('auth.common.ok'), t });
       }

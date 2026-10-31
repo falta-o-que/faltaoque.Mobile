@@ -69,7 +69,7 @@ export async function login({ email, password }) {
   const account = await findAccountByEmail(email);
 
   if (!account) {
-    throw new Error('INVALID_CREDENTIALS');
+    throw new Error('LOGIN_ACCOUNT_NOT_FOUND');
   }
 
   const passwordHash = await hashPassword(password, account.passwordSalt);
