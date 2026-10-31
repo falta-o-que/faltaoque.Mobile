@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { PenIcon, SimpleCheckIcon } from '../../assets/icons/export';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import {
@@ -21,14 +22,16 @@ export function GroceryListItemCard({
   onToggle,
   onEdit,
   disabled = false,
+  dimmed = disabled,
   showCheckbox = true,
 }) {
   const { t } = useAppPreferences();
+  const [pressed, setPressed] = useState(false);
   const metadata = [weight, size].filter(Boolean).join(' · ');
-  const canToggle = !disabled && typeof onToggle === 'function';
+  const canToggle = showCheckbox && !disabled && typeof onToggle === 'function';
 
   return (
-    <Card $disabled={disabled} accessibilityRole="summary">
+    <Card $dimmed={dimmed || pressed} accessible={false} disabled={!canToggle} onPressIn={() => setPressed(true)} onPressOut={() => setPressed(false)} onPress={onToggle}>
       <Accent $category={category} />
       <Content>
         <ProductName $checked={checked}>{name}</ProductName>
@@ -36,7 +39,7 @@ export function GroceryListItemCard({
         <Quantity accessibilityLabel={t('shopping.quantity', { quantity })}>{quantity}</Quantity>
       </Content>
       {onEdit ? (
-        <EditButton accessibilityRole="button" accessibilityLabel={t('shopping.edit', { name })} disabled={disabled} onPress={onEdit}>
+        <EditButton $dimmed={dimmed} accessibilityRole="button" accessibilityLabel={t('shopping.edit', { name })} disabled={disabled} onPress={(event) => { event.stopPropagation(); onEdit(); }}>
           <PenIcon size={16} color="#494949" />
         </EditButton>
       ) : null}
@@ -46,7 +49,9 @@ export function GroceryListItemCard({
         accessibilityRole="checkbox"
         accessibilityState={{ checked, disabled: !canToggle }}
         disabled={!canToggle}
-        onPress={canToggle ? onToggle : undefined}
+        onPressIn={() => setPressed(true)}
+        onPressOut={() => setPressed(false)}
+        onPress={canToggle ? (event) => { event.stopPropagation(); onToggle(); } : undefined}
       >
         {checked ? <SimpleCheckIcon width={9} height={7} /> : null}
       </Checkbox> : null}

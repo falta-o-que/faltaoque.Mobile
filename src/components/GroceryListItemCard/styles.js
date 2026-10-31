@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 
-export const Card = styled.View`
+export const Card = styled.Pressable`
   width: 100%;
   height: 52px;
   flex-direction: row;
@@ -15,7 +15,7 @@ export const Card = styled.View`
   shadow-opacity: 0.25;
   shadow-radius: 4px;
   elevation: 2;
-  opacity: ${({ $disabled }) => ($disabled ? 0.56 : 1)};
+  opacity: ${({ $dimmed }) => ($dimmed ? 0.56 : 1)};
 `;
 
 export const Accent = styled.View`
@@ -76,10 +76,10 @@ export const EditButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })
   align-items: center;
   justify-content: center;
   margin-right: 12px;
-  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  opacity: ${({ $dimmed }) => ($dimmed ? 0.5 : 1)};
 `;
 
-export const Checkbox = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })`
+export const Checkbox = styled.Pressable`
   width: 20px;
   height: 20px;
   align-items: center;
