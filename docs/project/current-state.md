@@ -1,6 +1,21 @@
 # Estado atual
 
-Última atualização: 11 de outubro de 2026. As seções mais antigas deste arquivo são registros cronológicos; para a situação vigente, use primeiro o resumo abaixo e depois os registros datados mais recentes.
+Última atualização: 31 de outubro de 2026. As seções mais antigas deste arquivo são registros cronológicos; para a situação vigente, use primeiro o resumo abaixo e depois os registros datados mais recentes.
+
+## Novo vínculo Expo/EAS e build Development — 31 de outubro de 2026
+
+- A nova conta Expo `zackkmini` foi autenticada e o projeto EAS `@zackkmini/FaltaOQueFront` foi criado e vinculado ao repositório. O `projectId` atual é `f19e401e-2ee1-41b0-a9a9-dadd61f8a60b`; o campo `owner` não foi reintroduzido no `app.json`.
+- O build Android Development foi concluído com sucesso. Build: `d1abfbab-0c51-4e94-b1b5-a1c72660c9f0`. [Instalar APK](https://expo.dev/accounts/zackkmini/projects/FaltaOQueFront/builds/d1abfbab-0c51-4e94-b1b5-a1c72660c9f0).
+
+## Vínculo Expo/EAS removido — 31 de outubro de 2026
+
+- O projeto foi desvinculado localmente da conta Expo/EAS anterior para permitir a vinculação de outra conta posteriormente. O `projectId` EAS e o campo `owner` foram removidos de `app.json`, e o CLI local foi desconectado com `expo logout`.
+- O projeto remoto e os builds existentes não foram apagados. Ao retomar a configuração de nuvem, será necessário autenticar a nova conta e criar ou vincular um novo projeto EAS.
+
+## Validação dos fluxos de compra — 31 de outubro de 2026
+
+- O usuário confirmou a validação física no Android da finalização manual e por NFC-e, da revisão da compra e do estoque agregado, incluindo a leitura de uma NFC-e real. Essa confirmação substitui as pendências de validação Android desses fluxos registradas anteriormente. Não houve confirmação de teste físico no iOS.
+- O cadastro permite abrir Termos de Uso e Política de Privacidade em modais, usando os mesmos textos provisórios de Configurações. Abrir ou fechar um documento não altera o aceite obrigatório; os textos definitivos seguem pendentes de envio/aprovação.
 
 ## Revisão de traduções — 11 de outubro de 2026
 
@@ -16,11 +31,11 @@
 ## Estado consolidado — 10 de outubro de 2026
 
 - A página de listas e as sugestões de mercado foram consideradas concluídas e validadas no Android pelo usuário. A fixture demonstrativa está desligada e não é uma etapa pendente.
-- O fluxo de finalização manual/NFC-e, a revisão de compra e o estoque agregado estão implementados no simulador local; a validação física Android desta versão do fluxo e a leitura de uma NFC-e real permanecem pendentes. iOS não foi testado fisicamente.
+- O fluxo de finalização manual/NFC-e, a revisão de compra e o estoque agregado estão implementados no simulador local e foram validados pelo usuário no Android, incluindo leitura de uma NFC-e real. iOS não foi testado fisicamente.
 - O esquema local atual é a versão 11. Migrações posteriores à versão 8 preservam os dados existentes e adicionam os campos e tabelas locais definidos nas decisões de mercado. Isso não confirma migração no banco hospedado.
 - A API hospedada não foi confirmada/recebida. O JSON de 8 de outubro é a fotografia de referência do modelo recebido; a entidade `markets` e seus vínculos ainda são responsabilidade da equipe de backend.
 - A identidade configurada do aplicativo é `FaltaOquê?` (`com.faltaoque.app`). O perfil EAS `production` gera APK de instalação direta e aponta explicitamente para o ambiente EAS `production`. A variável `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` foi cadastrada nesse ambiente como sensível; seu valor é compilado no bundle público do app. O build Android de produção `e9572dbf-fc65-4be3-90be-c4ba56f04ca5` foi interrompido pelo usuário antes do ajuste do ícone. A build `e0cca5a0-3cb9-4398-bfd9-12be32a5b79b` terminou com sucesso e inclui o foreground adaptativo `src/assets/branding/adaptive-icon-foreground.png`, com margem transparente e fundo branco, além da correção de Safe Area na revisão de compra. [APK de produção](https://expo.dev/artifacts/eas/DGyWOkewnEFWdzaTryPTDljH-b-Wf-0DNA1tCqO-K8k.apk). Marca, créditos e detalhes de configuração estão em `app-identity.md`.
-- Próximas verificações mobile: instalar o APK no Android e conferir o ícone no launcher; percorrer a finalização manual e por NFC-e, incluindo vínculo, itens ausentes/sem vínculo, duplicidade por despensa e gravação local. Registrar os resultados aqui e ajustar apenas problemas observados.
+- Próxima verificação mobile registrada: instalar o APK no Android e conferir o ícone no launcher. A validação dos fluxos de compra foi confirmada posteriormente, em 31 de outubro.
 - A edição da despensa foi concluída nas telas Home e Despensas: o modal baseado em `750:3139` altera nome, cor e localização; o seletor aberto segue `775:2517` sem amostra circular, e participantes foram removidos enquanto o compartilhamento segue desativado. Excluir exige confirmação e limpa os registros locais dependentes. O botão destrutivo reutilizável mantém o mesmo formato arredondado para despensas, produtos e listas, variando o texto. Bundle Android exportado com sucesso em 10 de outubro; a validação em aparelho desta feature ainda não foi feita.
 - A permissão de notificações é solicitada uma vez ao abrir a Home autenticada; tocar no sino não abre o pedido. A tela de notificações continua sincronizando os avisos sem solicitar permissão.
 - Feature de edição do Perfil concluída: o componente na Home permite alterar nome, e-mail e cor do avatar; a nova senha opcional exige confirmação correspondente, e cada campo controla sua própria visibilidade. As alterações são salvas na conta local e e-mails duplicados são rejeitados. Após a exportação Android, o usuário testou no aparelho e informou que aparentemente está tudo correto. O contrato de perfil hospedado continua indefinido.
@@ -78,7 +93,7 @@ Funcionalidades exigidas para essa entrega:
 - A adição manual persiste produto e compra numa única gravação, com origem `manual`, data/hora atual, local vazio e valores unitário/total. As operações de criação de contas, despensas e produtos usam uma fila de gravação para evitar perda por concorrência. Após adicionar, a tela limpa busca e filtros para mostrar o novo produto.
 - Testes com armazenamento simulado em `tests/product-addition.cjs` cobrem validação de validade, migração, isolamento por conta, falha de gravação, concorrência, histórico, alteração de quantidade e releitura; executar com `node tests/product-addition.cjs`.
 - A fatia da tela da despensa compilou no bundle Android e foi comparada ao Figma; na data daquele registro, a validação visual/interativa ainda estava pendente. Posteriormente, o usuário aprovou essa página como base visual e funcional. Não há validação física em iOS.
-- Implementação histórica anterior ao alinhamento de 6 de outubro: a revisão fiscal gravava fingerprint e bloqueava por conta. A versão atual usa o código do parâmetro `p` em `purchases.qr_code_id` e impede repetição por despensa; ver a atualização do modelo final abaixo. O extrator ainda precisa de validação com uma NFC-e paulista real no Android físico.
+- Implementação histórica anterior ao alinhamento de 6 de outubro: a revisão fiscal gravava fingerprint e bloqueava por conta. A versão atual usa o código do parâmetro `p` em `purchases.qr_code_id` e impede repetição por despensa; ver a atualização do modelo final abaixo. A leitura de NFC-e real no Android foi validada posteriormente pelo usuário.
 - A cobertura automatizada inicial se concentra na adição de produtos e persistência; ainda não há suíte de interface consolidada.
 
 ## Trabalho humano em andamento
@@ -193,7 +208,7 @@ Os dropdowns com seta da página de listas e do seletor de categoria animam a mu
 
 Decisões fechadas em 9 de outubro: concluir e manter a lista no histórico ainda que alguns itens não sejam comprados; não adicionar esses itens ao estoque; aplicar conflito de categoria somente à nova ocorrência. A escolha de exibição das marcas é local por conta e despensa, específica a cada nome e tamanho; perguntar quando houver ao menos duas ocorrências com nome normalizado e tamanho compatível, mesmo que tenham marcas diferentes. O filtro não oferece a escolha de agrupamento.
 
-### Implementação local concluída; validação Android pendente — revisão da compra e estoque — 9 de outubro de 2026
+### Implementação local concluída — revisão da compra e estoque — 9 de outubro de 2026
 
 - A finalização da lista oferece entrada manual ou leitura de NFC-e. As duas entradas chegam à revisão antes de gravar; a entrada manual aceita data atual ou passada e preço unitário ou total, enquanto a NFC-e usa a data extraída sem edição. O mercado é opcional e vem das sugestões do Google. A conclusão grava compra, ocorrências de estoque e mudança da lista para o histórico numa única atualização local. Quando nenhum item é incluído, a NFC-e e a lista ficam registradas sem criar ocorrências de estoque.
 - A NFC-e é bloqueada assim que lida caso seu código já conste nas compras da mesma despensa, seja pela lista ou pela entrada direta na despensa. A confirmação faz a mesma verificação dentro da gravação local para cobrir leituras concorrentes. Outra despensa pode importar a mesma nota; a conclusão via lista também registra a nota mesmo quando nenhum produto for enviado ao estoque, preservando o bloqueio sem adicionar produtos.
@@ -203,7 +218,7 @@ Decisões fechadas em 9 de outubro: concluir e manter a lista no histórico aind
 - A entrada direta por QR Code na despensa também propõe nome normalizado e marca editável na revisão. O reconhecimento automático de marcas contém inicialmente Nestlé e Tio João e pode receber marcas conhecidas do histórico no fluxo da lista. Descrições ambíguas continuam visíveis para correção. A NFC-e de São Paulo permanece dependente da página fiscal externa.
 - Linhas fiscais com “sacola” no nome são descartadas antes da revisão e filtradas novamente antes da gravação, tanto no checkout da lista quanto na importação direta para a despensa. A taxa da sacola plástica não vira produto nem estoque.
 - A despensa soma os saldos por nome normalizado e tamanho equivalente, mantendo cada compra e sua ocorrência independentes. Quando surge uma segunda ocorrência do mesmo nome normalizado e tamanho equivalente, pergunta como exibir as marcas, inclusive quando as marcas forem diferentes, e repete a pergunta a cada nova ocorrência. Antes de salvar, pede confirmação de que a escolha não poderá ser desfeita; voltar retorna às opções de juntar ou separar. A preferência é salva somente no aparelho por conta, despensa, nome e tamanho. A opção não aparece ao abrir filtros. Ao reduzir o saldo agregado, o simulador local usa as compras mais antigas primeiro; ao aumentar, usa a ocorrência mais recente. Os controles podem levar o saldo a zero.
-- O esquema hospedado não foi alterado. O contrato da API hospedada ainda não foi recebido, portanto esta implementação opera sobre o simulador local. A integração visual e a leitura de NFC-e ainda precisam de validação no Android físico; não há validação em iOS físico.
+- O esquema hospedado não foi alterado. O contrato da API hospedada ainda não foi recebido, portanto esta implementação opera sobre o simulador local. A validação Android foi confirmada posteriormente em 31 de outubro; não há confirmação de validação em iOS físico.
 
 ## Riscos conhecidos
 

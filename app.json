@@ -12,7 +12,11 @@
       "supportsTablet": true,
       "infoPlist": {
         "CFBundleDevelopmentRegion": "pt-BR",
-        "CFBundleLocalizations": ["pt-BR", "en", "es"]
+        "CFBundleLocalizations": [
+          "pt-BR",
+          "en",
+          "es"
+        ]
       }
     },
     "locales": {
@@ -26,7 +30,10 @@
         "foregroundImage": "./src/assets/branding/adaptive-icon-foreground.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.faltaoque.app"
+      "package": "com.faltaoque.app",
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -46,9 +53,8 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "73ea38cc-3585-408a-bd46-eaceabefa581"
+        "projectId": "f19e401e-2ee1-41b0-a9a9-dadd61f8a60b"
       }
-    },
-    "owner": "miguelzack"
+    }
   }
 }

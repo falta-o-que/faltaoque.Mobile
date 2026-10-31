@@ -81,7 +81,7 @@ export const ColorOption = styled.TouchableOpacity`
   background-color: ${({ $color }) => $color};
 `;
 
-export const Terms = styled.TouchableOpacity`
+export const Terms = styled.View`
   flex-direction: row;
   align-items: center;
   gap: 11px;
@@ -89,7 +89,7 @@ export const Terms = styled.TouchableOpacity`
   padding: 4px 0;
 `;
 
-export const Checkbox = styled.View`
+export const Checkbox = styled.TouchableOpacity`
   width: 23px;
   height: 23px;
   align-items: center;
@@ -109,6 +109,11 @@ export const TermsText = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
   line-height: ${({ theme }) => 18 * theme.fonts.scale}px;
+`;
+
+export const TermsLink = styled.Text`
+  color: ${({ theme }) => theme.colors.primary.Green};
+  text-decoration-line: underline;
 `;
 
 export const PrimaryButton = styled.Pressable.attrs(({ $active }) => ({

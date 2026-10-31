@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Animated, Easing } from 'react-native';
+import { Alert, Animated, Easing, Modal, ScrollView } from 'react-native';
 
 import AuthScreenLayout from '../../components/AuthScreenLayout';
 import FormField from '../../components/FormField';
+import ModalActionButton from '../../components/ModalActionButton';
+import { ModalBackdrop, ModalCard, ModalHeader, ModalTitle, ModalBody } from '../SettingsScreen/styles';
 import {
   AngleIcon,
   CheckIcon,
+  CancelCircleIcon,
   EmailIcon,
   EyeClosedIcon,
   EyeIcon,
@@ -39,6 +42,7 @@ import {
   PrimaryLabel,
   Terms,
   TermsText,
+  TermsLink,
 } from './styles';
 
 export function RegisterScreen({ navigation }) {
@@ -48,6 +52,7 @@ export function RegisterScreen({ navigation }) {
   const [isAvatarColorOpen, setIsAvatarColorOpen] = useState(false);
   const [shouldRenderAvatarColorPanel, setShouldRenderAvatarColorPanel] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [activeLegalModal, setActiveLegalModal] = useState(null);
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [errors, setErrors] = useState({});
@@ -265,15 +270,21 @@ export function RegisterScreen({ navigation }) {
           onIconPress={() => setIsConfirmationVisible((value) => !value)}
         />
       </Form>
-      <Terms
-        accessibilityRole="checkbox"
-        accessibilityState={{ checked: acceptedTerms }}
-        onPress={() => setAcceptedTerms(updateField('acceptedTerms', !acceptedTerms))}
-      >
-        <Checkbox>
+      <Terms>
+        <Checkbox
+          accessibilityLabel={t('auth.register.agreeTerms')}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: acceptedTerms }}
+          onPress={() => setAcceptedTerms(updateField('acceptedTerms', !acceptedTerms))}
+        >
           {acceptedTerms ? <CheckIcon width={22} height={23} /> : <EmptyCheckbox />}
         </Checkbox>
-        <TermsText>{t('auth.register.agreeTerms')}</TermsText>
+        <TermsText>
+          {t('auth.register.agreePrefix')}{' '}
+          <TermsLink accessibilityRole="link" onPress={() => setActiveLegalModal('terms')}>{t('settings.terms')}</TermsLink>
+          {' '}{t('auth.register.agreeAnd')}{' '}
+          <TermsLink accessibilityRole="link" onPress={() => setActiveLegalModal('privacy')}>{t('settings.privacy')}</TermsLink>.
+        </TermsText>
       </Terms>
       {errors.acceptedTerms ? <InlineError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.acceptedTerms}</InlineError> : null}
       <PrimaryButton
@@ -291,6 +302,17 @@ export function RegisterScreen({ navigation }) {
       <BackLink accessibilityRole="button" onPress={() => navigation.goBack()}>
         <BackText><Muted>{t('auth.register.hasAccount')}</Muted> {t('auth.register.login')}</BackText>
       </BackLink>
+      <Modal animationType="fade" transparent visible={Boolean(activeLegalModal)} onRequestClose={() => setActiveLegalModal(null)}>
+        <ModalBackdrop>
+          <ModalCard accessibilityViewIsModal>
+            <ModalHeader>
+              <ModalTitle>{activeLegalModal ? t(`settings.${activeLegalModal}`) : ''}</ModalTitle>
+              <ModalActionButton accessibilityLabel={t('common.close')} Icon={CancelCircleIcon} onPress={() => setActiveLegalModal(null)} variant="cancel" />
+            </ModalHeader>
+            <ScrollView><ModalBody>{activeLegalModal ? t(`settings.content.${activeLegalModal}`) : ''}</ModalBody></ScrollView>
+          </ModalCard>
+        </ModalBackdrop>
+      </Modal>
     </AuthScreenLayout>
   );
 }
