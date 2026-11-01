@@ -17,6 +17,7 @@ import {
   validateProduct,
 } from '../../domain/productValidation';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
+import { getUserErrorMessage } from '../../utils/userErrors';
 import CategoryTag from '../CategoryTag';
 import FormField from '../FormField';
 import DateField from '../DateField';
@@ -197,7 +198,7 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
       setErrors((currentErrors) => ({
         ...currentErrors,
         ...fieldErrors,
-        submit: t('product.add.submitError'),
+        submit: getUserErrorMessage(error, t('product.add.submitError'), t),
       }));
     } finally {
       submittingRef.current = false;

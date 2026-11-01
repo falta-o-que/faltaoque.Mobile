@@ -17,7 +17,7 @@ import NfceScannerModal from '../../components/NfceScannerModal';
 import Navbar from '../../components/Navbar';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
-import { showUserErrorAlert } from '../../utils/userErrors';
+import { getUserErrorMessage, showUserErrorAlert } from '../../utils/userErrors';
 import { PRODUCT_CATEGORIES } from '../../domain/productValidation';
 import { GROCERY_SUGGESTION_TYPES } from '../../domain/grocerySuggestionOptions';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
@@ -447,7 +447,7 @@ export default function GroceryListScreen({ navigation, route }) {
     } catch (cause) {
       setCheckoutError(cause.message === 'DUPLICATE_FISCAL_NOTE'
         ? t('shopping.receiptAlreadyAdded') : cause.message === 'EMPTY_GROCERY_LIST'
-          ? t('shopping.emptyListMessage') : cause.message);
+          ? t('shopping.emptyListMessage') : getUserErrorMessage(cause, t('shopping.actionErrorFallback'), t));
     } finally {
       setBusy(false);
     }

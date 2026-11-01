@@ -4,6 +4,7 @@ import { Easing, Animated, Modal, Platform } from 'react-native';
 import { AngleIcon, BoxIcon, CancelCircleIcon, CheckIcon, DeliveryIcon, InfoIcon, PenIcon } from '../../assets/icons/export';
 import { PRODUCT_CATEGORIES, PRODUCT_PRICE_TYPES, PRODUCT_UNITS, validateProduct } from '../../domain/productValidation';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
+import { getUserErrorMessage } from '../../utils/userErrors';
 import CategoryTag, { CATEGORY_LABELS } from '../CategoryTag';
 import DangerActionButton from '../DangerActionButton';
 import FormField from '../FormField';
@@ -101,7 +102,7 @@ export function ProductInfoModal({ visible, product, onDelete, onRequestClose, o
     if (Object.keys(nextErrors).length) return;
     submittingRef.current = true; setIsSubmitting(true);
     try { await onSave?.({ ...draft }); setOriginalDraft({ ...draft }); setIsEditing(false); setIsCategoryOpen(false); }
-    catch (error) { setErrors({ ...(error?.fields ?? {}), submit: t('product.add.submitError') }); }
+    catch (error) { setErrors({ ...(error?.fields ?? {}), submit: getUserErrorMessage(error, t('product.add.submitError'), t) }); }
     finally { submittingRef.current = false; setIsSubmitting(false); }
   }
 

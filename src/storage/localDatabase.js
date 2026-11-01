@@ -1,7 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Crypto from 'expo-crypto';
 
 const DATABASE_KEY = '@faltaoque/database';
 const VERSION_KEY = '@faltaoque/database-schema-version';
+const PENDING_WRITE_KEY = '@faltaoque/database-pending-write';
 const CURRENT_SCHEMA_VERSION = 11;
 
 export const CATEGORY_NAMES = ['bebidas', 'organicos', 'limpezaHigiene', 'integraisCereais', 'frescos', 'carnes', 'outros'];
@@ -80,13 +82,42 @@ function normalizeDatabase(value) {
     return value;
 }
 
+let uncertainWrite = null;
+
 async function persistDatabase(database) {
+    if (uncertainWrite) throw new Error('DATABASE_WRITE_UNCERTAIN');
+    try {
+        if (await AsyncStorage.getItem(PENDING_WRITE_KEY)) throw new Error('DATABASE_WRITE_UNCERTAIN');
+    } catch {
+        throw new Error('DATABASE_WRITE_UNCERTAIN');
+    }
     const normalized = normalizeDatabase(database);
-    await AsyncStorage.setItem(DATABASE_KEY, JSON.stringify({version: CURRENT_SCHEMA_VERSION, tables: normalized}));
+    const operationId = Crypto.randomUUID();
+    const payload = JSON.stringify({version: CURRENT_SCHEMA_VERSION, operationId, tables: normalized});
+    await AsyncStorage.setItem(PENDING_WRITE_KEY, operationId);
+    try {
+        await AsyncStorage.setItem(DATABASE_KEY, payload);
+    } catch (error) {
+        let stored;
+        try {
+            stored = await AsyncStorage.getItem(DATABASE_KEY);
+        } catch {
+            uncertainWrite = { operationId };
+            throw new Error('DATABASE_WRITE_UNCERTAIN');
+        }
+        if (stored === payload) {
+            await AsyncStorage.removeItem(PENDING_WRITE_KEY).catch(() => {});
+            return normalized;
+        }
+        await AsyncStorage.removeItem(PENDING_WRITE_KEY).catch(() => {});
+        throw error;
+    }
+    await AsyncStorage.removeItem(PENDING_WRITE_KEY).catch(() => {});
     return normalized;
 }
 
 async function initializeDatabase() {
+    if (uncertainWrite || await AsyncStorage.getItem(PENDING_WRITE_KEY)) throw new Error('DATABASE_WRITE_UNCERTAIN');
     return persistDatabase(emptyTables());
 }
 
@@ -112,7 +143,10 @@ export async function readDatabase() {
         throw new Error('O banco local foi criado por uma versão mais recente do aplicativo. Os dados foram preservados.');
     }
     if (storedVersion < CURRENT_SCHEMA_VERSION) return initializeDatabase();
-    if (hasEnvelope && (Object.keys(parsed).sort().join('|') !== 'tables|version' || typeof parsed.version !== 'number')) {
+    const envelopeKeys = hasEnvelope ? Object.keys(parsed).sort().join('|') : '';
+    if (hasEnvelope && ((!['tables|version', 'operationId|tables|version'].includes(envelopeKeys)) ||
+        typeof parsed.version !== 'number' || (Object.hasOwn(parsed, 'operationId') &&
+        (typeof parsed.operationId !== 'string' || !parsed.operationId)))) {
         throw new Error('O banco local não corresponde ao formato esperado. Os dados foram preservados.');
     }
     const database = normalizeDatabase(hasEnvelope ? parsed.tables : parsed);
@@ -134,6 +168,44 @@ function enqueueUpdate(operation) {
 
 export function updateDatabase(update) {
     return enqueueUpdate(async () => {
+        let pendingOperation;
+        try {
+            pendingOperation = uncertainWrite?.operationId ?? await AsyncStorage.getItem(PENDING_WRITE_KEY);
+        } catch {
+            throw new Error('DATABASE_WRITE_UNCERTAIN');
+        }
+        if (pendingOperation) {
+            let stored;
+            try {
+                stored = JSON.parse(await AsyncStorage.getItem(DATABASE_KEY));
+            } catch {
+                throw new Error('DATABASE_WRITE_UNCERTAIN');
+            }
+            if (stored !== null && typeof stored !== 'object') {
+                throw new Error('DATABASE_WRITE_UNCERTAIN');
+            }
+            try {
+                if (stored === null) {
+                    // No database was written by the pending initialization.
+                } else if (Object.hasOwn(stored, 'tables')) {
+                    if (stored.version !== CURRENT_SCHEMA_VERSION) throw new Error('Invalid version');
+                    normalizeDatabase(stored.tables);
+                } else {
+                    if (await AsyncStorage.getItem(VERSION_KEY) !== String(CURRENT_SCHEMA_VERSION)) throw new Error('Invalid version');
+                    normalizeDatabase(stored);
+                }
+            } catch {
+                throw new Error('DATABASE_WRITE_UNCERTAIN');
+            }
+            const committed = stored?.operationId === pendingOperation;
+            try {
+                await AsyncStorage.removeItem(PENDING_WRITE_KEY);
+            } catch {
+                throw new Error('DATABASE_WRITE_UNCERTAIN');
+            }
+            uncertainWrite = null;
+            throw new Error(committed ? 'DATABASE_PREVIOUS_WRITE_COMMITTED' : 'DATABASE_PREVIOUS_WRITE_NOT_COMMITTED');
+        }
         const database = await readDatabase();
         const nextDatabase = await update(database);
         await writeDatabase(nextDatabase);

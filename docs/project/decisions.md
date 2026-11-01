@@ -11,6 +11,8 @@ Para evitar gravação parcial entre dados e versão, ambos são gravados no mes
 tabelas da versão 11 com a versão em chave separada são aceitas e passam ao formato de registro único na próxima
 gravação; isso não recupera nem migra dados de esquemas anteriores.
 
+Cada gravação usa identificador no registro local e marcador temporário persistido antes da escrita. Quando a confirmação de escrita é ambígua, uma releitura identifica a operação; se indisponível, novas gravações aguardam resolução, inclusive depois de reiniciar. Esses metadados não integram tabelas nem definem contrato para o backend.
+
 ## 2026-11-01 — Finalização manual sem produtos
 
 Se nenhum produto for selecionado na finalização manual, a lista vai para o histórico sem criar compra ou estoque. Antes

@@ -56,7 +56,7 @@ Limites: não houve teste em aparelho físico, câmera real, entrega real de not
 
 ### B02 — Uma operação informa falha depois de já ter gravado os dados
 
-**Atualização de 01/11/2026:** versão e tabelas passaram a ser gravadas em um único registro, eliminando a segunda escrita que provocava o caso reproduzido. Testes simulam falha de gravação e verificam o formato anterior da versão 11. Uma falha cujo resultado nativo seja desconhecido ainda não tem protocolo de idempotência; não foi validada em aparelho.
+**Atualização de 01/11/2026:** versão e tabelas são gravadas em um único registro. Identificador e marcador local de operação permitem conferir uma escrita que retornou erro e bloquear novas gravações enquanto seu resultado não puder ser determinado, inclusive após reiniciar. O usuário confirmou o funcionamento normal e a persistência no Android; falhas antes/depois da escrita e da leitura foram testadas em simulação, não no aparelho. Não há garantia geral de idempotência para ações fora desse armazenamento.
 
 **Local:** `src/storage/localDatabase.js:188-206`.
 
