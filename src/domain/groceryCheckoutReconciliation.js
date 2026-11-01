@@ -114,6 +114,9 @@ function plannedMatchScore(plannedItem, fiscalProposal) {
     const fiscalTokens = matchingTokens(fiscalProposal?.name);
     if (!plannedTokens.length || !fiscalTokens.length) return 0;
     if (plannedTokens.length === fiscalTokens.length && plannedTokens.every((token, index) => token === fiscalTokens[index])) return 1;
+    // A generic planned banana can match this known fresh variety, optionally sold by weight.
+    if (plannedTokens.length === 1 && plannedTokens[0] === 'banana' &&
+        (fiscalTokens.join(' ') === 'banana nanica' || fiscalTokens.join(' ') === 'banana nanica kg')) return 1;
     const overlap = plannedTokens.filter((token) => fiscalTokens.includes(token));
     if (plannedTokens.length > 1 && overlap.length === plannedTokens.length) return 0.94;
     // A distinctive single-word product name (e.g. Prestígio) may have receipt qualifiers.

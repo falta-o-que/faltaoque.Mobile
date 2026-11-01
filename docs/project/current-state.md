@@ -20,6 +20,8 @@
 
 ## Correspondência automática na NFC-e — 1º de novembro de 2026
 
+- O usuário confirmou no Android que o vínculo de “Banana” com “BANANA NANICA kg” funcionou. Após isso passaram os testes de reconciliação, checkout, extração fiscal, medidas e cache. O usuário considera encerrada esta correção do B08; descrições adicionais ainda podem exigir revisão manual.
+
 - Na validação Android com NFC-e real, as linhas de desodorante e néctar com nomes parciais foram apresentadas para vínculo manual; após correção feita pelo usuário, a leitura da tela via ADB confirmou cada vínculo no item correspondente. A compra de teste não foi finalizada. O vínculo automático para nome equivalente ainda não foi conferido nesse teste.
 - B08 corrigido no fluxo local de finalização de lista: somente nomes equivalentes após normalização, na mesma ordem, são elegíveis para vínculo automático; nomes parciais ou com termos adicionais exigem revisão manual. A compatibilidade de tamanho e a regra de vínculo um a um continuam obrigatórias. Testes automatizados cobrem os casos relatados, normalizações e ambiguidades; validação física com NFC-e pendente.
 

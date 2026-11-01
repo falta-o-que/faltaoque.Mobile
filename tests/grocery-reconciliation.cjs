@@ -10,6 +10,8 @@ const match = (plannedName, receiptName) => findAutomaticPlannedMatch(
 );
 
 assert.equal(match('Chocolate', 'Chocolate Granulado').status, manual);
+assert.equal(match('Banana', 'BANANA NANICA kg').status, auto);
+assert.equal(match('Banana', 'BANANA NANICA DESIDRATADA kg').status, manual);
 assert.equal(match('Leite Integral', 'Leite Integral em Pó').status, manual);
 assert.equal(match('Chocolate', 'Caixa Chocolate').status, manual);
 assert.equal(match('Chocolate', 'Chocolate Chocolate').status, manual);
@@ -25,4 +27,7 @@ const duplicate = reconcileGroceryCheckout({ plannedItems: [{ id: 'item', name: 
   fiscalLines: [{ sourceDescription: 'Café' }, { sourceDescription: 'Café' }] });
 assert.equal(duplicate.automaticMatches.length, 0);
 assert.equal(duplicate.fiscalLinesForManualReview.length, 2);
+const ambiguousBananas = reconcileGroceryCheckout({ plannedItems: [{ id: 'a', name: 'Banana' }, { id: 'b', name: 'Banana Nanica kg' }],
+  fiscalLines: [{ sourceDescription: 'BANANA NANICA kg' }] });
+assert.equal(ambiguousBananas.automaticMatches.length, 0);
 console.log('grocery-reconciliation tests passed');

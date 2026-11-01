@@ -86,6 +86,8 @@ Há ainda falta de uma política consistente para edição de preço e total da 
 
 ### B08 — Correspondência automática vincula produtos comercialmente diferentes
 
+**Encerramento em 01/11/2026:** o usuário confirmou no Android o vínculo de “Banana” com “BANANA NANICA kg” e encerrou a correção após aprovação dos testes de reconciliação, checkout, extração, medidas e cache. Descrições ambíguas seguem para decisão manual; a confirmação não cobre todas as descrições fiscais possíveis.
+
 **Atualização de 01/11/2026:** a correspondência automática exige nomes equivalentes após normalização e na mesma ordem, além das demais regras existentes. Nomes parciais e com termos adicionais exigem revisão manual. Testes automatizados passaram; validação em aparelho pendente.
 
 **Validação parcial em Android:** com NFC-e real, duas descrições com termos adicionais ficaram para vínculo manual; o usuário escolheu os itens correspondentes e os vínculos foram conferidos na tela por ADB. Não foi testado o vínculo automático de um nome equivalente nem finalizada a compra de teste.
