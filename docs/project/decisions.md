@@ -1,5 +1,9 @@
 # Decisões do projeto
 
+## 2026-11-01 — Cache local de NFC-e por conta
+
+Uma NFC-e extraída com sucesso pode ser reutilizada sem nova consulta em outras despensas da mesma conta, usando cache local versionado por conta e código da nota. O cache não altera o bloqueio de duplicidade por despensa nem armazena a URL completa ou o HTML. A leitura de outra conta não acessa esse cache; erros de cache não impedem a consulta normal.
+
 ## 2026-10-31 — Indicação visual dos campos
 
 Os formulários indicam campos obrigatórios com `*`, exceto na tela de login, que não exibe asteriscos. Campos opcionais não exibem `*` nem a palavra “opcional” no placeholder; descrições de acessibilidade podem informar que o preenchimento é opcional. As validações existentes continuam definindo a obrigatoriedade.

@@ -706,6 +706,7 @@ export default function GroceryListScreen({ navigation, route }) {
         onManual={startManualCheckout}
         onQrCode={() => setActiveModal('checkout-scanner')} />
       <NfceScannerModal visible={activeModal === 'checkout-scanner'}
+        accountId={account?.id}
         onRequestClose={() => setActiveModal(null)}
         onPurchaseLoaded={startFiscalCheckout} />
       <GroceryCheckoutReview visible={activeModal === 'checkout-review'}

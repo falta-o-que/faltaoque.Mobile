@@ -378,6 +378,7 @@ export default function PantryScreen({ route, navigation }) {
       />
       <NfceScannerModal
         visible={isScannerOpen}
+        accountId={account?.id}
         onRequestClose={() => setIsScannerOpen(false)}
         onPurchaseLoaded={async (purchase) => {
           await assertFiscalNoteUnused({ accountId: account?.id, pantryId, qrCodeId: purchase.qrCodeId });

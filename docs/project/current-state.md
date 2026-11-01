@@ -1,5 +1,10 @@
 # Estado atual
 
+## Cache local de NFC-e — 1º de novembro de 2026
+
+- Notas lidas com sucesso são armazenadas em cache local versionado por conta e código fiscal, sem URL completa ou HTML. Leituras posteriores da mesma nota pela mesma conta reutilizam os dados em qualquer despensa, inclusive entre os fluxos de lista e despensa. A verificação de duplicidade por despensa continua obrigatória antes da revisão e na gravação. Contas diferentes não compartilham cache; notas lidas antes da implementação só entram no cache após nova leitura. Falhas de cache não impedem consulta à SEFAZ; registros inválidos não são sobrescritos automaticamente.
+- Testes simulados verificam reutilização, isolamento, preservação de cache inválido e falha de gravação. A validação física Android do cache e dos dois fluxos ainda é necessária; o cache é local ao aparelho e pode não refletir alterações posteriores na nota.
+
 ## Consulta direta NFC-e — 1º de novembro de 2026
 
 - O usuário validou a consulta direta com outras notas. Considerou um backup automático, mas informou que não é possível

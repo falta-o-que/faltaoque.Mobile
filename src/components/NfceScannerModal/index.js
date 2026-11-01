@@ -9,7 +9,7 @@ import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { getUserErrorMessage } from '../../utils/userErrors';
 import { CameraArea, CameraHint, CameraShell, Content, Error, Eyebrow, Footer, Frame, Header, HeadingGroup, Help, Intro, IntroIcon, PermissionState, Screen, Status, StatusText, Title } from './styles';
 
-export default function NfceScannerModal({ visible, onRequestClose, onPurchaseLoaded }) {
+export default function NfceScannerModal({ visible, accountId, onRequestClose, onPurchaseLoaded }) {
   const { t } = useAppPreferences();
   const [permission, requestPermission] = useCameraPermissions();
   const [processing, setProcessing] = useState(false);
@@ -18,7 +18,7 @@ export default function NfceScannerModal({ visible, onRequestClose, onPurchaseLo
   async function handleScan({ data }) {
     if (processing) return;
     setProcessing(true); setError(null);
-    try { await onPurchaseLoaded(await loadFiscalPurchase(data)); }
+    try { await onPurchaseLoaded(await loadFiscalPurchase(data, accountId)); }
     catch (cause) { setError(getUserErrorMessage(cause, t('shopping.readReceiptError'), t)); setProcessing(false); }
   }
   const title = permission?.granted ? t('shopping.readQr') : t('shopping.useCamera');

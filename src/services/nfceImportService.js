@@ -6,6 +6,7 @@ import {groupFiscalItems, isDisposableBagFiscalItem} from '../domain/fiscalItems
 import {normalizeFiscalProduct} from '../domain/groceryCheckoutReconciliation';
 import {normalizeDateOnly} from '../domain/dateValidation';
 import {importFiscalPurchase} from '../repositories/productRepository';
+import {readFiscalNoteCache, writeFiscalNoteCache} from '../repositories/fiscalNoteCache';
 import {extractSaoPauloNfce, isFiscalRequestRejected, isSaoPauloFiscalUrl} from '../integrations/nfce/spExtractor';
 
 const rules = {
@@ -61,8 +62,11 @@ function parseFiscalPurchaseHtml(qrUrl, html) {
     };
 }
 
-export async function loadFiscalPurchase(qrUrl) {
+export async function loadFiscalPurchase(qrUrl, accountId) {
     if (!isSaoPauloFiscalUrl(qrUrl)) throw new Error('INVALID_FISCAL_QR');
+    const qrCodeId = extractNfceCode(qrUrl);
+    const cached = await readFiscalNoteCache(accountId, qrCodeId);
+    if (cached.purchase) return cached.purchase;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
     try {
@@ -71,7 +75,9 @@ export async function loadFiscalPurchase(qrUrl) {
         });
         if (!response.ok) throw new Error('FISCAL_NETWORK_ERROR');
         const html = await response.text();
-        return parseFiscalPurchaseHtml(qrUrl, html);
+        const purchase = parseFiscalPurchaseHtml(qrUrl, html);
+        if (cached.writable) await writeFiscalNoteCache(accountId, purchase);
+        return purchase;
     } catch (error) {
         if (['INVALID_FISCAL_QR', 'UNSUPPORTED_FISCAL_PAGE', 'FISCAL_PAGE_TOO_LARGE', 'FISCAL_REQUEST_REJECTED'].includes(error.message)) throw error;
         throw new Error('FISCAL_NETWORK_ERROR');
