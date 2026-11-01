@@ -1,5 +1,11 @@
 # Estado atual
 
+## Modal de notificação — 1º de novembro de 2026
+
+- B20: proteção anterior impede reabertura ou substituição por resultado atrasado. A inclusão concluída agora atualiza
+  também a mesma notificação reaberta durante a gravação, evitando que continue parecendo pendente. Teste automatizado
+  da tela com gravação suspensa e bundle Android passaram; validação física pendente.
+
 ## Carregamento de fontes — 1º de novembro de 2026
 
 - B18 corrigido: se o carregamento das fontes falhar, o app continua com fontes do sistema, sem bloquear a sessão.

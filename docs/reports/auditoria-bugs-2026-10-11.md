@@ -425,6 +425,10 @@ aparelho.
 
 ### B20 — Modal de notificação reabre após o usuário fechá-lo
 
+**Atualização local:** a proteção anterior já impedia reabrir ou substituir o modal após fechamento. A mesma notificação
+reaberta durante a gravação passa a refletir a inclusão concluída, sem permitir uma nova inclusão por estado antigo.
+Teste automatizado cobre fechamento, abertura de outra notificação e reabertura da mesma; validação física pendente.
+
 **Local:** `src/screens/NotificationsScreen/index.js:278-323`.
 
 Adicionar à lista aguarda persistência e depois redefine `selectedNotification`. Os controles de fechar/adiar continuam
