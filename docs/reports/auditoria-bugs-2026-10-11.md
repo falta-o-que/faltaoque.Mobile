@@ -104,6 +104,8 @@ Um único token longo pode receber pontuação 0,86; inclusão de todos os termo
 
 ### B09 — Importação direta grava subtotal selecionado como total da compra
 
+**Atualização de 01/11/2026:** corrigido no simulador local. O total fiscal válido da nota é gravado na compra, independentemente dos itens enviados ao estoque; total ausente ou inválido bloqueia a confirmação. Teste automatizado passou; validação em aparelho pendente.
+
 **Local:** `src/services/nfceImportService.js:76-82`.
 
 O total persistido é a soma dos produtos selecionados para estoque, ignorando o total real da nota. No checkout de lista existe tratamento distinto para preservar o total fiscal.

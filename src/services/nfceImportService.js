@@ -88,6 +88,9 @@ export async function loadFiscalPurchase(qrUrl, accountId) {
 
 export async function confirmFiscalPurchase({accountId, pantryId, purchase, items, location, market}) {
     if (!purchase?.qrCodeId || purchase.qrCodeId.length > 44) throw new Error('INVALID_FISCAL_QR');
+    if (typeof purchase.totalAmount !== 'number' || !Number.isFinite(purchase.totalAmount) || purchase.totalAmount <= 0) {
+        throw new Error('INVALID_FISCAL_TOTAL');
+    }
     const noteDate = normalizeDateOnly(String(purchase.purchasedAt ?? '').slice(0, 10));
     const today = new Date();
     const localToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -139,7 +142,7 @@ export async function confirmFiscalPurchase({accountId, pantryId, purchase, item
         market,
         purchasedAt: purchase.purchasedAt,
         location: normalizedLocation,
-        totalPrice: products.reduce((sum, product) => sum + product.totalPrice, 0),
+        totalPrice: purchase.totalAmount,
         qrCodeId: purchase.qrCodeId,
         items: selected.map((item, index) => ({...item, productId: products[index].id}))
     };

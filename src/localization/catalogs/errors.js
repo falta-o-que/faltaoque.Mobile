@@ -1,5 +1,6 @@
 // Approved domain messages are mapped to stable keys before reaching the UI.
 const entries = [
+    ['INVALID_FISCAL_TOTAL', 'Não foi possível identificar um total válido na nota fiscal.', 'Could not identify a valid receipt total.', 'No se pudo identificar un total válido en el comprobante.'],
     ['DATABASE_WRITE_UNCERTAIN', 'Não foi possível confirmar se a última alteração foi salva. Não repita a ação; tente novamente quando o armazenamento estiver disponível.', 'The last change could not be confirmed. Do not repeat the action; try again when storage is available.', 'No se pudo confirmar el último cambio. No repitas la acción; inténtalo de nuevo cuando el almacenamiento esté disponible.'],
     ['DATABASE_PREVIOUS_WRITE_COMMITTED', 'A última alteração foi salva. Atualize a tela e confira os dados antes de continuar.', 'The last change was saved. Refresh the screen and check the data before continuing.', 'El último cambio se guardó. Actualiza la pantalla y comprueba los datos antes de continuar.'],
     ['DATABASE_PREVIOUS_WRITE_NOT_COMMITTED', 'A última alteração não foi salva. Você pode tentar novamente.', 'The last change was not saved. You can try again.', 'El último cambio no se guardó. Puedes intentarlo de nuevo.'],

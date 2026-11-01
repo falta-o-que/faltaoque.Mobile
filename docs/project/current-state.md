@@ -1,5 +1,9 @@
 # Estado atual
 
+## Total fiscal na importação direta — 1º de novembro de 2026
+
+- B09 corrigido no simulador local: a importação direta grava o total extraído da NFC-e na compra, mesmo quando itens ou sacolas não são incluídos no estoque. Total fiscal ausente ou inválido bloqueia a confirmação. Teste automatizado cobre seleção parcial e total inválido; validação física pendente.
+
 ## Card zerado e marca — 1º de novembro de 2026
 
 - O usuário confirmou no Android que, após recarregar o app com o código atualizado, o card agrupado deixou de mostrar marcas enquanto havia duas compras com saldo.
