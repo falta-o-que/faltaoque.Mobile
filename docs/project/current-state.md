@@ -1,5 +1,17 @@
 # Estado atual
 
+## Ocorrências zeradas na despensa — 1º de novembro de 2026
+
+- Na apresentação e nos avisos de compras/marcas, ocorrências com saldo zero deixam de competir com as que têm saldo. Se apenas uma compra tiver saldo, seus dados aparecem sem aviso de múltiplas compras; histórico e regra FIFO são preservados. Se todas estiverem zeradas, permanece card zerado da ocorrência mais recente. Teste automatizado cobre o cenário relatado; validação no aparelho pendente.
+
+## Contador de produtos da despensa — 1º de novembro de 2026
+
+- B29 corrigido na listagem de despensas: o contador usa a mesma lista agrupada de cards da tela da despensa, inclusive produtos zerados visíveis e preferência de separar/juntar marcas, em vez de contar ocorrências de compras. Teste automatizado cobre compras repetidas e agrupamento de marcas; validação no aparelho pendente.
+
+## Marcas e notificação — 1º de novembro de 2026
+
+- Após relato do usuário, a edição persiste a marca na ocorrência; a pergunta de agrupamento passa a exigir marcas distintas na mesma apresentação, incluindo a comparação de marca preenchida com ausência de marca. Foi corrigida uma corrida que reabria o modal de notificação após seu fechamento durante a adição à lista, e protegida a seleção contra respostas antigas. O caso de botão Fechar relatado ainda precisa de reteste no Android; a alteração da marca e a escolha de agrupamento também precisam de validação física.
+
 ## Correspondência automática na NFC-e — 1º de novembro de 2026
 
 - Na validação Android com NFC-e real, as linhas de desodorante e néctar com nomes parciais foram apresentadas para vínculo manual; após correção feita pelo usuário, a leitura da tela via ADB confirmou cada vínculo no item correspondente. A compra de teste não foi finalizada. O vínculo automático para nome equivalente ainda não foi conferido nesse teste.

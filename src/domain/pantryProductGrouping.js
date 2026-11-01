@@ -25,3 +25,7 @@ export function getProductBrandIdentityKey(product = {}) {
 export function normalizeProductIdentity(value) {
   return normalizeIdentity(value);
 }
+
+export function hasDistinctBrands(products) {
+  return new Set(products.map((product) => normalizeIdentity(product.brand))).size > 1;
+}

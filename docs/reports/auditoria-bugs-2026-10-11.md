@@ -354,6 +354,8 @@ Na tela independente de notificações, ações rápidas de Perfil/Configuraçõ
 
 ### B29 — Contador da despensa não corresponde aos cards exibidos
 
+**Atualização de 01/11/2026:** corrigido na listagem da Home e Despensas: o contador usa os cards agrupados de acordo com a preferência de marcas, incluindo produtos zerados visíveis. Teste automatizado passou; validação no aparelho pendente.
+
 **Local:** `src/repositories/pantryRepository.js:9-11`; `src/repositories/productRepository.js:66-103`, `:127-137`.
 
 Home conta ocorrências com saldo; a tela agrupa apresentações equivalentes e também exibe ocorrências zeradas não excluídas. Duas compras podem significar “2 produtos” em Home e um card na despensa; produto zerado visível pode coexistir com contador zero.

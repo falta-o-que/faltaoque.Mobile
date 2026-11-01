@@ -3,6 +3,7 @@ import { normalizeCep } from '../domain/locationValidation';
 import { COLOR_OPTIONS } from '../constants/colorOptions';
 import { clearPantryProductViewPreferences } from './pantryProductViewPreferenceService';
 import { clearGroceryListViewPreferences } from './groceryListViewPreferenceService';
+import { listProducts } from './productService';
 
 import {
   createPantry as savePantry,
@@ -14,7 +15,11 @@ import {
 export async function listPantries(accountId) {
   if (!accountId) return [];
 
-  return listPantriesByAccountId(accountId);
+  const pantries = await listPantriesByAccountId(accountId);
+  return Promise.all(pantries.map(async (pantry) => ({
+    ...pantry,
+    productCount: (await listProducts(accountId, pantry.id)).length,
+  })));
 }
 
 export async function createPantry({ accountId, color, name, location, locationName }) {
@@ -82,7 +87,7 @@ export async function updatePantry({ accountId, pantryId, name, color, location,
     location: normalizedLocation,
     locationName: normalizedLocation ? locationName?.trim() || null : null,
   });
-  return (await listPantriesByAccountId(accountId)).find((pantry) => pantry.id === pantryId);
+  return (await listPantries(accountId)).find((pantry) => pantry.id === pantryId);
 }
 
 export async function deletePantry({ accountId, pantryId }) {

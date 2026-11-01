@@ -75,6 +75,8 @@ function compareOccurrenceAge(first, second) {
 
 function groupProductOccurrences(occurrences, brandGroupingByPresentation = {}) {
     const groups = new Map();
+    const stockedPresentations = new Set(occurrences.filter((item) => Number(item.quantity) > 0)
+        .map((item) => getProductPresentationKey(item)));
     occurrences.forEach((product) => {
         const groupBrands = brandGroupingByPresentation[getProductPresentationKey(product)] === 'grouped';
         const key = productGroupKey(product, groupBrands);
@@ -82,14 +84,18 @@ function groupProductOccurrences(occurrences, brandGroupingByPresentation = {}) 
         groups.get(key).push(product);
     });
 
-    return [...groups.entries()].map(([key, entries]) => {
+    return [...groups.entries()].filter(([, entries]) =>
+        !stockedPresentations.has(getProductPresentationKey(entries[0])) || entries.some((item) => Number(item.quantity) > 0)
+    ).map(([key, entries]) => {
         const groupBrands = brandGroupingByPresentation[getProductPresentationKey(entries[0])] === 'grouped';
         const ordered = [...entries].sort(compareOccurrenceAge);
-        const latest = ordered[ordered.length - 1];
-        const brands = [...new Set(ordered.map((entry) => entry.brand || null))];
-        const purchasedQuantity = ordered.reduce((total, entry) => total + Number(entry.purchasedQuantity ?? 0), 0);
-        const totalPrice = ordered.reduce((total, entry) => total + Number(entry.totalPrice ?? 0), 0);
-        const expirationDates = ordered.map((entry) => entry.expirationDate).filter(Boolean).sort();
+        const stocked = ordered.filter((entry) => Number(entry.quantity) > 0);
+        const displayed = stocked.length ? stocked : [ordered[ordered.length - 1]];
+        const latest = displayed[displayed.length - 1];
+        const brands = [...new Set(displayed.map((entry) => entry.brand || null))];
+        const purchasedQuantity = displayed.reduce((total, entry) => total + Number(entry.purchasedQuantity ?? 0), 0);
+        const totalPrice = displayed.reduce((total, entry) => total + Number(entry.totalPrice ?? 0), 0);
+        const expirationDates = displayed.map((entry) => entry.expirationDate).filter(Boolean).sort();
         const name = groupBrands ? latest.name : `${latest.name} · ${latest.brand || 'Sem marca'}`;
         return {
             ...latest,
@@ -104,7 +110,7 @@ function groupProductOccurrences(occurrences, brandGroupingByPresentation = {}) 
             totalPrice,
             expirationDate: expirationDates[0] ?? null,
             occurrenceIds: ordered.map((entry) => entry.id),
-            occurrenceCount: ordered.length,
+            occurrenceCount: displayed.length,
             primaryOccurrence: latest,
             groupedBrands: groupBrands,
         };
@@ -242,6 +248,7 @@ export async function updateProduct({accountId, pantryId, productId, values}) {
             const updated = {
                 ...row,
                 name: values.name,
+                brand: values.brand ?? null,
                 current_quantity: values.quantity,
                 is_in_pantry: Number(values.quantity) > 0,
                 content_value: values.weight ?? null,

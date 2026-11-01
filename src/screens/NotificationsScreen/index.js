@@ -79,13 +79,20 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
   const [isMarkingAllRead, setIsMarkingAllRead] = useState(false);
   const [notificationsPermissionGranted, setNotificationsPermissionGranted] = useState(true);
   const notificationLoadInProgress = useRef(false);
+  const notificationSelectionVersion = useRef(0);
+
+  const closeNotification = () => {
+    notificationSelectionVersion.current += 1;
+    setSelectedNotification(null);
+    setListsLoading(false);
+  };
 
   useFocusEffect(useCallback(() => {
     let active = true;
     notificationLoadInProgress.current = true;
     setLoading(true);
     setError(null);
-    setSelectedNotification(null);
+    closeNotification();
 
     syncDeviceNotifications(account?.id)
       .then(({ permissionGranted }) => {
@@ -116,7 +123,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
         }
       });
 
-    return () => { active = false; };
+    return () => { active = false; notificationSelectionVersion.current += 1; };
   }, [account?.id, reloadKey, t]));
 
   useEffect(() => {
@@ -148,6 +155,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
   };
 
   const handleOpenNotification = async (notification) => {
+    const selectionVersion = ++notificationSelectionVersion.current;
     const readNotification = { ...notification, isRead: true };
     setSelectedNotification(readNotification);
     setLists([]);
@@ -168,14 +176,14 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
       });
     }
 
-    if (notification.type !== 'depleted' || notification.handled) return;
+    if (selectionVersion !== notificationSelectionVersion.current || notification.type !== 'depleted' || notification.handled) return;
     try {
       const storedLists = await groceryListService.listGroceryLists(account?.id, notification.pantryId);
-      setLists(storedLists.filter((list) => list.status === 'active'));
+      if (selectionVersion === notificationSelectionVersion.current) setLists(storedLists.filter((list) => list.status === 'active'));
     } catch {
-      setListsError(t('notifications.listsError'));
+      if (selectionVersion === notificationSelectionVersion.current) setListsError(t('notifications.listsError'));
     } finally {
-      setListsLoading(false);
+      if (selectionVersion === notificationSelectionVersion.current) setListsLoading(false);
     }
   };
 
@@ -193,7 +201,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
     try {
       const result = await clearNotifications(account?.id);
       setNotifications([]);
-      setSelectedNotification(null);
+      closeNotification();
       if (!result.deviceCleared) {
         showUserErrorAlert(null, {
           title: t('notifications.clearedTitle'),
@@ -279,6 +287,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
     if (!selectedNotification || isSaving) return;
     setIsSaving(true);
     const notification = selectedNotification;
+    const selectionVersion = notificationSelectionVersion.current;
     const product = notification.product;
     try {
       await groceryListService.addGroceryItem({
@@ -297,7 +306,9 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
         isRead: true,
         handled: { action: 'added-to-list', listId: list.id, listName: list.name },
       };
-      setSelectedNotification(handledNotification);
+      if (selectionVersion === notificationSelectionVersion.current) {
+        setSelectedNotification((current) => current?.id === notification.id ? handledNotification : current);
+      }
       setNotifications((current) => current.map((item) => item.id === notification.id
         ? handledNotification
         : item));
@@ -325,13 +336,13 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
 
   const handleOpenPantry = () => {
     const pantryId = selectedNotification?.pantryId;
-    setSelectedNotification(null);
+    closeNotification();
     if (pantryId) navigation.navigate(AUTHENTICATED_ROUTES.PANTRY, { pantryId });
   };
 
   const handleCreateList = () => {
     const pantryId = selectedNotification?.pantryId;
-    setSelectedNotification(null);
+    closeNotification();
     if (pantryId) navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_LIST, { pantryId });
   };
 
@@ -412,7 +423,7 @@ export default function NotificationsScreen({ navigation, route, embedded = fals
         listsLoading={listsLoading}
         notification={selectedNotification}
         onAddToList={handleAddToList}
-        onClose={() => setSelectedNotification(null)}
+        onClose={closeNotification}
         onCreateList={handleCreateList}
         onOpenPantry={handleOpenPantry}
         visible={Boolean(selectedNotification)}

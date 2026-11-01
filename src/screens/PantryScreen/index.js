@@ -14,7 +14,7 @@ import AddProductMethodModal from '../../components/AddProductMethodModal';
 import NfceScannerModal from '../../components/NfceScannerModal';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
-import { getProductPresentationKey } from '../../domain/pantryProductGrouping';
+import { getProductPresentationKey, hasDistinctBrands, normalizeProductIdentity } from '../../domain/pantryProductGrouping';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import { listPantries } from '../../services/pantryService';
 import { syncDeviceNotifications } from '../../services/notificationService';
@@ -89,9 +89,11 @@ export default function PantryScreen({ route, navigation }) {
     const previousCounts = preferences.promptedDuplicateCounts ?? {};
     const groups = new Map();
     (occurrences ?? []).forEach((product) => {
+      if (Number(product.quantity) <= 0) return;
       const key = getProductPresentationKey(product);
-      const group = groups.get(key) ?? { count: 0, product };
+      const group = groups.get(key) ?? { count: 0, product, products: [] };
       group.count += 1;
+      group.products.push(product);
       groups.set(key, group);
     });
 
@@ -102,6 +104,10 @@ export default function PantryScreen({ route, navigation }) {
       const currentCount = groups.get(duplicateKey)?.count ?? 0;
       const previousCount = Number(previousCounts[duplicateKey]) || 0;
       if (currentCount < previousCount) countsToPersist.set(duplicateKey, currentCount);
+      if (currentCount >= 2 && !hasDistinctBrands(groups.get(duplicateKey).products)) {
+        if (currentCount !== previousCount) countsToPersist.set(duplicateKey, currentCount);
+        return;
+      }
       if (currentCount >= 2 && currentCount > previousCount) {
         const product = groups.get(duplicateKey).product;
         for (let count = Math.max(2, previousCount + 1); count <= currentCount; count += 1) {
@@ -284,6 +290,14 @@ export default function PantryScreen({ route, navigation }) {
     const occurrences = await refreshProducts();
     await syncDeviceNotifications(account?.id).catch(() => {});
     setSelectedProduct(null);
+    const updatedOccurrence = occurrences.find((item) => item.id === selectedProduct.id);
+    if (updatedOccurrence && normalizeProductIdentity(updatedOccurrence.brand) !== normalizeProductIdentity(selectedProduct.brand)) {
+      const key = getProductPresentationKey(updatedOccurrence);
+      const matching = occurrences.filter((item) => Number(item.quantity) > 0 && getProductPresentationKey(item) === key);
+      if (hasDistinctBrands(matching)) {
+        await saveProductDuplicatePromptCount(account?.id, pantryId, key, Math.max(1, matching.length - 1));
+      }
+    }
     if (previousOccurrences.length) {
       setTimeout(() => promptForDuplicateProducts(occurrences), 250);
     }

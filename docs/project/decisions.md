@@ -1,5 +1,13 @@
 # Decisões do projeto
 
+## 2026-11-01 — Ocorrências zeradas na apresentação da despensa
+
+Para exibir dados de produto e decidir avisos de múltiplas compras e agrupamento de marcas, considerar apenas ocorrências com saldo positivo. Uma ocorrência zerada permanece na compra/histórico, mas não causa os avisos nem cria card separado enquanto outra ocorrência da mesma apresentação tem saldo. Quando toda a apresentação estiver zerada, manter um card zerado com os dados da ocorrência mais recente. A redução continua consumindo a compra mais antiga com saldo e o aumento é aplicado à ocorrência mais recente do grupo.
+
+## 2026-11-01 — Pergunta de agrupamento apenas para marcas distintas
+
+Após relato do usuário, ocorrências da mesma apresentação e mesma marca, inclusive duas sem marca, são agrupadas sem perguntar sobre marcas diferentes. Quando a apresentação tiver marcas distintas, inclusive uma sem marca e outra identificada, o app oferece a escolha de juntá-las ou separá-las. Esta regra substitui a decisão anterior de perguntar a cada segunda ocorrência mesmo quando as marcas são iguais.
+
 ## 2026-11-01 — Correção de preço histórico de produto
 
 Ao editar o preço unitário de uma ocorrência, o total do item usa a quantidade originalmente comprada, não o saldo atual. O preço total informado diretamente continua sendo o total da ocorrência. Em compra manual com uma única ocorrência de produto, corrigir o preço também atualiza o total da compra; em NFC-e ou compra com vários produtos, o total original da compra é preservado. Essa regra foi aprovada pelo usuário e não altera o modelo hospedado.

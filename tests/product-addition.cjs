@@ -3,8 +3,12 @@ const { createHarness, seed } = require('./local-test-harness.cjs');
 async function main() {
   const h = createHarness();
   await seed(h);
-  const { addProduct, listProductOccurrences } = h.load('src/services/productService.js');
+  const { addProduct, listProductOccurrences, updateProduct } = h.load('src/services/productService.js');
   const { readDatabase } = h.load('src/storage/localDatabase.js');
+  const { hasDistinctBrands } = h.load('src/domain/pantryProductGrouping.js');
+  assert.equal(hasDistinctBrands([{ brand: null }, { brand: '' }]), false);
+  assert.equal(hasDistinctBrands([{ brand: 'Nivea' }, { brand: 'NÍVEA' }]), false);
+  assert.equal(hasDistinctBrands([{ brand: null }, { brand: 'Nivea' }]), true);
   const draft = { accountId: 'a', pantryId: 'p', name: 'Café', price: '10', quantity: '2', category: 'bebidas' };
   await assert.rejects(addProduct({ ...draft, accountId: 'b' }));
   await assert.rejects(addProduct({ ...draft, quantity: '0' }));
@@ -18,6 +22,12 @@ async function main() {
   assert.equal(db.purchases.length, 2);
   assert.equal(db.pantry_products.length, 2);
   assert.equal((await listProductOccurrences('a', 'p')).length, 2);
+  const occurrence = (await listProductOccurrences('a', 'p'))[0];
+  await updateProduct({ ...draft, productId: occurrence.id, brand: 'Nivea' });
+  assert.equal((await listProductOccurrences('a', 'p')).find((item) => item.id === occurrence.id).brand, 'Nivea');
+  assert.equal((await readDatabase()).purchases.length, 2);
+  await updateProduct({ ...draft, productId: occurrence.id, brand: '' });
+  assert.equal((await listProductOccurrences('a', 'p')).find((item) => item.id === occurrence.id).brand, null);
   await assert.rejects(listProductOccurrences('b', 'p'));
   console.log('product-addition tests passed');
 }
