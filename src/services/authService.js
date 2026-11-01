@@ -1,117 +1,110 @@
 import * as Crypto from 'expo-crypto';
 
 import {
-  createAccount,
-  findAccountByEmail,
-  findAccountById,
-  normalizeEmail,
-  updateAccount,
+    createAccount, findAccountByEmail, findAccountById, normalizeEmail, updateAccount,
 } from '../repositories/accountRepository';
 import {
-  clearActiveAccountId,
-  getActiveAccountId,
-  saveActiveAccountId,
+    clearActiveAccountId, getActiveAccountId, saveActiveAccountId,
 } from '../repositories/sessionRepository';
 
 const HASH_ITERATIONS = 4096;
 
 async function hashPassword(password, salt) {
-  let digest = `${salt}:${password}`;
+    let digest = `${salt}:${password}`;
 
-  for (let iteration = 0; iteration < HASH_ITERATIONS; iteration += 1) {
-    digest = await Crypto.digestStringAsync(
-      Crypto.CryptoDigestAlgorithm.SHA256,
-      `${salt}:${digest}`,
-    );
-  }
+    for (let iteration = 0; iteration < HASH_ITERATIONS; iteration += 1) {
+        digest = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, `${salt}:${digest}`,);
+    }
 
-  return digest;
+    return digest;
 }
 
 function toPublicAccount(account) {
-  if (!account) return null;
+    if (!account) return null;
 
-  return {
-    id: account.id,
-    name: account.name,
-    email: account.email,
-    avatarColor: account.avatarColor,
-  };
+    return {
+        id: account.id, name: account.name, email: account.email, avatarColor: account.avatarColor,
+    };
 }
 
-export async function register({ name, email, avatarColor, password }) {
-  const normalizedEmail = normalizeEmail(email);
-  const existingAccount = await findAccountByEmail(normalizedEmail);
+export async function register({name, email, avatarColor, password}) {
+    const normalizedEmail = normalizeEmail(email);
+    const existingAccount = await findAccountByEmail(normalizedEmail);
 
-  if (existingAccount) {
-    throw new Error('EMAIL_ALREADY_EXISTS');
-  }
+    if (existingAccount) {
+        throw new Error('EMAIL_ALREADY_EXISTS');
+    }
 
-  const id = Crypto.randomUUID();
-  const salt = id;
-  const account = {
-    id,
-    name: name.trim(),
-    email: normalizedEmail,
-    avatarColor,
-    passwordSalt: salt,
-    passwordHash: await hashPassword(password, salt),
-    createdAt: new Date().toISOString(),
-  };
+    const id = Crypto.randomUUID();
+    const salt = id;
+    const account = {
+        id,
+        name: name.trim(),
+        email: normalizedEmail,
+        avatarColor,
+        passwordSalt: salt,
+        passwordHash: await hashPassword(password, salt),
+        createdAt: new Date().toISOString(),
+    };
 
-  await createAccount(account);
-  await saveActiveAccountId(account.id);
+    await createAccount(account);
+    try {
+        await saveActiveAccountId(account.id);
+    } catch {
+        let storedAccountId;
+        try {
+            storedAccountId = await getActiveAccountId();
+        } catch { /* Account exists; session state is unknown. */
+        }
+        if (storedAccountId !== account.id) throw new Error('ACCOUNT_CREATED_SESSION_FAILED');
+    }
 
-  return toPublicAccount(account);
+    return toPublicAccount(account);
 }
 
-export async function login({ email, password }) {
-  const account = await findAccountByEmail(email);
+export async function login({email, password}) {
+    const account = await findAccountByEmail(email);
 
-  if (!account) {
-    throw new Error('LOGIN_ACCOUNT_NOT_FOUND');
-  }
+    if (!account) {
+        throw new Error('LOGIN_ACCOUNT_NOT_FOUND');
+    }
 
-  const passwordHash = await hashPassword(password, account.passwordSalt);
+    const passwordHash = await hashPassword(password, account.passwordSalt);
 
-  if (passwordHash !== account.passwordHash) {
-    throw new Error('INVALID_CREDENTIALS');
-  }
+    if (passwordHash !== account.passwordHash) {
+        throw new Error('INVALID_CREDENTIALS');
+    }
 
-  await saveActiveAccountId(account.id);
-  return toPublicAccount(account);
+    await saveActiveAccountId(account.id);
+    return toPublicAccount(account);
 }
 
-export async function updateProfile({ accountId, name, email, avatarColor, password }) {
-  const normalizedEmail = normalizeEmail(email);
-  const passwordHash = password ? await hashPassword(password, accountId) : undefined;
-  const updatedAccount = await updateAccount({
-    accountId,
-    name: name.trim(),
-    email: normalizedEmail,
-    avatarColor,
-    passwordHash,
-  });
+export async function updateProfile({accountId, name, email, avatarColor, password}) {
+    const normalizedEmail = normalizeEmail(email);
+    const passwordHash = password ? await hashPassword(password, accountId) : undefined;
+    const updatedAccount = await updateAccount({
+        accountId, name: name.trim(), email: normalizedEmail, avatarColor, passwordHash,
+    });
 
-  return toPublicAccount(updatedAccount);
+    return toPublicAccount(updatedAccount);
 }
 
 export async function restoreSession() {
-  const accountId = await getActiveAccountId();
+    const accountId = await getActiveAccountId();
 
-  if (!accountId) return null;
+    if (!accountId) return null;
 
-  const account = await findAccountById(accountId);
+    const account = await findAccountById(accountId);
 
-  if (!account) {
-    await clearActiveAccountId();
-    return null;
-  }
+    if (!account) {
+        await clearActiveAccountId();
+        return null;
+    }
 
-  return toPublicAccount(account);
+    return toPublicAccount(account);
 }
 
 export async function logout() {
-  await clearActiveAccountId();
+    await clearActiveAccountId();
 }
 

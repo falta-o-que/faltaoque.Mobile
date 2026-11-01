@@ -1,10 +1,25 @@
 # Estado atual
 
+## Cadastro e sessão — 1º de novembro de 2026
+
+- Teste físico Android via ADB: com falha temporária simulada na gravação da sessão após criar uma conta fictícia, o app
+  informou que a conta existia e retornou ao login; o login posterior da conta de teste funcionou. A simulação foi
+  removida e o aparelho deixado desconectado. As contas locais fictícias `teste-b05@exemplo.test` e
+  `teste-b05-2@exemplo.test` foram criadas durante os testes e não foram removidas.
+
+- B05 corrigido no fluxo local: se a conta foi criada e a gravação da sessão falhar, o app verifica se a sessão foi
+  efetivada; caso não seja possível confirmá-la, informa que a conta existe e encaminha ao login. Testes simulam falhas
+  antes e depois da gravação e falha na leitura; bundle Android gerado. Validação física do caminho de erro pendente.
+
 ## Notificações e troca de conta — 1º de novembro de 2026
 
-- O usuário confirmou no Android que o teste solicitado de notificações, logout e troca entre contas funcionou. A corrida com sincronização pausada também foi exercitada em teste simulado; iOS não foi testado fisicamente.
+- O usuário confirmou no Android que o teste solicitado de notificações, logout e troca entre contas funcionou. A
+  corrida com sincronização pausada também foi exercitada em teste simulado; iOS não foi testado fisicamente.
 
-- B26 corrigido: a sessão de notificações é invalidada ao sair, sincronizações antigas são descartadas e a reconciliação e limpeza usam fila compartilhada no aparelho. A limpeza é restrita às notificações desta funcionalidade e da conta que saiu; a próxima sincronização aguarda sua conclusão. Teste simulado cobre sincronização anterior pausada, troca de conta e preservação de notificações externas. Validação física Android pendente; iOS não testado fisicamente.
+- B26 corrigido: a sessão de notificações é invalidada ao sair, sincronizações antigas são descartadas e a reconciliação
+  e limpeza usam fila compartilhada no aparelho. A limpeza é restrita às notificações desta funcionalidade e da conta
+  que saiu; a próxima sincronização aguarda sua conclusão. Teste simulado cobre sincronização anterior pausada, troca de
+  conta e preservação de notificações externas. Validação física Android pendente; iOS não testado fisicamente.
 
 ## Seleção de endereço e mercado — 1º de novembro de 2026
 

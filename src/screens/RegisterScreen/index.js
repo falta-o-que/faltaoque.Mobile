@@ -1,320 +1,297 @@
-import { useEffect, useRef, useState } from 'react';
-import { Alert, Animated, Easing, Modal, ScrollView } from 'react-native';
+import {useEffect, useRef, useState} from 'react';
+import {Alert, Animated, Easing, Modal, ScrollView} from 'react-native';
 
 import AuthScreenLayout from '../../components/AuthScreenLayout';
 import FormField from '../../components/FormField';
 import ModalActionButton from '../../components/ModalActionButton';
-import { ModalBackdrop, ModalCard, ModalHeader, ModalTitle, ModalBody } from '../SettingsScreen/styles';
+import {ModalBackdrop, ModalCard, ModalHeader, ModalTitle, ModalBody} from '../SettingsScreen/styles';
 import {
-  AngleIcon,
-  CheckIcon,
-  CancelCircleIcon,
-  EmailIcon,
-  EyeClosedIcon,
-  EyeIcon,
-  UserIcon,
+    AngleIcon, CheckIcon, CancelCircleIcon, EmailIcon, EyeClosedIcon, EyeIcon, UserIcon,
 } from '../../assets/icons/export';
 import {
-  hasValidationErrors,
-  validateRegistration,
+    hasValidationErrors, validateRegistration,
 } from '../../domain/authValidation';
-import { useAuth } from '../../contexts/AuthContext';
-import { useAppPreferences } from '../../contexts/AppPreferencesContext';
-import { COLOR_OPTION_ROWS } from '../../constants/colorOptions';
-import { showUserErrorAlert } from '../../utils/userErrors';
+import {useAuth} from '../../contexts/AuthContext';
+import {useAppPreferences} from '../../contexts/AppPreferencesContext';
+import {COLOR_OPTION_ROWS} from '../../constants/colorOptions';
+import {showUserErrorAlert} from '../../utils/userErrors';
 import {
-  BackLink,
-  BackText,
-  Checkbox,
-  ColorChevron,
-  ColorField,
-  ColorFieldHeader,
-  ColorGrid,
-  ColorOption,
-  ColorPanel,
-  ColorRow,
-  EmptyCheckbox,
-  FieldLabel,
-  Form,
-  InlineError,
-  Muted,
-  PrimaryButton,
-  PrimaryLabel,
-  Terms,
-  TermsText,
-  TermsLink,
+    BackLink,
+    BackText,
+    Checkbox,
+    ColorChevron,
+    ColorField,
+    ColorFieldHeader,
+    ColorGrid,
+    ColorOption,
+    ColorPanel,
+    ColorRow,
+    EmptyCheckbox,
+    FieldLabel,
+    Form,
+    InlineError,
+    Muted,
+    PrimaryButton,
+    PrimaryLabel,
+    Terms,
+    TermsText,
+    TermsLink,
 } from './styles';
 
-export function RegisterScreen({ navigation }) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [avatarColor, setAvatarColor] = useState(null);
-  const [isAvatarColorOpen, setIsAvatarColorOpen] = useState(false);
-  const [shouldRenderAvatarColorPanel, setShouldRenderAvatarColorPanel] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [activeLegalModal, setActiveLegalModal] = useState(null);
-  const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
-  const [errors, setErrors] = useState({});
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
-  const [isSubmitActive, setIsSubmitActive] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { completeRegistration, register } = useAuth();
-  const { t } = useAppPreferences();
-  const localizedErrors = (values) => Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value ? t(value) : value]));
-  const avatarColorMenuProgress = useRef(new Animated.Value(0)).current;
+export function RegisterScreen({navigation}) {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [avatarColor, setAvatarColor] = useState(null);
+    const [isAvatarColorOpen, setIsAvatarColorOpen] = useState(false);
+    const [shouldRenderAvatarColorPanel, setShouldRenderAvatarColorPanel] = useState(false);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
+    const [activeLegalModal, setActiveLegalModal] = useState(null);
+    const [password, setPassword] = useState('');
+    const [passwordConfirmation, setPasswordConfirmation] = useState('');
+    const [errors, setErrors] = useState({});
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
+    const [isSubmitActive, setIsSubmitActive] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const {completeRegistration, register} = useAuth();
+    const {t} = useAppPreferences();
+    const localizedErrors = (values) => Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value ? t(value) : value]));
+    const avatarColorMenuProgress = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    if (isAvatarColorOpen) {
-      setShouldRenderAvatarColorPanel(true);
-    }
-  }, [isAvatarColorOpen]);
+    useEffect(() => {
+        if (isAvatarColorOpen) {
+            setShouldRenderAvatarColorPanel(true);
+        }
+    }, [isAvatarColorOpen]);
 
-  useEffect(() => {
-    if (!shouldRenderAvatarColorPanel) {
-      return undefined;
-    }
+    useEffect(() => {
+        if (!shouldRenderAvatarColorPanel) {
+            return undefined;
+        }
 
-    const animation = Animated.timing(avatarColorMenuProgress, {
-      toValue: isAvatarColorOpen ? 1 : 0,
-      duration: 180,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    });
+        const animation = Animated.timing(avatarColorMenuProgress, {
+            toValue: isAvatarColorOpen ? 1 : 0, duration: 180, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+        });
 
-    animation.start(({ finished }) => {
-      if (finished && !isAvatarColorOpen) {
-        setShouldRenderAvatarColorPanel(false);
-      }
-    });
+        animation.start(({finished}) => {
+            if (finished && !isAvatarColorOpen) {
+                setShouldRenderAvatarColorPanel(false);
+            }
+        });
 
-    return () => animation.stop();
-  }, [avatarColorMenuProgress, isAvatarColorOpen, shouldRenderAvatarColorPanel]);
+        return () => animation.stop();
+    }, [avatarColorMenuProgress, isAvatarColorOpen, shouldRenderAvatarColorPanel]);
 
-  const avatarColorPanelStyle = {
-    opacity: avatarColorMenuProgress,
-    transform: [
-      {
-        scaleY: avatarColorMenuProgress.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0.92, 1],
-        }),
-      },
-      {
-        translateY: avatarColorMenuProgress.interpolate({
-          inputRange: [0, 1],
-          outputRange: [-8, 0],
-        }),
-      },
-    ],
-  };
+    const avatarColorPanelStyle = {
+        opacity: avatarColorMenuProgress, transform: [{
+            scaleY: avatarColorMenuProgress.interpolate({
+                inputRange: [0, 1], outputRange: [0.92, 1],
+            }),
+        }, {
+            translateY: avatarColorMenuProgress.interpolate({
+                inputRange: [0, 1], outputRange: [-8, 0],
+            }),
+        },],
+    };
 
-  const avatarColorChevronStyle = {
-    transform: [
-      {
-        rotate: avatarColorMenuProgress.interpolate({
-          inputRange: [0, 1],
-          outputRange: ['0deg', '180deg'],
-        }),
-      },
-    ],
-  };
+    const avatarColorChevronStyle = {
+        transform: [{
+            rotate: avatarColorMenuProgress.interpolate({
+                inputRange: [0, 1], outputRange: ['0deg', '180deg'],
+            }),
+        },],
+    };
 
-  const formValues = {
-    name,
-    email,
-    avatarColor,
-    password,
-    passwordConfirmation,
-    acceptedTerms,
-  };
-  const formHasErrors = hasValidationErrors(errors);
-  const formNeedsScroll =
-    isAvatarColorOpen || shouldRenderAvatarColorPanel || formHasErrors;
+    const formValues = {
+        name, email, avatarColor, password, passwordConfirmation, acceptedTerms,
+    };
+    const formHasErrors = hasValidationErrors(errors);
+    const formNeedsScroll = isAvatarColorOpen || shouldRenderAvatarColorPanel || formHasErrors;
 
-  const updateField = (field, value) => {
-    const nextValues = { ...formValues, [field]: value };
+    const updateField = (field, value) => {
+        const nextValues = {...formValues, [field]: value};
 
-    if (errors[field] || (field === 'password' && errors.passwordConfirmation)) {
-      const nextErrors = localizedErrors(validateRegistration(nextValues));
-      setErrors((currentErrors) => ({
-        ...currentErrors,
-        [field]: nextErrors[field],
-        ...(field === 'password'
-          ? { passwordConfirmation: nextErrors.passwordConfirmation }
-          : {}),
-      }));
-    }
+        if (errors[field] || (field === 'password' && errors.passwordConfirmation)) {
+            const nextErrors = localizedErrors(validateRegistration(nextValues));
+            setErrors((currentErrors) => ({
+                ...currentErrors,
+                [field]: nextErrors[field], ...(field === 'password' ? {passwordConfirmation: nextErrors.passwordConfirmation} : {}),
+            }));
+        }
 
-    return value;
-  };
+        return value;
+    };
 
-  const handleCreateAccount = async () => {
-    const validationErrors = validateRegistration(formValues);
-    setErrors(localizedErrors(validationErrors));
+    const handleCreateAccount = async () => {
+        const validationErrors = validateRegistration(formValues);
+        setErrors(localizedErrors(validationErrors));
 
-    if (hasValidationErrors(validationErrors)) {
-      return;
-    }
+        if (hasValidationErrors(validationErrors)) {
+            return;
+        }
 
-    try {
-      setIsSubmitting(true);
-      const account = await register({ name, email, avatarColor, password });
+        try {
+            setIsSubmitting(true);
+            const account = await register({name, email, avatarColor, password});
 
-      Alert.alert(
-        t('auth.register.createdTitle'),
-        t('auth.register.createdBody'),
-        [{ text: t('auth.common.continue'), onPress: () => completeRegistration(account) }],
-        { cancelable: false },
-      );
-    } catch (error) {
-      if (error.message === 'EMAIL_ALREADY_EXISTS') {
-        setErrors((currentErrors) => ({
-          ...currentErrors,
-          email: t('auth.errors.emailExists'),
-        }));
-        return;
-      }
+            Alert.alert(t('auth.register.createdTitle'), t('auth.register.createdBody'), [{
+                text: t('auth.common.continue'), onPress: () => completeRegistration(account)
+            }], {cancelable: false},);
+        } catch (error) {
+            if (error.message === 'ACCOUNT_CREATED_SESSION_FAILED') {
+                Alert.alert(t('auth.register.createdTitle'), t('auth.register.sessionFailed'), [{
+                    text: t('auth.register.login'), onPress: () => navigation.goBack()
+                },], {cancelable: false});
+                return;
+            }
+            if (error.message === 'EMAIL_ALREADY_EXISTS') {
+                setErrors((currentErrors) => ({
+                    ...currentErrors, email: t('auth.errors.emailExists'),
+                }));
+                return;
+            }
 
-      showUserErrorAlert(error, { title: t('auth.errors.registerTitle'), fallback: t('auth.errors.connection'), dismissText: t('auth.common.ok'), t });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+            showUserErrorAlert(error, {
+                title: t('auth.errors.registerTitle'),
+                fallback: t('auth.errors.connection'),
+                dismissText: t('auth.common.ok'),
+                t
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-  return (
-    <AuthScreenLayout title={t('auth.register.title')} subtitle={t('auth.register.subtitle')}>
-      <Form
-        $expanded={isAvatarColorOpen || shouldRenderAvatarColorPanel}
-        scrollEnabled={formNeedsScroll}
-      >
-        <FormField
-          accessibilityLabel={t('auth.common.name')}
-          autoComplete="name"
-          error={errors.name}
-          onChangeText={(value) => setName(updateField('name', value))}
-          placeholder={`${t('auth.common.name')} *`}
-          value={name}
-          Icon={UserIcon}
-        />
-        <FormField
-          accessibilityLabel={t('auth.login.email')}
-          autoCapitalize="none"
-          autoComplete="email"
-          error={errors.email}
-          keyboardType="email-address"
-          onChangeText={(value) => setEmail(updateField('email', value))}
-          placeholder={`${t('auth.login.email')} *`}
-          value={email}
-          Icon={EmailIcon}
-        />
-        <ColorField>
-          <ColorFieldHeader
-            accessibilityRole="button"
-            accessibilityState={{ expanded: isAvatarColorOpen }}
-            onPress={() => setIsAvatarColorOpen((value) => !value)}
-          >
-            <FieldLabel>{t('auth.common.avatarColor')} *</FieldLabel>
-            <ColorChevron style={avatarColorChevronStyle}>
-              <AngleIcon />
-            </ColorChevron>
-          </ColorFieldHeader>
-          {shouldRenderAvatarColorPanel ? (
-            <ColorPanel style={avatarColorPanelStyle}>
-              <ColorGrid>
-                {COLOR_OPTION_ROWS.map((row, rowIndex) => (
-                  <ColorRow key={`avatar-color-row-${rowIndex + 1}`}>
-                    {row.map((color) => (
-                      <ColorOption
-                        key={color}
-                        accessibilityLabel={t('auth.common.selectColor', { color })}
-                        accessibilityRole="radio"
-                        accessibilityState={{ checked: avatarColor === color }}
-                        onPress={() => setAvatarColor(updateField('avatarColor', color))}
-                        $color={color}
-                        $selected={avatarColor === color}
-                      />
-                    ))}
-                  </ColorRow>
-                ))}
-              </ColorGrid>
-            </ColorPanel>
-          ) : null}
-          {errors.avatarColor ? <InlineError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.avatarColor}</InlineError> : null}
-        </ColorField>
-        <FormField
-          accessibilityLabel={t('auth.login.password')}
-          autoCapitalize="none"
-          autoComplete="new-password"
-          error={errors.password}
-          onChangeText={(value) => setPassword(updateField('password', value))}
-          placeholder={`${t('auth.login.password')} *`}
-          secureTextEntry={!isPasswordVisible}
-          value={password}
-          Icon={isPasswordVisible ? EyeIcon : EyeClosedIcon}
-          iconAccessibilityLabel={isPasswordVisible ? t('auth.login.hidePassword') : t('auth.login.showPassword')}
-          onIconPress={() => setIsPasswordVisible((value) => !value)}
-        />
-        <FormField
-          accessibilityLabel={t('auth.common.confirmPassword')}
-          autoCapitalize="none"
-          autoComplete="new-password"
-          error={errors.passwordConfirmation}
-          onChangeText={(value) => setPasswordConfirmation(updateField('passwordConfirmation', value))}
-          placeholder={`${t('auth.common.confirmPassword')} *`}
-          secureTextEntry={!isConfirmationVisible}
-          value={passwordConfirmation}
-          Icon={isConfirmationVisible ? EyeIcon : EyeClosedIcon}
-          iconAccessibilityLabel={isConfirmationVisible ? t('auth.common.hideConfirmation') : t('auth.common.showConfirmation')}
-          onIconPress={() => setIsConfirmationVisible((value) => !value)}
-        />
-      </Form>
-      <Terms>
-        <Checkbox
-          accessibilityLabel={t('auth.register.agreeTerms')}
-          accessibilityRole="checkbox"
-          accessibilityState={{ checked: acceptedTerms }}
-          onPress={() => setAcceptedTerms(updateField('acceptedTerms', !acceptedTerms))}
+    return (<AuthScreenLayout title={t('auth.register.title')} subtitle={t('auth.register.subtitle')}>
+        <Form
+            $expanded={isAvatarColorOpen || shouldRenderAvatarColorPanel}
+            scrollEnabled={formNeedsScroll}
         >
-          {acceptedTerms ? <CheckIcon width={22} height={23} /> : <EmptyCheckbox />}
-        </Checkbox>
-        <TermsText>
-          {t('auth.register.agreePrefix')}{' '}
-          <TermsLink accessibilityRole="link" onPress={() => setActiveLegalModal('terms')}>{t('settings.terms')}</TermsLink>
-          {' '}{t('auth.register.agreeAnd')}{' '}
-          <TermsLink accessibilityRole="link" onPress={() => setActiveLegalModal('privacy')}>{t('settings.privacy')}</TermsLink>.
-        </TermsText>
-      </Terms>
-      {errors.acceptedTerms ? <InlineError accessibilityLiveRegion="polite" accessibilityRole="alert">{errors.acceptedTerms}</InlineError> : null}
-      <PrimaryButton
-        $active={isSubmitActive}
-        accessibilityRole="button"
-        disabled={isSubmitting}
-        onHoverIn={() => setIsSubmitActive(true)}
-        onHoverOut={() => setIsSubmitActive(false)}
-        onPress={handleCreateAccount}
-        onPressIn={() => setIsSubmitActive(true)}
-        onPressOut={() => setIsSubmitActive(false)}
-      >
-        <PrimaryLabel>{isSubmitting ? t('auth.register.submitting') : t('auth.register.submit')}</PrimaryLabel>
-      </PrimaryButton>
-      <BackLink accessibilityRole="button" onPress={() => navigation.goBack()}>
-        <BackText><Muted>{t('auth.register.hasAccount')}</Muted> {t('auth.register.login')}</BackText>
-      </BackLink>
-      <Modal animationType="fade" transparent visible={Boolean(activeLegalModal)} onRequestClose={() => setActiveLegalModal(null)}>
-        <ModalBackdrop>
-          <ModalCard accessibilityViewIsModal>
-            <ModalHeader>
-              <ModalTitle>{activeLegalModal ? t(`settings.${activeLegalModal}`) : ''}</ModalTitle>
-              <ModalActionButton accessibilityLabel={t('common.close')} Icon={CancelCircleIcon} onPress={() => setActiveLegalModal(null)} variant="cancel" />
-            </ModalHeader>
-            <ScrollView><ModalBody>{activeLegalModal ? t(`settings.content.${activeLegalModal}`) : ''}</ModalBody></ScrollView>
-          </ModalCard>
-        </ModalBackdrop>
-      </Modal>
-    </AuthScreenLayout>
-  );
+            <FormField
+                accessibilityLabel={t('auth.common.name')}
+                autoComplete="name"
+                error={errors.name}
+                onChangeText={(value) => setName(updateField('name', value))}
+                placeholder={`${t('auth.common.name')} *`}
+                value={name}
+                Icon={UserIcon}
+            />
+            <FormField
+                accessibilityLabel={t('auth.login.email')}
+                autoCapitalize="none"
+                autoComplete="email"
+                error={errors.email}
+                keyboardType="email-address"
+                onChangeText={(value) => setEmail(updateField('email', value))}
+                placeholder={`${t('auth.login.email')} *`}
+                value={email}
+                Icon={EmailIcon}
+            />
+            <ColorField>
+                <ColorFieldHeader
+                    accessibilityRole="button"
+                    accessibilityState={{expanded: isAvatarColorOpen}}
+                    onPress={() => setIsAvatarColorOpen((value) => !value)}
+                >
+                    <FieldLabel>{t('auth.common.avatarColor')} *</FieldLabel>
+                    <ColorChevron style={avatarColorChevronStyle}>
+                        <AngleIcon/>
+                    </ColorChevron>
+                </ColorFieldHeader>
+                {shouldRenderAvatarColorPanel ? (<ColorPanel style={avatarColorPanelStyle}>
+                    <ColorGrid>
+                        {COLOR_OPTION_ROWS.map((row, rowIndex) => (<ColorRow key={`avatar-color-row-${rowIndex + 1}`}>
+                            {row.map((color) => (<ColorOption
+                                key={color}
+                                accessibilityLabel={t('auth.common.selectColor', {color})}
+                                accessibilityRole="radio"
+                                accessibilityState={{checked: avatarColor === color}}
+                                onPress={() => setAvatarColor(updateField('avatarColor', color))}
+                                $color={color}
+                                $selected={avatarColor === color}
+                            />))}
+                        </ColorRow>))}
+                    </ColorGrid>
+                </ColorPanel>) : null}
+                {errors.avatarColor ? <InlineError accessibilityLiveRegion="polite"
+                                                   accessibilityRole="alert">{errors.avatarColor}</InlineError> : null}
+            </ColorField>
+            <FormField
+                accessibilityLabel={t('auth.login.password')}
+                autoCapitalize="none"
+                autoComplete="new-password"
+                error={errors.password}
+                onChangeText={(value) => setPassword(updateField('password', value))}
+                placeholder={`${t('auth.login.password')} *`}
+                secureTextEntry={!isPasswordVisible}
+                value={password}
+                Icon={isPasswordVisible ? EyeIcon : EyeClosedIcon}
+                iconAccessibilityLabel={isPasswordVisible ? t('auth.login.hidePassword') : t('auth.login.showPassword')}
+                onIconPress={() => setIsPasswordVisible((value) => !value)}
+            />
+            <FormField
+                accessibilityLabel={t('auth.common.confirmPassword')}
+                autoCapitalize="none"
+                autoComplete="new-password"
+                error={errors.passwordConfirmation}
+                onChangeText={(value) => setPasswordConfirmation(updateField('passwordConfirmation', value))}
+                placeholder={`${t('auth.common.confirmPassword')} *`}
+                secureTextEntry={!isConfirmationVisible}
+                value={passwordConfirmation}
+                Icon={isConfirmationVisible ? EyeIcon : EyeClosedIcon}
+                iconAccessibilityLabel={isConfirmationVisible ? t('auth.common.hideConfirmation') : t('auth.common.showConfirmation')}
+                onIconPress={() => setIsConfirmationVisible((value) => !value)}
+            />
+        </Form>
+        <Terms>
+            <Checkbox
+                accessibilityLabel={t('auth.register.agreeTerms')}
+                accessibilityRole="checkbox"
+                accessibilityState={{checked: acceptedTerms}}
+                onPress={() => setAcceptedTerms(updateField('acceptedTerms', !acceptedTerms))}
+            >
+                {acceptedTerms ? <CheckIcon width={22} height={23}/> : <EmptyCheckbox/>}
+            </Checkbox>
+            <TermsText>
+                {t('auth.register.agreePrefix')}{' '}
+                <TermsLink accessibilityRole="link"
+                           onPress={() => setActiveLegalModal('terms')}>{t('settings.terms')}</TermsLink>
+                {' '}{t('auth.register.agreeAnd')}{' '}
+                <TermsLink accessibilityRole="link"
+                           onPress={() => setActiveLegalModal('privacy')}>{t('settings.privacy')}</TermsLink>.
+            </TermsText>
+        </Terms>
+        {errors.acceptedTerms ? <InlineError accessibilityLiveRegion="polite"
+                                             accessibilityRole="alert">{errors.acceptedTerms}</InlineError> : null}
+        <PrimaryButton
+            $active={isSubmitActive}
+            accessibilityRole="button"
+            disabled={isSubmitting}
+            onHoverIn={() => setIsSubmitActive(true)}
+            onHoverOut={() => setIsSubmitActive(false)}
+            onPress={handleCreateAccount}
+            onPressIn={() => setIsSubmitActive(true)}
+            onPressOut={() => setIsSubmitActive(false)}
+        >
+            <PrimaryLabel>{isSubmitting ? t('auth.register.submitting') : t('auth.register.submit')}</PrimaryLabel>
+        </PrimaryButton>
+        <BackLink accessibilityRole="button" onPress={() => navigation.goBack()}>
+            <BackText><Muted>{t('auth.register.hasAccount')}</Muted> {t('auth.register.login')}</BackText>
+        </BackLink>
+        <Modal animationType="fade" transparent visible={Boolean(activeLegalModal)}
+               onRequestClose={() => setActiveLegalModal(null)}>
+            <ModalBackdrop>
+                <ModalCard accessibilityViewIsModal>
+                    <ModalHeader>
+                        <ModalTitle>{activeLegalModal ? t(`settings.${activeLegalModal}`) : ''}</ModalTitle>
+                        <ModalActionButton accessibilityLabel={t('common.close')} Icon={CancelCircleIcon}
+                                           onPress={() => setActiveLegalModal(null)} variant="cancel"/>
+                    </ModalHeader>
+                    <ScrollView><ModalBody>{activeLegalModal ? t(`settings.content.${activeLegalModal}`) : ''}</ModalBody></ScrollView>
+                </ModalCard>
+            </ModalBackdrop>
+        </Modal>
+    </AuthScreenLayout>);
 }
 
 export default RegisterScreen;

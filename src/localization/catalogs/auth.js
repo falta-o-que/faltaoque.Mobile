@@ -1,4 +1,5 @@
 const ptBR = {
+  'auth.register.sessionFailed': 'Sua conta foi criada, mas não foi possível iniciar a sessão automaticamente. Entre com seu e-mail e senha.',
   'auth.login.subtitle': 'Sua casa abastecida na hora certa.',
   'auth.login.email': 'Email', 'auth.login.password': 'Senha',
   'auth.login.hidePassword': 'Ocultar senha', 'auth.login.showPassword': 'Mostrar senha',
@@ -46,6 +47,7 @@ const ptBR = {
 };
 
 const en = {
+  'auth.register.sessionFailed': 'Your account was created, but automatic sign-in failed. Sign in with your email and password.',
   'auth.validation.invalidCredentials': 'Check your email and password and try again. If you don’t have an account yet, create one to get started.',
   'auth.login.checkCredentials': 'Check details',
   'auth.login.accountNotFoundTitle': 'Account not found',
@@ -64,6 +66,7 @@ const en = {
 };
 
 const es = {
+  'auth.register.sessionFailed': 'Tu cuenta fue creada, pero no se pudo iniciar sesión automáticamente. Entra con tu correo y contraseña.',
   'auth.validation.invalidCredentials': 'Revisa tu correo y contraseña e inténtalo de nuevo. Si aún no tienes una cuenta, crea una para empezar.',
   'auth.login.checkCredentials': 'Revisar datos',
   'auth.login.accountNotFoundTitle': 'Cuenta no encontrada',

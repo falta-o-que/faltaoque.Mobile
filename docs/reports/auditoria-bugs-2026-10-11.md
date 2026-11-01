@@ -208,9 +208,11 @@ resultado da escolha vigente.
 
 ### B26 — Sincronização pendente recria notificações de uma conta após logout
 
-**Encerramento:** o usuário confirmou no Android o teste solicitado de notificações e troca entre contas; a corrida com sincronização pausada foi coberta em simulação.
+**Encerramento:** o usuário confirmou no Android o teste solicitado de notificações e troca entre contas; a corrida com
+sincronização pausada foi coberta em simulação.
 
-**Atualização de 01/11/2026:** corrigido com invalidação por sessão e fila global para sincronização e limpeza do aparelho. Teste simulado cobre sincronização pausada e troca de contas; validação física pendente.
+**Atualização de 01/11/2026:** corrigido com invalidação por sessão e fila global para sincronização e limpeza do
+aparelho. Teste simulado cobre sincronização pausada e troca de contas; validação física pendente.
 
 **Local:** `src/services/notificationService.js:17`, `:243-324`; `src/navigation/RootNavigator.js:65-66`;
 `src/screens/HomeScreen/index.js:86`.
@@ -231,6 +233,10 @@ de notificações.
 
 ### B04 — Edição de marca é descartada
 
+**Atualização de 01/11/2026:** a correção anterior passou a persistir a marca na ocorrência. O usuário confirmou que a
+marca era alterada no aparelho; a exibição no card agrupado foi tratada separadamente. O teste automatizado de salvar e
+limpar a marca passou.
+
 **Local:** `src/repositories/productRepository.js:209-214`.
 
 O formulário e a normalização produzem a marca nova, mas o update não grava `brand`. **Reprodução isolada:** salvar
@@ -239,6 +245,13 @@ O formulário e a normalização produzem a marca nova, mas o update não grava 
 **Recomendação:** persistir o campo e conferir sua repercussão nos grupos.
 
 ### B05 — Cadastro pode criar conta e retornar falha sem sessão
+
+**Teste Android:** falha de sessão simulada após a criação de uma conta fictícia exibiu a mensagem correta e permitiu
+retornar ao login; a entrada posterior nessa conta funcionou. A simulação temporária foi removida.
+
+**Atualização de 01/11/2026:** o cadastro distingue conta criada de falha ao iniciar sessão, oferece retorno ao login e
+confere se uma gravação que retornou erro foi efetivada. Teste simulado passou; caminho de falha ainda não validado no
+aparelho.
 
 **Local:** `src/services/authService.js:42-65`, especialmente `:62-64`; `src/repositories/accountRepository.js:23-35`.
 
