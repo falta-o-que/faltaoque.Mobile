@@ -1,5 +1,11 @@
 # Estado atual
 
+## Card zerado e marca — 1º de novembro de 2026
+
+- O usuário confirmou no Android que, após recarregar o app com o código atualizado, o card agrupado deixou de mostrar marcas enquanto havia duas compras com saldo.
+
+- Corrigida a divisão em cards por marca quando todas as ocorrências da apresentação chegam a zero. Uma apresentação totalmente zerada mostra um card da ocorrência mais recente. Em um card com marcas agrupadas e duas ou mais compras com saldo, o nome não exibe marca; com uma única compra, exibe sua marca ou “Sem marca”. Testes direcionados passaram; validação no Android pendente.
+
 ## Ocorrências zeradas na despensa — 1º de novembro de 2026
 
 - Na apresentação e nos avisos de compras/marcas, ocorrências com saldo zero deixam de competir com as que têm saldo. Se apenas uma compra tiver saldo, seus dados aparecem sem aviso de múltiplas compras; histórico e regra FIFO são preservados. Se todas estiverem zeradas, permanece card zerado da ocorrência mais recente. Teste automatizado cobre o cenário relatado; validação no aparelho pendente.

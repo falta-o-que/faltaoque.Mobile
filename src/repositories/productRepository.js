@@ -78,15 +78,14 @@ function groupProductOccurrences(occurrences, brandGroupingByPresentation = {}) 
     const stockedPresentations = new Set(occurrences.filter((item) => Number(item.quantity) > 0)
         .map((item) => getProductPresentationKey(item)));
     occurrences.forEach((product) => {
-        const groupBrands = brandGroupingByPresentation[getProductPresentationKey(product)] === 'grouped';
+        const presentationKey = getProductPresentationKey(product);
+        const groupBrands = brandGroupingByPresentation[presentationKey] === 'grouped' || !stockedPresentations.has(presentationKey);
         const key = productGroupKey(product, groupBrands);
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key).push(product);
     });
 
-    return [...groups.entries()].filter(([, entries]) =>
-        !stockedPresentations.has(getProductPresentationKey(entries[0])) || entries.some((item) => Number(item.quantity) > 0)
-    ).map(([key, entries]) => {
+    return [...groups.entries()].filter(([, entries]) => !stockedPresentations.has(getProductPresentationKey(entries[0])) || entries.some((item) => Number(item.quantity) > 0)).map(([key, entries]) => {
         const groupBrands = brandGroupingByPresentation[getProductPresentationKey(entries[0])] === 'grouped';
         const ordered = [...entries].sort(compareOccurrenceAge);
         const stocked = ordered.filter((entry) => Number(entry.quantity) > 0);
@@ -96,7 +95,7 @@ function groupProductOccurrences(occurrences, brandGroupingByPresentation = {}) 
         const purchasedQuantity = displayed.reduce((total, entry) => total + Number(entry.purchasedQuantity ?? 0), 0);
         const totalPrice = displayed.reduce((total, entry) => total + Number(entry.totalPrice ?? 0), 0);
         const expirationDates = displayed.map((entry) => entry.expirationDate).filter(Boolean).sort();
-        const name = groupBrands ? latest.name : `${latest.name} · ${latest.brand || 'Sem marca'}`;
+        const name = groupBrands && displayed.length > 1 ? latest.name : `${latest.name} · ${brands[0] || 'Sem marca'}`;
         return {
             ...latest,
             id: `product-group:${key}`,

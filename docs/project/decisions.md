@@ -1,5 +1,9 @@
 # Decisões do projeto
 
+## 2026-11-01 — Marca e apresentação com saldo zerado
+
+Quando um card agrupado tiver duas ou mais compras com saldo, não exibir marca no nome do card. Quando restar uma compra com saldo, exibir sua marca ou “Sem marca”. Quando todas as ocorrências da mesma apresentação estiverem zeradas, manter um único card, mesmo com marcas diferentes, usando os dados da ocorrência mais recente; as compras permanecem no histórico.
+
 ## 2026-11-01 — Ocorrências zeradas na apresentação da despensa
 
 Para exibir dados de produto e decidir avisos de múltiplas compras e agrupamento de marcas, considerar apenas ocorrências com saldo positivo. Uma ocorrência zerada permanece na compra/histórico, mas não causa os avisos nem cria card separado enquanto outra ocorrência da mesma apresentação tem saldo. Quando toda a apresentação estiver zerada, manter um card zerado com os dados da ocorrência mais recente. A redução continua consumindo a compra mais antiga com saldo e o aumento é aplicado à ocorrência mais recente do grupo.

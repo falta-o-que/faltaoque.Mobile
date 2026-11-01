@@ -22,6 +22,7 @@ async function main() {
   assert.equal((await listPantries('a'))[0].productCount, 3);
   await setProductBrandGrouping('a', 'p', getProductPresentationKey({ name: 'Café' }), 'grouped');
   assert.equal((await listPantries('a'))[0].productCount, 2);
+  assert.equal((await listProducts('a', 'p')).find((item) => item.baseName === 'Café').name, 'Café');
   console.log('pantry-product-count tests passed');
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });
