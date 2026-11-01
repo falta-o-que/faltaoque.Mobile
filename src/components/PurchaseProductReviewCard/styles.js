@@ -46,6 +46,31 @@ export const EditorTitle = styled.Text`
 export const FieldGroup = styled.View`
   gap: 8px;
 `;
+export const FinishEditButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })`
+  min-height: 48px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.primary[300]};
+  opacity: ${({ disabled }) => disabled ? 0.5 : 1};
+`;
+export const EditButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 })`
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background-color: ${({ theme }) => theme.colors.primary[300]};
+  opacity: ${({ disabled }) => disabled ? 0.5 : 1};
+`;
+export const FinishEditText = styled.Text`
+  color: ${({ theme }) => theme.colors.black.Black};
+  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
+  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
+`;
 export const EditorError = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: ${({ theme }) => 13 * theme.fonts.scale}px;

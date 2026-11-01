@@ -9,7 +9,7 @@ import { UnitOptions, UnitOption, UnitLabel } from '../AddProductModal/styles';
 import {
   Card, CardActions, CategoryButton, CategoryButtonText, Editor, EditorTitle, Group, Label,
   Muted, Name, Price, ProductBody, ProductImage, ProductRow, ReceiptLabel,
-  EditorError, FieldGroup, Selection, SelectionStatus, SelectionText,
+  EditButton, EditorError, FinishEditButton, FinishEditText, FieldGroup, Selection, SelectionStatus, SelectionText,
 } from './styles';
 
 const currency = (value, pendingLabel) => {
@@ -94,12 +94,14 @@ export default function PurchaseProductReviewCard({
         {item.category ? <CategoryTag category={item.category} variant="product" selected={false} disabled={busy}
           onPress={onToggleCategory} /> : <CategoryButton accessibilityRole="button" disabled={busy}
           onPress={onToggleCategory}><CategoryButtonText>{t('shopping.chooseCategory')}</CategoryButtonText></CategoryButton>}
-        <Group>
-          <ReceiptLabel>{expanded ? t('shopping.finishEdit') : t('shopping.editAction')}</ReceiptLabel>
-          <ModalActionButton Icon={expanded ? CheckIcon : PenIcon}
-            accessibilityLabel={expanded ? t('shopping.finishEditing') : t('shopping.edit', { name: item.sourceDescription || name })}
-            disabled={busy} variant="confirm" onPress={onToggleEdit} />
-        </Group>
+        {!expanded ? <Group>
+          <ReceiptLabel>{t('shopping.editAction')}</ReceiptLabel>
+          <EditButton accessibilityRole="button"
+            accessibilityLabel={t('shopping.edit', { name: item.sourceDescription || name })}
+            accessibilityState={{ disabled: busy }} disabled={busy} onPress={onToggleEdit}>
+            <PenIcon size={20} color={theme.colors.black.Black} />
+          </EditButton>
+        </Group> : null}
       </CardActions> : null}
       {!readOnly && categoryOpen && !expanded ? <Editor>
         <Label>{t('shopping.categoryQuestion')}</Label>
@@ -142,6 +144,11 @@ export default function PurchaseProductReviewCard({
             onSelectionChange={() => { if (onSelectCategory) onSelectCategory(category); else change('category', category); }} />)}</Group>
           {editorErrors.category ? <EditorError accessibilityLiveRegion="polite">{editorErrors.category}</EditorError> : null}
         </FieldGroup>
+        <FinishEditButton accessibilityRole="button" accessibilityLabel={t('shopping.finishEditing')}
+          accessibilityState={{ disabled: busy }} disabled={busy} onPress={onToggleEdit}>
+          <CheckIcon width={22} height={22} color={theme.colors.black.Black} />
+          <FinishEditText>{t('shopping.finishEditing')}</FinishEditText>
+        </FinishEditButton>
       </Editor> : null}
       {!expanded ? children : null}
     </Card>
