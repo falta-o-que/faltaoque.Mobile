@@ -103,6 +103,7 @@ export async function confirmFiscalPurchase({accountId, pantryId, purchase, item
     }
     const selected = items.filter((item) => item.selected && !isDisposableBagFiscalItem(item.sourceDescription));
     if (!selected.length) throw new Error('NO_FISCAL_ITEMS');
+    if (selected.some((item) => (item.requiresReview || normalizeFiscalProduct(item.sourceDescription).requiresReview) && item.reviewed !== true)) throw new Error('FISCAL_REVIEW_REQUIRED');
     if (selected.some((item) => item.weight != null && String(item.weight).trim() !== '' && (!Number.isFinite(Number(item.weight)) || Number(item.weight) <= 0 || !PRODUCT_UNITS.includes(item.unit)))) throw new Error('INVALID_FISCAL_ITEM');
     if (selected.some((item) => !PRODUCT_CATEGORIES.includes(item.category) || !(Number(item.quantity) > 0) || !(Number(item.totalPrice) > 0))) throw new Error('INVALID_FISCAL_ITEM');
     if (selected.some((item) => !Number.isInteger(Number(item.quantity)) && !item.weight && !({

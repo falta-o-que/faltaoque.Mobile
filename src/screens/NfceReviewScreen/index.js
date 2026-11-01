@@ -57,6 +57,8 @@ export default function NfceReviewScreen({route, navigation}) {
         quantity: inputValue(item.quantity),
         unitPrice: inputValue(item.unitPrice),
         totalPrice: inputValue(item.totalPrice),
+        reviewed: false,
+        reviewOpened: false,
     })));
     const [expanded, setExpanded] = useState(null);
     const [categoryOpen, setCategoryOpen] = useState(null);
@@ -76,7 +78,9 @@ export default function NfceReviewScreen({route, navigation}) {
 
     function update(index, patch) {
         if (busy.current) return;
-        setItems((current) => current.map((item, position) => position === index ? {...item, ...patch} : item));
+        setItems((current) => current.map((item, position) => position === index ? {
+            ...item, ...patch, ...(item.requiresReview && !Object.hasOwn(patch, 'reviewed') ? {reviewed: false} : {}),
+        } : item));
         setErrors((current) => ({...current, [index]: undefined}));
         setSubmitError(null);
     }
@@ -89,6 +93,12 @@ export default function NfceReviewScreen({route, navigation}) {
         }
         const normalizedLocation = selectedMarket?.cep ?? null;
         setLocationError('');
+        const pendingReviewIndex = items.findIndex((item) => item.selected && item.requiresReview && !item.reviewed);
+        if (pendingReviewIndex !== -1) {
+            setSubmitError(t('nfce.reviewPending'));
+            list.current?.scrollToIndex({index: pendingReviewIndex, animated: true});
+            return;
+        }
         const nextErrors = {};
         items.forEach((item, index) => {
             if (!item.selected) return;
@@ -149,6 +159,8 @@ export default function NfceReviewScreen({route, navigation}) {
         const open = expanded === index;
         const fields = errors[index] ?? {};
         return (<PurchaseProductReviewCard item={item} included={Boolean(item.selected)} expanded={open} busy={saving}
+                                           selectionPending={Boolean(item.selected && item.requiresReview && !item.reviewed)}
+                                           selectionLabel={item.selected && item.requiresReview && !item.reviewed ? t('nfce.reviewPendingItem') : undefined}
                                            editorValues={{
                                                name: item.name,
                                                brand: item.brand,
@@ -171,6 +183,7 @@ export default function NfceReviewScreen({route, navigation}) {
                                                setCategoryOpen(null);
                                            }}
                                            onToggleEdit={() => {
+                                               if (!open && item.requiresReview) update(index, {reviewOpened: true});
                                                setExpanded(open ? null : index);
                                                setCategoryOpen(null);
                                            }}
@@ -178,7 +191,20 @@ export default function NfceReviewScreen({route, navigation}) {
                                                update(index, {selected: !item.selected});
                                                setExpanded(null);
                                                setCategoryOpen(null);
-                                           }}/>);
+                                           }}>
+            {item.selected && item.requiresReview && !item.reviewed ? <Group>
+                <Muted>{t('nfce.reviewNotice')}</Muted>
+                <ButtonClick disabled={saving}
+                             title={item.reviewOpened ? t('shopping.confirmProductToPantry') : t('nfce.openReview')}
+                             onPress={() => {
+                                 if (item.reviewOpened) update(index, {reviewed: true}); else {
+                                     update(index, {reviewOpened: true});
+                                     setExpanded(index);
+                                     setCategoryOpen(null);
+                                 }
+                             }}/>
+            </Group> : null}
+        </PurchaseProductReviewCard>);
     }
 
     return <Screen>

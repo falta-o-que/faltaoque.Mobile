@@ -321,6 +321,8 @@ e compra.
 
 ### B11 — Preço unitário editado na revisão direta de NFC-e é ignorado
 
+**Encerramento:** o usuário confirmou a correção após teste no Android.
+
 **Correção local:** preço unitário e total são recalculados conforme o último campo editado, inclusive ao mudar a
 quantidade; o total fiscal da compra é preservado. Testes automatizados passaram; validação física Android pendente.
 
@@ -336,6 +338,10 @@ unitário volta a R$10.
 **Recomendação:** sincronizar os valores ou bloquear inconsistências com mensagem clara antes de salvar.
 
 ### B12 — Item fiscal ambíguo pode ser salvo sem revisão explícita
+
+**Correção local:** descrições ambíguas exigem confirmação explícita quando incluídas na importação direta ou vinculadas
+à lista. A importação direta também valida essa confirmação no serviço; itens ignorados não exigem revisão. Testes
+automatizados passaram; validação física Android pendente.
 
 **Local:** `src/screens/NfceReviewScreen/index.js:29-36`, `:48-89`, `:118`, `:159`;
 `src/components/PurchaseProductReviewCard/index.js:117-145`.

@@ -61,13 +61,19 @@ async function main() {
     assert.equal(result.purchases[0].total_price, 10);
     assert.equal(result.pantry_products[0].price, 10);
     assert.equal(result.pantry_products[0].quantity, 2);
+    await assert.rejects(service.exports.finalizeGroceryCheckout({
+        ...input, items: [{...product, needsReview: true, requiresReview: true, reviewed: false}]
+    }), /Revise/);
+    await service.exports.finalizeGroceryCheckout({
+        ...input, items: [{...product, needsReview: true, requiresReview: true, reviewed: true}]
+    });
     await service.exports.finalizeGroceryCheckout({
         ...input, mode: 'nfce', purchase: {qrCodeId: '123', purchasedAt: '2020-01-01', totalAmount: 25}
     });
     assert.equal(result.purchases[0].total_price, 25);
     assert.equal(result.purchases[0].qr_code_id, '123');
     assert.equal(result.pantry_products.length, 0);
-    assert.equal(writes, 3);
+    assert.equal(writes, 4);
     console.log('grocery-checkout tests passed');
 }
 

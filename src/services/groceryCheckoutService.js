@@ -44,7 +44,7 @@ function normalizeCheckoutItem(item, listItemsById) {
     })) {
         throw new Error(`O tamanho de ${name} não é compatível com o item vinculado na lista.`);
     }
-    if (item.needsReview && !item.reviewed) throw new Error(`Revise o vínculo de ${name} antes de finalizar.`);
+    if ((item.needsReview || item.requiresReview) && !item.reviewed) throw new Error(`Revise o vínculo de ${name} antes de finalizar.`);
     if (item.categoryConflict && !item.categoryResolved) throw new Error(`Resolva o conflito de categoria de ${name}.`);
     if (item.categoryConflict && ![item.categoryConflict.listCategory, item.categoryConflict.pantryCategory].includes(item.category)) {
         throw new Error(`Escolha a categoria da lista ou da despensa para ${name}.`);
@@ -84,7 +84,7 @@ export async function finalizeGroceryCheckout({
             throw new Error('Cada produto da lista só pode ser relacionado a uma linha da nota.');
         }
     }
-    if (checkoutItems.some((item) => item.needsReview && !item.reviewed)) {
+    if (checkoutItems.some((item) => (item.needsReview || item.requiresReview) && !item.reviewed)) {
         throw new Error('Revise cada item não vinculado e confirme se será incluído ou ignorado.');
     }
     const products = checkoutItems.filter((item) => item.included).map((item) => normalizeCheckoutItem(item, listItemsById));

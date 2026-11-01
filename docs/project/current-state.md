@@ -1,6 +1,13 @@
 # Estado atual
 
+## Revisão de itens fiscais ambíguos — 1º de novembro de 2026
+
+- B12 corrigido nos fluxos de importação direta e por lista: itens ambíguos incluídos exigem confirmação explícita;
+  podem ser ignorados. A validação física no Android permanece pendente.
+
 ## Preços na revisão direta de NFC-e — 1º de novembro de 2026
+
+- O usuário confirmou que o B11 está resolvido após o teste no aparelho.
 
 - B11 corrigido: alterações no preço unitário, total ou quantidade mantêm os preços do item coerentes; o total original
   da nota é preservado. Testes automatizados passaram; falta validação física no Android.
