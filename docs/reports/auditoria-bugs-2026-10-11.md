@@ -42,6 +42,8 @@ Limites: não houve teste em aparelho físico, câmera real, entrega real de not
 
 ### B01 — Uma estrutura incompleta ou futura pode apagar todo o banco local
 
+**Atualização de 01/11/2026:** corrigido no código local: banco atual incompatível, versão futura e versão desconhecida são rejeitados sem sobrescrita. Por decisão do usuário, versões anteriores conhecidas são recriadas vazias no esquema 11, sem migração. A gravação em duas chaves continua tratada separadamente em B02.
+
 **Local:** `src/storage/localDatabase.js:83`, `:87`, `:180`.
 
 `readDatabase()` chama `initializeDatabase()` quando o envelope é considerado legado. A classificação também aceita um banco da versão atual com uma tabela ausente ou uma versão futura com novas tabelas. A inicialização sobrescreve contas, despensas, compras, produtos e listas com um banco vazio.

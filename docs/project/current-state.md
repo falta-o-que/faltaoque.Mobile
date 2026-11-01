@@ -1,5 +1,9 @@
 # Estado atual
 
+## Banco local sem legado — 1º de novembro de 2026
+
+- O usuário autorizou descartar dados de versões anteriores. Bancos locais anteriores à versão 11 são recriados vazios no esquema atual, sem migração; estrutura inválida na versão atual, versão futura e versão desconhecida são rejeitadas sem sobrescrever dados. A confirmação de gravação em duas chaves (B02) continua pendente.
+
 ## Decisão sobre lista sem produtos — 1º de novembro de 2026
 
 - O usuário confirmou que a finalização manual sem produtos selecionados conclui somente a lista, sem criar compra ou estoque. Foi acrescentado aviso de confirmação; a NFC-e continua registrada mesmo sem produtos incluídos. A alteração do aviso ainda requer verificação no aparelho.
@@ -114,8 +118,7 @@ situação vigente, use primeiro o resumo abaixo e depois os registros datados m
   fixture demonstrativa está desligada e não é uma etapa pendente.
 - O fluxo de finalização manual/NFC-e, a revisão de compra e o estoque agregado estão implementados no simulador local e
   foram validados pelo usuário no Android, incluindo leitura de uma NFC-e real. iOS não foi testado fisicamente.
-- O esquema local atual é a versão 11. Migrações posteriores à versão 8 preservam os dados existentes e adicionam os
-  campos e tabelas locais definidos nas decisões de mercado. Isso não confirma migração no banco hospedado.
+- O esquema local atual é a versão 11. Desde 1º de novembro, versões locais anteriores são recriadas sem preservar dados. Isso não confirma migração no banco hospedado.
 - A API hospedada não foi confirmada/recebida. O JSON de 8 de outubro é a fotografia de referência do modelo recebido; a
   entidade `markets` e seus vínculos ainda são responsabilidade da equipe de backend.
 - A identidade configurada do aplicativo é `FaltaOquê?` (`com.faltaoque.app`). O perfil EAS `production` gera APK de

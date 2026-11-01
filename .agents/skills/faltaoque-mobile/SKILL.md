@@ -35,7 +35,7 @@ Later dated decisions override conflicting descriptions of earlier flows. The 20
 - Target React Native with Expo SDK 57 and JavaScript. Before writing Expo-dependent code, consult the exact versioned documentation at `https://docs.expo.dev/versions/v57.0.0/`.
 - Use `styled-components/native` and the shared theme. Keep every `styled.*` declaration in the sibling `styles.js`; keep logic and JSX in `index.js`.
 - Keep screens independent from persistence technology. Route behavior through application services and repository contracts so local adapters can later be replaced by backend adapters.
-- Isolate persisted data by `accountId`, version local schemas, and preserve existing data on errors. Never store passwords in plaintext.
+- Isolate persisted data by `accountId` and version local schemas. The user authorized discarding known older local database versions in favor of the current schema; preserve data on read errors, invalid current schemas, unknown versions, and future versions. Never store passwords in plaintext.
 - Install Expo-compatible native packages with `npx expo install` only when the requested slice needs them.
 - Do not add a global state, form, or database library without a demonstrated need and an explicit architectural decision.
 

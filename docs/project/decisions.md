@@ -1,5 +1,9 @@
 # Decisões do projeto
 
+## 2026-11-01 — Banco local sem compatibilidade com versões antigas
+
+O usuário autorizou descartar dados locais legados: o app usa somente o esquema local atual (versão 11), recriando bancos das versões anteriores sem migrá-los. Bancos da versão atual inválidos, versões futuras ou metadados de versão ausentes/inválidos não são apagados automaticamente. Esta decisão substitui as regras anteriores de migração preservadora e não altera nem confirma o esquema hospedado.
+
 ## 2026-11-01 — Finalização manual sem produtos
 
 Se nenhum produto for selecionado na finalização manual, a lista vai para o histórico sem criar compra ou estoque. Antes de confirmar, o app informa que não haverá registro de compra. No fluxo por NFC-e, a nota continua registrada mesmo sem produtos no estoque, para preservar a compra e o bloqueio de duplicidade.
