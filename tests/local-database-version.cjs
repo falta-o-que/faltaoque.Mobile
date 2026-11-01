@@ -6,9 +6,10 @@ const { transformSync } = require('@babel/core');
 const databaseKey = '@faltaoque/database';
 const versionKey = '@faltaoque/database-schema-version';
 const data = new Map();
+let failWrite = false;
 const storage = {
   getItem: async (key) => data.has(key) ? data.get(key) : null,
-  setItem: async (key, value) => { data.set(key, value); },
+  setItem: async (key, value) => { if (failWrite) throw new Error('write failed'); data.set(key, value); },
   removeItem: async (key) => { data.delete(key); },
 };
 const file = path.resolve(__dirname, '../src/storage/localDatabase.js');
@@ -21,29 +22,39 @@ const { readDatabase } = moduleObject.exports;
 
 async function main() {
   const fresh = await readDatabase();
-  assert.equal(data.get(versionKey), '11');
   assert.deepEqual(fresh.users, []);
   const complete = data.get(databaseKey);
+  assert.equal(JSON.parse(complete).version, 11);
 
   for (const version of [1, 8, 9, 10]) {
     data.set(databaseKey, JSON.stringify({ oldData: ['discarded'] }));
     data.set(versionKey, String(version));
     assert.deepEqual((await readDatabase()).users, []);
-    assert.equal(data.get(versionKey), '11');
+    assert.equal(JSON.parse(data.get(databaseKey)).version, 11);
   }
 
   const incomplete = JSON.parse(complete);
-  delete incomplete.markets;
-  for (const [payload, version] of [[JSON.stringify(incomplete), '11'], [complete, '12'], ['{', '11'], [complete, null]]) {
+  delete incomplete.tables.markets;
+  for (const payload of [JSON.stringify(incomplete), JSON.stringify({ version: 12, tables: {} }), '{', JSON.stringify({ users: [] })]) {
     data.set(databaseKey, payload);
-    if (version === null) data.delete(versionKey); else data.set(versionKey, version);
+    data.delete(versionKey);
     await assert.rejects(readDatabase());
     assert.equal(data.get(databaseKey), payload);
-    assert.equal(data.has(versionKey) ? data.get(versionKey) : null, version);
   }
-  data.set(databaseKey, complete);
+  const oldCurrent = JSON.stringify(fresh);
+  data.set(databaseKey, oldCurrent);
   data.set(versionKey, '11');
   assert.deepEqual(await readDatabase(), fresh);
+  assert.equal(data.get(databaseKey), oldCurrent);
+  failWrite = true;
+  await assert.rejects(moduleObject.exports.updateDatabase((db) => ({ ...db, colors: db.colors.map((row, index) => index === 0 ? { ...row, name: 'Changed' } : row) })), /write failed/);
+  assert.equal(data.get(databaseKey), oldCurrent);
+  failWrite = false;
+  await moduleObject.exports.updateDatabase((db) => ({ ...db, colors: db.colors.map((row, index) => index === 0 ? { ...row, name: 'Changed' } : row) }));
+  assert.equal(JSON.parse(data.get(databaseKey)).version, 11);
+  assert.equal((await readDatabase()).colors[0].name, 'Changed');
+  data.set(versionKey, '12');
+  assert.equal((await readDatabase()).colors[0].name, 'Changed');
   console.log('local-database-version tests passed');
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

@@ -2,7 +2,8 @@
 
 ## Banco local sem legado — 1º de novembro de 2026
 
-- O usuário autorizou descartar dados de versões anteriores. Bancos locais anteriores à versão 11 são recriados vazios no esquema atual, sem migração; estrutura inválida na versão atual, versão futura e versão desconhecida são rejeitadas sem sobrescrever dados. A confirmação de gravação em duas chaves (B02) continua pendente.
+- O usuário autorizou descartar dados de versões anteriores. Bancos locais anteriores à versão 11 são recriados vazios no esquema atual, sem migração; estrutura inválida na versão atual, versão futura e versão desconhecida são rejeitadas sem sobrescrever dados. Versão e tabelas são gravadas juntas em uma única chave, corrigindo a falha de segunda gravação do B02. O formato anterior da própria versão 11 é lido e convertido na próxima escrita para preservar a instalação atual; versões de dados anteriores não são migradas.
+- Revisão localizada removeu o adaptador de checkout antigo sem uso e a limpeza de fixtures antigas. Os testes de listas, produtos e checkout foram atualizados para o modelo atual; testes de versão verificam falha de gravação e o formato anterior da própria versão 11. Bundle Android gerado; validação física não realizada. Os novos testes não preservam toda a cobertura pretendida pelos antigos scripts desatualizados.
 
 ## Decisão sobre lista sem produtos — 1º de novembro de 2026
 

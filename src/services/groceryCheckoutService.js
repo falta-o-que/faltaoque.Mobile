@@ -148,31 +148,3 @@ export async function finalizeGroceryCheckout({
         };
     });
 }
-
-// Compatibility with the prior price-only checkout contract.
-export async function finishListAndStock({accountId, pantryId, listId, pricesByItemId}) {
-    const lists = await listGroceryLists(accountId, pantryId);
-    const list = lists.find((entry) => entry.id === listId);
-    if (!list) throw new Error('Lista não encontrada.');
-    return finalizeGroceryCheckout({
-        accountId,
-        pantryId,
-        listId,
-        mode: 'manual',
-        dateValue: localToday(),
-        market: list.market,
-        marketQuery: '',
-        items: list.items.filter((item) => item.checked).map((item) => ({
-            included: true,
-            name: item.name,
-            brand: '',
-            quantity: item.quantity,
-            contentValue: item.weight,
-            unit: item.unit,
-            category: item.category,
-            priceInput: pricesByItemId?.[item.id],
-            priceMode: 'unit',
-            listItemId: item.id,
-        }))
-    });
-}

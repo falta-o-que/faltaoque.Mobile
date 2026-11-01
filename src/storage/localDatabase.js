@@ -2,7 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DATABASE_KEY = '@faltaoque/database';
 const VERSION_KEY = '@faltaoque/database-schema-version';
-const LEGACY_METADATA_KEY = '@faltaoque/database-ui-metadata';
 const CURRENT_SCHEMA_VERSION = 11;
 
 export const CATEGORY_NAMES = ['bebidas', 'organicos', 'limpezaHigiene', 'integraisCereais', 'frescos', 'carnes', 'outros'];
@@ -81,40 +80,47 @@ function normalizeDatabase(value) {
     return value;
 }
 
+async function persistDatabase(database) {
+    const normalized = normalizeDatabase(database);
+    await AsyncStorage.setItem(DATABASE_KEY, JSON.stringify({version: CURRENT_SCHEMA_VERSION, tables: normalized}));
+    return normalized;
+}
+
 async function initializeDatabase() {
-    const database = emptyTables();
-    await AsyncStorage.setItem(DATABASE_KEY, JSON.stringify(database));
-    await AsyncStorage.setItem(VERSION_KEY, String(CURRENT_SCHEMA_VERSION));
-    await AsyncStorage.removeItem(LEGACY_METADATA_KEY);
-    return database;
+    return persistDatabase(emptyTables());
 }
 
 export async function readDatabase() {
     const serializedDatabase = await AsyncStorage.getItem(DATABASE_KEY);
-    const serializedVersion = await AsyncStorage.getItem(VERSION_KEY);
     if (serializedDatabase === null) return initializeDatabase();
 
+    let parsed;
+    try {
+        parsed = JSON.parse(serializedDatabase);
+    } catch (error) {
+        if (error instanceof SyntaxError) throw new Error('Não foi possível ler os dados locais. Os dados foram preservados.');
+        throw error;
+    }
+    const hasEnvelope = parsed && typeof parsed === 'object' && (Object.hasOwn(parsed, 'version') || Object.hasOwn(parsed, 'tables'));
+    // Existing version 11 installations stored the version in a separate key.
+    const serializedVersion = hasEnvelope ? parsed.version : await AsyncStorage.getItem(VERSION_KEY);
     const storedVersion = Number(serializedVersion);
-    if (serializedVersion === null || !Number.isInteger(storedVersion) || storedVersion < 1) {
+    if (serializedVersion === null || serializedVersion === '' || !Number.isInteger(storedVersion) || storedVersion < 1) {
         throw new Error('Não foi possível identificar a versão do banco local. Os dados foram preservados.');
     }
     if (storedVersion > CURRENT_SCHEMA_VERSION) {
         throw new Error('O banco local foi criado por uma versão mais recente do aplicativo. Os dados foram preservados.');
     }
     if (storedVersion < CURRENT_SCHEMA_VERSION) return initializeDatabase();
-
-    try {
-        return normalizeDatabase(JSON.parse(serializedDatabase));
-    } catch (error) {
-        if (error instanceof SyntaxError) throw new Error('Não foi possível ler os dados locais. Os dados foram preservados.');
-        throw error;
+    if (hasEnvelope && (Object.keys(parsed).sort().join('|') !== 'tables|version' || typeof parsed.version !== 'number')) {
+        throw new Error('O banco local não corresponde ao formato esperado. Os dados foram preservados.');
     }
+    const database = normalizeDatabase(hasEnvelope ? parsed.tables : parsed);
+    return database;
 }
 
 export async function writeDatabase(database) {
-    const normalized = normalizeDatabase(database);
-    await AsyncStorage.setItem(DATABASE_KEY, JSON.stringify(normalized));
-    await AsyncStorage.setItem(VERSION_KEY, String(CURRENT_SCHEMA_VERSION));
+    await persistDatabase(database);
 }
 
 let pendingUpdate = Promise.resolve();
