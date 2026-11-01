@@ -301,6 +301,8 @@ distintas.
 
 ### B10 — Conclusão da lista destrói a estimativa final
 
+**Encerramento:** o usuário confirmou que considera o B10 resolvido após o teste.
+
 **Atualização de 01/11/2026:** a estimativa é preservada na lista; o total efetivo permanece na compra. Para manter os
 campos atuais do histórico, novas finalizações registram um vínculo auxiliar local atomicamente com a compra e a lista.
 Não há novo detalhamento do histórico nem alteração no modelo hospedado. A associação de listas antigas segue sujeita ao
@@ -318,6 +320,9 @@ perde.
 e compra.
 
 ### B11 — Preço unitário editado na revisão direta de NFC-e é ignorado
+
+**Correção local:** preço unitário e total são recalculados conforme o último campo editado, inclusive ao mudar a
+quantidade; o total fiscal da compra é preservado. Testes automatizados passaram; validação física Android pendente.
 
 **Local:** `src/components/PurchaseProductReviewCard/index.js:122-125`; `src/screens/NfceReviewScreen/index.js:68-96`;
 `src/services/nfceImportService.js:76-82`.

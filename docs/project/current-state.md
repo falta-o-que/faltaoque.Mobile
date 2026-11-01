@@ -1,6 +1,13 @@
 # Estado atual
 
+## Preços na revisão direta de NFC-e — 1º de novembro de 2026
+
+- B11 corrigido: alterações no preço unitário, total ou quantidade mantêm os preços do item coerentes; o total original
+  da nota é preservado. Testes automatizados passaram; falta validação física no Android.
+
 ## Estimativa ao concluir lista — 1º de novembro de 2026
+
+- O usuário confirmou no Android que considera o B10 resolvido.
 
 - B10 corrigido no simulador local: a finalização preserva a estimativa e salva o valor pago na compra. Um vínculo
   auxiliar local, gravado na mesma operação da finalização, mantém data e total no histórico existente sem alterar o
