@@ -1,5 +1,6 @@
 export default {
     'pt-BR': {
+        'product.info.validationQuantityNonnegative': 'Informe uma quantidade inteira igual ou maior que zero.',
         'common.save': 'Salvar',
         'common.cancel': 'Cancelar',
         'common.close': 'Fechar',
@@ -241,6 +242,7 @@ export default {
         'product.filter.priceDesc': 'Maior preço',
         'product.filter.quantityDesc': 'Maior quantidade',
     }, en: {
+        'product.info.validationQuantityNonnegative': 'Enter a whole quantity of zero or more.',
         'common.save': 'Save',
         'common.cancel': 'Cancel',
         'common.close': 'Close',
@@ -482,6 +484,7 @@ export default {
         'product.filter.priceDesc': 'Highest price',
         'product.filter.quantityDesc': 'Highest quantity',
     }, es: {
+        'product.info.validationQuantityNonnegative': 'Introduce una cantidad entera igual o mayor que cero.',
         'common.save': 'Guardar',
         'common.cancel': 'Cancelar',
         'common.close': 'Cerrar',

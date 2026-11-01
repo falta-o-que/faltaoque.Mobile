@@ -1,5 +1,24 @@
 # Estado atual
 
+## Conversão de unidades na estimativa — 1º de novembro de 2026
+
+- O usuário confirmou no Android a estimativa com o histórico e a lista vinculados ao mesmo mercado e considera o B07
+  resolvido.
+
+- B07 corrigido: a estimativa compara e converte g/kg e ml/L por dimensão, reconhece apresentações equivalentes e não
+  usa massa para estimar volume ou vice-versa. Testes automatizados cobrem conversões, prioridade da apresentação
+  equivalente, quantidade e histórico incompatível; bundle Android gerado. Validação física pendente.
+
+## Edição de produto zerado ou vencido — 1º de novembro de 2026
+
+- Teste Android via ADB: produto de teste zerado teve nome editado e salvo; depois, uma validade passada foi preparada
+  somente nesse produto com instrumento temporário removido antes do teste, e a edição da marca salvou mantendo saldo
+  zero e validade 01/01/2020. O produto fictício `TesteB06Vencido` permanece na despensa `Teste`.
+
+- B06 corrigido no fluxo local: editar aceita saldo zero e preserva a validade vencida já registrada; uma nova validade
+  passada continua inválida. O cadastro continua exigindo quantidade positiva e validade atual ou futura. Testes
+  simulados cobrem edição, preservação de preço histórico e validações de criação; validação física pendente.
+
 ## Cadastro e sessão — 1º de novembro de 2026
 
 - Teste físico Android via ADB: com falha temporária simulada na gravação da sessão após criar uma conta fictícia, o app

@@ -264,6 +264,12 @@ rejeita, conta existe, repetição acusa `EMAIL_ALREADY_EXISTS`.
 
 ### B06 — Produtos zerados ou vencidos não permitem editar campos independentes
 
+**Teste Android:** um produto fictício zerado teve nome editado; após preparar uma validade vencida exclusivamente para
+teste e remover o instrumento temporário, a marca foi editada mantendo saldo zero e a validade anterior.
+
+**Atualização de 01/11/2026:** edição aceita saldo zero e validade vencida já existente, sem aceitar uma nova data
+passada; cadastro mantém as regras originais. Testes automatizados passaram; validação no aparelho pendente.
+
 **Local:** `src/domain/productValidation.js:44`, `:49-51`; `src/components/ProductInfoModal/index.js:37-52`, `:96-103`.
 
 A edição reutiliza validação de criação: quantidade precisa ser positiva e validade precisa ser hoje/futura. Saldo zero
@@ -275,6 +281,12 @@ campo. Salvar exige inventar saldo ou remover/alterar a validade real.
 **Recomendação:** distinguir validação de criação e edição, preservando estados existentes válidos.
 
 ### B07 — Estimativa não converte unidades equivalentes
+
+**Encerramento:** o usuário confirmou no Android a estimativa com compra e lista no mesmo mercado e considera o B07
+resolvido.
+
+**Atualização de 01/11/2026:** corrigida a comparação e conversão de g/kg e ml/L, preservando dimensões distintas e
+priorizando apresentação equivalente. Testes automatizados passaram; validação no aparelho pendente.
 
 **Local:** `src/services/groceryPriceEstimateService.js:68-71`, `:128-139`.
 
