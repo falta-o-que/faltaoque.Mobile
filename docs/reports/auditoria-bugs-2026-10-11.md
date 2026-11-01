@@ -362,6 +362,8 @@ Etapas de vínculos automáticos/manuais permanecem enquanto há vínculos, incl
 
 ### A01 — Checkout manual sem itens fecha lista sem criar compra
 
+**Decisão de 01/11/2026:** comportamento confirmado pelo usuário: concluir somente a lista, sem criar compra ou estoque, com aviso antes da confirmação. A NFC-e permanece registrada mesmo sem produtos selecionados.
+
 **Local:** `src/services/groceryCheckoutService.js:94-99`.
 
 **Reprodução isolada:** desmarcar todos os itens no modo manual e concluir. A lista fica finalizada, mas o número de compras não aumenta. Data/mercado desse checkout não ficam em uma nova compra.

@@ -289,6 +289,11 @@ export default function GroceryListScreen({ navigation, route }) {
   };
 
   const handleStartCheckout = () => {
+    if (!activeList) return;
+    if (!activeList.items.length) {
+      Alert.alert(t('shopping.emptyListTitle'), t('shopping.emptyListMessage'), [{ text: t('common.ok') }]);
+      return;
+    }
     setCheckoutError('');
     setActiveModal('checkout-choice');
   };
@@ -441,10 +446,22 @@ export default function GroceryListScreen({ navigation, route }) {
       setCheckoutItems([]);
     } catch (cause) {
       setCheckoutError(cause.message === 'DUPLICATE_FISCAL_NOTE'
-        ? t('shopping.receiptAlreadyAdded') : cause.message);
+        ? t('shopping.receiptAlreadyAdded') : cause.message === 'EMPTY_GROCERY_LIST'
+          ? t('shopping.emptyListMessage') : cause.message);
     } finally {
       setBusy(false);
     }
+  };
+
+  const requestCheckoutConfirmation = () => {
+    if (checkoutMode !== 'manual' || checkoutItems.some((item) => item.included)) {
+      confirmCheckout();
+      return;
+    }
+    Alert.alert(t('shopping.emptyManualTitle'), t('shopping.emptyManualMessage'), [
+      { text: t('shopping.cancel'), style: 'cancel' },
+      { text: t('common.confirm'), onPress: confirmCheckout },
+    ]);
   };
 
   const handleNavbar = (key, item) => {
@@ -717,7 +734,7 @@ export default function GroceryListScreen({ navigation, route }) {
         onChangeDate={(value) => { setCheckoutDate(value); setCheckoutError(''); }}
         onChangeMarketQuery={(value) => { setCheckoutMarketQuery(value); setCheckoutMarket(null); setCheckoutError(''); }}
         onSelectMarket={(value) => { setCheckoutMarket(value); setCheckoutMarketQuery(value.displayName ?? value.localName ?? ''); setCheckoutError(''); }}
-        onChangeItem={changeCheckoutItem} onResetItems={setCheckoutItems} onConfirm={confirmCheckout}
+        onChangeItem={changeCheckoutItem} onResetItems={setCheckoutItems} onConfirm={requestCheckoutConfirmation}
         onClose={() => setActiveModal('settings')} />
       <GroceryListHistoryModal
         visible={historyOpen}

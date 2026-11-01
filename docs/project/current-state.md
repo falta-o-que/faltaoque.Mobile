@@ -1,5 +1,10 @@
 # Estado atual
 
+## Decisão sobre lista sem produtos — 1º de novembro de 2026
+
+- O usuário confirmou que a finalização manual sem produtos selecionados conclui somente a lista, sem criar compra ou estoque. Foi acrescentado aviso de confirmação; a NFC-e continua registrada mesmo sem produtos incluídos. A alteração do aviso ainda requer verificação no aparelho.
+- Listas sem itens cadastrados não podem ser finalizadas; o app orienta a adicionar um produto ou excluir a lista. A regra é verificada também no serviço e na gravação local. Validação em aparelho pendente.
+
 ## Calendário nos campos de data — 1º de novembro de 2026
 
 - Campos editáveis de validade, data planejada da lista e data da compra manual oferecem calendário nativo pelo ícone. Validade e data planejada limitam a escolha a hoje ou depois; compra manual, a hoje ou antes. A data da NFC-e continua somente para leitura. O preenchimento digitado e as validações existentes permanecem. A biblioteca nativa exige nova development build; validação física Android e iOS ainda pendente.

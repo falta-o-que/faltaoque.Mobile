@@ -29,6 +29,8 @@ Status: especificação funcional atualizada até 10 de outubro de 2026. Não co
 
 ## Listas de compras hospedadas
 
+- Decisão de 1º de novembro: uma lista sem itens cadastrados não pode ser finalizada; orientar a adicionar um produto ou excluir a lista. Para lista com itens, na finalização manual sem produtos selecionados, confirmar com aviso e concluir apenas a lista, sem criar compra nem estoque. Na NFC-e, registrar a compra mesmo sem produtos selecionados, preservando a proteção contra importação duplicada. O contrato hospedado permanece a confirmar.
+
 - As listas deste fluxo serão persistidas no banco hospedado em `grocery_lists` e `grocery_list_products`; itens planejados não são `pantry_products` e não usam `grocery_lists_pantry_products`. Compras realizadas por NFC-e ou adição manual também serão enviadas ao banco hospedado. A API e o esquema implantado ainda precisam ser confirmados.
 - Quando um produto chegar a zero, o app pergunta se o usuário quer incluí-lo numa lista. Se não houver lista, sugere criar uma com nome; a data planejada da compra é opcional. A inclusão depende de escolha explícita do usuário.
 - Uma despensa pode ter várias listas, para compras previstas em locais ou períodos diferentes. O usuário escolhe a lista de destino. Cada item ainda planejado fica em `grocery_list_products` com seu próprio ID e `grocery_list_id`; nomes repetidos em listas diferentes não implicam entidade compartilhada nem fusão automática. Após a compra, os produtos de estoque são registrados em `pantry_products` e ligados à compra.

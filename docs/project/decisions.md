@@ -1,5 +1,11 @@
 # Decisões do projeto
 
+## 2026-11-01 — Finalização manual sem produtos
+
+Se nenhum produto for selecionado na finalização manual, a lista vai para o histórico sem criar compra ou estoque. Antes de confirmar, o app informa que não haverá registro de compra. No fluxo por NFC-e, a nota continua registrada mesmo sem produtos no estoque, para preservar a compra e o bloqueio de duplicidade.
+
+Uma lista sem nenhum item cadastrado não pode ser finalizada, seja manualmente ou por NFC-e. O app orienta a adicionar um produto ou excluir a lista. A regra anterior de concluir sem compra aplica-se apenas a listas com itens, quando nenhum deles foi selecionado.
+
 ## 2026-11-01 — Cache local de NFC-e por conta
 
 Uma NFC-e extraída com sucesso pode ser reutilizada sem nova consulta em outras despensas da mesma conta, usando cache local versionado por conta e código da nota. O cache não altera o bloqueio de duplicidade por despensa nem armazena a URL completa ou o HTML. A leitura de outra conta não acessa esse cache; erros de cache não impedem a consulta normal.
