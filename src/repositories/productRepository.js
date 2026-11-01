@@ -234,6 +234,7 @@ export async function updateProduct({accountId, pantryId, productId, values}) {
         const pantry_products = database.pantry_products.map((row) => {
             const purchase = database.purchases.find((entry) => entry.id === row.purchase_id);
             if (row.id !== productId || row.is_deleted || purchase?.pantry_id !== pantryId) return row;
+            if (row.expiration_date !== values.expectedExpirationDate) throw new Error('INVALID_PRODUCT');
             found = true;
             const totalCents = values.priceType === 'unit' ? Math.round(values.unitPrice * 100) * Number(row.quantity) : Math.round(values.totalPrice * 100);
             if (!Number.isSafeInteger(totalCents) || totalCents <= 0) {
