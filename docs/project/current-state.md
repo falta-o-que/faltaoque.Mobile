@@ -1,6 +1,20 @@
 # Estado atual
 
+## Validação de formulário da lista — 1º de novembro de 2026
+
+- B16 corrigido no formulário de criação, edição e repetição: erros de nome, data e mercado são associados ao campo por
+  identificador e traduzidos na apresentação. Testes automatizados e bundle Android passaram; validação física pendente.
+
+## Cancelamento do scanner NFC-e — 1º de novembro de 2026
+
+- O usuário testou e considera o B14 resolvido.
+
+- B14 corrigido: fechar o scanner invalida a consulta e a preparação da revisão em ambos os fluxos; resultado e erro
+  atrasados não reabrem a tela nem interferem em nova leitura. Testes simulam concorrência; validação física pendente.
+
 ## Associação no histórico de listas — 1º de novembro de 2026
+
+- O usuário não observou problemas no teste e considera o B13 resolvido no fluxo local.
 
 - B13 corrigido localmente: listas concluídas usam somente o vínculo exato gravado com a compra. Para registros sem
   vínculo confiável, o histórico informa data desconhecida e valor não registrado; não tenta adivinhar. Testes cobrem

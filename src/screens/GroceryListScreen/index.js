@@ -380,11 +380,13 @@ export default function GroceryListScreen({navigation, route}) {
         }
     };
 
-    const startFiscalCheckout = async (purchase) => {
+    const startFiscalCheckout = async (purchase, isCurrent) => {
         if (!activeList) return;
         try {
             await assertFiscalNoteUnused({accountId: account?.id, pantryId, qrCodeId: purchase.qrCodeId});
+            if (!isCurrent()) return;
             const existing = await listProductOccurrences(account?.id, pantryId);
+            if (!isCurrent()) return;
             setPantryOccurrences(existing);
             const reconciliation = reconcileGroceryCheckout({
                 plannedItems: activeList.items,
@@ -446,6 +448,7 @@ export default function GroceryListScreen({navigation, route}) {
             setCheckoutError('');
             setActiveModal('checkout-review');
         } catch (cause) {
+            if (!isCurrent()) return;
             if (cause?.message === 'DUPLICATE_FISCAL_NOTE') throw cause;
             showUserErrorAlert(cause, {
                 title: t('shopping.prepareReceiptError'),

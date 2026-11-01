@@ -357,6 +357,8 @@ abrir/corrigir o card.
 
 ### B13 — Histórico associa lista à compra errada
 
+**Encerramento:** o usuário informou que não observou problemas no teste do fluxo local.
+
 **Correção local:** o histórico usa exclusivamente o vínculo persistido pelo checkout, verificando a despensa e
 rejeitando referências duplicadas. Sem vínculo, exibe data desconhecida e valor não registrado. Testes automatizados
 passaram; validação física Android pendente. O contrato hospedado continua a confirmar.
@@ -373,6 +375,12 @@ A e 10/10 a B. Outra compra com mesma assinatura também pode ser escolhida.
 
 ### B14 — Fechar scanner não cancela o resultado pendente
 
+**Encerramento:** o usuário testou e considera o B14 resolvido.
+
+**Correção local:** fechar o scanner invalida a leitura e a preparação assíncrona da revisão, inclusive ao reabrir;
+respostas ou erros antigos são ignorados. Testes simulam as corridas; validação física no Android pendente. A consulta
+HTTP já iniciada pode terminar em segundo plano, sem abrir a revisão.
+
 **Local:** `src/components/NfceScannerModal/index.js:17-26`.
 
 Depois da leitura, a consulta aguarda e chama `onPurchaseLoaded` incondicionalmente. Fechar o modal não invalida a
@@ -384,6 +392,9 @@ pode permitir que o resultado antigo substitua o novo.
 **Recomendação:** invalidar a leitura ao fechar/desmontar e aceitar somente a sessão atual do scanner.
 
 ### B16 — Validações da lista desaparecem em inglês/espanhol
+
+**Correção local:** o formulário usa identificadores para associar as validações aos campos e traduz as mensagens na
+apresentação, sem depender de palavras em português. Validação física Android pendente.
 
 **Local:** `src/components/GroceryListModal/index.js:136-140`, `:204`, `:214`, `:228`, `:333`.
 
