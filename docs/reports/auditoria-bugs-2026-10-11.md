@@ -393,6 +393,8 @@ pode permitir que o resultado antigo substitua o novo.
 
 ### B16 — Validações da lista desaparecem em inglês/espanhol
 
+**Encerramento:** o usuário testou e considera o B16 resolvido.
+
 **Correção local:** o formulário usa identificadores para associar as validações aos campos e traduz as mensagens na
 apresentação, sem depender de palavras em português. Validação física Android pendente.
 
@@ -407,6 +409,9 @@ envio é impedido sem a explicação correspondente.
 **Recomendação:** armazenar códigos/erros por campo; texto traduzido não deve controlar lógica de validação.
 
 ### B18 — Falha de fontes deixa o aplicativo em carregamento infinito
+
+**Correção local:** erro no carregamento permite iniciar o aplicativo com as fontes do sistema. A preferência de tamanho
+continua aplicada; a aparência tipográfica pode mudar nesse estado. Falha física no Android ainda não simulada.
 
 **Local:** `src/App.js:51`, `:60`.
 

@@ -1,6 +1,13 @@
 # Estado atual
 
+## Carregamento de fontes — 1º de novembro de 2026
+
+- B18 corrigido: se o carregamento das fontes falhar, o app continua com fontes do sistema, sem bloquear a sessão.
+  Testes de inicialização e compilação Android passaram; falha física no aparelho ainda não simulada.
+
 ## Validação de formulário da lista — 1º de novembro de 2026
+
+- O usuário testou e considera o B16 resolvido.
 
 - B16 corrigido no formulário de criação, edição e repetição: erros de nome, data e mercado são associados ao campo por
   identificador e traduzidos na apresentação. Testes automatizados e bundle Android passaram; validação física pendente.
