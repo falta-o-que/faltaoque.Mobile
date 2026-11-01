@@ -89,7 +89,7 @@ export async function finalizeGroceryCheckout({
     }
     const products = checkoutItems.filter((item) => item.included).map((item) => normalizeCheckoutItem(item, listItemsById));
     const purchaseId = Crypto.randomUUID();
-    await updateDatabase((database) => {
+    await updateDatabase((database, localMetadata) => {
         if (!database.users_pantries.some((row) => row.user_id === accountId && row.pantry_id === pantryId)) {
             throw new Error('Esta despensa não está disponível para sua conta.');
         }
@@ -117,6 +117,7 @@ export async function finalizeGroceryCheckout({
             qr_code_id: mode === 'nfce' ? purchase.qrCodeId : null,
             pantry_id: pantryId,
         } : null;
+        localMetadata.listCheckout[listId] = {purchaseId: purchaseRow?.id ?? null, finishedAt: date};
         const rows = products.map((product) => ({
             id: Crypto.randomUUID(),
             name: product.name,
@@ -139,11 +140,7 @@ export async function finalizeGroceryCheckout({
             purchases: purchaseRow ? [...database.purchases, purchaseRow] : database.purchases,
             pantry_products: [...database.pantry_products, ...rows],
             grocery_lists: database.grocery_lists.map((row) => row.id === listId ? {
-                ...row,
-                market_id: resolved.marketId,
-                location: market?.cep ?? null,
-                estimated_price: actualTotalPrice,
-                is_active: false,
+                ...row, market_id: resolved.marketId, location: market?.cep ?? null, is_active: false,
             } : row),
         };
     });

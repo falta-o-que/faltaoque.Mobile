@@ -83,8 +83,24 @@ function normalizeDatabase(value) {
 }
 
 let uncertainWrite = null;
+const localMetadataByDatabase = new WeakMap();
 
-async function persistDatabase(database) {
+function normalizeLocalMetadata(value) {
+    if (value == null) return {listCheckout: {}};
+    if (typeof value !== 'object' || Array.isArray(value) || Object.keys(value).join('|') !== 'listCheckout' || !value.listCheckout || typeof value.listCheckout !== 'object' || Array.isArray(value.listCheckout)) {
+        throw new Error('Os metadados locais são inválidos. Os dados foram preservados.');
+    }
+    for (const entry of Object.values(value.listCheckout)) {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry) || Object.keys(entry).sort().join('|') !== 'finishedAt|purchaseId' || !(entry.purchaseId === null || typeof entry.purchaseId === 'string') || typeof entry.finishedAt !== 'string') throw new Error('Os metadados locais são inválidos. Os dados foram preservados.');
+    }
+    return value;
+}
+
+export function getDatabaseLocalMetadata(database) {
+    return localMetadataByDatabase.get(database) ?? {listCheckout: {}};
+}
+
+async function persistDatabase(database, localMetadata = getDatabaseLocalMetadata(database)) {
     if (uncertainWrite) throw new Error('DATABASE_WRITE_UNCERTAIN');
     try {
         if (await AsyncStorage.getItem(PENDING_WRITE_KEY)) throw new Error('DATABASE_WRITE_UNCERTAIN');
@@ -93,7 +109,10 @@ async function persistDatabase(database) {
     }
     const normalized = normalizeDatabase(database);
     const operationId = Crypto.randomUUID();
-    const payload = JSON.stringify({version: CURRENT_SCHEMA_VERSION, operationId, tables: normalized});
+    const metadata = normalizeLocalMetadata(localMetadata);
+    const payload = JSON.stringify({
+        version: CURRENT_SCHEMA_VERSION, operationId, tables: normalized, localMetadata: metadata
+    });
     await AsyncStorage.setItem(PENDING_WRITE_KEY, operationId);
     try {
         await AsyncStorage.setItem(DATABASE_KEY, payload);
@@ -102,17 +121,20 @@ async function persistDatabase(database) {
         try {
             stored = await AsyncStorage.getItem(DATABASE_KEY);
         } catch {
-            uncertainWrite = { operationId };
+            uncertainWrite = {operationId};
             throw new Error('DATABASE_WRITE_UNCERTAIN');
         }
         if (stored === payload) {
-            await AsyncStorage.removeItem(PENDING_WRITE_KEY).catch(() => {});
+            await AsyncStorage.removeItem(PENDING_WRITE_KEY).catch(() => {
+            });
             return normalized;
         }
-        await AsyncStorage.removeItem(PENDING_WRITE_KEY).catch(() => {});
+        await AsyncStorage.removeItem(PENDING_WRITE_KEY).catch(() => {
+        });
         throw error;
     }
-    await AsyncStorage.removeItem(PENDING_WRITE_KEY).catch(() => {});
+    await AsyncStorage.removeItem(PENDING_WRITE_KEY).catch(() => {
+    });
     return normalized;
 }
 
@@ -144,12 +166,11 @@ export async function readDatabase() {
     }
     if (storedVersion < CURRENT_SCHEMA_VERSION) return initializeDatabase();
     const envelopeKeys = hasEnvelope ? Object.keys(parsed).sort().join('|') : '';
-    if (hasEnvelope && ((!['tables|version', 'operationId|tables|version'].includes(envelopeKeys)) ||
-        typeof parsed.version !== 'number' || (Object.hasOwn(parsed, 'operationId') &&
-        (typeof parsed.operationId !== 'string' || !parsed.operationId)))) {
+    if (hasEnvelope && ((!['tables|version', 'operationId|tables|version', 'localMetadata|operationId|tables|version'].includes(envelopeKeys)) || typeof parsed.version !== 'number' || (Object.hasOwn(parsed, 'operationId') && (typeof parsed.operationId !== 'string' || !parsed.operationId)))) {
         throw new Error('O banco local não corresponde ao formato esperado. Os dados foram preservados.');
     }
     const database = normalizeDatabase(hasEnvelope ? parsed.tables : parsed);
+    localMetadataByDatabase.set(database, normalizeLocalMetadata(hasEnvelope ? parsed.localMetadata : null));
     return database;
 }
 
@@ -207,8 +228,13 @@ export function updateDatabase(update) {
             throw new Error(committed ? 'DATABASE_PREVIOUS_WRITE_COMMITTED' : 'DATABASE_PREVIOUS_WRITE_NOT_COMMITTED');
         }
         const database = await readDatabase();
-        const nextDatabase = await update(database);
-        await writeDatabase(nextDatabase);
+        const localMetadata = JSON.parse(JSON.stringify(getDatabaseLocalMetadata(database)));
+        const nextDatabase = await update(database, localMetadata);
+        const listIds = new Set(nextDatabase.grocery_lists.map((list) => list.id));
+        for (const listId of Object.keys(localMetadata.listCheckout)) {
+            if (!listIds.has(listId)) delete localMetadata.listCheckout[listId];
+        }
+        await persistDatabase(nextDatabase, localMetadata);
     });
 }
 

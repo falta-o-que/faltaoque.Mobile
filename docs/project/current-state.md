@@ -1,5 +1,12 @@
 # Estado atual
 
+## Estimativa ao concluir lista — 1º de novembro de 2026
+
+- B10 corrigido no simulador local: a finalização preserva a estimativa e salva o valor pago na compra. Um vínculo
+  auxiliar local, gravado na mesma operação da finalização, mantém data e total no histórico existente sem alterar o
+  esquema hospedado ou adicionar detalhamento. Listas antigas continuam com o comportamento anterior de associação, cujo
+  B13 permanece pendente. Testes automatizados passaram e bundle Android foi gerado; validação física pendente.
+
 ## Conversão de unidades na estimativa — 1º de novembro de 2026
 
 - O usuário confirmou no Android a estimativa com o histórico e a lista vinculados ao mesmo mercado e considera o B07

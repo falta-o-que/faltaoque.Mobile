@@ -301,6 +301,11 @@ distintas.
 
 ### B10 — Conclusão da lista destrói a estimativa final
 
+**Atualização de 01/11/2026:** a estimativa é preservada na lista; o total efetivo permanece na compra. Para manter os
+campos atuais do histórico, novas finalizações registram um vínculo auxiliar local atomicamente com a compra e a lista.
+Não há novo detalhamento do histórico nem alteração no modelo hospedado. A associação de listas antigas segue sujeita ao
+B13.
+
 **Local:** `src/services/groceryCheckoutService.js:110-116`; `src/services/groceryListService.js:62-65`, `:84-91`.
 
 O checkout substitui `grocery_lists.estimated_price` pelo valor efetivamente pago. SDD de integração, linha 36, e
