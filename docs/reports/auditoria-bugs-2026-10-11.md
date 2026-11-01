@@ -305,8 +305,8 @@ distintas.
 
 **Atualização de 01/11/2026:** a estimativa é preservada na lista; o total efetivo permanece na compra. Para manter os
 campos atuais do histórico, novas finalizações registram um vínculo auxiliar local atomicamente com a compra e a lista.
-Não há novo detalhamento do histórico nem alteração no modelo hospedado. A associação de listas antigas segue sujeita ao
-B13.
+Não há novo detalhamento do histórico nem alteração no modelo hospedado. A correção posterior do B13 elimina a
+associação por suposição para listas sem vínculo.
 
 **Local:** `src/services/groceryCheckoutService.js:110-116`; `src/services/groceryListService.js:62-65`, `:84-91`.
 
@@ -339,6 +339,8 @@ unitário volta a R$10.
 
 ### B12 — Item fiscal ambíguo pode ser salvo sem revisão explícita
 
+**Encerramento:** o usuário considera o B12 resolvido após os testes automatizados.
+
 **Correção local:** descrições ambíguas exigem confirmação explícita quando incluídas na importação direta ou vinculadas
 à lista. A importação direta também valida essa confirmação no serviço; itens ignorados não exigem revisão. Testes
 automatizados passaram; validação física Android pendente.
@@ -354,6 +356,10 @@ abrir/corrigir o card.
 **Recomendação:** exigir resolução das ambiguidades antes da confirmação, conforme o contrato fiscal.
 
 ### B13 — Histórico associa lista à compra errada
+
+**Correção local:** o histórico usa exclusivamente o vínculo persistido pelo checkout, verificando a despensa e
+rejeitando referências duplicadas. Sem vínculo, exibe data desconhecida e valor não registrado. Testes automatizados
+passaram; validação física Android pendente. O contrato hospedado continua a confirmar.
 
 **Local:** `src/services/groceryListService.js:40-49`.
 

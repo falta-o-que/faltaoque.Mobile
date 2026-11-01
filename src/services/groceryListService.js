@@ -37,19 +37,15 @@ function readScope(database, accountId, pantryId) {
     const member = database.users_pantries.some((row) => row.user_id === accountId && row.pantry_id === pantryId);
     if (!member) return [];
     const lists = database.grocery_lists.filter((list) => list.pantry_id === pantryId);
-    const matchedPurchaseIds = new Set();
     const checkoutMetadata = getDatabaseLocalMetadata(database).listCheckout;
-    const reservedPurchaseIds = new Set(Object.values(checkoutMetadata).map((entry) => entry.purchaseId).filter(Boolean));
+    const purchaseReferences = new Map();
+    Object.values(checkoutMetadata).forEach(({purchaseId}) => {
+        if (purchaseId) purchaseReferences.set(purchaseId, (purchaseReferences.get(purchaseId) ?? 0) + 1);
+    });
     return lists.map((list) => {
         const market = database.markets.find((entry) => entry.id === list.market_id) ?? null;
         const checkout = checkoutMetadata[list.id];
-        const matchedPurchase = list.is_active ? null : checkout ? database.purchases.find((purchase) => purchase.id === checkout.purchaseId && purchase.pantry_id === pantryId) ?? null : database.purchases.find((purchase) => {
-            const sameTotal = Math.round(Number(purchase.total_price) * 100) === Math.round(Number(list.estimated_price) * 100);
-            const matches = purchase.pantry_id === pantryId && purchase.title === list.name && purchase.market_id === (list.market_id ?? null) && sameTotal && !matchedPurchaseIds.has(purchase.id) && !reservedPurchaseIds.has(purchase.id);
-            if (matches) matchedPurchaseIds.add(purchase.id);
-            return matches;
-        });
-        if (matchedPurchase) matchedPurchaseIds.add(matchedPurchase.id);
+        const matchedPurchase = !list.is_active && checkout?.purchaseId && purchaseReferences.get(checkout.purchaseId) === 1 ? database.purchases.find((purchase) => purchase.id === checkout.purchaseId && purchase.pantry_id === pantryId) ?? null : null;
         const view = {
             id: list.id,
             accountId,
@@ -67,8 +63,8 @@ function readScope(database, accountId, pantryId) {
             } : null,
             estimatedPrice: list.estimated_price,
             status: list.is_active ? 'active' : 'finished',
-            finishedAt: checkout?.finishedAt ?? matchedPurchase?.purchase_date ?? matchedPurchase?.finish_date ?? null,
-            purchaseTotal: checkout ? (matchedPurchase?.total_price ?? (checkout.purchaseId === null ? 0 : null)) : list.estimated_price,
+            finishedAt: !list.is_active ? checkout?.finishedAt ?? null : null,
+            purchaseTotal: !list.is_active && checkout ? (matchedPurchase?.total_price ?? (checkout.purchaseId === null ? 0 : null)) : null,
             items: database.grocery_list_products.filter((item) => item.grocery_list_id === list.id).map((item) => ({
                 id: item.id,
                 name: item.name,
@@ -324,20 +320,6 @@ export async function removeGroceryItems({accountId, pantryId, listId, itemIds})
             if (list.status !== 'active') throw new Error('Lista concluída não pode ser editada.');
             if (list.items.filter((item) => selected.has(item.id)).length !== selected.size) throw new Error('Um dos produtos selecionados não está nesta lista.');
             return {...list, items: list.items.filter((item) => !selected.has(item.id))};
-        });
-        if (!found) throw new Error('Lista não encontrada.');
-        return {lists: next};
-    });
-}
-
-export async function finishGroceryList({accountId, pantryId, listId}) {
-    await mutateScope(accountId, pantryId, (lists) => {
-        let found = false;
-        const next = lists.map((list) => {
-            if (list.id !== listId) return list;
-            found = true;
-            if (list.status !== 'active') throw new Error('Lista já concluída.');
-            return {...list, status: 'finished', finishedAt: new Date().toISOString()};
         });
         if (!found) throw new Error('Lista não encontrada.');
         return {lists: next};

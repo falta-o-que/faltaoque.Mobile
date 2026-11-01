@@ -1,6 +1,14 @@
 # Estado atual
 
+## Associação no histórico de listas — 1º de novembro de 2026
+
+- B13 corrigido localmente: listas concluídas usam somente o vínculo exato gravado com a compra. Para registros sem
+  vínculo confiável, o histórico informa data desconhecida e valor não registrado; não tenta adivinhar. Testes cobrem
+  listas homônimas, finalização sem compra, vínculos inválidos e isolamento por despensa. Validação Android pendente.
+
 ## Revisão de itens fiscais ambíguos — 1º de novembro de 2026
+
+- O usuário considera o B12 resolvido.
 
 - B12 corrigido nos fluxos de importação direta e por lista: itens ambíguos incluídos exigem confirmação explícita;
   podem ser ignorados. A validação física no Android permanece pendente.
@@ -18,8 +26,7 @@
 
 - B10 corrigido no simulador local: a finalização preserva a estimativa e salva o valor pago na compra. Um vínculo
   auxiliar local, gravado na mesma operação da finalização, mantém data e total no histórico existente sem alterar o
-  esquema hospedado ou adicionar detalhamento. Listas antigas continuam com o comportamento anterior de associação, cujo
-  B13 permanece pendente. Testes automatizados passaram e bundle Android foi gerado; validação física pendente.
+  esquema hospedado ou adicionar detalhamento. A correção posterior do B13 elimina associações por suposição.
 
 ## Conversão de unidades na estimativa — 1º de novembro de 2026
 
