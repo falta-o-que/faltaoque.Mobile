@@ -86,6 +86,10 @@ Há ainda falta de uma política consistente para edição de preço e total da 
 
 ### B08 — Correspondência automática vincula produtos comercialmente diferentes
 
+**Atualização de 01/11/2026:** a correspondência automática exige nomes equivalentes após normalização e na mesma ordem, além das demais regras existentes. Nomes parciais e com termos adicionais exigem revisão manual. Testes automatizados passaram; validação em aparelho pendente.
+
+**Validação parcial em Android:** com NFC-e real, duas descrições com termos adicionais ficaram para vínculo manual; o usuário escolheu os itens correspondentes e os vínculos foram conferidos na tela por ADB. Não foi testado o vínculo automático de um nome equivalente nem finalizada a compra de teste.
+
 **Local:** `src/domain/groceryCheckoutReconciliation.js:112-121`, `:197-213`.
 
 Um único token longo pode receber pontuação 0,86; inclusão de todos os termos de um nome em outro recebe 0,94. Um candidato único acima de 0,85 é automaticamente aceito.

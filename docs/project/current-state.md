@@ -1,5 +1,10 @@
 # Estado atual
 
+## Correspondência automática na NFC-e — 1º de novembro de 2026
+
+- Na validação Android com NFC-e real, as linhas de desodorante e néctar com nomes parciais foram apresentadas para vínculo manual; após correção feita pelo usuário, a leitura da tela via ADB confirmou cada vínculo no item correspondente. A compra de teste não foi finalizada. O vínculo automático para nome equivalente ainda não foi conferido nesse teste.
+- B08 corrigido no fluxo local de finalização de lista: somente nomes equivalentes após normalização, na mesma ordem, são elegíveis para vínculo automático; nomes parciais ou com termos adicionais exigem revisão manual. A compatibilidade de tamanho e a regra de vínculo um a um continuam obrigatórias. Testes automatizados cobrem os casos relatados, normalizações e ambiguidades; validação física com NFC-e pendente.
+
 ## Preço histórico do produto — 1º de novembro de 2026
 
 - B03 corrigido no simulador local e considerado resolvido pelo usuário após o teste solicitado: preço unitário editado usa a quantidade comprada, não o saldo; compra manual de uma ocorrência tem o total corrigido, enquanto totais de NFC-e e de compras com vários produtos são preservados. Testes automatizados cobrem consumo, preço unitário e total e os três tipos de compra. Compras locais sem QR são tratadas como manuais; o contrato hospedado de origem permanece a confirmar.
