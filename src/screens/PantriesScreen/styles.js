@@ -69,7 +69,7 @@ export const PantryList = styled.ScrollView.attrs({
     gap: 20,
     paddingTop: 8,
     paddingRight: 8,
-    paddingBottom: 24,
+    paddingBottom: 100,
     paddingLeft: 8,
   },
   keyboardShouldPersistTaps: 'handled',
@@ -88,6 +88,15 @@ export const EmptyText = styled.Text`
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
   font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
   text-align: center;
+`;
+
+export const CreateAction = styled.View`
+  position: absolute;
+  right: 0;
+  bottom: 20px;
+  align-items: flex-end;
+  z-index: 1;
+  elevation: 4;
 `;
 
 export const LoadError = styled.Text`

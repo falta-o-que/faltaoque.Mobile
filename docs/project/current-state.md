@@ -1,5 +1,9 @@
 # Estado atual
 
+## Criar despensa na página Despensas — 1º de novembro de 2026
+
+- A página Despensas voltou a oferecer o botão flutuante Criar, reutilizando o botão, o formulário e o serviço da Home. A lista atualiza após a criação e reserva espaço para os últimos cards. Bundle Android compilado; validação visual e interativa no aparelho ainda pendente.
+
 ## Cache local de NFC-e — 1º de novembro de 2026
 
 - Notas lidas com sucesso são armazenadas em cache local versionado por conta e código fiscal, sem URL completa ou HTML. Leituras posteriores da mesma nota pela mesma conta reutilizam os dados em qualquer despensa, inclusive entre os fluxos de lista e despensa. A verificação de duplicidade por despensa continua obrigatória antes da revisão e na gravação. Contas diferentes não compartilham cache; notas lidas antes da implementação só entram no cache após nova leitura. Falhas de cache não impedem consulta à SEFAZ; registros inválidos não são sobrescritos automaticamente.

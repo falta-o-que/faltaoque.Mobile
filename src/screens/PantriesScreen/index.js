@@ -3,7 +3,9 @@ import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import Navbar from '../../components/Navbar';
-import { PantryFormModal } from '../../components/CreatePantryModal';
+import CreatePantryModal, { PantryFormModal } from '../../components/CreatePantryModal';
+import QuickActionButton from '../../components/QuickActionButton';
+import { AddCircleIcon } from '../../assets/icons/export';
 import PantryCard from '../../components/PantryCard';
 import PantryDestinationModal from '../../components/PantryDestinationModal';
 import SearchField from '../../components/SearchField';
@@ -15,6 +17,7 @@ import { showUserErrorAlert } from '../../utils/userErrors';
 import {
   Avatar,
   Content,
+  CreateAction,
   EmptyText,
   GradientBackground,
   Header,
@@ -44,6 +47,7 @@ export default function PantriesScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPantry, setSelectedPantry] = useState(null);
   const [pantryForEdit, setPantryForEdit] = useState(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isSavingPantry, setIsSavingPantry] = useState(false);
 
   useFocusEffect(useCallback(() => {
@@ -72,6 +76,18 @@ export default function PantriesScreen({ navigation }) {
   const filteredPantries = searchQuery.trim()
     ? pantries.filter((pantry) => normalizeSearchText(pantry.name).includes(normalizeSearchText(searchQuery)))
     : pantries;
+
+  const handleCreatePantry = async (data) => {
+    try {
+      const pantry = await pantryService.createPantry({ ...data, accountId: account?.id });
+      setPantries((current) => [...current, pantry]);
+      setSearchQuery('');
+      setIsCreateOpen(false);
+      if (pantriesError) setReloadKey((value) => value + 1);
+    } catch (error) {
+      showUserErrorAlert(error, { title: t('home.createPantryError'), fallback: t('home.createPantryFallback'), dismissText: t('common.ok'), t });
+    }
+  };
 
   const handleSavePantry = async (changes) => {
     if (isSavingPantry) return;
@@ -177,8 +193,13 @@ export default function PantriesScreen({ navigation }) {
               ))}
             </PantryList>
           ) : null}
+          <CreateAction>
+            <QuickActionButton Icon={AddCircleIcon} accessibilityLabel={t('home.createPantry')}
+              onPress={() => setIsCreateOpen(true)} text={t('home.create')} />
+          </CreateAction>
         </PantrySection>
       </Content>
+      <CreatePantryModal visible={isCreateOpen} onCreate={handleCreatePantry} onRequestClose={() => setIsCreateOpen(false)} />
       <PantryFormModal
         busy={isSavingPantry}
         onDelete={handleDeletePantry}
