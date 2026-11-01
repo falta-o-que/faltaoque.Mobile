@@ -208,6 +208,10 @@ resultado da escolha vigente.
 
 ### B26 — Sincronização pendente recria notificações de uma conta após logout
 
+**Encerramento:** o usuário confirmou no Android o teste solicitado de notificações e troca entre contas; a corrida com sincronização pausada foi coberta em simulação.
+
+**Atualização de 01/11/2026:** corrigido com invalidação por sessão e fila global para sincronização e limpeza do aparelho. Teste simulado cobre sincronização pausada e troca de contas; validação física pendente.
+
 **Local:** `src/services/notificationService.js:17`, `:243-324`; `src/navigation/RootNavigator.js:65-66`;
 `src/screens/HomeScreen/index.js:86`.
 

@@ -62,8 +62,6 @@ export function RootNavigator({ accountId, isAuthenticated }) {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
-      Notifications.dismissAllNotificationsAsync().catch(() => {});
       return undefined;
     }
 

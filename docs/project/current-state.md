@@ -1,5 +1,11 @@
 # Estado atual
 
+## Notificações e troca de conta — 1º de novembro de 2026
+
+- O usuário confirmou no Android que o teste solicitado de notificações, logout e troca entre contas funcionou. A corrida com sincronização pausada também foi exercitada em teste simulado; iOS não foi testado fisicamente.
+
+- B26 corrigido: a sessão de notificações é invalidada ao sair, sincronizações antigas são descartadas e a reconciliação e limpeza usam fila compartilhada no aparelho. A limpeza é restrita às notificações desta funcionalidade e da conta que saiu; a próxima sincronização aguarda sua conclusão. Teste simulado cobre sincronização anterior pausada, troca de conta e preservação de notificações externas. Validação física Android pendente; iOS não testado fisicamente.
+
 ## Seleção de endereço e mercado — 1º de novembro de 2026
 
 - Teste controlado no Android via ADB: com atraso temporário de 25 segundos na primeira resposta de detalhes, uma

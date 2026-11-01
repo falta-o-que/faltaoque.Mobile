@@ -60,7 +60,7 @@ const QUICK_ACTIONS = [
   { key: 'pantry', labelKey: 'notifications.pantry', textKey: 'notifications.pantry', icon: PantryIcon },
   { key: 'notifications', labelKey: 'notifications.title', textKey: 'notifications.short', icon: SinoIcon },
   { key: 'profile', labelKey: 'notifications.profile', textKey: 'notifications.profile', icon: UserIcon },
-  { key: 'settings', labelKey: 'notifications.settings', textKey: 'notifications.settings', icon: SettingsIcon },
+  { key: 'settings', labelKey: 'notifications.settings', textKey: 'home.action.settingsShort', icon: SettingsIcon },
 ];
 
 export default function NotificationsScreen({ navigation, route, embedded = false, onUnreadCountChange }) {

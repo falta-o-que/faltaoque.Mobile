@@ -9,6 +9,36 @@ import { listProductOccurrences, listProducts } from './productService';
 const CHANNEL_ID = 'pantry-alerts';
 const PREFERENCES_KEY = '@faltaoque/app-preferences:v1';
 const operationTails = new Map();
+let deviceTail = Promise.resolve();
+let notificationAccountId = null;
+let sessionGeneration = 0;
+
+function enqueueDeviceOperation(operation) {
+  const result = deviceTail.then(operation);
+  deviceTail = result.catch(() => {});
+  return result;
+}
+
+export function setNotificationSession(accountId) {
+  const previousAccount = notificationAccountId;
+  notificationAccountId = accountId || null;
+  sessionGeneration += 1;
+  if (notificationAccountId) return;
+  enqueueDeviceOperation(async () => {
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    for (const request of scheduled) {
+      if (belongsToThisFeature(request) && (!previousAccount || belongsToAccount(request, previousAccount))) {
+        await Notifications.cancelScheduledNotificationAsync(request.identifier);
+      }
+    }
+    const presented = await Notifications.getPresentedNotificationsAsync();
+    for (const entry of presented) {
+      if (belongsToThisFeature(entry.request) && (!previousAccount || belongsToAccount(entry.request, previousAccount))) {
+        await Notifications.dismissNotificationAsync(entry.request.identifier);
+      }
+    }
+  }).catch(() => {});
+}
 const metadataKey = (accountId) => {
   if (!accountId) throw new Error('Entre na sua conta para consultar notificações.');
   return `@faltaoque/notifications/${encodeURIComponent(accountId)}`;
@@ -240,10 +270,12 @@ function belongsToAccount(request, accountId) {
   return request?.content?.data?.accountId === accountId;
 }
 
-async function reconcileDeviceNotifications(accountId, { requestPermission = false } = {}) {
+async function reconcileDeviceNotifications(accountId, { requestPermission = false } = {}, isCurrent = () => true) {
   const state = await loadNotificationState(accountId);
+  if (!isCurrent()) return { permissionGranted: false, unreadCount: 0 };
   const unreadCount = state.notifications.filter((notification) => !notification.isRead).length;
   const permission = await getNotificationPermission(requestPermission);
+  if (!isCurrent()) return { permissionGranted: false, unreadCount: 0 };
   if (!isPermissionGranted(permission)) return { permissionGranted: false, unreadCount };
 
   const visibleIds = new Set(state.notifications.map((notification) => notification.id));
@@ -256,6 +288,7 @@ async function reconcileDeviceNotifications(accountId, { requestPermission = fal
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
   const scheduledIds = new Set();
   for (const request of scheduled) {
+    if (!isCurrent()) return { permissionGranted: false, unreadCount: 0 };
     if (!belongsToThisFeature(request)) continue;
     const notificationId = notificationIdFromRequest(request);
     const desired = candidatesById.get(notificationId);
@@ -274,6 +307,7 @@ async function reconcileDeviceNotifications(accountId, { requestPermission = fal
   const presented = await Notifications.getPresentedNotificationsAsync();
   const presentedIds = new Set();
   for (const entry of presented) {
+    if (!isCurrent()) return { permissionGranted: false, unreadCount: 0 };
     const request = entry.request;
     if (!belongsToThisFeature(request)) continue;
     const notificationId = notificationIdFromRequest(request);
@@ -295,6 +329,7 @@ async function reconcileDeviceNotifications(accountId, { requestPermission = fal
   for (const id of [...scheduledIds, ...presentedIds]) announcedIds.add(id);
   const today = localDateKey();
   for (const notification of candidates) {
+    if (!isCurrent()) return { permissionGranted: false, unreadCount: 0 };
     if (announcedIds.has(notification.id)) continue;
     const expirationDate = notification.type === 'expiration' && notification.expirationDate > today
       ? expirationTriggerDate(notification.expirationDate)
@@ -313,6 +348,7 @@ async function reconcileDeviceNotifications(accountId, { requestPermission = fal
     announcedIds.add(notification.id);
   }
 
+  if (!isCurrent()) return { permissionGranted: false, unreadCount: 0 };
   await updateMetadata(accountId, (current) => ({
     ...current,
     announcedIds: [...announcedIds].filter((id) => state.allIds.has(id)),
@@ -321,7 +357,13 @@ async function reconcileDeviceNotifications(accountId, { requestPermission = fal
 }
 
 export function syncDeviceNotifications(accountId, options) {
-  return withNotificationLock(accountId, () => reconcileDeviceNotifications(accountId, options));
+  const generation = sessionGeneration;
+  const isCurrent = () => notificationAccountId === accountId && generation === sessionGeneration;
+  return enqueueDeviceOperation(() => isCurrent()
+    ? withNotificationLock(accountId, () => isCurrent()
+      ? reconcileDeviceNotifications(accountId, options, isCurrent)
+      : { permissionGranted: false, unreadCount: 0 })
+    : { permissionGranted: false, unreadCount: 0 });
 }
 
 async function removeDeviceNotifications(accountId, notificationIds) {
