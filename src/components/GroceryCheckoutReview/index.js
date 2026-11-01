@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Modal } from 'react-native';
 import FormField from '../FormField';
+import DateField from '../DateField';
 import PlaceSearchField from '../PlaceSearchField';
 import ButtonClick from '../ButtonClick';
 import PurchaseProductReviewCard from '../PurchaseProductReviewCard';
@@ -406,7 +407,7 @@ export default function GroceryCheckoutReview({
           <Label>{isFiscal ? t('shopping.receiptDate') : `${t('shopping.purchaseDate')} *`}</Label>
           {dateReadOnly ? <DateSummary accessible accessibilityLabel={t('shopping.receiptDateA11y', { date: dateValue || t('shopping.unavailable') })}>
             <DateValue>{dateValue || t('shopping.unidentifiedDate')}</DateValue>
-          </DateSummary> : <FormField accessibilityLabel={t('shopping.purchaseDateA11y')} value={dateValue}
+          </DateSummary> : <DateField limit="past" accessibilityLabel={t('shopping.purchaseDateA11y')} value={dateValue}
             editable={!busy} placeholder={`${t('shopping.dateFormat')} *`} onChangeText={onChangeDate} />}
         </Section>
         <Section>

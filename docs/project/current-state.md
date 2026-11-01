@@ -1,5 +1,9 @@
 # Estado atual
 
+## Calendário nos campos de data — 1º de novembro de 2026
+
+- Campos editáveis de validade, data planejada da lista e data da compra manual oferecem calendário nativo pelo ícone. Validade e data planejada limitam a escolha a hoje ou depois; compra manual, a hoje ou antes. A data da NFC-e continua somente para leitura. O preenchimento digitado e as validações existentes permanecem. A biblioteca nativa exige nova development build; validação física Android e iOS ainda pendente.
+
 ## Criar despensa na página Despensas — 1º de novembro de 2026
 
 - A página Despensas voltou a oferecer o botão flutuante Criar, reutilizando o botão, o formulário e o serviço da Home. A lista atualiza após a criação e reserva espaço para os últimos cards. Bundle Android compilado; validação visual e interativa no aparelho ainda pendente.

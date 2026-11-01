@@ -4,7 +4,6 @@ import { Animated, Easing, Modal, Platform } from 'react-native';
 import {
   AngleIcon,
   BoxIcon,
-  CalendarIcon,
   CancelCircleIcon,
   CheckIcon,
   DeliveryIcon,
@@ -20,6 +19,7 @@ import {
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import CategoryTag from '../CategoryTag';
 import FormField from '../FormField';
+import DateField from '../DateField';
 import ModalActionButton from '../ModalActionButton';
 import PlaceSearchField from '../PlaceSearchField';
 import { ProductCartIcon } from './icons';
@@ -340,11 +340,10 @@ export function AddProductModal({ onCreate, onRequestClose, visible }) {
                       setErrors((current) => ({ ...current, location: undefined, submit: undefined }));
                     }}
                   />
-                  <FormField
+                  <DateField limit="future"
                     accessibilityLabel={t('product.add.expirationA11y')}
                     editable={!isSubmitting}
                     error={displayErrors.expirationDate}
-                    Icon={CalendarIcon}
                     inputMode="numeric"
                     keyboardType="numbers-and-punctuation"
                     maxLength={10}

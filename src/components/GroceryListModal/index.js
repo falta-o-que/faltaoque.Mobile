@@ -4,7 +4,6 @@ import { Alert, Animated, Easing, Modal, Platform } from 'react-native';
 import {
   AngleIcon,
   BoxIcon,
-  CalendarIcon,
   CancelCircleIcon,
   CheckIcon,
   DeliveryIcon,
@@ -21,6 +20,7 @@ import CategoryTag from '../CategoryTag';
 import AnimatedDropdown from '../AnimatedDropdown';
 import DangerActionButton from '../DangerActionButton';
 import FormField from '../FormField';
+import DateField from '../DateField';
 import ModalActionButton from '../ModalActionButton';
 import PlaceSearchField from '../PlaceSearchField';
 import {
@@ -208,11 +208,10 @@ export default function GroceryListModal({
                       placeholder={t('shopping.nameRequired')}
                       value={name}
                     />
-                    <FormField
+                    <DateField limit="future"
                       accessibilityLabel={t('shopping.plannedDate')}
                       editable={!busy && !isFinished}
                       error={error.toLowerCase().includes('data') ? error : undefined}
-                      Icon={CalendarIcon}
                       inputMode="numeric"
                       keyboardType="number-pad"
                       maxLength={10}

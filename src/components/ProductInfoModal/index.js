@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Easing, Animated, Modal, Platform } from 'react-native';
 
-import { AngleIcon, BoxIcon, CalendarIcon, CancelCircleIcon, CheckIcon, DeliveryIcon, InfoIcon, PenIcon } from '../../assets/icons/export';
+import { AngleIcon, BoxIcon, CancelCircleIcon, CheckIcon, DeliveryIcon, InfoIcon, PenIcon } from '../../assets/icons/export';
 import { PRODUCT_CATEGORIES, PRODUCT_PRICE_TYPES, PRODUCT_UNITS, validateProduct } from '../../domain/productValidation';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import CategoryTag, { CATEGORY_LABELS } from '../CategoryTag';
 import DangerActionButton from '../DangerActionButton';
 import FormField from '../FormField';
+import DateField from '../DateField';
 import ModalActionButton from '../ModalActionButton';
 import {
   Accordion, AccordionHeader, AccordionLabel, Actions, BusyIndicator, BusyStatus, BusyText,
@@ -131,7 +132,7 @@ export function ProductInfoModal({ visible, product, onDelete, onRequestClose, o
                 <PriceTypeOptions accessibilityRole="radiogroup">{PRODUCT_PRICE_TYPES.map((priceType) => <PriceTypeOption key={priceType} accessibilityRole="radio" accessibilityState={{ checked: draft.priceType === priceType }} disabled={isSubmitting} onPress={() => updateField('priceType', priceType)} $selected={draft.priceType === priceType}><PriceTypeLabel $selected={draft.priceType === priceType}>{t(priceType === 'unit' ? 'product.add.priceUnit' : 'product.add.priceTotal')}</PriceTypeLabel></PriceTypeOption>)}</PriceTypeOptions>
                 <FormField accessibilityLabel={t(draft.priceType === 'total' ? 'product.info.priceTotalA11y' : 'product.info.priceUnitA11y')} editable={!isSubmitting} error={displayErrors.price} Icon={DeliveryIcon} keyboardType="decimal-pad" onChangeText={(value) => updateField('price', value)} placeholder={t(draft.priceType === 'total' ? 'product.add.priceTotalPlaceholder' : 'product.add.priceUnitPlaceholder')} value={draft.price} />
                 <FormField accessibilityLabel={t('product.add.quantityA11y')} editable={!isSubmitting} error={displayErrors.quantity} Icon={DeliveryIcon} keyboardType="number-pad" onChangeText={(value) => updateField('quantity', value)} placeholder={t('product.add.quantityPlaceholder')} value={draft.quantity} />
-                <FormField accessibilityLabel={t('product.add.expirationA11y')} editable={!isSubmitting} error={displayErrors.expirationDate} Icon={CalendarIcon} keyboardType="numbers-and-punctuation" maxLength={10} onChangeText={handleExpiration} placeholder={t('product.add.expirationPlaceholder')} value={draft.expirationDate} />
+                <DateField limit="future" accessibilityLabel={t('product.add.expirationA11y')} editable={!isSubmitting} error={displayErrors.expirationDate} keyboardType="numbers-and-punctuation" maxLength={10} onChangeText={handleExpiration} placeholder={t('product.add.expirationPlaceholder')} value={draft.expirationDate} />
                 <WeightGroup><FormField accessibilityLabel={t('product.add.weightA11y')} editable={!isSubmitting} error={displayErrors.weight} Icon={BoxIcon} keyboardType="decimal-pad" onChangeText={(value) => updateField('weight', value)} placeholder={t('product.add.weightPlaceholder')} value={draft.weight} />{draft.weight.trim() ? <><AccordionLabel>{t('product.add.unitRequired')}</AccordionLabel><UnitOptions accessibilityRole="radiogroup">{PRODUCT_UNITS.map((unit) => <UnitOption key={unit} accessibilityLabel={t('product.add.unitA11y', { unit })} accessibilityRole="radio" accessibilityState={{ checked: draft.unit === unit }} disabled={isSubmitting} onPress={() => updateField('unit', unit)} $selected={draft.unit === unit}><UnitLabel $selected={draft.unit === unit}>{unit}</UnitLabel></UnitOption>)}</UnitOptions>{displayErrors.unit ? <InlineError>{displayErrors.unit}</InlineError> : null}</> : null}</WeightGroup>
               </Fields><Accordion><AccordionHeader disabled={isSubmitting} onPress={() => setIsCategoryOpen((open) => !open)} $hasError={Boolean(errors.category)}><AccordionLabel>{t('product.add.categoryRequired')}</AccordionLabel><Chevron style={categoryChevronStyle}><AngleIcon /></Chevron></AccordionHeader>{isCategoryOpen ? <CategoryOptions style={categoryPanelStyle}>{PRODUCT_CATEGORIES.map((category) => <CategoryTag key={category} category={category} disabled={isSubmitting} onSelectionChange={(selected) => updateField('category', selected ? category : null)} selected={draft.category === category} variant="product" />)}</CategoryOptions> : null}{displayErrors.category ? <InlineError>{displayErrors.category}</InlineError> : null}</Accordion></FormContent>
             )}
