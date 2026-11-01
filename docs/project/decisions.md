@@ -1,5 +1,9 @@
 # Decisões do projeto
 
+## 2026-11-01 — Correção de preço histórico de produto
+
+Ao editar o preço unitário de uma ocorrência, o total do item usa a quantidade originalmente comprada, não o saldo atual. O preço total informado diretamente continua sendo o total da ocorrência. Em compra manual com uma única ocorrência de produto, corrigir o preço também atualiza o total da compra; em NFC-e ou compra com vários produtos, o total original da compra é preservado. Essa regra foi aprovada pelo usuário e não altera o modelo hospedado.
+
 ## 2026-11-01 — Banco local sem compatibilidade com versões antigas
 
 O usuário autorizou descartar dados locais legados: o app usa somente o esquema local atual (versão 11), recriando

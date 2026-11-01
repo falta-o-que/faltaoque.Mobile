@@ -1,5 +1,9 @@
 # Estado atual
 
+## Preço histórico do produto — 1º de novembro de 2026
+
+- B03 corrigido no simulador local e considerado resolvido pelo usuário após o teste solicitado: preço unitário editado usa a quantidade comprada, não o saldo; compra manual de uma ocorrência tem o total corrigido, enquanto totais de NFC-e e de compras com vários produtos são preservados. Testes automatizados cobrem consumo, preço unitário e total e os três tipos de compra. Compras locais sem QR são tratadas como manuais; o contrato hospedado de origem permanece a confirmar.
+
 ## Banco local sem legado — 1º de novembro de 2026
 
 - Gravações do banco recebem identificador e marcador local de operação pendente. Se a escrita falhar, o app relê o banco para verificar se o registro foi salvo; se a leitura também falhar, bloqueia novas gravações até verificar o resultado, inclusive após reiniciar. Na verificação posterior, informa se a operação anterior foi gravada e não executa automaticamente a nova tentativa. Testes simulados cobrem falhas antes/depois da gravação, indisponibilidade de leitura e reinício. O marcador é local e não altera o modelo hospedado. O usuário confirmou no Android o teste manual do fluxo normal de conta, despensa, produtos e listas, incluindo persistência após reabrir; os caminhos de falha foram testados apenas em simulação, e não houve validação física no iOS.

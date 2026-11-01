@@ -14,6 +14,8 @@ Status: especificação funcional atualizada até 10 de outubro de 2026. Não co
 
 ## Compras, produtos e estoque
 
+- Decisão de 1º de novembro: na edição do preço unitário de uma ocorrência, calcular o total usando a quantidade comprada original, sem usar o saldo. Quando a compra é manual e contém apenas uma ocorrência, atualizar também o total da compra. Em NFC-e ou compras com vários produtos, preservar o total original da compra. O contrato hospedado permanece a confirmar.
+
 - Todo produto hospedado pertence a uma compra, e toda compra pertence a uma despensa. A adição manual de um produto deverá consumir a rota de compras e criar uma compra com esse produto.
 - `purchases` representa compras operacionais; seus registros também alimentam histórico e dashboards. Compras não devem ser apagadas. Produtos novos iniciam com `pantry_products.is_deleted = false`; ao removê-los da visualização, o campo passa a `true`, sem apagar o registro. Saldo zero, por si só, não altera `is_deleted`. Um saldo zerado poderá voltar a receber unidades.
 - Cada ocorrência do produto em uma compra mantém ID próprio. O modelo de 5 de outubro separa `pantry_products.quantity` (quantidade comprada) de `current_quantity` (saldo). O histórico e o cálculo do preço unitário devem usar a quantidade comprada, nunca o saldo restante. `pantry_products.price` representa o preço total daquele item na compra; `purchases.total_price` representa o total da compra.

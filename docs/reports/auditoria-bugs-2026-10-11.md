@@ -70,6 +70,8 @@ O payload do banco é gravado antes da chave separada de versão. Se a segunda g
 
 ### B03 — Editar preço após consumo corrompe o preço histórico
 
+**Atualização de 01/11/2026:** corrigido no simulador local; a edição unitária usa a quantidade comprada. O total da compra manual com uma ocorrência é corrigido, enquanto o total fiscal ou de compras com várias ocorrências é preservado. Testes automatizados passaram e o usuário confirmou que o problema foi resolvido após o teste solicitado.
+
 **Local:** `src/repositories/productRepository.js:45-47`, `:200-220`; `src/domain/productValidation.js:62-70`; `src/components/ProductInfoModal/index.js:37-52`.
 
 A edição recebe o saldo atual como quantidade, mas o preço unitário deriva da quantidade originalmente comprada. Ao normalizar uma edição em preço unitário, o código multiplica pelo saldo e grava o resultado como preço histórico do item.
