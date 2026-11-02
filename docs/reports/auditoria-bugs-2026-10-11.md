@@ -5,9 +5,9 @@ Data: 11/10/2026. Branch: `develop`. Commit auditado: `8b62543ed9d40d7ed26e8d341
 ## Resumo
 
 A auditoria original identificou **31 defeitos: 7 de prioridade P1, 17 de prioridade P2 e 7 de prioridade P3**. Depois
-do fechamento da auditoria, o usuário relatou o B32 sobre notificações de marcas separadas e o B33 sobre a ordem da
-lista de notificações, registrados abaixo como acompanhamentos. Há também uma ambiguidade funcional e problemas nos
-scripts de teste existentes, descritos separadamente.
+do fechamento da auditoria, o usuário relatou o B32 sobre notificações de marcas separadas, o B33 sobre a ordem da lista
+de notificações e o B34 sobre o desempate de compras na mesma data, registrados abaixo como acompanhamentos. Há também
+uma ambiguidade funcional e problemas nos scripts de teste existentes, descritos separadamente.
 
 Os riscos mais urgentes são perda integral do banco local, gravações que retornam erro depois de persistir, corrupção de
 preços após consumo, associação automática de produtos diferentes, total fiscal incompleto, seleção incorreta de
@@ -621,6 +621,14 @@ para baixo. O instante de ativação é persistido localmente; alertas de valida
 automatizada e física pendentes.
 
 **Local atual:** `src/services/notificationService.js`.
+
+### B34 — Grupo zerado volta para a marca errada ao aumentar o saldo
+
+**Atualização local — 1º de novembro de 2026:** desempate por ordem de inserção foi adicionado quando compras têm a
+mesma data. A ocorrência mais recente é usada tanto no card agrupado sem saldo quanto ao aumentar o saldo agregado.
+Validação automatizada e física pendentes.
+
+**Local atual:** `src/repositories/productRepository.js`.
 
 ## Ambiguidade que requer decisão funcional
 

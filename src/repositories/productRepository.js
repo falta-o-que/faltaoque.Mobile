@@ -58,6 +58,7 @@ function toProductView(database, row, accountId) {
         accountId,
         pantryId: purchase?.pantry_id,
         createdAt: purchase?.purchase_date,
+        purchaseOrder: database.purchases.findIndex((entry) => entry.id === purchase?.id),
         purchaseId: purchase?.id ?? null,
         marketId: purchase?.market_id ?? null,
         location: database.markets.find((market) => market.id === purchase?.market_id)?.cep ?? purchase?.location ?? null,
@@ -70,7 +71,9 @@ function productGroupKey(product, groupBrands) {
 }
 
 function compareOccurrenceAge(first, second) {
-    return String(first.createdAt ?? '').localeCompare(String(second.createdAt ?? ''));
+    const dateOrder = String(first.createdAt ?? '').localeCompare(String(second.createdAt ?? ''));
+    if (dateOrder) return dateOrder;
+    return Number(first.purchaseOrder ?? -1) - Number(second.purchaseOrder ?? -1);
 }
 
 function groupProductOccurrences(occurrences, brandGroupingByPresentation = {}) {
@@ -223,7 +226,10 @@ export async function updateProductQuantity({accountId, pantryId, productId, pro
             const latest = [...candidates].sort((first, second) => {
                 const firstPurchase = database.purchases.find((entry) => entry.id === first.purchase_id);
                 const secondPurchase = database.purchases.find((entry) => entry.id === second.purchase_id);
-                return String(secondPurchase?.purchase_date ?? '').localeCompare(String(firstPurchase?.purchase_date ?? ''));
+                const dateOrder = String(secondPurchase?.purchase_date ?? '').localeCompare(String(firstPurchase?.purchase_date ?? ''));
+                if (dateOrder) return dateOrder;
+                return database.purchases.findIndex((entry) => secondPurchase?.id === entry.id) -
+                    database.purchases.findIndex((entry) => firstPurchase?.id === entry.id);
             })[0];
             changes.set(latest.id, changes.get(latest.id) + quantity - currentTotal);
         }

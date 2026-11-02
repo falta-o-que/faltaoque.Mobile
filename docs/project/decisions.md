@@ -1,5 +1,12 @@
 # Decisões do projeto
 
+## 2026-11-01 — Desempate da ocorrência mais recente
+
+Ao exibir um grupo zerado ou aumentar o saldo agregado, escolher a ocorrência da compra mais recente. Como `purchase_date`
+guarda somente o dia, compras na mesma data são desempatadas pela ordem de inserção na despensa: a compra adicionada
+por último é a mais recente. Ao reduzir, consumir primeiro a compra mais antiga, usando a mesma ordem crescente como
+desempate.
+
 ## 2026-11-01 — Ordem da lista de notificações
 
 Exibir as notificações da mais recente para a mais antiga, de cima para baixo. Registrar localmente quando cada aviso

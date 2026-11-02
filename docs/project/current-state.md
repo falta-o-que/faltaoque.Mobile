@@ -1,5 +1,11 @@
 # Estado atual
 
+## Desempate de compras na mesma data — 1º de novembro de 2026
+
+- B34 corrigido no fluxo local: ao empatar a data de compra, a ordem de inserção define qual compra é a mais recente.
+  Cards agrupados sem saldo exibem essa ocorrência e o aumento pelo contador acrescenta unidades nela. Validação
+  automatizada e física ainda pendentes.
+
 ## Ordem da lista de notificações — 1º de novembro de 2026
 
 - B33 corrigido no fluxo local: a lista é ordenada da notificação mais recente para a mais antiga. O instante em que
