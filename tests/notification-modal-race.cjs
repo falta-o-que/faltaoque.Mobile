@@ -11,10 +11,12 @@ const {code} = transformSync(source, {
 });
 const deferred = () => {
     let resolve;
-    const promise = new Promise((done) => {
+    let reject;
+    const promise = new Promise((done, fail) => {
         resolve = done;
+        reject = fail;
     });
-    return {promise, resolve};
+    return {promise, resolve, reject};
 };
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
@@ -157,10 +159,188 @@ async function scenario(reopen) {
     if (reopen === 'B') assert.equal(modal(tree).props.notification.handled, undefined);
 }
 
+async function concurrentSelectionsScenario() {
+    const slots = [];
+    let cursor = 0;
+    let focused = false;
+    const listRequests = new Map();
+    const additions = [];
+    const records = [{
+        id: 'A',
+        title: 'A',
+        type: 'depleted',
+        pantryId: 'pantry-a',
+        product: {name: 'Produto A'}
+    }, {id: 'B', title: 'B', type: 'depleted', pantryId: 'pantry-b', product: {name: 'Produto B'}},];
+    const modalType = function NotificationDetailsModal() {
+    };
+    const node = (type, props) => ({type, props: props || {}});
+    const components = new Proxy({}, {get: (_, key) => key === '__esModule' ? false : String(key)});
+    const mocks = {
+        react: {
+            useState(initial) {
+                const i = cursor++;
+                if (!(i in slots)) slots[i] = initial;
+                return [slots[i], (next) => {
+                    slots[i] = typeof next === 'function' ? next(slots[i]) : next;
+                }];
+            }, useRef(initial) {
+                const i = cursor++;
+                if (!(i in slots)) slots[i] = {current: initial};
+                return slots[i];
+            }, useEffect() {
+                cursor++;
+            }, useCallback(fn) {
+                cursor++;
+                return fn;
+            },
+        },
+        'react/jsx-runtime': {jsx: node, jsxs: node, Fragment: 'Fragment'},
+        'react-native': {
+            ActivityIndicator: 'ActivityIndicator', Alert: {
+                alert() {
+                }
+            }
+        },
+        'expo-notifications': {},
+        '@react-navigation/native': {
+            useFocusEffect(fn) {
+                if (!focused) {
+                    focused = true;
+                    fn();
+                }
+            }
+        },
+        '../../components/Navbar': {__esModule: true, default: 'Navbar'},
+        '../../components/NotificationDetailsModal': {__esModule: true, default: modalType},
+        '../../components/QuickActionButton': {__esModule: true, default: 'QuickActionButton'},
+        '../../assets/icons/export': components,
+        '../../contexts/AuthContext': {useAuth: () => ({account: {id: 'account'}})},
+        '../../contexts/AppPreferencesContext': {useAppPreferences: () => ({t: (key) => key})},
+        '../../navigation/routes': {AUTHENTICATED_ROUTES: {}},
+        '../../services/groceryListService': {
+            listGroceryLists(accountId, pantryId) {
+                const request = deferred();
+                listRequests.set(pantryId, {accountId, request});
+                return request.promise;
+            }, addGroceryItem: async (value) => {
+                additions.push(value);
+            },
+        },
+        '../../services/notificationService': {
+            syncDeviceNotifications: async () => ({permissionGranted: true}),
+            listNotifications: async () => records,
+            markNotificationRead: async () => {
+            },
+            recordNotificationAddedToList: async () => {
+            },
+        },
+        '../../utils/userErrors': {
+            showUserErrorAlert() {
+            }
+        },
+        './styles': components,
+    };
+    const module = {exports: {}};
+    new Function('require', 'module', 'exports', code)((name) => {
+        if (!Object.hasOwn(mocks, name)) throw new Error(`Unexpected import ${name}`);
+        return mocks[name];
+    }, module, module.exports);
+    const Screen = module.exports.default;
+    const render = () => {
+        cursor = 0;
+        return Screen({
+            embedded: true, navigation: {
+                setParams() {
+                }, navigate() {
+                }
+            }, route: {}
+        });
+    };
+
+    function find(tree, predicate) {
+        if (tree == null) return null;
+        if (Array.isArray(tree)) {
+            for (const child of tree) {
+                const found = find(child, predicate);
+                if (found) return found;
+            }
+            return null;
+        }
+        if (typeof tree !== 'object') return null;
+        if (predicate(tree)) return tree;
+        return find(tree.props?.children, predicate);
+    }
+
+    const modal = (tree) => find(tree, (entry) => entry.type === modalType);
+    const row = (tree, id) => find(tree, (entry) => entry.type === 'NotificationRow' && entry.props.accessibilityLabel === id);
+
+    render();
+    await tick();
+    let tree = render();
+    const openA = row(tree, 'A').props.onPress();
+    await tick();
+    assert.ok(listRequests.has('pantry-a'), 'opening A requests lists for pantry A');
+
+    tree = render();
+    const openB = row(tree, 'B').props.onPress();
+    await tick();
+    assert.ok(listRequests.has('pantry-b'), 'opening B requests lists for pantry B');
+    assert.equal(modal(render()).props.notification.id, 'B', 'B remains the current selection');
+
+    listRequests.get('pantry-a').request.resolve([{id: 'list-a', name: 'Lista A', status: 'active'}]);
+    await openA;
+    tree = render();
+    assert.equal(modal(tree).props.notification.id, 'B');
+    assert.deepEqual(modal(tree).props.lists, [], 'A response cannot show lists for the current B selection');
+    assert.equal(modal(tree).props.listsLoading, true, 'A response cannot finish B loading state');
+
+    listRequests.get('pantry-b').request.resolve([{id: 'list-b', name: 'Lista B', status: 'active'}]);
+    await openB;
+    tree = render();
+    assert.deepEqual(modal(tree).props.lists.map((list) => list.id), ['list-b']);
+
+    const reopenAFirst = row(tree, 'A').props.onPress();
+    await tick();
+    const requestAFirst = listRequests.get('pantry-a').request;
+    const reopenBFirst = row(render(), 'B').props.onPress();
+    await tick();
+    const requestBFirst = listRequests.get('pantry-b').request;
+    requestBFirst.resolve([{id: 'list-b-latest', name: 'Lista B atualizada', status: 'active'}]);
+    await reopenBFirst;
+    requestAFirst.resolve([{id: 'list-a-late', name: 'Lista A atrasada', status: 'active'}]);
+    await reopenAFirst;
+    tree = render();
+    assert.equal(modal(tree).props.notification.id, 'B');
+    assert.deepEqual(modal(tree).props.lists.map((list) => list.id), ['list-b-latest'], 'late A response cannot replace B lists');
+    assert.equal(modal(tree).props.listsError, null, 'late A response cannot overwrite the current error state');
+
+    const reopenA = row(tree, 'A').props.onPress();
+    await tick();
+    const requestA = listRequests.get('pantry-a').request;
+    const reopenB = row(render(), 'B').props.onPress();
+    await tick();
+    const requestB = listRequests.get('pantry-b').request;
+    requestB.resolve([{id: 'list-b-new', name: 'Lista B nova', status: 'active'}]);
+    await reopenB;
+    requestA.reject(new Error('late A failure'));
+    await reopenA;
+    tree = render();
+    assert.equal(modal(tree).props.notification.id, 'B');
+    assert.deepEqual(modal(tree).props.lists.map((list) => list.id), ['list-b-new']);
+    assert.equal(modal(tree).props.listsError, null, 'late A failure cannot replace B state');
+
+    await modal(tree).props.onAddToList({id: 'list-b-new', name: 'Lista B nova'});
+    assert.deepEqual(additions.map(({accountId, pantryId, listId}) => ({accountId, pantryId, listId})), [{
+        accountId: 'account', pantryId: 'pantry-b', listId: 'list-b-new'
+    }], 'adding from the current notification uses its pantry and list');
+}
+
 (async () => {
     await scenario(null);
     await scenario('B');
     await scenario('A');
+    await concurrentSelectionsScenario();
     console.log('notification-modal-race tests passed');
 })().catch((error) => {
     console.error(error);

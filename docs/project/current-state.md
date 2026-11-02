@@ -1,10 +1,18 @@
 # Estado atual
 
+## Aberturas concorrentes de notificações — 1º de novembro de 2026
+
+- B21 considerado resolvido pelo usuário no fluxo local. A tela usa uma versão da seleção para ignorar respostas de
+  listas que pertencem a uma notificação anterior.
+  Resultado antigo não substitui listas, erro ou estado de carregamento da notificação atual. Teste de regressão cobre
+  respostas fora de ordem entre duas despensas, erro atrasado e a inclusão usando somente a despensa e a lista atuais.
+  Teste automatizado passou; falta validar a corrida no Android. iOS não testado fisicamente.
+
 ## Modal de notificação — 1º de novembro de 2026
 
-- B20: proteção anterior impede reabertura ou substituição por resultado atrasado. A inclusão concluída agora atualiza
-  também a mesma notificação reaberta durante a gravação, evitando que continue parecendo pendente. Teste automatizado
-  da tela com gravação suspensa e bundle Android passaram; validação física pendente.
+- B20 confirmado como resolvido pelo usuário no Android. A proteção impede reabertura ou substituição por resultado
+  atrasado; a inclusão concluída atualiza também a mesma notificação reaberta durante a gravação, evitando que continue
+  parecendo pendente. Teste automatizado da tela com gravação suspensa e bundle Android passaram.
 
 ## Carregamento de fontes — 1º de novembro de 2026
 

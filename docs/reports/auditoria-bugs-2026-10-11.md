@@ -425,9 +425,11 @@ aparelho.
 
 ### B20 — Modal de notificação reabre após o usuário fechá-lo
 
-**Atualização local:** a proteção anterior já impedia reabrir ou substituir o modal após fechamento. A mesma notificação
-reaberta durante a gravação passa a refletir a inclusão concluída, sem permitir uma nova inclusão por estado antigo.
-Teste automatizado cobre fechamento, abertura de outra notificação e reabertura da mesma; validação física pendente.
+**Atualização local:** o usuário confirmou que o B20 está resolvido no Android. A proteção impede reabrir ou substituir
+o
+modal após fechamento. A mesma notificação reaberta durante a gravação reflete a inclusão concluída, sem permitir uma
+nova inclusão por estado antigo. Teste automatizado cobre fechamento, abertura de outra notificação e reabertura da
+mesma.
 
 **Local:** `src/screens/NotificationsScreen/index.js:278-323`.
 
@@ -440,6 +442,11 @@ reabre o modal.
 **Recomendação:** separar atualização dos dados da seleção visual e invalidar continuações quando a interação termina.
 
 ### B21 — Aberturas concorrentes de notificações misturam listas de despensas
+
+**Atualização local — 1º de novembro de 2026:** a implementação já invalida consultas de uma seleção anterior por
+versão da seleção. Um teste de regressão agora abre notificações de duas despensas e cobre respostas bem-sucedidas fora
+de ordem, falha atrasada, preservação do indicador de carregamento e inclusão vinculada apenas à despensa/lista atuais.
+O teste passou. Falta validar fisicamente a corrida no Android; iOS não testado.
 
 **Local:** `src/screens/NotificationsScreen/index.js:150-179`, `:281-293`.
 
