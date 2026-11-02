@@ -44,33 +44,12 @@ export default function SettingsScreen({ embedded = false }) {
   const [notificationPermission, setNotificationPermission] = useState(false);
   const [isPermissionLoading, setIsPermissionLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
+  const lastKnownNotificationPermissionRef = useRef(null);
+  const permissionRefreshVersionRef = useRef(0);
 
   useEffect(() => setDraft({ language, fontScale }), [language, fontScale]);
 
-  const refreshNotificationPermission = useCallback(async () => {
-    try {
-      const permission = await Notifications.getPermissionsAsync();
-      setNotificationPermission(Boolean(permission.granted || permission.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL));
-    } catch {
-      setNotificationPermission(false);
-    } finally {
-      setIsPermissionLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    refreshNotificationPermission();
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') refreshNotificationPermission();
-    });
-    return () => subscription.remove();
-  }, [refreshNotificationPermission]);
-
-  const hasChanges = draft.language !== language || draft.fontScale !== fontScale;
-
-  const handleCancel = () => setDraft({ language, fontScale });
-
-  const syncNotifications = async (savedLanguage) => {
+  const syncNotifications = useCallback(async (savedLanguage = language) => {
     const savedT = (key) => translate(savedLanguage, key);
     try {
       await syncDeviceNotifications(account?.id);
@@ -90,7 +69,43 @@ export default function SettingsScreen({ embedded = false }) {
         } },
       ]);
     }
-  };
+  }, [account?.id, language]);
+
+  const refreshNotificationPermission = useCallback(async () => {
+    const refreshVersion = ++permissionRefreshVersionRef.current;
+    try {
+      const permission = await Notifications.getPermissionsAsync();
+      if (refreshVersion !== permissionRefreshVersionRef.current) return;
+      const granted = Boolean(permission.granted || permission.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL);
+      const wasGranted = lastKnownNotificationPermissionRef.current;
+      lastKnownNotificationPermissionRef.current = granted;
+      setNotificationPermission(granted);
+      setIsPermissionLoading(false);
+      if (wasGranted === false && granted) await syncNotifications(language);
+    } catch {
+      if (refreshVersion !== permissionRefreshVersionRef.current) return;
+      lastKnownNotificationPermissionRef.current = false;
+      setNotificationPermission(false);
+      setIsPermissionLoading(false);
+    }
+  }, [language, syncNotifications]);
+
+  useEffect(() => {
+    refreshNotificationPermission();
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') refreshNotificationPermission();
+    });
+    return () => {
+      permissionRefreshVersionRef.current += 1;
+      subscription.remove();
+    };
+  }, [refreshNotificationPermission]);
+
+  const hasChanges = draft.language !== language || draft.fontScale !== fontScale;
+
+  const handleCancel = () => setDraft({ language, fontScale });
+
+
 
   const handleSave = async () => {
     if (!hasChanges || savingRef.current || isPreferencesLoading) return;

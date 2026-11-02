@@ -4,8 +4,10 @@ Data: 11/10/2026. Branch: `develop`. Commit auditado: `8b62543ed9d40d7ed26e8d341
 
 ## Resumo
 
-Foram identificados **31 defeitos: 7 de prioridade P1, 17 de prioridade P2 e 7 de prioridade P3**. Há também uma
-ambiguidade funcional e problemas nos scripts de teste existentes, descritos separadamente.
+A auditoria original identificou **31 defeitos: 7 de prioridade P1, 17 de prioridade P2 e 7 de prioridade P3**. Depois
+do fechamento da auditoria, o usuário relatou o B32 sobre notificações de marcas separadas e o B33 sobre a ordem da
+lista de notificações, registrados abaixo como acompanhamentos. Há também uma ambiguidade funcional e problemas nos
+scripts de teste existentes, descritos separadamente.
 
 Os riscos mais urgentes são perda integral do banco local, gravações que retornam erro depois de persistir, corrupção de
 preços após consumo, associação automática de produtos diferentes, total fiscal incompleto, seleção incorreta de
@@ -477,7 +479,12 @@ cancelável sobre outra tela. A chamada iniciada no timer também pode rejeitar 
 
 ### B27 — Permissão concedida nas configurações do sistema não agenda imediatamente
 
-**Local:** `src/screens/SettingsScreen/index.js:50-76`.
+**Atualização local — 1º de novembro de 2026:** ao retornar com a permissão alterada de negada para concedida,
+Configurações atualiza o controle e inicia a sincronização dos avisos sem salvar idioma ou fonte. Leituras fora de ordem
+são invalidadas; mudanças repetidas para concedido não duplicam a sincronização. Testes automatizados e bundle Android
+passaram. O usuário confirmou que o teste físico Android ocorreu normalmente; iOS não testado.
+
+**Local atual:** `src/screens/SettingsScreen/index.js:47-102`.
 
 Ao voltar do sistema, a tela atualiza somente o estado da permissão. A reconciliação está ligada ao salvamento de
 preferências, que não fica disponível apenas pela mudança da permissão.
@@ -593,6 +600,27 @@ navegação de retorno continuam incluindo esses cards. As decisões atuais pede
 
 **Evidência:** inspeção. **Recomendação:** construir etapas a partir de pendências, preservando revisão dos resultados
 por um mecanismo explícito.
+
+### B32 — Saldo zero de marca separada não gera notificação
+
+**Atualização local — 1º de novembro de 2026:** corrigido o agrupamento para manter cada marca explicitamente separada
+como grupo independente mesmo quando o saldo dela chega a zero. O aviso da tela e o aviso do aparelho passam a
+identificar a marca. Compras da mesma marca continuam agregadas; no modo agrupado, o estoque de todas as marcas é
+somado e o aviso só aparece quando o total chega a zero. Testes de integração de estoque/notificação e bundle Android
+passaram. Validação física pendente no Android; iOS não testado.
+
+**Local atual:** `src/repositories/productRepository.js` e `src/services/notificationService.js`.
+
+**Cenário relatado:** duas marcas da mesma apresentação estão separadas; zerar Marca A enquanto Marca B ainda tem saldo
+remove A sem criar um aviso próprio.
+
+### B33 — Notificações fora da ordem de recência
+
+**Atualização local — 1º de novembro de 2026:** a tela ordena os avisos do mais recente para o mais antigo, de cima
+para baixo. O instante de ativação é persistido localmente; alertas de validade usam a data de vencimento. Validação
+automatizada e física pendentes.
+
+**Local atual:** `src/services/notificationService.js`.
 
 ## Ambiguidade que requer decisão funcional
 

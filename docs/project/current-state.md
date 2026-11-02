@@ -1,5 +1,25 @@
 # Estado atual
 
+## Ordem da lista de notificações — 1º de novembro de 2026
+
+- B33 corrigido no fluxo local: a lista é ordenada da notificação mais recente para a mais antiga. O instante em que
+  cada aviso fica ativo é guardado localmente; avisos de validade usam a própria data de vencimento. Validação
+  automatizada e física ainda pendentes.
+
+## Aviso de produto de marca separada com saldo zero — 1º de novembro de 2026
+
+- B32 corrigido no fluxo local: quando marcas de uma apresentação estão explicitamente separadas, cada marca continua
+  como card e produto de notificação independente ao chegar a zero, mesmo que outra marca equivalente tenha saldo.
+  Compras da mesma marca continuam agregadas; no modo agrupado, o aviso espera o saldo combinado chegar a zero. Testes
+  de agrupamento/notificação e bundle Android passaram; validação física pendente no Android. iOS não testado.
+
+## Sincronização ao conceder permissão de notificações — 1º de novembro de 2026
+
+- B27 corrigido e validado pelo usuário no Android: ao retornar dos ajustes do sistema com a permissão recém-concedida,
+  Configurações atualiza o controle e sincroniza imediatamente os avisos do aparelho, sem exigir Salvar. Leituras
+  assíncronas antigas são ignoradas, e eventos repetidos não duplicam a sincronização. Testes automatizados e bundle
+  Android passaram. iOS não testado fisicamente.
+
 ## Pergunta de agrupamento após sair da despensa — 1º de novembro de 2026
 
 - B22 considerado resolvido pelo usuário. A validação física foi considerada difícil porque o timer é muito rápido.

@@ -1,20 +1,42 @@
 # Decisões do projeto
 
+## 2026-11-01 — Ordem da lista de notificações
+
+Exibir as notificações da mais recente para a mais antiga, de cima para baixo. Registrar localmente quando cada aviso
+passa a estar ativo; para avisos de validade, usar a data de vencimento como referência temporal. A ordenação não muda
+os critérios de leitura, tratamento ou remoção dos avisos.
+
 ## 2026-11-01 — Marca e apresentação com saldo zerado
 
-Quando um card agrupado tiver duas ou mais compras com saldo, não exibir marca no nome do card. Quando restar uma compra com saldo, exibir sua marca ou “Sem marca”. Quando todas as ocorrências da mesma apresentação estiverem zeradas, manter um único card, mesmo com marcas diferentes, usando os dados da ocorrência mais recente; as compras permanecem no histórico.
+Quando um card agrupado tiver duas ou mais compras com saldo, não exibir marca no nome do card. Quando restar uma compra
+com saldo, exibir sua marca ou “Sem marca”. Quando todas as ocorrências da mesma apresentação estiverem zeradas e não
+houver uma escolha explícita de separar marcas, manter um único card usando os dados da ocorrência mais recente; as
+compras permanecem no histórico. A escolha explícita de separar marcas mantém um card zerado por marca.
 
 ## 2026-11-01 — Ocorrências zeradas na apresentação da despensa
 
-Para exibir dados de produto e decidir avisos de múltiplas compras e agrupamento de marcas, considerar apenas ocorrências com saldo positivo. Uma ocorrência zerada permanece na compra/histórico, mas não causa os avisos nem cria card separado enquanto outra ocorrência da mesma apresentação tem saldo. Quando toda a apresentação estiver zerada, manter um card zerado com os dados da ocorrência mais recente. A redução continua consumindo a compra mais antiga com saldo e o aumento é aplicado à ocorrência mais recente do grupo.
+Para exibir dados de produto e decidir avisos de múltiplas compras e agrupamento de marcas, considerar apenas
+ocorrências com saldo positivo. Uma ocorrência zerada permanece na compra/histórico e não causa card separado nem aviso
+enquanto outra ocorrência da mesma marca/apresentação tem saldo. Com preferência explícita de separar marcas, cada
+marca/apresentação é um produto independente: ao zerar o saldo agregado daquela marca, manter seu card e emitir seu aviso
+mesmo que outra marca da apresentação ainda tenha saldo; se todas as marcas zerarem, manter um card e aviso por marca.
+No modo agrupado, o saldo é combinado entre marcas e o aviso só ocorre quando esse total chega a zero. Sem preferência
+explícita de separação, quando toda a apresentação estiver zerada, manter um card com os dados da ocorrência mais recente.
+A redução continua consumindo a compra mais antiga com saldo e o aumento é aplicado à ocorrência mais recente do grupo.
 
 ## 2026-11-01 — Pergunta de agrupamento apenas para marcas distintas
 
-Após relato do usuário, ocorrências da mesma apresentação e mesma marca, inclusive duas sem marca, são agrupadas sem perguntar sobre marcas diferentes. Quando a apresentação tiver marcas distintas, inclusive uma sem marca e outra identificada, o app oferece a escolha de juntá-las ou separá-las. Esta regra substitui a decisão anterior de perguntar a cada segunda ocorrência mesmo quando as marcas são iguais.
+Após relato do usuário, ocorrências da mesma apresentação e mesma marca, inclusive duas sem marca, são agrupadas sem
+perguntar sobre marcas diferentes. Quando a apresentação tiver marcas distintas, inclusive uma sem marca e outra
+identificada, o app oferece a escolha de juntá-las ou separá-las. Esta regra substitui a decisão anterior de perguntar a
+cada segunda ocorrência mesmo quando as marcas são iguais.
 
 ## 2026-11-01 — Correção de preço histórico de produto
 
-Ao editar o preço unitário de uma ocorrência, o total do item usa a quantidade originalmente comprada, não o saldo atual. O preço total informado diretamente continua sendo o total da ocorrência. Em compra manual com uma única ocorrência de produto, corrigir o preço também atualiza o total da compra; em NFC-e ou compra com vários produtos, o total original da compra é preservado. Essa regra foi aprovada pelo usuário e não altera o modelo hospedado.
+Ao editar o preço unitário de uma ocorrência, o total do item usa a quantidade originalmente comprada, não o saldo
+atual. O preço total informado diretamente continua sendo o total da ocorrência. Em compra manual com uma única
+ocorrência de produto, corrigir o preço também atualiza o total da compra; em NFC-e ou compra com vários produtos, o
+total original da compra é preservado. Essa regra foi aprovada pelo usuário e não altera o modelo hospedado.
 
 ## 2026-11-01 — Banco local sem compatibilidade com versões antigas
 
@@ -27,7 +49,9 @@ Para evitar gravação parcial entre dados e versão, ambos são gravados no mes
 tabelas da versão 11 com a versão em chave separada são aceitas e passam ao formato de registro único na próxima
 gravação; isso não recupera nem migra dados de esquemas anteriores.
 
-Cada gravação usa identificador no registro local e marcador temporário persistido antes da escrita. Quando a confirmação de escrita é ambígua, uma releitura identifica a operação; se indisponível, novas gravações aguardam resolução, inclusive depois de reiniciar. Esses metadados não integram tabelas nem definem contrato para o backend.
+Cada gravação usa identificador no registro local e marcador temporário persistido antes da escrita. Quando a
+confirmação de escrita é ambígua, uma releitura identifica a operação; se indisponível, novas gravações aguardam
+resolução, inclusive depois de reiniciar. Esses metadados não integram tabelas nem definem contrato para o backend.
 
 ## 2026-11-01 — Finalização manual sem produtos
 
@@ -82,7 +106,9 @@ outubro de 2026. Ele descreve requisitos e decisões, sem afirmar que a API ou o
 
 A solicitação de permissão de notificações ocorre na primeira abertura da área autenticada (Home) durante a sessão do
 app. Tocar no sino e abrir a tela de notificações apenas consulta/sincroniza o estado; não deve iniciar um pedido de
-permissão. Se o sistema não permitir nova solicitação, o app respeita esse estado.
+permissão. Se o sistema não permitir nova solicitação, o app respeita esse estado. Quando a pessoa concede a permissão
+pelos ajustes do sistema e retorna ao app, a mudança de negada para concedida inicia a sincronização dos avisos sem
+exigir alteração ou salvamento de outras preferências.
 
 ## 2026-10-10 - Edição local do perfil concluída
 

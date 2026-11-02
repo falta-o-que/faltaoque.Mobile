@@ -52,6 +52,19 @@ async function main() {
     assert.equal(deodorant.name, 'Desodorante · Marca B');
     assert.equal(deodorant.occurrenceCount, 1);
     assert.ok(deodorant.occurrenceIds.includes(deodorantA.id));
+
+    const riceA = await addProduct({...draft, name: 'Arroz', brand: 'Marca A'});
+    const riceB = await addProduct({...draft, name: 'Arroz', brand: 'Marca B', quantity: '2'});
+    await setProductBrandGrouping('a', 'p', getProductPresentationKey({name: 'Arroz'}), 'separate');
+    await updateProductQuantity({...scope, productIds: [riceA.id], quantity: 0});
+    let riceCards = (await listProducts('a', 'p')).filter((card) => card.baseName === 'Arroz');
+    assert.equal(riceCards.length, 2, 'separated brands remain separate even when one brand is depleted');
+    assert.equal(riceCards.find((card) => card.occurrenceIds.includes(riceA.id)).quantity, 0);
+    assert.equal(riceCards.find((card) => card.occurrenceIds.includes(riceB.id)).quantity, 2);
+    await updateProductQuantity({...scope, productIds: [riceB.id], quantity: 0});
+    riceCards = (await listProducts('a', 'p')).filter((card) => card.baseName === 'Arroz');
+    assert.equal(riceCards.length, 2, 'explicitly separated brands stay separate when all are depleted');
+    assert.deepEqual(riceCards.map((card) => card.quantity), [0, 0]);
     console.log('pantry-active-occurrences tests passed');
 }
 

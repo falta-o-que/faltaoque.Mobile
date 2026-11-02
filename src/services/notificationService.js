@@ -75,7 +75,7 @@ function formatDate(expirationDate, language) {
 }
 
 function defaultMetadata() {
-  return { readIds: [], handledById: {}, dismissedIds: [], announcedIds: [] };
+  return { readIds: [], handledById: {}, dismissedIds: [], announcedIds: [], createdAtById: {} };
 }
 
 async function readMetadata(accountId) {
@@ -89,6 +89,9 @@ async function readMetadata(accountId) {
         : {},
       dismissedIds: Array.isArray(parsed?.dismissedIds) ? parsed.dismissedIds : [],
       announcedIds: Array.isArray(parsed?.announcedIds) ? parsed.announcedIds : [],
+      createdAtById: parsed?.createdAtById && typeof parsed.createdAtById === 'object'
+        ? parsed.createdAtById
+        : {},
     };
   } catch {
     return defaultMetadata();
@@ -126,15 +129,18 @@ function buildExpirationNotification(pantry, product, language) {
   };
 }
 
+function depletedProductName(product) {
+  return product.groupedBrands ? product.baseName || product.name : product.name || product.baseName;
+}
+
 function buildDepletedNotification(pantry, product, language) {
-  const productName = product.baseName || product.name;
   return {
     id: `depleted:${pantry.id}:${product.id}`,
     type: 'depleted',
     pantryId: pantry.id,
     pantryName: pantry.name,
     product,
-    title: translate(language, 'notifications.productDepletedTitle', { product: productName }),
+    title: translate(language, 'notifications.productDepletedTitle', { product: depletedProductName(product) }),
   };
 }
 
@@ -173,7 +179,17 @@ async function loadNotificationState(accountId) {
       .filter(([id]) => allIds.has(id))),
     dismissedIds: metadata.dismissedIds.filter((id) => allIds.has(id)),
     announcedIds: metadata.announcedIds.filter((id) => allIds.has(id)),
+    createdAtById: Object.fromEntries(Object.entries(metadata.createdAtById)
+      .filter(([id]) => allIds.has(id))),
   };
+  const notificationTime = new Date().toISOString();
+  current.forEach((notification) => {
+    if (!nextMetadata.createdAtById[notification.id]) {
+      nextMetadata.createdAtById[notification.id] = notification.type === 'expiration'
+        ? `${notification.expirationDate}T00:00:00.000Z`
+        : notificationTime;
+    }
+  });
   if (JSON.stringify(nextMetadata) !== JSON.stringify(metadata)) {
     try {
       await AsyncStorage.setItem(metadataKey(accountId), JSON.stringify(nextMetadata));
@@ -187,9 +203,11 @@ async function loadNotificationState(accountId) {
     .filter((notification) => !dismissed.has(notification.id))
     .map((notification) => ({
       ...notification,
+      createdAt: nextMetadata.createdAtById[notification.id],
       isRead: nextMetadata.readIds.includes(notification.id),
       handled: nextMetadata.handledById[notification.id] ?? null,
-    }));
+    }))
+    .sort((first, second) => second.createdAt.localeCompare(first.createdAt));
 
   return { notifications, upcoming, metadata: nextMetadata, allIds, language };
 }
@@ -239,7 +257,9 @@ function expirationTriggerDate(expirationDate) {
 }
 
 function notificationContent(accountId, notification, language) {
-  const productName = notification.product.baseName || notification.product.name;
+  const productName = notification.type === 'depleted'
+    ? depletedProductName(notification.product)
+    : notification.product.baseName || notification.product.name;
   return {
     title: notification.type === 'expiration'
       ? translate(language, 'notifications.expirationTitle')

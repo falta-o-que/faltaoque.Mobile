@@ -20,7 +20,10 @@ Status: especificação funcional atualizada até 10 de outubro de 2026. Não co
 - `purchases` representa compras operacionais; seus registros também alimentam histórico e dashboards. Compras não devem ser apagadas. Produtos novos iniciam com `pantry_products.is_deleted = false`; ao removê-los da visualização, o campo passa a `true`, sem apagar o registro. Saldo zero, por si só, não altera `is_deleted`. Um saldo zerado poderá voltar a receber unidades.
 - Cada ocorrência do produto em uma compra mantém ID próprio. O modelo de 5 de outubro separa `pantry_products.quantity` (quantidade comprada) de `current_quantity` (saldo). O histórico e o cálculo do preço unitário devem usar a quantidade comprada, nunca o saldo restante. `pantry_products.price` representa o preço total daquele item na compra; `purchases.total_price` representa o total da compra.
 - O front soma o saldo dos registros equivalentes da despensa. Ao reduzir o saldo agregado, o backend consome primeiro o registro da compra mais antiga que ainda tenha saldo; ao aumentar pelo controle de estoque, acrescenta ao registro da compra mais recente. Compras na mesma data podem ser escolhidas em qualquer ordem. Alterações simultâneas de participantes devem ser aplicadas de forma consistente pelo backend, e o front exibe o saldo confirmado pela API.
-- Produtos em embalagens ou apresentações diferentes não são somados. Marcas diferentes são registros distintos. O usuário poderá escolher visualizá-los juntos ou separados por marca sem fundir os registros. A persistência dessa preferência ainda não foi definida.
+- Produtos em embalagens ou apresentações diferentes não são somados. Marcas diferentes são registros distintos. A
+  preferência local por despensa pode juntá-las ou separá-las visualmente sem fundir registros. Separadas, cada
+  marca/apresentação tem saldo e aviso de esgotamento próprios, inclusive quando outra marca equivalente ainda tem
+  estoque; agrupadas, o aviso ocorre quando o saldo combinado chega a zero.
 - A medida fracionada de um produto vendido por peso ou volume, como 0,750 kg de carne, será guardada em `content_value` com `unit_of_measure`. `quantity` e `current_quantity` aparecem como inteiros no retrato recebido. A unidade de medida será um enum; os valores finais e a regra para consumo parcial da medida ainda precisam ser confirmados.
 
 ## NFC-e e identificação da compra
@@ -96,7 +99,12 @@ Peso/volume de um item planejado é opcional; a categoria é obrigatória, confo
 
 - Feature encerrada por confirmação do usuário, após validação inicial no front. Disponível na Home, com título fixo `Configurações do Aplicativo`, marcador na cor do avatar e conteúdo rolável abaixo, seguindo o padrão das demais abas.
 - Idiomas: português brasileiro, inglês e espanhol. Idioma e tamanho de fonte são preferências locais persistentes; Salvar aplica as alterações e Cancelar restaura os valores salvos. A fonte oferece escalas de 90%, 100% e 110%. Os controles ficam bloqueados durante o salvamento. As ações reutilizam o componente do perfil.
-- Notificações: o controle mostra a permissão atual e abre os ajustes do sistema para alterá-la; o estado é consultado novamente ao retornar ao app. Não é uma preferência pendente do botão Salvar.
+- Notificações: o controle mostra a permissão atual e abre os ajustes do sistema para alterá-la; o estado é consultado
+  novamente ao retornar ao app. Quando a permissão muda de negada para concedida, os avisos são sincronizados
+  imediatamente, sem exigir alteração ou salvamento das outras preferências. Não é uma preferência pendente do botão
+  Salvar.
+- A lista de notificações é ordenada de cima para baixo, da mais recente para a mais antiga. O app registra localmente
+  quando cada aviso fica ativo; para avisos de validade, usa a data de vencimento como referência temporal.
 - Ao salvar, os avisos do dispositivo são sincronizados no idioma escolhido. Se a sincronização falhar, o app informa que as preferências foram salvas e oferece nova tentativa. Falhas ao abrir os ajustes do sistema ou o projeto mostram mensagens nos três idiomas.
 - Sobre apresenta `Beta 0.9`, equipe em ordem alfabética e link `https://github.com/falta-o-que`. Sair da conta exige confirmação.
 - Guia, Política de Privacidade e Termos de Uso abrem modais internos roláveis com o mesmo botão circular vermelho de fechamento das outras abas. A estrutura está concluída; os textos definitivos dependem do envio/aprovação do usuário.

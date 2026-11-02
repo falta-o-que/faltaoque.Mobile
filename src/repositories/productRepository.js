@@ -79,14 +79,24 @@ function groupProductOccurrences(occurrences, brandGroupingByPresentation = {}) 
         .map((item) => getProductPresentationKey(item)));
     occurrences.forEach((product) => {
         const presentationKey = getProductPresentationKey(product);
-        const groupBrands = brandGroupingByPresentation[presentationKey] === 'grouped' || !stockedPresentations.has(presentationKey);
+        const groupingPreference = brandGroupingByPresentation[presentationKey];
+        const groupBrands = groupingPreference === 'grouped' ||
+            (groupingPreference !== 'separate' && !stockedPresentations.has(presentationKey));
         const key = productGroupKey(product, groupBrands);
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key).push(product);
     });
 
-    return [...groups.entries()].filter(([, entries]) => !stockedPresentations.has(getProductPresentationKey(entries[0])) || entries.some((item) => Number(item.quantity) > 0)).map(([key, entries]) => {
-        const groupBrands = brandGroupingByPresentation[getProductPresentationKey(entries[0])] === 'grouped';
+    return [...groups.entries()].filter(([, entries]) => {
+        const presentationKey = getProductPresentationKey(entries[0]);
+        return !stockedPresentations.has(presentationKey) ||
+            brandGroupingByPresentation[presentationKey] !== 'grouped' ||
+            entries.some((item) => Number(item.quantity) > 0);
+    }).map(([key, entries]) => {
+        const presentationKey = getProductPresentationKey(entries[0]);
+        const groupingPreference = brandGroupingByPresentation[presentationKey];
+        const groupBrands = groupingPreference === 'grouped' ||
+            (groupingPreference !== 'separate' && !stockedPresentations.has(presentationKey));
         const ordered = [...entries].sort(compareOccurrenceAge);
         const stocked = ordered.filter((entry) => Number(entry.quantity) > 0);
         const displayed = stocked.length ? stocked : [ordered[ordered.length - 1]];
