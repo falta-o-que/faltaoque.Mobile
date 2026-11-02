@@ -80,7 +80,13 @@ export default function PantryScreen({route, navigation}) {
     const [updatingProductIds, setUpdatingProductIds] = useState([]);
     const brandGroupingRef = useRef({});
     const productOccurrencesRef = useRef(null);
+    const focusGenerationRef = useRef(0);
+    const screenFocusedRef = useRef(false);
+    const duplicatePromptTimersRef = useRef(new Set());
+    const pendingDuplicatePromptResolversRef = useRef(new Set());
     const pantryId = route.params?.pantryId;
+
+    const isFocusGenerationCurrent = useCallback((generation) => screenFocusedRef.current && focusGenerationRef.current === generation, []);
 
     const refreshProducts = useCallback(async (groupings = brandGroupingRef.current) => {
         const [items, occurrences] = await Promise.all([listProducts(account?.id, pantryId, {brandGroupingByPresentation: groupings}), listProductOccurrences(account?.id, pantryId),]);
@@ -89,15 +95,19 @@ export default function PantryScreen({route, navigation}) {
         return occurrences;
     }, [account?.id, pantryId]);
 
-    const applyBrandGrouping = useCallback(async (presentationKey, mode) => {
+    const applyBrandGrouping = useCallback(async (presentationKey, mode, generation) => {
+        if (!isFocusGenerationCurrent(generation)) return;
         const nextPreferences = {...brandGroupingRef.current, [presentationKey]: mode};
         await setProductBrandGrouping(account?.id, pantryId, presentationKey, mode);
+        if (!isFocusGenerationCurrent(generation)) return;
         brandGroupingRef.current = nextPreferences;
         await refreshProducts(nextPreferences);
-    }, [account?.id, pantryId, refreshProducts]);
+    }, [account?.id, isFocusGenerationCurrent, pantryId, refreshProducts]);
 
-    const promptForDuplicateProducts = useCallback(async (occurrences) => {
+    const promptForDuplicateProducts = useCallback(async (occurrences, generation = focusGenerationRef.current) => {
+        if (!isFocusGenerationCurrent(generation)) return;
         const preferences = await getProductViewPreferences(account?.id, pantryId);
+        if (!isFocusGenerationCurrent(generation)) return;
         const previousCounts = preferences.promptedDuplicateCounts ?? {};
         const groups = new Map();
         (occurrences ?? []).forEach((product) => {
@@ -128,45 +138,98 @@ export default function PantryScreen({route, navigation}) {
             }
         });
         for (const [key, count] of countsToPersist) {
+            if (!isFocusGenerationCurrent(generation)) return;
             await saveProductDuplicatePromptCount(account?.id, pantryId, key, count);
+            if (!isFocusGenerationCurrent(generation)) return;
         }
 
         for (const prompt of queue) {
+            if (!isFocusGenerationCurrent(generation)) return;
             await new Promise((resolve) => {
+                let finished = false;
+                const finish = () => {
+                    if (finished) return;
+                    finished = true;
+                    pendingDuplicatePromptResolversRef.current.delete(finish);
+                    resolve();
+                };
+                pendingDuplicatePromptResolversRef.current.add(finish);
                 let showChoice;
-                const confirmChoice = (mode) => () => Alert.alert(t('pantry.confirmDisplayTitle'), t('pantry.confirmDisplayMessage'), [{
-                    text: t('pantry.back'), style: 'cancel', onPress: showChoice
-                }, {
-                    text: t('pantry.confirm'), onPress: async () => {
-                        try {
-                            await applyBrandGrouping(prompt.presentationKey, mode);
-                            await saveProductDuplicatePromptCount(account?.id, pantryId, prompt.duplicateKey, prompt.count);
-                        } catch {
-                            showUserErrorAlert(null, {
-                                title: t('pantry.displaySaveErrorTitle'),
-                                fallback: t('pantry.displaySaveError'),
-                                dismissText: t('common.ok'),
-                                t,
-                            });
-                        } finally {
-                            resolve();
-                        }
-                    },
-                },], {cancelable: false},);
+                const confirmChoice = (mode) => () => {
+                    if (!isFocusGenerationCurrent(generation)) {
+                        finish();
+                        return;
+                    }
+                    Alert.alert(t('pantry.confirmDisplayTitle'), t('pantry.confirmDisplayMessage'), [{
+                        text: t('pantry.back'), style: 'cancel', onPress: showChoice
+                    }, {
+                        text: t('pantry.confirm'), onPress: async () => {
+                            if (!isFocusGenerationCurrent(generation)) {
+                                finish();
+                                return;
+                            }
+                            try {
+                                await applyBrandGrouping(prompt.presentationKey, mode, generation);
+                                if (isFocusGenerationCurrent(generation)) {
+                                    await saveProductDuplicatePromptCount(account?.id, pantryId, prompt.duplicateKey, prompt.count);
+                                }
+                            } catch {
+                                if (isFocusGenerationCurrent(generation)) {
+                                    showUserErrorAlert(null, {
+                                        title: t('pantry.displaySaveErrorTitle'),
+                                        fallback: t('pantry.displaySaveError'),
+                                        dismissText: t('common.ok'),
+                                        t,
+                                    });
+                                }
+                            } finally {
+                                finish();
+                            }
+                        },
+                    },], {cancelable: false},);
+                };
 
-                showChoice = () => Alert.alert(t('pantry.displayTitle'), t('pantry.displayMessage', {name: prompt.product.name}), [{
-                    text: t('pantry.groupBrands'), onPress: confirmChoice(PANTRY_BRAND_GROUPING.GROUPED)
-                }, {
-                    text: t('pantry.separateBrands'), onPress: confirmChoice(PANTRY_BRAND_GROUPING.SEPARATE)
-                },], {cancelable: false},);
+                showChoice = () => {
+                    if (!isFocusGenerationCurrent(generation)) {
+                        finish();
+                        return;
+                    }
+                    Alert.alert(t('pantry.displayTitle'), t('pantry.displayMessage', {name: prompt.product.name}), [{
+                        text: t('pantry.groupBrands'), onPress: confirmChoice(PANTRY_BRAND_GROUPING.GROUPED)
+                    }, {
+                        text: t('pantry.separateBrands'), onPress: confirmChoice(PANTRY_BRAND_GROUPING.SEPARATE)
+                    },], {cancelable: false},);
+                };
 
                 showChoice();
             });
         }
-    }, [account?.id, applyBrandGrouping, pantryId, t]);
+    }, [account?.id, applyBrandGrouping, isFocusGenerationCurrent, pantryId, t]);
+
+    const scheduleDuplicatePrompt = useCallback((occurrences, generation) => {
+        if (!isFocusGenerationCurrent(generation)) return;
+        const timer = setTimeout(() => {
+            duplicatePromptTimersRef.current.delete(timer);
+            if (!isFocusGenerationCurrent(generation)) return;
+            promptForDuplicateProducts(occurrences, generation).catch(() => {
+                if (isFocusGenerationCurrent(generation)) {
+                    showUserErrorAlert(null, {
+                        title: t('pantry.displaySaveErrorTitle'),
+                        fallback: t('pantry.displaySaveError'),
+                        dismissText: t('common.ok'),
+                        t,
+                    });
+                }
+            });
+        }, 250);
+        duplicatePromptTimersRef.current.add(timer);
+    }, [isFocusGenerationCurrent, promptForDuplicateProducts, t]);
 
     useFocusEffect(useCallback(() => {
         let active = true;
+        const focusGeneration = focusGenerationRef.current + 1;
+        focusGenerationRef.current = focusGeneration;
+        screenFocusedRef.current = true;
         syncDeviceNotifications(account?.id).catch(() => {
         });
         setLoading(true);
@@ -190,7 +253,7 @@ export default function PantryScreen({route, navigation}) {
             setStoredProducts(items);
             if (!found) setError(t('pantry.unavailable'));
             setLoading(false);
-            if (found) await promptForDuplicateProducts(occurrences);
+            if (found) await promptForDuplicateProducts(occurrences, focusGeneration);
         }).catch(() => {
             if (active) setError(t('pantry.loadError'));
         }).finally(() => {
@@ -198,6 +261,12 @@ export default function PantryScreen({route, navigation}) {
         });
         return () => {
             active = false;
+            screenFocusedRef.current = false;
+            focusGenerationRef.current += 1;
+            for (const timer of duplicatePromptTimersRef.current) clearTimeout(timer);
+            duplicatePromptTimersRef.current.clear();
+            for (const finishPrompt of pendingDuplicatePromptResolversRef.current) finishPrompt();
+            pendingDuplicatePromptResolversRef.current.clear();
         };
     }, [account?.id, pantryId, reloadKey, promptForDuplicateProducts, t]));
 
@@ -263,22 +332,25 @@ export default function PantryScreen({route, navigation}) {
     />);
 
     const handleCreate = async (draft) => {
+        const focusGeneration = focusGenerationRef.current;
         const previousOccurrences = productOccurrencesRef.current ?? [];
         await addProduct({...draft, accountId: account?.id, pantryId});
         const occurrences = await refreshProducts();
         await syncDeviceNotifications(account?.id).catch(() => {
         });
+        if (!isFocusGenerationCurrent(focusGeneration)) return;
         setQuery('');
         setSelectedCategories([]);
         setIsAddOpen(false);
         if (previousOccurrences.length) {
-            setTimeout(() => promptForDuplicateProducts(occurrences), 250);
+            scheduleDuplicatePrompt(occurrences, focusGeneration);
         }
     };
 
 
     const handleUpdate = async (draft) => {
         if (!selectedProduct) return;
+        const focusGeneration = focusGenerationRef.current;
         const previousOccurrences = productOccurrencesRef.current ?? [];
         await updateProduct({
             ...draft, accountId: account?.id, pantryId, productId: selectedProduct.id,
@@ -286,6 +358,7 @@ export default function PantryScreen({route, navigation}) {
         const occurrences = await refreshProducts();
         await syncDeviceNotifications(account?.id).catch(() => {
         });
+        if (!isFocusGenerationCurrent(focusGeneration)) return;
         setSelectedProduct(null);
         const updatedOccurrence = occurrences.find((item) => item.id === selectedProduct.id);
         if (updatedOccurrence && normalizeProductIdentity(updatedOccurrence.brand) !== normalizeProductIdentity(selectedProduct.brand)) {
@@ -296,12 +369,13 @@ export default function PantryScreen({route, navigation}) {
             }
         }
         if (previousOccurrences.length) {
-            setTimeout(() => promptForDuplicateProducts(occurrences), 250);
+            scheduleDuplicatePrompt(occurrences, focusGeneration);
         }
     };
 
     const handleDelete = () => {
         if (!selectedProduct) return;
+        const focusGeneration = focusGenerationRef.current;
         Alert.alert(t('pantry.deleteProductTitle'), t('pantry.deleteProductMessage', {name: selectedProduct.name}), [{
             text: t('pantry.cancel'), style: 'cancel'
         }, {
@@ -311,10 +385,11 @@ export default function PantryScreen({route, navigation}) {
                     const occurrences = await refreshProducts();
                     await syncDeviceNotifications(account?.id).catch(() => {
                     });
-                    await promptForDuplicateProducts(occurrences);
+                    if (!isFocusGenerationCurrent(focusGeneration)) return;
+                    await promptForDuplicateProducts(occurrences, focusGeneration);
                     setSelectedProduct(null);
                 } catch {
-                    showUserErrorAlert(null, {
+                    if (isFocusGenerationCurrent(focusGeneration)) showUserErrorAlert(null, {
                         title: t('pantry.deleteProductErrorTitle'),
                         fallback: t('pantry.deleteProductError'),
                         dismissText: t('common.ok'),

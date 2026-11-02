@@ -1,5 +1,13 @@
 # Estado atual
 
+## Pergunta de agrupamento após sair da despensa — 1º de novembro de 2026
+
+- B22 considerado resolvido pelo usuário. A validação física foi considerada difícil porque o timer é muito rápido.
+  No fluxo local, leituras assíncronas e timers usam a sessão de foco da tela. Ao sair da despensa, timers
+  são cancelados, alertas ainda pendentes deixam de abrir novas etapas, callbacks antigos não gravam a preferência e
+  rejeições dos timers são tratadas sem alerta fora da tela. Testes determinísticos do ciclo de vida, regressões de
+  agrupamento e bundle Android passaram; falta validação física no Android. iOS não testado.
+
 ## Aberturas concorrentes de notificações — 1º de novembro de 2026
 
 - B21 considerado resolvido pelo usuário no fluxo local. A tela usa uma versão da seleção para ignorar respostas de

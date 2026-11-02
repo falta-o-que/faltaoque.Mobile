@@ -460,7 +460,13 @@ tentativa de adição pode falhar na validação de despensa.
 
 ### B22 — Pergunta de agrupamento sobrevive à tela da despensa
 
-**Local:** `src/screens/PantryScreen/index.js:117-157`, `:181-190`, `:270`, `:288`.
+**Atualização local — 1º de novembro de 2026:** o usuário considera o B22 resolvido; relatou que a validação física é
+muito difícil porque o timer é muito rápido. O fluxo vincula a pergunta à sessão de foco da despensa, cancela timers de
+criação/edição no blur e interrompe filas e callbacks antigos antes de abrir alertas ou gravar preferências. Falhas
+disparadas por timers são tratadas e não exibem alertas após sair. Testes dirigidos e bundle Android passaram; iOS não
+testado.
+
+**Local atual:** `src/screens/PantryScreen/index.js:108-227`, `:229-268`, `:335-393`.
 
 Verificações assíncronas e timers de pós-criação/edição não são cancelados ao sair. Podem abrir alerta nativo não
 cancelável sobre outra tela. A chamada iniciada no timer também pode rejeitar sem tratamento.
