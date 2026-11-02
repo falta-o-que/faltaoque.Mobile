@@ -1,8 +1,15 @@
 # Decisões do projeto
 
+## 2026-11-01 — Falha ao ler metadados de notificação
+
+Somente a ausência da chave local inicia metadados vazios. Erros de leitura, JSON inválido ou campos existentes com
+formato inválido devem interromper a leitura/gravação; nunca substituir o histórico por uma base vazia. A recuperação
+do conteúdo inválido deve ser explícita e não pode apagar estados de leitura, dispensa, tratamento ou anúncio.
+
 ## 2026-11-01 — Desempate da ocorrência mais recente
 
-Ao exibir um grupo zerado ou aumentar o saldo agregado, escolher a ocorrência da compra mais recente. Como `purchase_date`
+Ao exibir um grupo zerado ou aumentar o saldo agregado, escolher a ocorrência da compra mais recente. Como
+`purchase_date`
 guarda somente o dia, compras na mesma data são desempatadas pela ordem de inserção na despensa: a compra adicionada
 por último é a mais recente. Ao reduzir, consumir primeiro a compra mais antiga, usando a mesma ordem crescente como
 desempate.
@@ -25,10 +32,12 @@ compras permanecem no histórico. A escolha explícita de separar marcas mantém
 Para exibir dados de produto e decidir avisos de múltiplas compras e agrupamento de marcas, considerar apenas
 ocorrências com saldo positivo. Uma ocorrência zerada permanece na compra/histórico e não causa card separado nem aviso
 enquanto outra ocorrência da mesma marca/apresentação tem saldo. Com preferência explícita de separar marcas, cada
-marca/apresentação é um produto independente: ao zerar o saldo agregado daquela marca, manter seu card e emitir seu aviso
+marca/apresentação é um produto independente: ao zerar o saldo agregado daquela marca, manter seu card e emitir seu
+aviso
 mesmo que outra marca da apresentação ainda tenha saldo; se todas as marcas zerarem, manter um card e aviso por marca.
 No modo agrupado, o saldo é combinado entre marcas e o aviso só ocorre quando esse total chega a zero. Sem preferência
-explícita de separação, quando toda a apresentação estiver zerada, manter um card com os dados da ocorrência mais recente.
+explícita de separação, quando toda a apresentação estiver zerada, manter um card com os dados da ocorrência mais
+recente.
 A redução continua consumindo a compra mais antiga com saldo e o aumento é aplicado à ocorrência mais recente do grupo.
 
 ## 2026-11-01 — Pergunta de agrupamento apenas para marcas distintas

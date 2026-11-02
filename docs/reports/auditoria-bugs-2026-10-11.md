@@ -496,18 +496,24 @@ permissão ativa, mas agendamentos aguardam outro fluxo que execute sincronizaç
 
 ### B28 — Falha de leitura pode apagar histórico de notificações na próxima escrita
 
-**Local:** `src/services/notificationService.js:49-70`, `:84-90`.
+**Atualização local — 1º de novembro de 2026:** leitura ausente é tratada como estado novo; falha de AsyncStorage, JSON
+inválido ou formato inválido interrompe a operação, impedindo que a próxima escrita substitua o histórico por vazio.
+Regressão cobre falha de leitura e JSON inválido. Os 29 scripts automatizados `.cjs` passaram; nenhum teste via ADB foi
+executado. Validação física não realizada.
 
-`readMetadata()` transforma qualquer erro de leitura/JSON em metadados vazios. `updateMetadata()` usa esse resultado
-como base e o grava.
+**Local atual:** `src/services/notificationService.js`.
+
+**Comportamento encontrado na auditoria:** `readMetadata()` transformava qualquer erro de leitura/JSON em metadados
+vazios; `updateMetadata()` usava esse resultado como base e o gravava. A atualização local acima removeu esse fallback
+destrutivo.
 
 **Cenário por inspeção:** já existem IDs lidos, dispensados e tratados; a leitura falha temporariamente, mas a escrita
 seguinte funciona. O conjunto anterior é substituído por uma base vazia acrescida da alteração atual.
 
 **Impacto:** alertas tratados/dispensados podem reaparecer e perder seu estado.
 
-**Recomendação:** distinguir ausência de dados de falha de leitura; impedir atualização destrutiva quando não foi
-possível recuperar o estado anterior.
+**Resolução:** distinguir ausência de dados de falha de leitura e impedir atualização destrutiva quando não foi possível
+recuperar o estado anterior.
 
 ### B31 — Linhas fiscais repetidas são fundidas antes do vínculo e da persistência
 

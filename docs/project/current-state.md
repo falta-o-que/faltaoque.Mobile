@@ -1,5 +1,11 @@
 # Estado atual
 
+## Histórico protegido contra falha de leitura — 1º de novembro de 2026
+
+- B28 corrigido no fluxo local: metadados ausentes iniciam vazios; erro de leitura, JSON inválido ou estrutura inválida
+  interrompe a operação e não é gravado como estado vazio. Regressão cobre falha de leitura e JSON inválido. Os 29
+  scripts automatizados `.cjs` passaram; nenhum teste via ADB foi executado. Validação física não realizada.
+
 ## Desempate de compras na mesma data — 1º de novembro de 2026
 
 - B34 corrigido no fluxo local: ao empatar a data de compra, a ordem de inserção define qual compra é a mais recente.
