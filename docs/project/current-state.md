@@ -2,6 +2,8 @@
 
 ## Atalhos da tela de notificações — 6 de novembro de 2026
 
+- O usuário validou no Android e considera o B25 resolvido.
+
 - B25 corrigido: os atalhos da tela independente abrem Despensa, Perfil e Configurações na Home; Perfil da barra abre
   a área de perfil. Testes de navegação e bundle Android passaram; validação física pendente.
 
@@ -221,7 +223,8 @@
 
 - B29 corrigido na listagem de despensas: o contador usa a mesma lista agrupada de cards da tela da despensa, inclusive
   produtos zerados visíveis e preferência de separar/juntar marcas, em vez de contar ocorrências de compras. Teste
-  automatizado cobre compras repetidas e agrupamento de marcas; validação no aparelho pendente.
+  automatizado cobre compras repetidas e agrupamento de marcas; testes repetidos em 6 de novembro passaram. Validação
+  específica no aparelho pendente.
 
 ## Marcas e notificação — 1º de novembro de 2026
 

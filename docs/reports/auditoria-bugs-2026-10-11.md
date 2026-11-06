@@ -600,6 +600,8 @@ uma mensagem temporariamente falsa.
 
 ### B25 — Atalhos de notificações anunciam destinos implementados como futuros
 
+**Encerramento:** o usuário validou no Android e considera o B25 resolvido.
+
 **Correção local:** atalhos abrem suas áreas na Home e Perfil na barra abre a área de perfil. Testes automatizados e
 bundle Android passaram; validação física pendente.
 
