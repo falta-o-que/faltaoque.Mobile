@@ -573,6 +573,8 @@ inesperados.
 
 ### B23 — Despensa marca Perfil como destino ativo
 
+**Encerramento:** o usuário validou no Android e informou que está funcionando.
+
 **Correção local:** a tela informa a aba Despensa como ativa; validação física no Android pendente.
 
 **Local:** `src/screens/PantryScreen/index.js:403`.
@@ -584,6 +586,9 @@ A tela usa `Navbar activeItem="profile"`; o destino visual e acessível selecion
 humana.
 
 ### B24 — Home/Despensas mostram estado vazio antes de carregar
+
+**Correção local:** as telas exibem indicador de carregamento e aguardam uma resposta vazia antes de informar ausência
+de despensas. Testes cobrem as duas telas, falha e nova tentativa; bundle Android passou. Validação física pendente.
 
 **Local:** `src/screens/HomeScreen/index.js:60`, `:66-84`, `:251-253`; `src/screens/PantriesScreen/index.js:41-70`,
 `:160-163`.

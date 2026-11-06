@@ -1,6 +1,13 @@
 # Estado atual
 
+## Carregamento de despensas — 6 de novembro de 2026
+
+- B24 corrigido na Home e em Despensas: um indicador aparece durante a leitura, e o estado vazio só aparece após
+  resposta vazia. Testes cobrem dados, vazio, falha e nova tentativa; bundle Android gerado. Validação física pendente.
+
 ## Navegação da despensa — 6 de novembro de 2026
+
+- O usuário validou no Android e considera o B23 resolvido.
 
 - B23 corrigido: a tela da despensa informa a aba Despensa como ativa na barra de navegação. Validação física pendente.
 
