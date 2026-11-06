@@ -39,7 +39,7 @@ import {
     Subtitle,
 } from './styles';
 
-export function HomeScreen({navigation}) {
+export function HomeScreen({navigation, route}) {
     const {account} = useAuth();
     const {t} = useAppPreferences();
     const quickActions = [{
@@ -63,6 +63,13 @@ export function HomeScreen({navigation}) {
     const [reloadKey, setReloadKey] = useState(0);
     const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
     const requestedNotificationPermission = useRef(false);
+
+    useEffect(() => {
+        const section = route?.params?.section;
+        if (!['pantry', 'profile', 'settings'].includes(section)) return;
+        setSelectedAction(section);
+        navigation.setParams({section: undefined});
+    }, [navigation, route?.params?.section]);
 
     useFocusEffect(useCallback(() => {
         let isMounted = true;

@@ -600,6 +600,9 @@ uma mensagem temporariamente falsa.
 
 ### B25 — Atalhos de notificações anunciam destinos implementados como futuros
 
+**Correção local:** atalhos abrem suas áreas na Home e Perfil na barra abre a área de perfil. Testes automatizados e
+bundle Android passaram; validação física pendente.
+
 **Local:** `src/screens/NotificationsScreen/index.js:135-140`.
 
 Na tela independente de notificações, ações rápidas de Perfil/Configurações ainda abrem aviso de disponibilidade futura,

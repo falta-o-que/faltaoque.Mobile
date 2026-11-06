@@ -142,15 +142,15 @@ export default function NotificationsScreen({navigation, route, embedded = false
     }, [loading, notifications, onUnreadCountChange]);
 
     const handleQuickAction = (key, label) => {
-        if (key === 'pantry') {
-            navigation.navigate(AUTHENTICATED_ROUTES.HOME);
+        if (['pantry', 'profile', 'settings'].includes(key)) {
+            navigation.navigate(AUTHENTICATED_ROUTES.HOME, {section: key});
         } else if (key !== 'notifications') {
             Alert.alert(t('notifications.comingSoon'), t('notifications.comingSoonMessage', {feature: label}), [{text: t('common.ok')}]);
         }
     };
 
     const handleNavbar = (key, item) => {
-        if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME); else if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES); else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER); else Alert.alert(t('notifications.comingSoon'), t('notifications.comingSoonMessage', {feature: item.label}), [{text: t('common.ok')}]);
+        if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME, {section: 'profile'}); else if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES); else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER); else Alert.alert(t('notifications.comingSoon'), t('notifications.comingSoonMessage', {feature: item.label}), [{text: t('common.ok')}]);
     };
 
     const handleOpenNotification = async (notification) => {

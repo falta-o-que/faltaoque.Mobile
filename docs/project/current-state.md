@@ -1,5 +1,10 @@
 # Estado atual
 
+## Atalhos da tela de notificações — 6 de novembro de 2026
+
+- B25 corrigido: os atalhos da tela independente abrem Despensa, Perfil e Configurações na Home; Perfil da barra abre
+  a área de perfil. Testes de navegação e bundle Android passaram; validação física pendente.
+
 ## Carregamento de despensas — 6 de novembro de 2026
 
 - B24 corrigido na Home e em Despensas: um indicador aparece durante a leitura, e o estado vazio só aparece após
