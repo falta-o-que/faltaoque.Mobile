@@ -187,6 +187,11 @@ export default function NfceReviewScreen({route, navigation}) {
                                                setExpanded(open ? null : index);
                                                setCategoryOpen(null);
                                            }}
+                                           onCancelEdit={(snapshot) => {
+                                               if (snapshot) update(index, snapshot);
+                                               setExpanded(null);
+                                               setCategoryOpen(null);
+                                           }}
                                            onToggleIncluded={() => {
                                                update(index, {selected: !item.selected});
                                                setExpanded(null);

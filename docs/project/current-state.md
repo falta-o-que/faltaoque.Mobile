@@ -1,5 +1,18 @@
 # Estado atual
 
+## Cancelar edição na revisão de compra — 6 de novembro de 2026
+
+- O editor compartilhado de produto da revisão tem X vermelho padrão para cancelar e restaurar os campos anteriores,
+  tanto no checkout da lista quanto na importação direta. Testes automatizados e bundle Android passaram; falta validação
+  física no Android, iOS não testado.
+
+## Etapas da revisão fiscal — 6 de novembro de 2026
+
+- B30 corrigido: etapas concluídas deixam o progresso quando se avança, enquanto a etapa atual permanece estável.
+  Após pedido do usuário, o botão de voltar percorre as etapas já visitadas e permite avançar novamente. O resumo
+  permite reabrir decisões e editar dados da compra. Testes de transições e bundle Android passaram; validação física no
+  Android pendente, iOS não testado.
+
 ## Atalhos da tela de notificações — 6 de novembro de 2026
 
 - O usuário validou no Android e considera o B25 resolvido.

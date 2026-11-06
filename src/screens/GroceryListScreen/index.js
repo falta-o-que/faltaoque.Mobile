@@ -490,7 +490,7 @@ export default function GroceryListScreen({navigation, route}) {
                 return {
                     ...updated,
                     reviewed: Object.hasOwn(patch, 'reviewed') ? patch.reviewed : item.requiresReview ? false : item.reviewed,
-                    categoryResolved: Object.hasOwn(patch, 'category') || (updated.categoryConflict ? Boolean(item.categoryResolved) : true),
+                    categoryResolved: Object.hasOwn(patch, 'categoryResolved') ? patch.categoryResolved : Object.hasOwn(patch, 'category') || (updated.categoryConflict ? Boolean(item.categoryResolved) : true),
                 };
             });
 

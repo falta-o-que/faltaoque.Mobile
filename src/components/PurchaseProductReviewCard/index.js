@@ -1,3 +1,4 @@
+import {useEffect, useRef} from 'react';
 import CategoryTag from '../CategoryTag';
 import ModalActionButton from '../ModalActionButton';
 import FormField from '../FormField';
@@ -13,6 +14,7 @@ import {
     CategoryButtonText,
     Editor,
     EditorTitle,
+    EditorHeader,
     Group,
     Label,
     Muted,
@@ -59,6 +61,7 @@ export default function PurchaseProductReviewCard({
                                                       categoryOpen = false,
                                                       onToggleIncluded,
                                                       onToggleEdit,
+                                                      onCancelEdit,
                                                       onToggleCategory,
                                                       onSelectCategory,
                                                       categoryOptions = PRODUCT_CATEGORIES,
@@ -71,6 +74,13 @@ export default function PurchaseProductReviewCard({
                                                   }) {
     const theme = useTheme();
     const {t} = useAppPreferences();
+    const editSnapshot = useRef(null);
+    useEffect(() => {
+        if (expanded) {
+            const fields = ['name', 'brand', 'quantity', 'unitPrice', 'totalPrice', 'weight', 'contentValue', 'unit', 'category', 'priceInput', 'priceMode', 'reviewed', 'categoryResolved'];
+            editSnapshot.current = Object.fromEntries(fields.map((field) => [field, item[field]]));
+        } else editSnapshot.current = null;
+    }, [expanded]);
     const name = String(title ?? item.name ?? '').trim() || t('shopping.productWithoutName');
     const packageLabel = item.weight ? `${item.weight} ${item.unit || ''}`.trim() : item.contentValue && item.unit ? `${item.contentValue} ${item.unit}` : '';
     const quantity = item.quantity || '—';
@@ -168,7 +178,11 @@ export default function PurchaseProductReviewCard({
             <SelectionText>{included ? t('shopping.doNotAdd') : t('shopping.addProduct')}</SelectionText>
         </Selection> : null}
         {!readOnly && expanded ? <Editor>
-            <EditorTitle>{t('shopping.editProduct')}</EditorTitle>
+            <EditorHeader><EditorTitle>{t('shopping.editProduct')}</EditorTitle>
+                <ModalActionButton Icon={CancelCircleIcon} variant="cancel" disabled={busy}
+                                   accessibilityLabel={t('product.info.cancelEdit')}
+                                   onPress={() => onCancelEdit?.(editSnapshot.current)}/>
+            </EditorHeader>
             {field('name', t('shopping.pantryName'), {Icon: PenIcon, maxLength: 120})}
             {field('brand', t('shopping.optionalBrand'), {Icon: PenIcon, maxLength: 100})}
             {editorNotice ? <Muted>{editorNotice}</Muted> : null}

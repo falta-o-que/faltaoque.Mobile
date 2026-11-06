@@ -39,9 +39,16 @@ export const Editor = styled.View`
     border-top-color: ${({theme}) => theme.colors.white[200]};
 `;
 export const EditorTitle = styled.Text`
+    flex-shrink: 1;
     color: ${({theme}) => theme.colors.black.Black};
     font-family: ${({theme}) => theme.fonts.families.poppins.medium};
     font-size: ${({theme}) => 18 * theme.fonts.scale}px;
+`;
+export const EditorHeader = styled.View`
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 `;
 export const FieldGroup = styled.View`
     gap: 8px;

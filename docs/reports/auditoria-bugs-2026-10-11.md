@@ -628,6 +628,10 @@ coexistir com contador zero.
 
 ### B30 — Etapas já resolvidas permanecem no checkout
 
+**Correção local:** etapas resolvidas desaparecem do progresso ao avançar. O botão de voltar percorre as etapas
+visitadas, e o resumo permite rever decisões e dados da compra. Testes de transições e bundle Android passaram;
+validação física pendente.
+
 **Local:** `src/components/GroceryCheckoutReview/index.js:96-101`, `:437-448`.
 
 Etapas de vínculos automáticos/manuais permanecem enquanto há vínculos, inclusive já resolvidos. Contagem de etapas e

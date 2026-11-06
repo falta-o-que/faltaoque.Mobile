@@ -295,6 +295,9 @@ const ptBR = {
     'shopping.confirmingPurchase': 'Confirmando compra',
     'shopping.backOneStep': 'Voltar uma etapa',
     'shopping.discardRestart': 'Descartar decisões e recomeçar',
+    'shopping.restartConfirmTitle': 'Descartar decisões?',
+    'shopping.restartConfirmMessage': 'As decisões e alterações feitas nesta revisão serão descartadas. Quer recomeçar?',
+    'shopping.restartConfirmAction': 'Descartar e recomeçar',
 };
 
 const en = {
@@ -594,6 +597,9 @@ const en = {
     'shopping.confirmingPurchase': 'Confirming purchase',
     'shopping.backOneStep': 'Go back one step',
     'shopping.discardRestart': 'Discard decisions and start over',
+    'shopping.restartConfirmTitle': 'Discard decisions?',
+    'shopping.restartConfirmMessage': 'The decisions and changes made during this review will be discarded. Start over?',
+    'shopping.restartConfirmAction': 'Discard and start over',
 };
 
 const es = {
@@ -893,6 +899,9 @@ const es = {
     'shopping.confirmingPurchase': 'Confirmando compra',
     'shopping.backOneStep': 'Volver un paso',
     'shopping.discardRestart': 'Descartar decisiones y empezar de nuevo',
+    'shopping.restartConfirmTitle': '¿Descartar decisiones?',
+    'shopping.restartConfirmMessage': 'Se descartarán las decisiones y los cambios de esta revisión. ¿Quieres empezar de nuevo?',
+    'shopping.restartConfirmAction': 'Descartar y empezar de nuevo',
 };
 
 export default {

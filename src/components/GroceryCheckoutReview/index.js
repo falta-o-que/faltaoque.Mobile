@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Modal} from 'react-native';
+import {ActivityIndicator, Alert, Modal} from 'react-native';
 import FormField from '../FormField';
 import DateField from '../DateField';
 import PlaceSearchField from '../PlaceSearchField';
@@ -52,6 +52,8 @@ import {
     SummaryRow,
     SummaryValue,
     Title,
+    RestartChoice,
+    RestartChoiceText,
 } from './styles';
 
 const stageOrder = ['matches', 'relate', 'missing', 'unlinked', 'summary'];
@@ -126,8 +128,12 @@ export default function GroceryCheckoutReview({
                                               }) {
     const {language, t} = useAppPreferences();
     const [stepKey, setStepKey] = useState('summary');
+    const [completedStages, setCompletedStages] = useState([]);
+    const [previousStages, setPreviousStages] = useState([]);
+    const [forwardStages, setForwardStages] = useState([]);
     const [openId, setOpenId] = useState(null);
     const [categoryOpenId, setCategoryOpenId] = useState(null);
+    const [editingPurchaseData, setEditingPurchaseData] = useState(false);
     const contentRef = useRef(null);
     const initialReviewRef = useRef({items: [], stepKey: 'summary'});
     const isFiscal = mode === 'nfce';
@@ -152,12 +158,12 @@ export default function GroceryCheckoutReview({
         key: 'matches',
         title: t('shopping.reviewMatchesTitle'),
         description: t('shopping.reviewMatchesDescription'),
-        hasItems: autoMatchedItems.length > 0 || stepKey === 'matches'
+        hasItems: (autoMatchedItems.length > 0 && !completedStages.includes('matches')) || autoMatchedItems.some((item) => item.needsReview && !item.reviewed) || stepKey === 'matches'
     }, {
         key: 'relate',
         title: t('shopping.reviewRelateTitle'),
         description: t('shopping.reviewRelateDescription'),
-        hasItems: pendingUnlinkedReceiptItems.length > 0 || manuallyLinkedItems.length > 0 || stepKey === 'relate'
+        hasItems: (pendingUnlinkedReceiptItems.length > 0 && !completedStages.includes('relate')) || manuallyLinkedItems.some((item) => item.needsReview && !item.reviewed) || stepKey === 'relate'
     }, {
         key: 'missing',
         title: t('shopping.reviewMissingTitle'),
@@ -185,11 +191,19 @@ export default function GroceryCheckoutReview({
     useEffect(() => {
         if (visible) {
             initialReviewRef.current = {
-                items: items.map((item) => ({...item})), stepKey: initialStepKey,
+                items: items.map((item) => ({...item})),
+                stepKey: initialStepKey,
+                dateValue,
+                marketQuery,
+                selectedMarket,
             };
             setStepKey(initialStepKey);
+            setCompletedStages([]);
+            setPreviousStages([]);
+            setForwardStages([]);
             setOpenId(null);
             setCategoryOpenId(null);
+            setEditingPurchaseData(false);
         }
     }, [visible, mode]);
 
@@ -256,6 +270,11 @@ export default function GroceryCheckoutReview({
                                        }}
                                        onToggleEdit={() => {
                                            setOpenId(isOpen ? null : item.id);
+                                           setCategoryOpenId(null);
+                                       }}
+                                       onCancelEdit={(snapshot) => {
+                                           if (snapshot) patch(item, snapshot);
+                                           setOpenId(null);
                                            setCategoryOpenId(null);
                                        }}
                                        onToggleIncluded={!standalone && (!allowLink || item.listItemId) ? () => {
@@ -387,6 +406,11 @@ export default function GroceryCheckoutReview({
                                            setOpenId(isOpen ? null : draft.id);
                                            setCategoryOpenId(null);
                                        }}
+                                       onCancelEdit={(snapshot) => {
+                                           if (snapshot) patch(draft, snapshot);
+                                           setOpenId(null);
+                                           setCategoryOpenId(null);
+                                       }}
             >
                 <Muted>{t('shopping.missingProductHint')}</Muted>
                 <DecisionList accessibilityRole="radiogroup"
@@ -447,6 +471,8 @@ export default function GroceryCheckoutReview({
         const editItem = (item, stepOverride) => {
             const nextStep = stepOverride || (String(item.id).startsWith('missing-') ? 'missing' : item.listItemId ? item.matchStatus === 'automatic' ? 'matches' : 'relate' : 'relate');
             if (nextStep === 'missing' || nextStep === 'unlinked') patch(item, {reviewed: false});
+            setPreviousStages((current) => [...current, 'summary']);
+            setForwardStages([]);
             setStepKey(nextStep);
             setOpenId(item.id);
             setCategoryOpenId(null);
@@ -489,7 +515,12 @@ export default function GroceryCheckoutReview({
                 <ContextRow><ContextLabel>{t('shopping.purchaseDate')}</ContextLabel><ContextValue>{dateValue || t('shopping.unidentified')}</ContextValue></ContextRow>
                 {purchase?.totalAmount != null ?
                     <ContextRow><ContextLabel>{t('shopping.receiptTotal')}</ContextLabel><ContextValue>{formatMoney(purchase.totalAmount, language)}</ContextValue></ContextRow> : null}
+                <Choice accessibilityRole="button" disabled={busy}
+                        onPress={() => setEditingPurchaseData((current) => !current)}>
+                    <ChoiceText>{t(editingPurchaseData ? 'shopping.finishEditing' : 'shopping.editPurchaseData')}</ChoiceText>
+                </Choice>
             </PurchaseContext>
+            {editingPurchaseData ? renderPurchaseDetails() : null}
             <SummaryBanner>
                 <SummaryBannerTitle>{includedItems.length ? t('shopping.productsToPantry', {count: includedItems.length}) : t('shopping.noProductsToPantry')}</SummaryBannerTitle>
                 <SummaryBannerText>{includedItems.length ? t('shopping.reviewSelectedProducts', {total: formatMoney(total, language)}) : t('shopping.listFinishedNoProducts')}</SummaryBannerText>
@@ -593,19 +624,41 @@ export default function GroceryCheckoutReview({
     const canConfirm = !busy && reviewCount === 0 && incompleteIncludedItems.length === 0;
     const nextStep = () => {
         contentRef.current?.scrollTo({y: 0, animated: false});
-        setStepKey(activeSteps[Math.min(stepIndex + 1, activeSteps.length - 1)].key);
+        setCompletedStages((current) => current.includes(currentStepKey) ? current : [...current, currentStepKey]);
+        setPreviousStages((current) => [...current, currentStepKey]);
+        const nextPending = activeSteps[Math.min(stepIndex + 1, activeSteps.length - 1)].key;
+        const nextVisited = forwardStages[0];
+        const revisit = nextVisited && stageOrder.indexOf(nextVisited) <= stageOrder.indexOf(nextPending);
+        if (revisit) setForwardStages((current) => current.slice(1));
+        setStepKey(revisit ? nextVisited : nextPending);
     };
     const previousStep = () => {
-        setStepKey(activeSteps[Math.max(stepIndex - 1, 0)].key);
+        const previous = previousStages[previousStages.length - 1];
+        if (!previous) return;
+        setPreviousStages((current) => current.slice(0, -1));
+        setForwardStages((current) => [currentStepKey, ...current]);
+        setStepKey(previous);
         setOpenId(null);
         setCategoryOpenId(null);
+        setEditingPurchaseData(false);
     };
     const restartReview = () => {
         onResetItems?.(initialReviewRef.current.items.map((item) => ({...item})));
+        onChangeDate?.(initialReviewRef.current.dateValue);
+        onChangeMarketQuery?.(initialReviewRef.current.marketQuery);
+        if (initialReviewRef.current.selectedMarket) onSelectMarket?.(initialReviewRef.current.selectedMarket);
+        setCompletedStages([]);
+        setPreviousStages([]);
+        setForwardStages([]);
         setStepKey(initialReviewRef.current.stepKey);
         setOpenId(null);
         setCategoryOpenId(null);
+        setEditingPurchaseData(false);
     };
+    const confirmRestart = () => Alert.alert(t('shopping.restartConfirmTitle'), t('shopping.restartConfirmMessage'), [{
+        text: t('common.cancel'),
+        style: 'cancel'
+    }, {text: t('shopping.restartConfirmAction'), style: 'destructive', onPress: restartReview},],);
     const nextStepTitle = activeSteps[stepIndex + 1]?.title;
     const confirmationTitle = includedItems.length ? t('shopping.addProductsToPantry', {count: includedItems.length}) : t('shopping.finishPurchaseNoProducts');
 
@@ -665,19 +718,20 @@ export default function GroceryCheckoutReview({
                 </ErrorText> : null}
                 {busy ?
                     <ActivityIndicator accessibilityLabel={t('shopping.confirmingPurchase')} color="#228B22"/> : null}
+                {isFiscal && previousStages.length > 0 ?
+                    <Choice accessibilityRole="button" disabled={busy} onPress={previousStep}>
+                        <ChoiceText>{t('shopping.backOneStep')}</ChoiceText>
+                    </Choice> : null}
+                {isFiscal && currentStepKey === 'summary' && previousStages.length > 0 ?
+                    <RestartChoice accessibilityRole="button" disabled={busy} onPress={confirmRestart}>
+                        <RestartChoiceText>{t('shopping.discardRestart')}</RestartChoiceText>
+                    </RestartChoice> : null}
                 {isFiscal && canGoNext ? <>
                     {nextStepTitle ? <Muted>{t('shopping.nextStep', {title: nextStepTitle})}</Muted> : null}
                     <ButtonClick disabled={!canContinue} onPress={nextStep} title={t('shopping.continue')}/>
                 </> : <ButtonClick accessibilityLabel={confirmationTitle} disabled={!canConfirm}
                                    onPress={onConfirm}
                                    title={busy ? t('shopping.finalizingPurchase') : confirmationTitle}/>}
-                {isFiscal && stepIndex > 0 ? <Choice accessibilityRole="button" disabled={busy} onPress={previousStep}>
-                    <ChoiceText>{t('shopping.backOneStep')}</ChoiceText>
-                </Choice> : null}
-                {isFiscal && currentStepKey === 'summary' && stepIndex > 0 ?
-                    <Choice accessibilityRole="button" disabled={busy} onPress={restartReview}>
-                        <ChoiceText>{t('shopping.discardRestart')}</ChoiceText>
-                    </Choice> : null}
             </Footer>
         </ModalRoot>
     </Modal>;
