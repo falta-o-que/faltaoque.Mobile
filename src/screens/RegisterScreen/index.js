@@ -1,5 +1,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {Alert, Animated, Easing, Modal, ScrollView} from 'react-native';
+import Svg, {Path} from 'react-native-svg';
+import {useTheme} from 'styled-components/native';
 
 import AuthScreenLayout from '../../components/AuthScreenLayout';
 import FormField from '../../components/FormField';
@@ -26,7 +28,6 @@ import {
     ColorOption,
     ColorPanel,
     ColorRow,
-    EmptyCheckbox,
     FieldLabel,
     Form,
     InlineError,
@@ -38,7 +39,16 @@ import {
     TermsLink,
 } from './styles';
 
+function UncheckedTermsIcon({color}) {
+    return <Svg width={22} height={23} viewBox="0 0 17 18" fill="none">
+        <Path
+            d="M4.25 2.50337C5.35315 1.86523 6.63392 1.5 8 1.5C12.1421 1.5 15.5 4.85786 15.5 9C15.5 13.1421 12.1421 16.5 8 16.5C3.85786 16.5 0.5 13.1421 0.5 9C0.5 7.63392 0.865229 6.35315 1.50337 5.25"
+            stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"/>
+    </Svg>;
+}
+
 export function RegisterScreen({navigation}) {
+    const theme = useTheme();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [avatarColor, setAvatarColor] = useState(null);
@@ -250,7 +260,8 @@ export function RegisterScreen({navigation}) {
                 accessibilityState={{checked: acceptedTerms}}
                 onPress={() => setAcceptedTerms(updateField('acceptedTerms', !acceptedTerms))}
             >
-                {acceptedTerms ? <CheckIcon width={22} height={23}/> : <EmptyCheckbox/>}
+                {acceptedTerms ? <CheckIcon width={22} height={23}/> :
+                    <UncheckedTermsIcon color={theme.colors.primary.Green}/>}
             </Checkbox>
             <TermsText>
                 {t('auth.register.agreePrefix')}{' '}
