@@ -6,8 +6,10 @@ Data: 11/10/2026. Branch: `develop`. Commit auditado: `8b62543ed9d40d7ed26e8d341
 
 A auditoria original identificou **31 defeitos: 7 de prioridade P1, 17 de prioridade P2 e 7 de prioridade P3**. Depois
 do fechamento da auditoria, o usuário relatou o B32 sobre notificações de marcas separadas, o B33 sobre a ordem da lista
-de notificações e o B34 sobre o desempate de compras na mesma data, registrados abaixo como acompanhamentos. Há também
-uma ambiguidade funcional e problemas nos scripts de teste existentes, descritos separadamente.
+de notificações e o B34 sobre o desempate de compras na mesma data, registrados abaixo como acompanhamentos. Em 6 de
+novembro, B31 foi reclassificado após o usuário esclarecer que linhas fiscais idênticas devem formar um produto com
+várias unidades. Há também uma ambiguidade funcional e problemas nos scripts de teste existentes, descritos
+separadamente.
 
 Os riscos mais urgentes são perda integral do banco local, gravações que retornam erro depois de persistir, corrupção de
 preços após consumo, associação automática de produtos diferentes, total fiscal incompleto, seleção incorreta de
@@ -515,7 +517,7 @@ seguinte funciona. O conjunto anterior é substituído por uma base vazia acresc
 **Resolução:** distinguir ausência de dados de falha de leitura e impedir atualização destrutiva quando não foi possível
 recuperar o estado anterior.
 
-### B31 — Linhas fiscais repetidas são fundidas antes do vínculo e da persistência
+### B31 — Linhas fiscais repetidas são agrupadas antes do vínculo e da persistência
 
 **Local:** `src/services/nfceImportService.js:33-37`; `src/domain/fiscalItems.js:11-33`.
 
@@ -525,12 +527,19 @@ ocorrência única.
 **Reprodução isolada:** duas linhas de leite 1L, uma unidade cada, tornam-se um item de quantidade 2 com dois
 `sourceItems`, mas uma única decisão de vínculo/ocorrência.
 
-**Requisito:** o agrupamento era autorizado historicamente em setembro. As decisões posteriores de 09/10
-(`docs/project/decisions.md:65`, `:75`; SDD de integração `:111`) exigem vínculo por linha e uma ocorrência por linha
-fiscal confirmada. Agrupar visualmente pode continuar sendo possível; fundir vínculo/persistência viola a regra
-posterior.
+**Reclassificação — 6 de novembro de 2026:** o usuário esclareceu que linhas com os mesmos dados do produto foram
+lançadas separadamente pelo caixa e devem representar um produto com várias unidades. Nesse cenário, somar quantidade
+e preço, fazer um vínculo e criar uma ocorrência é o comportamento esperado. A revisão exibe o agrupamento com aviso e
+preserva os valores originais em `sourceItems`. Descrições ou unidades diferentes continuam sendo itens distintos.
 
-**Recomendação:** conservar identidade e decisões das linhas originais, mesmo quando a interface mostra um agrupamento.
+**Status:** não é defeito no fluxo definido pelo usuário; decisão registrada em `docs/project/decisions.md`.
+
+**Atualização local — 6 de novembro de 2026:** mantido o agrupamento das linhas idênticas. O texto do aviso esclarece
+que as quantidades são somadas em um produto. O teste de regressão e os 30 scripts automatizados `.cjs` passaram;
+bundle Android exportado. Nenhum teste via ADB foi executado.
+
+**Local atual:** `src/domain/fiscalItems.js`, `src/services/nfceImportService.js` e
+`src/components/PurchaseProductReviewCard/index.js`.
 
 ## P3 — apresentação, mensagens e navegação
 
@@ -680,7 +689,7 @@ Backend/autenticação remota futura precisam de avaliação própria.
 
 1. Proteger o banco contra sobrescrita e esclarecer confirmação de gravações: B01/B02.
 2. Separar saldo, quantidade comprada, preço histórico, total fiscal e estimativa: B03/B09/B10/B11.
-3. Tornar vínculos conservadores e preservar linhas originais: B08/B12/B31; criar associação lista–compra: B13.
+3. Tornar vínculos conservadores e preservar linhas originais: B08/B12; criar associação lista–compra: B13.
 4. Corrigir invalidação de requisições e sessão: B17/B26, depois B14/B20/B21/B22/B28.
 5. Recuperação de cadastro/fontes e edição de estados existentes: B05/B06/B18; persistência da marca e unidades:
    B04/B07.

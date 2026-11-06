@@ -1,5 +1,12 @@
 # Estado atual
 
+## Linhas fiscais repetidas — 6 de novembro de 2026
+
+- B31 reclassificado após esclarecimento do usuário: linhas do mesmo produto e unidade, ainda que separadas no caixa,
+  são consolidadas como uma revisão e uma ocorrência com quantidade e preço somados. A revisão mostra aviso de linhas
+  repetidas, e `sourceItems` mantém os valores fiscais originais. Teste automatizado de regressão e suíte completa
+  passaram; bundle Android exportado; nenhum teste via ADB foi executado.
+
 ## Histórico protegido contra falha de leitura — 1º de novembro de 2026
 
 - B28 corrigido no fluxo local: metadados ausentes iniciam vazios; erro de leitura, JSON inválido ou estrutura inválida
@@ -316,6 +323,10 @@ situação vigente, use primeiro o resumo abaixo e depois os registros datados m
   `app.json`.
 - O build Android Development foi concluído com sucesso. Build:
   `d1abfbab-0c51-4e94-b1b5-a1c72660c9f0`. [Instalar APK](https://expo.dev/accounts/zackkmini/projects/FaltaOQueFront/builds/d1abfbab-0c51-4e94-b1b5-a1c72660c9f0).
+
+## Retorno ao vínculo Expo/EAS anterior — 6 de novembro de 2026
+
+- Por solicitação do usuário, o `app.json` voltou a apontar para o projeto EAS anterior, com `owner` `miguelzack` e `projectId` `73ea38cc-3585-408a-bd46-eaceabefa581`. O projeto temporário `@zackkmini/FaltaOQueFront` e seu build continuam existentes na nuvem, mas deixaram de ser o vínculo configurado neste checkout.
 
 ## Vínculo Expo/EAS removido — 31 de outubro de 2026
 

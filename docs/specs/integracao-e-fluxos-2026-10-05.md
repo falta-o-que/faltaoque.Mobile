@@ -148,8 +148,11 @@ aplicada no banco hospedado.
   não forem localizados, avisar e oferecer registro manual dos dados ou a opção de não adicioná-los. Exibir linhas
   fiscais sem vínculo separadamente para que o usuário possa associá-las manualmente, adicioná-las como novos produtos
   com dados manuais ou ignorá-las. Cada linha fiscal pode ser associada a, no máximo, um item genérico da lista, e cada
-  item genérico pode ser usado por uma única linha fiscal; cada ocorrência conserva seu próprio ID, compra, marca e
-  preço. A lista vai ao histórico mesmo se alguns itens não forem comprados.
+  item genérico pode ser usado por um único produto revisado da nota; cada ocorrência conserva seu próprio ID, compra,
+  marca e preço. Linhas com a mesma descrição fiscal normalizada e unidade de venda são exibidas como um produto com
+  quantidade e preço somados, com aviso do número de linhas agrupadas; o vínculo e a gravação criam uma ocorrência. Os
+  dados das linhas originais são preservados em `sourceItems`. Descrições ou unidades diferentes permanecem distintas.
+  A lista vai ao histórico mesmo se alguns itens não forem comprados.
 
 Decisões finais confirmadas em 9 de outubro: a lista sempre é concluída e mantida no histórico, mesmo se itens não forem
 comprados; esses itens não entram no estoque. A categoria escolhida após um conflito aplica-se apenas à nova ocorrência.
@@ -294,8 +297,9 @@ normalizado por g/ml dentro da mesma unidade de medida para estimar o tamanho so
   planejados que não apareceram na nota; e linhas fiscais ainda sem vínculo, que podem ser incluídas como produtos novos
   ou ignoradas. Cada etapa só aparece se tiver itens pendentes, e tratativas concluídas removem etapas vazias. A tela
   deve deixar explícita a separação entre os itens da lista e as linhas da nota.
-- O vínculo é um para um nos dois sentidos: cada linha fiscal pode usar no máximo um item planejado, e cada item
-  planejado pode estar relacionado a no máximo uma linha fiscal. Correspondências automáticas e manuais obedecem à mesma
+- O vínculo é um para um nos dois sentidos entre cada produto revisado da nota e cada item planejado. Linhas idênticas
+  pela descrição fiscal normalizada e unidade de venda formam um produto revisado com quantidade somada antes do
+  vínculo; os dados originais permanecem em `sourceItems`. Correspondências automáticas e manuais obedecem à mesma
   restrição; a tela desabilita itens já usados e o serviço valida novamente antes de salvar.
 - A normalização de descrições reconhece abreviações fiscais comuns, como `Bic.` e `Bisc.` para biscoito, e `Rech.` para
   recheio; remove os pontos do nome normalizado e preserva a descrição original visível para revisão. Correspondências

@@ -1,5 +1,12 @@
 # Decisões do projeto
 
+## 2026-11-06 — Agrupar linhas fiscais do mesmo produto
+
+Linhas da NFC-e com a mesma descrição fiscal normalizada e a mesma unidade de venda representam um produto com várias
+unidades, mesmo que o caixa as tenha lançado em linhas separadas. A revisão exibe um item com quantidade e preço
+somados, acompanhado do aviso de linhas repetidas. O grupo recebe um único vínculo e cria uma ocorrência de estoque;
+`sourceItems` preserva os dados originais das linhas. Descrições ou unidades diferentes continuam como itens distintos.
+
 ## 2026-11-01 — Falha ao ler metadados de notificação
 
 Somente a ausência da chave local inicia metadados vazios. Erros de leitura, JSON inválido ou campos existentes com
