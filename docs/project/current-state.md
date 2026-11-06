@@ -1,5 +1,9 @@
 # Estado atual
 
+## Navegação da despensa — 6 de novembro de 2026
+
+- B23 corrigido: a tela da despensa informa a aba Despensa como ativa na barra de navegação. Validação física pendente.
+
 ## Mensagens de erro na finalização — 6 de novembro de 2026
 
 - B19 corrigido: o serviço de checkout retorna códigos estáveis para erros esperados, traduzidos em português, inglês e

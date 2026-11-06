@@ -490,6 +490,6 @@ export default function PantryScreen({route, navigation}) {
             onApply={setSortOption}
             onRequestClose={() => setIsFilterOpen(false)}
         />
-        <Navbar activeItem="profile" onItemChange={handleNavbar}/>
+        <Navbar activeItem="pantry" onItemChange={handleNavbar}/>
     </Screen>);
 }

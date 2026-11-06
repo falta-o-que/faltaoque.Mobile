@@ -573,6 +573,8 @@ inesperados.
 
 ### B23 — Despensa marca Perfil como destino ativo
 
+**Correção local:** a tela informa a aba Despensa como ativa; validação física no Android pendente.
+
 **Local:** `src/screens/PantryScreen/index.js:403`.
 
 A tela usa `Navbar activeItem="profile"`; o destino visual e acessível selecionado não corresponde à despensa.
