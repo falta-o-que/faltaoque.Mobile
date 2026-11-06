@@ -545,6 +545,10 @@ bundle Android exportado. Nenhum teste via ADB foi executado.
 
 ### B15 — Scanner permite consultas duplicadas antes do próximo render
 
+**Correção local:** a trava síncrona implementada no B14 impede uma segunda leitura durante a consulta e a preparação
+da revisão. Teste do componente simula eventos antes do próximo render e confirma uma única consulta e entrega; testes
+de cancelamento e cache também passaram. Validação física específica pendente.
+
 **Local:** `src/components/NfceScannerModal/index.js:18-21`.
 
 O bloqueio usa estado React. Dois eventos nativos antes do render podem ambos observar `processing === false` e iniciar

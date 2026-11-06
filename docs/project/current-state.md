@@ -1,5 +1,11 @@
 # Estado atual
 
+## Leituras simultâneas no scanner — 6 de novembro de 2026
+
+- B15 já havia sido corrigido junto ao B14: uma trava síncrona bloqueia novos eventos antes da atualização da tela e
+  durante a preparação da revisão. Teste do componente confirma uma única consulta e entrega; testes de cancelamento e
+  cache passaram. Validação física específica no Android pendente; iOS não testado fisicamente.
+
 ## Linhas fiscais repetidas — 6 de novembro de 2026
 
 - B31 reclassificado após esclarecimento do usuário: linhas do mesmo produto e unidade, ainda que separadas no caixa,
@@ -326,7 +332,9 @@ situação vigente, use primeiro o resumo abaixo e depois os registros datados m
 
 ## Retorno ao vínculo Expo/EAS anterior — 6 de novembro de 2026
 
-- Por solicitação do usuário, o `app.json` voltou a apontar para o projeto EAS anterior, com `owner` `miguelzack` e `projectId` `73ea38cc-3585-408a-bd46-eaceabefa581`. O projeto temporário `@zackkmini/FaltaOQueFront` e seu build continuam existentes na nuvem, mas deixaram de ser o vínculo configurado neste checkout.
+- Por solicitação do usuário, o `app.json` voltou a apontar para o projeto EAS anterior, com `owner` `miguelzack` e
+  `projectId` `73ea38cc-3585-408a-bd46-eaceabefa581`. O projeto temporário `@zackkmini/FaltaOQueFront` e seu build
+  continuam existentes na nuvem, mas deixaram de ser o vínculo configurado neste checkout.
 
 ## Vínculo Expo/EAS removido — 31 de outubro de 2026
 
