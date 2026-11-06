@@ -1,5 +1,15 @@
 # Estado atual
 
+## Nova auditoria de código — 6 de novembro de 2026
+
+- Auditoria consolidada reúne B35 a B44 e C03 como 11 problemas abertos, além das decisões R01 e C05, em
+  `docs/reports/auditoria-bugs-2026-11-06.md`. A suíte existente de 36 scripts passou; cenários de concorrência e falha
+  foram reproduzidos com mocks/harness, sem ADB. Nenhuma correção dos novos achados foi aplicada nesta auditoria.
+- Conferência posterior da auditoria complementar de 18/10: C01 corresponde ao B36; C02 foi tratado na correção de
+  sessão das notificações; C03 continua presente por inspeção; C04 é um handler em Perfil independente sem rota ativa
+  identificada; C05 depende de decisão; C06 corresponde ao cenário do B38 e depende de confirmar a representação.
+- O usuário validou no Android o B30 e os ajustes dos botões da revisão de compra.
+
 ## Cancelar edição na revisão de compra — 6 de novembro de 2026
 
 - O editor compartilhado de produto da revisão tem X vermelho padrão para cancelar e restaurar os campos anteriores,
