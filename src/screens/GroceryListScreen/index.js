@@ -542,7 +542,7 @@ export default function GroceryListScreen({navigation, route}) {
             setActiveListId(null);
             setCheckoutItems([]);
         } catch (cause) {
-            setCheckoutError(cause.message === 'DUPLICATE_FISCAL_NOTE' ? t('shopping.receiptAlreadyAdded') : cause.message === 'EMPTY_GROCERY_LIST' ? t('shopping.emptyListMessage') : getUserErrorMessage(cause, t('shopping.actionErrorFallback'), t));
+            setCheckoutError(cause?.message === 'DUPLICATE_FISCAL_NOTE' ? t('shopping.receiptAlreadyAdded') : cause?.message === 'EMPTY_GROCERY_LIST' ? t('shopping.emptyListMessage') : getUserErrorMessage(cause, t('shopping.actionErrorFallback'), t));
         } finally {
             setBusy(false);
         }

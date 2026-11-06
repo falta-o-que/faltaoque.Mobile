@@ -124,7 +124,7 @@ export default function PurchaseProductReviewCard({
                 {item.brand ? <Muted>{t('shopping.brand', {brand: item.brand})}</Muted> : null}
                 {packageLabel ? <Muted>{t('shopping.package', {package: packageLabel})}</Muted> : null}
                 <Muted>{quantity} {unitLabel}{perUnit ? ` · ${currency(perUnit, t('shopping.pendingPrice'))}/${unitLabel}` : ''}</Muted>
-                {total != null ? <Price>{currency(total, t('shopping.pendingPrice'))}
+                {total != null ? <Price>{currency(total, t('shopping.pendingPrice'))}{' '}
                     <ReceiptLabel>{t('shopping.total')}</ReceiptLabel></Price> : null}
             </ProductBody>
         </ProductRow>

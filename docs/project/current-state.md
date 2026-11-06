@@ -1,5 +1,11 @@
 # Estado atual
 
+## Mensagens de erro na finalização — 6 de novembro de 2026
+
+- B19 corrigido: o serviço de checkout retorna códigos estáveis para erros esperados, traduzidos em português, inglês e
+  espanhol; erros desconhecidos usam mensagem geral. Testes cobrem falhas reais e traduções; 32 scripts e bundle Android
+  passaram. A apresentação no aparelho não foi validada fisicamente; iOS não testado.
+
 ## Leituras simultâneas no scanner — 6 de novembro de 2026
 
 - B15 já havia sido corrigido junto ao B14: uma trava síncrona bloqueia novos eventos antes da atualização da tela e

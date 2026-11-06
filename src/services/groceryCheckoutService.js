@@ -18,7 +18,7 @@ const localToday = () => {
 };
 const parsePurchaseDate = (value) => {
     const date = normalizeDateOnly(String(value ?? '').slice(0, 10));
-    if (!date || date > localToday()) throw new Error('A data da compra deve ser real, hoje ou anterior.');
+    if (!date || date > localToday()) throw new Error('CHECKOUT_DATE_INVALID');
     return date;
 };
 
@@ -31,23 +31,23 @@ function normalizeCheckoutItem(item, listItemsById) {
     const unit = contentValue == null ? null : item.unit;
     const enteredPrice = decimal(item.priceInput);
     const totalPrice = item.priceMode === 'unit' ? Math.round(enteredPrice * quantity * 100) / 100 : enteredPrice;
-    if (!name || name.length > 120 || (brand && brand.length > 100)) throw new Error('Revise o nome e a marca dos produtos selecionados.');
-    if (!Number.isSafeInteger(quantity) || quantity < 1) throw new Error(`Informe uma quantidade inteira para ${name}.`);
+    if (!name || name.length > 120 || (brand && brand.length > 100)) throw new Error('CHECKOUT_ITEM_IDENTITY_INVALID');
+    if (!Number.isSafeInteger(quantity) || quantity < 1) throw new Error('CHECKOUT_ITEM_QUANTITY_INVALID');
     if (contentValue != null && (!Number.isFinite(contentValue) || contentValue <= 0 || !PRODUCT_UNITS.includes(unit))) {
-        throw new Error(`Revise o tamanho da embalagem de ${name}.`);
+        throw new Error('CHECKOUT_ITEM_MEASURE_INVALID');
     }
-    if (!Number.isFinite(totalPrice) || totalPrice <= 0) throw new Error(`Informe o preço de ${name}.`);
-    if (!PRODUCT_CATEGORIES.includes(item.category)) throw new Error(`Escolha uma categoria para ${name}.`);
-    if (item.listItemId && !listItemsById.has(item.listItemId)) throw new Error(`Revise o vínculo de ${name} com a lista.`);
+    if (!Number.isFinite(totalPrice) || totalPrice <= 0) throw new Error('CHECKOUT_ITEM_PRICE_INVALID');
+    if (!PRODUCT_CATEGORIES.includes(item.category)) throw new Error('CHECKOUT_ITEM_CATEGORY_INVALID');
+    if (item.listItemId && !listItemsById.has(item.listItemId)) throw new Error('CHECKOUT_ITEM_LINK_INVALID');
     if (item.listItemId && !arePresentationsCompatible(listItemsById.get(item.listItemId), {
         weight: contentValue, unit
     })) {
-        throw new Error(`O tamanho de ${name} não é compatível com o item vinculado na lista.`);
+        throw new Error('CHECKOUT_ITEM_PRESENTATION_INVALID');
     }
-    if ((item.needsReview || item.requiresReview) && !item.reviewed) throw new Error(`Revise o vínculo de ${name} antes de finalizar.`);
-    if (item.categoryConflict && !item.categoryResolved) throw new Error(`Resolva o conflito de categoria de ${name}.`);
+    if ((item.needsReview || item.requiresReview) && !item.reviewed) throw new Error('CHECKOUT_ITEM_REVIEW_REQUIRED');
+    if (item.categoryConflict && !item.categoryResolved) throw new Error('CHECKOUT_CATEGORY_CONFLICT');
     if (item.categoryConflict && ![item.categoryConflict.listCategory, item.categoryConflict.pantryCategory].includes(item.category)) {
-        throw new Error(`Escolha a categoria da lista ou da despensa para ${name}.`);
+        throw new Error('CHECKOUT_CATEGORY_CONFLICT');
     }
     return {name, brand, quantity, contentValue, unit, totalPrice, category: item.category};
 }
@@ -64,37 +64,37 @@ export async function finalizeGroceryCheckout({
                                                   marketQuery,
                                                   items
                                               }) {
-    if (!accountId || !pantryId || !listId) throw new Error('Lista indisponível.');
+    if (!accountId || !pantryId || !listId) throw new Error('CHECKOUT_LIST_UNAVAILABLE');
     const lists = await listGroceryLists(accountId, pantryId);
     const list = lists.find((entry) => entry.id === listId);
-    if (!list || list.status !== 'active') throw new Error('A lista não está ativa.');
+    if (!list || list.status !== 'active') throw new Error('CHECKOUT_LIST_INACTIVE');
     if (!list.items.length) throw new Error('EMPTY_GROCERY_LIST');
-    if (marketQuery?.trim() && !market) throw new Error('Selecione um mercado nas sugestões do Google ou limpe o campo.');
+    if (marketQuery?.trim() && !market) throw new Error('CHECKOUT_MARKET_INVALID');
     if (mode === 'nfce' && (!purchase?.qrCodeId || String(purchase.qrCodeId).length > 44 || !purchase?.purchasedAt || !Number.isFinite(decimal(purchase?.totalAmount)) || decimal(purchase.totalAmount) <= 0)) {
-        throw new Error('A nota não contém identificação, data ou total de compra válidos.');
+        throw new Error('CHECKOUT_RECEIPT_INVALID');
     }
     const date = parsePurchaseDate(mode === 'nfce' ? purchase.purchasedAt : dateValue);
-    if (mode === 'nfce' && parsePurchaseDate(dateValue) !== date) throw new Error('A data da nota não pode ser alterada.');
+    if (mode === 'nfce' && parsePurchaseDate(dateValue) !== date) throw new Error('CHECKOUT_RECEIPT_DATE_CHANGED');
     const listItemsById = new Map(list.items.map((item) => [item.id, item]));
     const checkoutItems = (items ?? []).filter((item) => !(mode === 'nfce' && isDisposableBagFiscalItem(item.sourceDescription)));
     if (mode === 'nfce') {
         const linkedListItemIds = checkoutItems.filter((item) => item.sourceDescription && item.listItemId)
             .map((item) => item.listItemId);
         if (new Set(linkedListItemIds).size !== linkedListItemIds.length) {
-            throw new Error('Cada produto da lista só pode ser relacionado a uma linha da nota.');
+            throw new Error('CHECKOUT_DUPLICATE_LINK');
         }
     }
     if (checkoutItems.some((item) => (item.needsReview || item.requiresReview) && !item.reviewed)) {
-        throw new Error('Revise cada item não vinculado e confirme se será incluído ou ignorado.');
+        throw new Error('CHECKOUT_REVIEW_REQUIRED');
     }
     const products = checkoutItems.filter((item) => item.included).map((item) => normalizeCheckoutItem(item, listItemsById));
     const purchaseId = Crypto.randomUUID();
     await updateDatabase((database, localMetadata) => {
         if (!database.users_pantries.some((row) => row.user_id === accountId && row.pantry_id === pantryId)) {
-            throw new Error('Esta despensa não está disponível para sua conta.');
+            throw new Error('PANTRY_UNAVAILABLE');
         }
         const storedList = database.grocery_lists.find((row) => row.id === listId && row.pantry_id === pantryId);
-        if (!storedList || !storedList.is_active) throw new Error('A lista já foi concluída. Atualize a página.');
+        if (!storedList || !storedList.is_active) throw new Error('CHECKOUT_LIST_ALREADY_FINISHED');
         if (!database.grocery_list_products.some((item) => item.grocery_list_id === listId)) {
             throw new Error('EMPTY_GROCERY_LIST');
         }

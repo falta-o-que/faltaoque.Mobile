@@ -559,6 +559,10 @@ chamadas/callbacks duplicados.
 
 ### B19 — Checkout mostra mensagens técnicas sem tratamento consistente
 
+**Correção local:** erros esperados do checkout têm códigos estáveis e mensagens nos três idiomas; erros inesperados
+usam fallback traduzido. Testes cobrem cenários reais do serviço, tradução e fallback; 32 scripts e bundle Android
+passaram. Validação física no Android pendente.
+
 **Local:** `src/screens/GroceryListScreen/index.js:441-443`, `:714`.
 
 Somente `DUPLICATE_FISCAL_NOTE` é traduzido/mapeado; outros erros usam `cause.message`. Códigos internos, mensagens do

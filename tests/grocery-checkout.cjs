@@ -63,7 +63,7 @@ async function main() {
     assert.equal(result.pantry_products[0].quantity, 2);
     await assert.rejects(service.exports.finalizeGroceryCheckout({
         ...input, items: [{...product, needsReview: true, requiresReview: true, reviewed: false}]
-    }), /Revise/);
+    }), /CHECKOUT_REVIEW_REQUIRED/);
     await service.exports.finalizeGroceryCheckout({
         ...input, items: [{...product, needsReview: true, requiresReview: true, reviewed: true}]
     });
