@@ -8,11 +8,15 @@
   período e categoria, histórico do preço por produto/embalagem e destaques de variação de pelo menos 5%. Usa gráficos
   em SVG já suportados no projeto. Sem dados suficientes, apresenta estados vazios; não estima economia.
 - No modo de desenvolvimento, o botão de amostra substitui compras e produtos associados somente da conta atual por
-  24 compras fictícias de seis meses em três mercados. A confirmação informa que listas e despensas são preservadas.
-  Essa operação foi acionada no Android conectado para explorar a página.
+  24 compras fictícias de seis meses em três mercados. Essa ação foi removida. Ao carregar o Dashboard, o repositório
+  apaga as compras antigas identificadas pelo título e pelos CEPs sintéticos, junto aos produtos vinculados; mercados
+  demonstrativos sem referência restante também são removidos. Listas, despensas, compras comuns e mercados ainda em uso
+  são preservados. A limpeza é idempotente e ocorre para cada conta quando ela abre a tela; os dados locais só serão
+  atualizados quando a versão com esta alteração carregar o Dashboard.
 - Especificação e regras de cálculo foram registradas em `docs/specs/integracao-e-fluxos-2026-10-05.md` e
   `docs/project/decisions.md`. O bundle Android passou; a inspeção por ADB confirmou os filtros e a leitura dos gráficos
-  de gastos, categorias e preços no Android. iOS não foi testado fisicamente; nenhuma suíte automatizada foi executada.
+  de gastos, categorias e preços no Android. A suíte automatizada local passou após a implementação da limpeza. Não foi
+  feita nova inspeção por ADB nesta alteração; iOS não foi testado fisicamente.
 
 ## Nova auditoria de código — 6 de novembro de 2026
 

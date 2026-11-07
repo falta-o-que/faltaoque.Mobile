@@ -34,6 +34,7 @@ export default function GroceryPantryPickerScreen({ navigation }) {
   const handleNavbar = (key, item) => {
     if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME);
     else if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
+    else if (key === 'dashboard') navigation.navigate(AUTHENTICATED_ROUTES.DASHBOARD);
     else if (key !== 'shopping-list') Alert.alert(t('shopping.upcoming'), t('shopping.availableSoon', { label: item.label }), [{ text: t('common.ok') }]);
   };
 
