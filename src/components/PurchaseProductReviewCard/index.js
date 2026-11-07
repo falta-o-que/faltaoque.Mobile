@@ -5,6 +5,7 @@ import FormField from '../FormField';
 import {useTheme} from 'styled-components/native';
 import {CheckIcon, CancelCircleIcon, PenIcon, DeliveryIcon, InfoIcon} from '../../assets/icons/export';
 import {PRODUCT_CATEGORIES, PRODUCT_UNITS} from '../../domain/productValidation';
+import {hasGroupedFiscalLines} from '../../domain/fiscalItems';
 import {useAppPreferences} from '../../contexts/AppPreferencesContext';
 import {UnitOptions, UnitOption, UnitLabel} from '../AddProductModal/styles';
 import {
@@ -82,6 +83,7 @@ export default function PurchaseProductReviewCard({
         } else editSnapshot.current = null;
     }, [expanded]);
     const name = String(title ?? item.name ?? '').trim() || t('shopping.productWithoutName');
+    const showDuplicateNotice = item.showDuplicateNotice ?? hasGroupedFiscalLines(item);
     const packageLabel = item.weight ? `${item.weight} ${item.unit || ''}`.trim() : item.contentValue && item.unit ? `${item.contentValue} ${item.unit}` : '';
     const quantity = item.quantity || '—';
     const unitLabel = displayUnitLabel(item.unitLabel, t('shopping.unitAbbreviation'));
@@ -138,7 +140,7 @@ export default function PurchaseProductReviewCard({
                     <ReceiptLabel>{t('shopping.total')}</ReceiptLabel></Price> : null}
             </ProductBody>
         </ProductRow>
-        {item.sourceItems?.length > 1 ? <DuplicateNotice>
+        {showDuplicateNotice ? <DuplicateNotice>
             <InfoIcon size={20} color={theme.colors.warning[600]}/>
             <DuplicateNoticeCopy>
                 <DuplicateNoticeTitle>{t('shopping.receiptDuplicatesTitle')}</DuplicateNoticeTitle>

@@ -529,14 +529,16 @@ ocorrência única.
 
 **Reclassificação — 6 de novembro de 2026:** o usuário esclareceu que linhas com os mesmos dados do produto foram
 lançadas separadamente pelo caixa e devem representar um produto com várias unidades. Nesse cenário, somar quantidade
-e preço, fazer um vínculo e criar uma ocorrência é o comportamento esperado. A revisão exibe o agrupamento com aviso e
-preserva os valores originais em `sourceItems`. Descrições ou unidades diferentes continuam sendo itens distintos.
+e preço, fazer um vínculo e criar uma ocorrência é o comportamento esperado. `sourceItems` preserva os dados fiscais.
+Atualização de 7 de novembro: quantidade maior em uma linha não é duplicidade. Após confirmar que o portal pode separar
+um produto consolidado no comprovante, foi decidido remover o aviso dos agrupamentos vindos do portal; o agrupamento
+segue automático e não exige revisão adicional. Ambiguidades reais de extração continuam exigindo revisão.
 
 **Status:** não é defeito no fluxo definido pelo usuário; decisão registrada em `docs/project/decisions.md`.
 
-**Atualização local — 6 de novembro de 2026:** mantido o agrupamento das linhas idênticas. O texto do aviso esclarece
-que as quantidades são somadas em um produto. O teste de regressão e os 30 scripts automatizados `.cjs` passaram;
-bundle Android exportado. Nenhum teste via ADB foi executado.
+**Atualização local — 7 de novembro de 2026:** linhas idênticas retornadas pelo portal continuam agrupadas e são gravadas
+como uma ocorrência, sem aviso de duplicidade, pois o portal pode divergir da diagramação do comprovante impresso.
+Nenhum teste foi executado nesta atualização, conforme pedido do usuário.
 
 **Local atual:** `src/domain/fiscalItems.js`, `src/services/nfceImportService.js` e
 `src/components/PurchaseProductReviewCard/index.js`.
@@ -545,17 +547,15 @@ bundle Android exportado. Nenhum teste via ADB foi executado.
 
 ### B15 — Scanner permite consultas duplicadas antes do próximo render
 
-**Correção local:** a trava síncrona implementada no B14 impede uma segunda leitura durante a consulta e a preparação
-da revisão. Teste do componente simula eventos antes do próximo render e confirma uma única consulta e entrega; testes
-de cancelamento e cache também passaram. Validação física específica pendente.
+**Status:** corrigido localmente. Uma trava síncrona por sessão impede consultas repetidas entre renders e mantém o
+bloqueio enquanto a revisão é preparada. A invalidação da sessão também impede que resposta ou erro antigo afete uma
+abertura posterior do scanner.
 
-**Local:** `src/components/NfceScannerModal/index.js:18-21`.
+**Evidência:** `tests/nfce-scanner-duplicate.cjs` simula eventos duplicados antes do próximo render e durante a
+preparação, confirmando uma consulta e uma entrega. `tests/nfce-scanner-cancellation.cjs` cobre cancelamento, reabertura
+e respostas antigas. Validação física específica no Android pendente; iOS não testado.
 
-O bloqueio usa estado React. Dois eventos nativos antes do render podem ambos observar `processing === false` e iniciar
-consultas. A proteção transacional de QR no repositório reduz o risco de duplicação persistida, mas não evita
-chamadas/callbacks duplicados.
-
-**Evidência:** inspeção. **Recomendação:** trava síncrona por referência mais identificação da sessão de leitura.
+**Local:** `src/components/NfceScannerModal/index.js`, `src/utils/fiscalScanSession.js`.
 
 ### B19 — Checkout mostra mensagens técnicas sem tratamento consistente
 

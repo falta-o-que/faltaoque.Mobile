@@ -10,6 +10,13 @@
   identificada; C05 depende de decisão; C06 corresponde ao cenário do B38 e depende de confirmar a representação.
 - O usuário validou no Android o B30 e os ajustes dos botões da revisão de compra.
 
+## Agrupamento de linhas fiscais — 7 de novembro de 2026
+
+- Linhas fiscais idênticas são agrupadas automaticamente. Como o portal pode dividir um produto que aparece junto no
+  comprovante impresso, o agrupamento não mostra aviso nem exige revisão adicional; a quantidade de uma linha não é
+  interpretada como duplicidade. Ambiguidades reais continuam exigindo revisão. Sem validação física no Android; iOS não
+  testado.
+
 ## Cancelar edição na revisão de compra — 6 de novembro de 2026
 
 - O editor compartilhado de produto da revisão tem X vermelho padrão para cancelar e restaurar os campos anteriores,
@@ -56,9 +63,10 @@
 ## Linhas fiscais repetidas — 6 de novembro de 2026
 
 - B31 reclassificado após esclarecimento do usuário: linhas do mesmo produto e unidade, ainda que separadas no caixa,
-  são consolidadas como uma revisão e uma ocorrência com quantidade e preço somados. A revisão mostra aviso de linhas
-  repetidas, e `sourceItems` mantém os valores fiscais originais. Teste automatizado de regressão e suíte completa
-  passaram; bundle Android exportado; nenhum teste via ADB foi executado.
+  são consolidadas em um produto e uma ocorrência com quantidade e preço somados. `sourceItems` mantém as linhas
+  fiscais originais; detalhes de duplicidade não exigem revisão adicional. Após constatar que o portal pode separar
+  linhas consolidadas no comprovante, a atualização de 7 de novembro removeu o aviso nos agrupamentos do portal.
+  Testes automatizados e bundle Android passaram em atualizações anteriores; nenhum teste foi executado nesta alteração.
 
 ## Histórico protegido contra falha de leitura — 1º de novembro de 2026
 

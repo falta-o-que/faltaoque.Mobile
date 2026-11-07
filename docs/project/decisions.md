@@ -7,6 +7,13 @@ unidades, mesmo que o caixa as tenha lançado em linhas separadas. A revisão ex
 somados, acompanhado do aviso de linhas repetidas. O grupo recebe um único vínculo e cria uma ocorrência de estoque;
 `sourceItems` preserva os dados originais das linhas. Descrições ou unidades diferentes continuam como itens distintos.
 
+## 2026-11-07 — Revisão de linhas fiscais agrupadas
+
+Como o portal da SEFAZ pode dividir em várias linhas um produto que aparece consolidado no comprovante impresso, o app
+não consegue determinar a diagramação original usando somente a leitura do portal. Linhas idênticas continuam sendo
+somadas automaticamente, sem aviso de duplicidade nem revisão adicional causada pelo agrupamento. Uma quantidade maior
+em uma única linha também não gera aviso. Revisões exigidas por ambiguidades reais continuam aplicáveis.
+
 ## 2026-11-01 — Falha ao ler metadados de notificação
 
 Somente a ausência da chave local inicia metadados vazios. Erros de leitura, JSON inválido ou campos existentes com

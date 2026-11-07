@@ -151,7 +151,9 @@ aplicada no banco hospedado.
   item genérico pode ser usado por um único produto revisado da nota; cada ocorrência conserva seu próprio ID, compra,
   marca e preço. Linhas com a mesma descrição fiscal normalizada e unidade de venda são exibidas como um produto com
   quantidade e preço somados, com aviso do número de linhas agrupadas; o vínculo e a gravação criam uma ocorrência. Os
-  dados das linhas originais são preservados em `sourceItems`. Descrições ou unidades diferentes permanecem distintas.
+  dados das linhas originais são preservados em `sourceItems`. Como o portal fiscal pode separar linhas consolidadas no
+  comprovante impresso, o app soma linhas idênticas sem mostrar aviso de duplicidade nem exigir revisão adicional por
+  causa do agrupamento. Ambiguidades reais de extração continuam exigindo revisão.
   A lista vai ao histórico mesmo se alguns itens não forem comprados.
 
 Decisões finais confirmadas em 9 de outubro: a lista sempre é concluída e mantida no histórico, mesmo se itens não forem

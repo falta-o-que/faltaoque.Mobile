@@ -9,6 +9,7 @@ import PurchaseProductReviewCard from '../../components/PurchaseProductReviewCar
 import {CancelCircleIcon, LocationIcon, PantryIcon} from '../../assets/icons/export';
 import {PRODUCT_CATEGORIES, PRODUCT_UNITS} from '../../domain/productValidation';
 import {normalizeFiscalProduct} from '../../domain/groceryCheckoutReconciliation';
+import {hasGroupedFiscalLines} from '../../domain/fiscalItems';
 import {updateFiscalReviewPrice} from '../../domain/fiscalReviewPrices';
 import {useAuth} from '../../contexts/AuthContext';
 import {useAppPreferences} from '../../contexts/AppPreferencesContext';
@@ -48,7 +49,8 @@ export default function NfceReviewScreen({route, navigation}) {
         ...item, ...(() => {
             const proposal = normalizeFiscalProduct(item.sourceDescription);
             return {
-                name: proposal.name, brand: proposal.brand ?? '', requiresReview: proposal.requiresReview,
+                name: proposal.name, brand: proposal.brand ?? '',
+                requiresReview: !hasGroupedFiscalLines(item) && proposal.requiresReview,
             };
         })(),
         category: item.category ?? 'outros',

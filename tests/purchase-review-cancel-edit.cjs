@@ -46,6 +46,7 @@ const mocks = {
     '../FormField': {__esModule: true, default: 'FormField'},
     '../../assets/icons/export': components,
     '../../domain/productValidation': {PRODUCT_CATEGORIES: ['bebidas'], PRODUCT_UNITS: ['g']},
+    '../../domain/fiscalItems': {hasGroupedFiscalLines: (item) => item.sourceItems?.length > 1},
     '../../contexts/AppPreferencesContext': {useAppPreferences: () => ({t: (key) => key})},
     '../AddProductModal/styles': components,
     './styles': components,
@@ -103,4 +104,14 @@ find(tree, 'FinishEditButton').props.onPress();
 assert.equal(concluded, 1);
 tree = render({...props, busy: true});
 assert.equal(find(tree, 'ModalActionButton').props.disabled, true);
+tree = render({...props, expanded: false, item: {...original, sourceItems: [
+    {sourceDescription: 'LEITE UHT 1L', quantity: 6},
+]}});
+assert.ok(!find(tree, 'DuplicateNotice'), 'six units from one fiscal row do not show the duplicate notice');
+tree = render({...props, expanded: false, item: {...original, sourceItems: [
+    {sourceDescription: 'LEITE UHT 1L', quantity: 1},
+    {sourceDescription: 'LEITE UHT 1L', quantity: 1},
+    {sourceDescription: 'LEITE UHT 1L', quantity: 1},
+]}});
+assert.ok(find(tree, 'DuplicateNotice'), 'separate repeated fiscal rows show the grouped-lines notice');
 console.log('purchase-review-cancel-edit tests passed');
