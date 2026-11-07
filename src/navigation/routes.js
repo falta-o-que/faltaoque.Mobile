@@ -12,4 +12,5 @@ export const AUTHENTICATED_ROUTES = {
   NFCE_REVIEW: 'NfceReview',
   NOTIFICATIONS: 'Notifications',
   DASHBOARD: 'Dashboard',
+  DASHBOARD_PANTRY_PICKER: 'DashboardPantryPicker',
 };

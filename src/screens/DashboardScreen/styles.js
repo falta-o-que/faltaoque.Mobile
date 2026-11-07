@@ -279,31 +279,68 @@ export const CategoryProgressFill = styled.View`
   background-color: ${({ $color }) => $color};
 `;
 
-export const PriceFilters = styled.ScrollView.attrs({ contentContainerStyle: { gap: 8 }, showsHorizontalScrollIndicator: false })`
-  margin-top: 10px;
+export const ProductSelect = styled.Pressable`
+  margin-top: 10px; min-height: 44px; padding: 10px 12px; flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #b4e8b4; border-radius: 12px; background-color: #f2f8f3;
+`;
+export const ProductSelectText = styled.Text`
+  flex-shrink: 1; color: ${({ theme }) => theme.colors.primary.Green}; font-family: ${({ theme }) => theme.fonts.families.inter.medium}; font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
+`;
+export const ProductModalBackdrop = styled.View`flex: 1; justify-content: flex-end; padding-bottom: ${({ $bottomInset }) => $bottomInset}px; background-color: rgba(0, 0, 0, 0.45);`;
+export const ProductModalSheet = styled.View`height: 75%; padding: 20px; gap: 14px; border-top-left-radius: 22px; border-top-right-radius: 22px; background-color: #fff;`;
+export const ProductModalHeader = styled.View`flex-direction: row; align-items: center; justify-content: space-between; gap: 12px;`;
+export const ProductModalTitle = styled.Text`flex: 1; color: ${({ theme }) => theme.colors.primary.Green}; font-family: ${({ theme }) => theme.fonts.families.poppins.bold}; font-size: ${({ theme }) => 17 * theme.fonts.scale}px;`;
+export const ProductOption = styled.Pressable`min-height: 52px; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border-bottom-width: 1px; border-bottom-color: #e3ece5; background-color: ${({ $selected }) => $selected ? '#f2f8f3' : '#fff'};`;
+export const ProductOptionText = styled.Text`flex: 1; color: ${({ theme }) => theme.colors.black.Black}; font-family: ${({ theme }) => theme.fonts.families.inter.medium}; font-size: ${({ theme }) => 13 * theme.fonts.scale}px;`;
+
+export const HighlightIntro = styled.View`
+  gap: 1px;
+  margin-bottom: 4px;
 `;
 
-export const PriceFilterItem = styled.Pressable`
-  max-width: 180px;
-  min-height: 34px;
-  justify-content: center;
-  padding: 0 12px;
-  border-radius: 18px;
-  border: 1px solid ${({ $selected }) => $selected ? '#00DD00' : '#e3ece5'};
-  background-color: ${({ $selected }) => $selected ? '#f2f8f3' : '#ffffff'};
+export const HighlightHint = styled.Text`
+  color: #708077;
+  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
 `;
 
 export const InsightCard = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 12px;
+  gap: 9px;
+  padding: 12px;
   border-radius: 14px;
   background-color: #dff8e7;
 `;
 
-export const InsightName = styled.Text.attrs({ numberOfLines: 1 })`
+export const InsightHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const InsightBadge = styled.View`
+  padding: 4px 8px;
+  border-radius: 12px;
+  background-color: #ffffff;
+`;
+
+export const InsightBadgeText = styled.Text`
+  color: ${({ theme }) => theme.colors.primary.Green};
+  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
+`;
+
+export const InsightValues = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px;
+`;
+
+export const InsightValueGroup = styled.View`
+  flex: 1;
+  gap: 1px;
+`;
+
+export const InsightName = styled.Text`
+  ${({ $flex }) => $flex ? 'flex: 1;' : ''}
   color: ${({ theme }) => theme.colors.primary.Green};
   font-family: ${({ theme }) => theme.fonts.families.poppins.bold};
   font-size: ${({ theme }) => 13 * theme.fonts.scale}px;

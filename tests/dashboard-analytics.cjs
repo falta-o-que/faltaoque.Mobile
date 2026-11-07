@@ -53,6 +53,12 @@ async function main() {
   assert.equal(thirtyDays.monthTotal, 160, 'monthly KPI is independent from the selected chart period');
   assert.equal(thirtyDays.previousMonthTotal, 115);
   closeTo(thirtyDays.monthChangePercent, ((160 - 115) / 115) * 100, 'month-over-month change');
+  const comparable = buildDashboard([purchase('previous-day', '2026-10-07', 50, null, null, []), purchase('previous-late', '2026-10-08', 200, null, null, []), purchase('current', '2026-11-07', 100, null, null, [])], {now});
+  assert.equal(comparable.previousMonthTotal, 250);
+  assert.equal(comparable.monthChangePercent, -60);
+  const shortMonth = buildDashboard([purchase('feb-end', '2026-02-28', 40, null, null, []), purchase('march-end', '2026-03-31', 60, null, null, [])], {now: new Date(2026, 2, 31, 12)});
+  assert.equal(shortMonth.previousMonthTotal, 40);
+  assert.equal(shortMonth.monthChangePercent, 50);
   assert.equal(thirtyDays.latest.date.toISOString().slice(0, 10), '2026-11-07');
   assert.equal(thirtyDays.expenses.length, 2, '30-day expenses are grouped into Monday-starting weeks');
   assert.equal(thirtyDays.expenses.reduce((sum, item) => sum + item.total, 0), 185);
@@ -70,7 +76,10 @@ async function main() {
   assert.deepEqual(thirtyDays.prices.map((item) => item.price), [11, 16]);
   assert.deepEqual(thirtyDays.prices[1].marketNames, ['Atacarejo', 'Mercado do Bairro']);
   closeTo(thirtyDays.priceChangePercent, (5 / 11) * 100, 'product price change uses first and last averaged observations');
-  assert.ok(thirtyDays.priceHighlights.some((item) => item.name === 'Café' && item.changePercent > 0));
+  const coffeeHighlight = thirtyDays.priceHighlights.find((item) => item.name === 'Café');
+  assert.ok(coffeeHighlight.changePercent > 0);
+  assert.equal(coffeeHighlight.firstPrice, 11);
+  assert.equal(coffeeHighlight.latestPrice, 16);
 
   const threeMonths = buildDashboard(records, {period: '3m', now, locale: 'pt-BR'});
   assert.equal(threeMonths.purchaseCount, 5, 'three-month period starts on the first day two months earlier');

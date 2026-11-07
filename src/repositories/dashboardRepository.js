@@ -16,20 +16,21 @@ function getDashboardDemoPurchaseIds(database, pantryIds) {
     .map((purchase) => purchase.id));
 }
 
-export async function listDashboardRecords(accountId) {
+export async function listDashboardRecords(accountId, pantryId) {
   if (!accountId) throw new Error('UNAUTHENTICATED');
 
   const database = await readDatabase();
   const pantryIds = new Set(database.users_pantries
     .filter((membership) => membership.user_id === accountId)
     .map((membership) => membership.pantry_id));
+  if (!pantryId || !pantryIds.has(pantryId)) throw new Error('PANTRY_NOT_FOUND');
   const pantries = new Map(database.pantries
     .filter((pantry) => pantryIds.has(pantry.id))
     .map((pantry) => [pantry.id, pantry.title]));
   const markets = new Map(database.markets.map((market) => [market.id, market.local_name || market.cep]));
   const categories = new Map(database.categories.map((category) => [category.id, category.name]));
   const purchases = database.purchases
-    .filter((purchase) => pantryIds.has(purchase.pantry_id))
+    .filter((purchase) => purchase.pantry_id === pantryId)
     .map((purchase) => ({
       id: purchase.id,
       date: purchase.purchase_date,
@@ -97,5 +98,5 @@ export async function removeDashboardDemoPurchases(accountId) {
     };
   });
 
-  return { purchaseCount: removedPurchaseCount, marketCount: removedMarketCount };
+  return {purchaseCount: removedPurchaseCount, marketCount: removedMarketCount};
 }

@@ -1,3 +1,4 @@
+export { Avatar, GradientBackground, SearchArea, TitleRow } from '../PantriesScreen/styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -7,14 +8,11 @@ export const Screen = styled(SafeAreaView)`
 `;
 export const Content = styled.View`
   flex: 1;
-  padding: 28px 20px 0;
+  padding: 30px 20px 0;
   gap: 16px;
 `;
 export const Header = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  width: 100%;
 `;
 export const Title = styled.Text`
   color: ${({ theme }) => theme.colors.black.Black};
@@ -30,6 +28,7 @@ export const Subtitle = styled.Text`
 export const List = styled.ScrollView.attrs({
   contentContainerStyle: { gap: 12, padding: 4, paddingBottom: 24 },
   showsVerticalScrollIndicator: false,
+  keyboardShouldPersistTaps: 'handled',
 })`
   flex: 1;
 `;

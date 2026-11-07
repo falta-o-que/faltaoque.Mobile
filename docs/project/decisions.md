@@ -4,7 +4,8 @@
 
 O Dashboard resume o histórico das compras locais da conta autenticada. Os períodos disponíveis são 30 dias, 3 meses e
 6 meses, com 30 dias selecionado inicialmente. O filtro de mercado se aplica às métricas e aos gráficos. O cartão
-principal soma `purchases.total_price` do mês atual e compara com o mês anterior; não havendo compras no mês anterior,
+principal soma `purchases.total_price` do mês atual e compara com os mesmos dias do mês anterior, limitado ao último dia
+do mês anterior quando necessário; não havendo gastos nesse intervalo anterior,
 a interface informa que não há comparação. Os gráficos usam o período selecionado. A distribuição por categoria soma os valores registrados em
 `pantry_products.price`. A variação de preço compara o valor por unidade comprada (`price / quantity`) somente para o
 mesmo nome e embalagem, dentro do período e mercado selecionados. Produtos com variação absoluta de pelo menos 5% são

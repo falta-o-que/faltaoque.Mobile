@@ -2,8 +2,10 @@
 
 ## Dashboard local — 7 de novembro de 2026
 
-- Implementada a página Dashboard e adicionada à navegação autenticada pela Navbar. A tela reúne compras das despensas
-  da conta ativa, filtra por 30 dias, 3 meses ou 6 meses e por todos os mercados ou um mercado específico.
+- A criação automática da “Despensa de teste — Dashboard” foi removida após a validação do usuário. A despensa fictícia
+  e seus dados vinculados são apagados para a conta ativa ao abrir a seleção do Dashboard com a versão atualizada.
+- Implementada a página Dashboard e adicionada à navegação autenticada pela Navbar. A tela reúne compras da despensa
+  escolhida na tela de seleção, filtra por 30 dias, 3 meses ou 6 meses e por todos os mercados ou um mercado específico.
 - A página mostra o gasto do mês comparado ao mês anterior, última compra, número de compras no intervalo, gastos por
   período e categoria, histórico do preço por produto/embalagem e destaques de variação de pelo menos 5%. Usa gráficos
   em SVG já suportados no projeto. Sem dados suficientes, apresenta estados vazios; não estima economia.

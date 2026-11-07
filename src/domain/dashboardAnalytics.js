@@ -156,7 +156,7 @@ export function buildDashboard(records, { period = '30d', marketId = null, produ
     const first = sorted[0];
     const latestPrice = sorted[sorted.length - 1];
     const changePercent = sorted.length > 1 && first > 0 ? ((latestPrice - first) / first) * 100 : null;
-    return { key: item.key, name: item.name, contentValue: item.contentValue, unit: item.unit, latestPrice, changePercent };
+    return { key: item.key, name: item.name, contentValue: item.contentValue, unit: item.unit, firstPrice: first, latestPrice, changePercent };
   }).filter((item) => item.changePercent != null && Math.abs(item.changePercent) >= 5)
     .sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent)).slice(0, 3);
 

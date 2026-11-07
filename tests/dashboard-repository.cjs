@@ -98,19 +98,21 @@ async function testDashboardReadAndPersistence() {
 
   const {listDashboardRecords} = h.load('src/repositories/dashboardRepository.js');
   const service = h.load('src/services/dashboardService.js');
-  const accountA = await listDashboardRecords('a');
-  assert.deepEqual(accountA.purchases.map((item) => item.id), ['purchase-old-a', 'purchase-old-a2']);
+  const accountA = await listDashboardRecords('a', 'p');
+  assert.deepEqual(accountA.purchases.map((item) => item.id), ['purchase-old-a']);
   assert.equal(accountA.purchases[0].pantryName, 'Casa');
   assert.equal(accountA.purchases[0].marketName, 'Mercado antigo');
-  assert.equal(accountA.purchases[1].marketName, '04000000', 'market location is the fallback when no market row is linked');
+  assert.equal((await listDashboardRecords('a', 'p-a2')).purchases[0].marketName, '04000000');
+  await assert.rejects(() => listDashboardRecords('a', 'p-b'), /PANTRY_NOT_FOUND/);
+  await assert.rejects(() => listDashboardRecords('a'), /PANTRY_NOT_FOUND/);
   assert.equal(accountA.purchases[0].products[0].category, 'bebidas');
   assert.equal(accountA.purchases[0].products[0].total, 10);
 
-  const loadedA = await service.loadDashboard('a');
-  assert.equal(loadedA.records.length, 2);
+  const loadedA = await service.loadDashboard('a', 'p');
+  assert.equal(loadedA.records.length, 1);
   assert.equal(loadedA.filters.markets.length, 1);
-  assert.equal(loadedA.filters.products.length, 2);
-  const loadedB = await service.loadDashboard('b');
+  assert.equal(loadedA.filters.products.length, 1);
+  const loadedB = await service.loadDashboard('b', 'p-b');
   assert.deepEqual(loadedB.records.map((item) => item.id), ['purchase-b']);
   assert.equal(loadedB.filters.markets[0].name, 'Mercado B');
   await assert.rejects(() => listDashboardRecords(null), /UNAUTHENTICATED/);
@@ -121,7 +123,7 @@ async function testDashboardReadAndPersistence() {
     purchases: database.purchases.map((item) => item.id === 'purchase-old-a'
       ? {...item, total_price: 42, purchase_date: '2026-11-07'} : item),
   }));
-  const loadedAgain = await service.loadDashboard('a');
+  const loadedAgain = await service.loadDashboard('a', 'p');
   assert.equal(loadedAgain.records.find((item) => item.id === 'purchase-old-a').total, 42,
     'dashboard reads the committed persisted snapshot on each load');
 }
@@ -135,7 +137,7 @@ async function testMockCleanupAndAccountIsolation() {
   await addInitialHistory(h);
   await addMockHistory(h);
 
-  const {removeDashboardDemoPurchases} = h.load('src/repositories/dashboardRepository.js');
+  const {removeDashboardDemoPurchases, listDashboardRecords} = h.load('src/repositories/dashboardRepository.js');
   const {readDatabase} = h.load('src/storage/localDatabase.js');
   const {purchaseCount, marketCount} = await removeDashboardDemoPurchases('a');
   assert.equal(purchaseCount, 2, 'only sample purchases in the active account’s pantries are removed');
@@ -148,34 +150,32 @@ async function testMockCleanupAndAccountIsolation() {
   assert.ok(!database.purchases.some((item) => ['demo-a1', 'demo-a2'].includes(item.id)));
   assert.ok(database.purchases.some((item) => item.id === 'purchase-old-a'), 'ordinary purchases in the same pantries are preserved');
   assert.ok(database.purchases.some((item) => item.id === 'purchase-old-a2'));
-  assert.ok(database.purchases.some((item) => item.id === 'similar-title-real-data'), 'a matching title on a real market is not treated as a sample');
+  assert.ok(database.purchases.some((item) => item.id === 'similar-title-real-data'), 'a matching title on a real market is preserved');
   assert.ok(database.purchases.some((item) => item.id === 'purchase-b'), 'another account’s purchase is preserved');
   assert.equal(database.purchases.length, 5);
   assert.equal(database.pantry_products.length, 5, 'only products linked to removed sample purchases are deleted');
   assert.ok(database.pantry_products.every((item) => !['demo-product-a1', 'demo-product-a2'].includes(item.id)));
-  assert.ok(database.markets.some((item) => item.id === 'demo-market-3'), 'a sample market still referenced by a grocery list is preserved');
+  assert.ok(database.markets.some((item) => item.id === 'demo-market-3'), 'a sample market referenced by a grocery list is preserved');
   assert.ok(database.markets.some((item) => item.id === 'real-market'));
   assert.ok(!database.markets.some((item) => ['demo-market-1', 'demo-market-2'].includes(item.id)));
 
   const service = h.load('src/services/dashboardService.js');
-  const loadedA = await service.loadDashboard('a');
-  assert.equal(loadedA.records.length, 3, 'dashboard loading retains the active account’s non-sample purchases');
-  const {listDashboardRecords} = h.load('src/repositories/dashboardRepository.js');
-  assert.equal((await listDashboardRecords('b')).purchases.length, 2,
-    'the active account cleanup leaves another account’s sample untouched');
-  const loadedB = await service.loadDashboard('b');
-  assert.equal(loadedB.records.length, 1, 'the other account cleanup runs only when that account loads the dashboard');
+  const loadedA = await service.loadDashboard('a', 'p');
+  assert.equal(loadedA.records.length, 2, 'dashboard loads only the selected pantry’s non-sample purchases');
+  assert.equal((await listDashboardRecords('b', 'p-b')).purchases.length, 2,
+    'cleanup for one account leaves another account’s samples untouched');
+  const loadedB = await service.loadDashboard('b', 'p-b');
+  assert.equal(loadedB.records.length, 1, 'cleanup for the other account runs only when it loads the dashboard');
 
   database = await readDatabase();
   const beforeSecondCleanup = JSON.stringify(database);
   const secondCleanup = await removeDashboardDemoPurchases('a');
   assert.deepEqual(secondCleanup, {purchaseCount: 0, marketCount: 0}, 'cleanup is idempotent');
-  database = await readDatabase();
-  assert.equal(JSON.stringify(database), beforeSecondCleanup);
+  assert.equal(JSON.stringify(await readDatabase()), beforeSecondCleanup);
 
   const beforeInvalidRequest = JSON.stringify(database);
   await assert.rejects(() => removeDashboardDemoPurchases(null), /UNAUTHENTICATED/);
-  assert.equal(JSON.stringify(await readDatabase()), beforeInvalidRequest, 'an invalid cleanup request leaves the database unchanged');
+  assert.equal(JSON.stringify(await readDatabase()), beforeInvalidRequest, 'invalid cleanup leaves the database unchanged');
 }
 
 async function main() {

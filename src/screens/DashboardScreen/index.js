@@ -1,10 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, FlatList, Modal, useWindowDimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from 'styled-components/native';
 import Svg, { Circle, Line, Path, Polyline, Rect, Text as SvgText } from 'react-native-svg';
 
 import Navbar from '../../components/Navbar';
+import SearchField from '../../components/SearchField';
+import ModalActionButton from '../../components/ModalActionButton';
+import { CancelCircleIcon } from '../../assets/icons/export';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
@@ -15,8 +19,8 @@ import {
   CategoryLegendList, CategoryLegendTop, CategoryOverviewText, CategoryPercent, CategoryProgress,
   CategoryProgressFill, MarketFilterButton,
   Chart, ChartEmpty, ChartHint, ChartTitle, Content, FilterLabel, FilterScroll, Header,
-  HeaderAvatar, HeaderTitle, InsightCard, InsightName, InsightPrice, InsightText, MetricCard, MetricMain,
-  MetricLabel, MetricRow, MetricValue, PeriodButton, PeriodLabel, PriceFilterItem, PriceFilters,
+  HeaderAvatar, HeaderTitle, HighlightIntro, HighlightHint, InsightCard, InsightName, InsightPrice, InsightText, InsightHeader, InsightBadge, InsightBadgeText, InsightValues, InsightValueGroup, MetricCard, MetricMain,
+  MetricLabel, MetricRow, MetricValue, PeriodButton, PeriodLabel, ProductSelect, ProductSelectText, ProductModalBackdrop, ProductModalSheet, ProductModalHeader, ProductModalTitle, ProductOption, ProductOptionText,
   RetryButton, RetryLabel, Screen, Section, StateContent, StateText, Summary, SummaryLabel,
   SummaryValue, TitleArea,
 } from './styles';
@@ -145,13 +149,20 @@ function PriceChart({ data, width, emptyLabel, money }) {
   const max = Math.max(...values);
   const span = max - min || max * 0.12 || 1;
   const plotInset = 40;
+  const firstTime = data[0].date.getTime();
+  const timeSpan = data[data.length - 1].date.getTime() - firstTime || 1;
   const points = data.map((item, index) => {
-    const x = plotInset + (index * (chartWidth - plotInset * 2)) / Math.max(1, data.length - 1);
+    const x = plotInset + ((item.date.getTime() - firstTime) / timeSpan) * (chartWidth - plotInset * 2);
     const y = chartHeight - 30 - ((item.price - min) / span) * (chartHeight - 54);
     return { ...item, x, y };
   });
-  const valueLabelIndexes = new Set([0, points.length - 1, values.indexOf(min), values.indexOf(max)]);
-  const dateLabelIndexes = new Set([0, Math.floor((points.length - 1) / 2), points.length - 1]);
+  const valueLabelIndexes = new Set([0, points.length - 1]);
+  [values.indexOf(min), values.indexOf(max)].forEach((index) => {
+    if ([...valueLabelIndexes].every((other) => Math.abs(points[index].x - points[other].x) >= 56)) valueLabelIndexes.add(index);
+  });
+  const dateLabelIndexes = new Set([0, points.length - 1]);
+  const middleIndex = Math.floor((points.length - 1) / 2);
+  if ([...dateLabelIndexes].every((index) => Math.abs(points[index].x - points[middleIndex].x) >= 50)) dateLabelIndexes.add(middleIndex);
   return (
     <Chart accessible accessibilityLabel={`Histórico de ${data.length} preços`}>
       <Svg width={chartWidth} height={chartHeight}>
@@ -161,7 +172,7 @@ function PriceChart({ data, width, emptyLabel, money }) {
           <React.Fragment key={`${point.date.toISOString()}-${index}`}>
             <Circle cx={point.x} cy={point.y} r="4" fill="#fff" stroke="#00BB00" strokeWidth="2.5" />
             {valueLabelIndexes.has(index) ? (() => {
-              const label = money(point.price, undefined, true);
+              const label = money(point.price);
               const adjacentPoints = [points[index - 1], points[index + 1]].filter(Boolean);
               const labelHalfWidth = label.length * 2.6;
               const lineTouchesLabel = adjacentPoints.some((adjacentPoint) => {
@@ -181,15 +192,18 @@ function PriceChart({ data, width, emptyLabel, money }) {
   );
 }
 
-export default function DashboardScreen({ navigation }) {
+export default function DashboardScreen({ navigation, route }) {
   const { account } = useAuth();
   const { t, language } = useAppPreferences();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const contentWidth = Math.max(240, screenWidth - 40);
   const [period, setPeriod] = useState('30d');
   const [marketId, setMarketId] = useState(null);
   const [productId, setProductId] = useState(null);
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
+  const [productQuery, setProductQuery] = useState('');
   const [source, setSource] = useState({ records: [], filters: { markets: [], products: [] } });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -200,22 +214,22 @@ export default function DashboardScreen({ navigation }) {
     let active = true;
     setLoading(true);
     setError(false);
-    loadDashboard(account?.id)
+    loadDashboard(account?.id, route.params?.pantryId)
       .then((result) => {
         if (!active) return;
         setSource(result);
         setProductId((current) => current && result.filters.products.some((product) => product.key === current)
           ? current : result.filters.products[0]?.key ?? null);
-        if (marketId && !result.filters.markets.some((market) => market.id === marketId)) setMarketId(null);
+        setMarketId((current) => current && !result.filters.markets.some((market) => market.id === current) ? null : current);
       })
       .catch(() => { if (active) setError(true); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [account?.id, reloadKey]));
+  }, [account?.id, reloadKey, route.params?.pantryId]));
 
   const dashboard = useMemo(() => buildDashboard(source.records, { period, marketId, productId, locale: language }), [source.records, period, marketId, productId, language]);
   const handleNavigation = (key) => {
-    if (key === 'dashboard') return;
+    if (key === 'dashboard') { navigation.navigate(AUTHENTICATED_ROUTES.DASHBOARD_PANTRY_PICKER); return; }
     if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
     else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
     else if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME, { section: 'pantry' });
@@ -231,6 +245,11 @@ export default function DashboardScreen({ navigation }) {
     : Math.abs(dashboard.priceChangePercent) < 0.5 ? t('dashboard.priceNoChange')
     : t(dashboard.priceChangePercent > 0 ? 'dashboard.priceIncreased' : 'dashboard.priceDecreased', { percent: Math.abs(dashboard.priceChangePercent).toFixed(0) });
   const priceProduct = source.filters.products.find((item) => item.key === productId);
+  const filteredProducts = useMemo(() => {
+    const normalize = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const query = normalize(productQuery.trim());
+    return source.filters.products.filter((product) => normalize(productLabel(product)).includes(query));
+  }, [source.filters.products, productQuery]);
 
   return (
     <Screen edges={['top', 'right', 'left']}>
@@ -239,7 +258,7 @@ export default function DashboardScreen({ navigation }) {
           <HeaderAvatar $color={account?.avatarColor} />
           <TitleArea>
             <HeaderTitle>{t('dashboard.title')}</HeaderTitle>
-            <SummaryLabel>{t('dashboard.subtitle')}</SummaryLabel>
+            <SummaryLabel>{route.params?.pantryName || t('dashboard.subtitle')}</SummaryLabel>
           </TitleArea>
         </Header>
 
@@ -305,25 +324,39 @@ export default function DashboardScreen({ navigation }) {
           <Card>
             <CardHeader><ChartTitle>{t('dashboard.priceTitle')}</ChartTitle></CardHeader>
             <ChartHint>{t('dashboard.priceHint')}</ChartHint>
-            <PriceFilters horizontal showsHorizontalScrollIndicator={false}>
-              {source.filters.products.map((product) => (
-                <PriceFilterItem key={product.key} accessibilityRole="button" accessibilityState={{ selected: productId === product.key }} $selected={productId === product.key} onPress={() => setProductId(product.key)}>
-                  <SummaryLabel $selected={productId === product.key} numberOfLines={1}>{productLabel(product)}</SummaryLabel>
-                </PriceFilterItem>
-              ))}
-            </PriceFilters>
+            <ProductSelect accessibilityRole="button" accessibilityLabel={t('dashboard.selectProduct')} disabled={!source.filters.products.length} onPress={() => { setProductQuery(''); setProductPickerOpen(true); }}>
+              <ProductSelectText numberOfLines={1}>{priceProduct ? productLabel(priceProduct) : t('dashboard.noProducts')}</ProductSelectText>
+              <ProductSelectText>⌄</ProductSelectText>
+            </ProductSelect>
             {priceProduct ? <ChartHint>{priceProduct.contentValue ? `${priceProduct.contentValue}${priceProduct.unit || ''} · ` : ''}{priceChangeText}</ChartHint> : null}
             <PriceChart data={dashboard.prices} width={contentWidth} emptyLabel={t('dashboard.emptyPrices')} money={money} />
           </Card>
 
+          {dashboard.priceHighlights.length > 0 ? <Section>
+            <HighlightIntro>
+            <ChartTitle>{t('dashboard.highlightsTitle')}</ChartTitle>
+            <HighlightHint>{t('dashboard.highlightsHint')}</HighlightHint>
+            </HighlightIntro>
           {dashboard.priceHighlights.map((item) => (
             <InsightCard key={item.key}>
-              <Section><InsightName numberOfLines={1}>{productLabel(item)}</InsightName><InsightText>{t(item.changePercent > 0 ? 'dashboard.priceIncreased' : 'dashboard.priceDecreased', { percent: Math.abs(item.changePercent).toFixed(0) })}</InsightText></Section>
-              <InsightPrice>{money(item.latestPrice)}</InsightPrice>
+              <InsightHeader><InsightName $flex numberOfLines={2}>{productLabel(item)}</InsightName><InsightBadge $increase={item.changePercent > 0}><InsightBadgeText $increase={item.changePercent > 0}>{t(item.changePercent > 0 ? 'dashboard.highlightUp' : 'dashboard.highlightDown', { percent: Math.abs(item.changePercent).toFixed(0) })}</InsightBadgeText></InsightBadge></InsightHeader>
+              <InsightValues>
+                <InsightValueGroup><InsightText>{t('dashboard.firstPrice')}</InsightText><InsightPrice>{money(item.firstPrice)}</InsightPrice></InsightValueGroup>
+                <InsightValueGroup><InsightText>{t('dashboard.latestPrice')}</InsightText><InsightPrice>{money(item.latestPrice)}</InsightPrice></InsightValueGroup>
+              </InsightValues>
             </InsightCard>
           ))}
+          </Section> : null}
         </> : null}
       </Content>
+      <Modal visible={productPickerOpen} transparent animationType="slide" onRequestClose={() => setProductPickerOpen(false)}>
+        <ProductModalBackdrop $bottomInset={insets.bottom}><ProductModalSheet>
+          <ProductModalHeader><ProductModalTitle>{t('dashboard.selectProduct')}</ProductModalTitle><ModalActionButton Icon={CancelCircleIcon} variant="cancel" accessibilityLabel={t('dashboard.close')} onPress={() => setProductPickerOpen(false)} /></ProductModalHeader>
+          <SearchField value={productQuery} onChangeText={setProductQuery} placeholder={t('dashboard.searchProduct')} />
+          <FlatList data={filteredProducts} keyExtractor={(item) => item.key} keyboardShouldPersistTaps="handled" ListEmptyComponent={<ChartEmpty>{t('dashboard.noProductResults')}</ChartEmpty>}
+            renderItem={({ item }) => <ProductOption accessibilityRole="button" accessibilityState={{ selected: item.key === productId }} $selected={item.key === productId} onPress={() => { setProductId(item.key); setProductPickerOpen(false); }}><ProductOptionText numberOfLines={2}>{productLabel(item)}</ProductOptionText>{item.key === productId ? <ProductSelectText>✓</ProductSelectText> : null}</ProductOption>} />
+        </ProductModalSheet></ProductModalBackdrop>
+      </Modal>
       <Navbar activeItem="dashboard" onItemChange={handleNavigation} />
     </Screen>
   );

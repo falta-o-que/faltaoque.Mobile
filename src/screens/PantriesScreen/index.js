@@ -156,7 +156,7 @@ export default function PantriesScreen({navigation}) {
     };
 
     const handleNavbarItemChange = (key, item) => {
-        if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME); else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER); else if (key === 'dashboard') navigation.navigate(AUTHENTICATED_ROUTES.DASHBOARD); else if (key !== 'pantry') Alert.alert(t('pantries.comingSoon'), t('pantries.comingSoonMessage', {feature: item.label}), [{text: t('common.ok')}]);
+        if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME); else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER); else if (key === 'dashboard') navigation.navigate(AUTHENTICATED_ROUTES.DASHBOARD_PANTRY_PICKER); else if (key !== 'pantry') Alert.alert(t('pantries.comingSoon'), t('pantries.comingSoonMessage', {feature: item.label}), [{text: t('common.ok')}]);
     };
 
     return (<Screen edges={['top', 'right', 'left']}>
