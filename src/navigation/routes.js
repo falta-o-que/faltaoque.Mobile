@@ -11,4 +11,5 @@ export const AUTHENTICATED_ROUTES = {
   GROCERY_PANTRY_PICKER: 'GroceryPantryPicker',
   NFCE_REVIEW: 'NfceReview',
   NOTIFICATIONS: 'Notifications',
+  DASHBOARD: 'Dashboard',
 };

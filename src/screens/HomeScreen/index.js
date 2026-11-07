@@ -135,6 +135,8 @@ export function HomeScreen({navigation, route}) {
             navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
         } else if (key === 'pantry') {
             navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
+        } else if (key === 'dashboard') {
+            navigation.navigate(AUTHENTICATED_ROUTES.DASHBOARD);
         } else if (key !== 'profile') {
             Alert.alert(t('common.comingSoon'), t('common.comingSoonMessage', {feature: item.label}), [{text: t('common.ok')}]);
         }

@@ -10,6 +10,7 @@ import GroceryListScreen from '../screens/GroceryListScreen';
 import GroceryPantryPickerScreen from '../screens/GroceryPantryPickerScreen';
 import NfceReviewScreen from '../screens/NfceReviewScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
+import DashboardScreen from '../screens/DashboardScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import { AUTHENTICATED_ROUTES, PUBLIC_ROUTES } from './routes';
@@ -52,6 +53,7 @@ function AuthenticatedNavigator() {
       <Stack.Screen name={AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER} component={GroceryPantryPickerScreen} />
       <Stack.Screen name={AUTHENTICATED_ROUTES.NFCE_REVIEW} component={NfceReviewScreen} />
       <Stack.Screen name={AUTHENTICATED_ROUTES.NOTIFICATIONS} component={NotificationsScreen} />
+      <Stack.Screen name={AUTHENTICATED_ROUTES.DASHBOARD} component={DashboardScreen} />
     </Stack.Navigator>
   );
 }

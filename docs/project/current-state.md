@@ -1,5 +1,19 @@
 # Estado atual
 
+## Dashboard local — 7 de novembro de 2026
+
+- Implementada a página Dashboard e adicionada à navegação autenticada pela Navbar. A tela reúne compras das despensas
+  da conta ativa, filtra por 30 dias, 3 meses ou 6 meses e por todos os mercados ou um mercado específico.
+- A página mostra o gasto do mês comparado ao mês anterior, última compra, número de compras no intervalo, gastos por
+  período e categoria, histórico do preço por produto/embalagem e destaques de variação de pelo menos 5%. Usa gráficos
+  em SVG já suportados no projeto. Sem dados suficientes, apresenta estados vazios; não estima economia.
+- No modo de desenvolvimento, o botão de amostra substitui compras e produtos associados somente da conta atual por
+  24 compras fictícias de seis meses em três mercados. A confirmação informa que listas e despensas são preservadas.
+  Essa operação foi acionada no Android conectado para explorar a página.
+- Especificação e regras de cálculo foram registradas em `docs/specs/integracao-e-fluxos-2026-10-05.md` e
+  `docs/project/decisions.md`. O bundle Android passou; a inspeção por ADB confirmou os filtros e a leitura dos gráficos
+  de gastos, categorias e preços no Android. iOS não foi testado fisicamente; nenhuma suíte automatizada foi executada.
+
 ## Nova auditoria de código — 6 de novembro de 2026
 
 - Auditoria consolidada reúne B35 a B44 e C03 como 11 problemas abertos, além das decisões R01 e C05, em
