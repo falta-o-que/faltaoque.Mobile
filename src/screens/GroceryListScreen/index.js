@@ -294,6 +294,7 @@ export default function GroceryListScreen({navigation, route}) {
         return [...items].sort((first, second) => {
             if (sortOption === 'nameAsc') return first.name.localeCompare(second.name, language);
             if (sortOption === 'nameDesc') return second.name.localeCompare(first.name, language);
+            if (sortOption === 'quantityAsc') return first.quantity - second.quantity;
             if (sortOption === 'quantityDesc') return second.quantity - first.quantity;
             return 0;
         });

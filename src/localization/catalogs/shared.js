@@ -24,6 +24,7 @@ export default {
         'shopping.sortNameDesc': 'Z - A',
         'shopping.sortPriceAsc': 'Menor preço',
         'shopping.sortPriceDesc': 'Maior preço',
+        'shopping.sortQuantityAsc': 'Menor quantidade',
         'shopping.sortQuantityDesc': 'Maior quantidade',
         'shopping.viewProductsWithoutHistory': 'Ver produtos sem histórico',
         'shopping.confirmedManualAddition': 'Confirmado para adicionar manualmente',
@@ -240,6 +241,7 @@ export default {
         'product.filter.nameDesc': 'Z - A',
         'product.filter.priceAsc': 'Menor preço',
         'product.filter.priceDesc': 'Maior preço',
+        'product.filter.quantityAsc': 'Menor quantidade',
         'product.filter.quantityDesc': 'Maior quantidade',
     }, en: {
         'product.info.validationQuantityNonnegative': 'Enter a whole quantity of zero or more.',
@@ -266,6 +268,7 @@ export default {
         'shopping.sortNameDesc': 'Z - A',
         'shopping.sortPriceAsc': 'Lowest price',
         'shopping.sortPriceDesc': 'Highest price',
+        'shopping.sortQuantityAsc': 'Lowest quantity',
         'shopping.sortQuantityDesc': 'Largest quantity',
         'shopping.viewProductsWithoutHistory': 'View products without history',
         'shopping.confirmedManualAddition': 'Confirmed for manual addition',
@@ -482,6 +485,7 @@ export default {
         'product.filter.nameDesc': 'Z - A',
         'product.filter.priceAsc': 'Lowest price',
         'product.filter.priceDesc': 'Highest price',
+        'product.filter.quantityAsc': 'Lowest quantity',
         'product.filter.quantityDesc': 'Highest quantity',
     }, es: {
         'product.info.validationQuantityNonnegative': 'Introduce una cantidad entera igual o mayor que cero.',
@@ -508,6 +512,7 @@ export default {
         'shopping.sortNameDesc': 'Z - A',
         'shopping.sortPriceAsc': 'Menor precio',
         'shopping.sortPriceDesc': 'Mayor precio',
+        'shopping.sortQuantityAsc': 'Menor cantidad',
         'shopping.sortQuantityDesc': 'Mayor cantidad',
         'shopping.viewProductsWithoutHistory': 'Ver productos sin historial',
         'shopping.confirmedManualAddition': 'Confirmado para añadir manualmente',
@@ -724,6 +729,7 @@ export default {
         'product.filter.nameDesc': 'Z - A',
         'product.filter.priceAsc': 'Menor precio',
         'product.filter.priceDesc': 'Mayor precio',
+        'product.filter.quantityAsc': 'Menor cantidad',
         'product.filter.quantityDesc': 'Mayor cantidad',
     },
 };

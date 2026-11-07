@@ -14,6 +14,17 @@ não consegue determinar a diagramação original usando somente a leitura do po
 somadas automaticamente, sem aviso de duplicidade nem revisão adicional causada pelo agrupamento. Uma quantidade maior
 em uma única linha também não gera aviso. Revisões exigidas por ambiguidades reais continuam aplicáveis.
 
+## 2026-11-07 — Ordenação da despensa por menor quantidade
+
+O filtro da despensa oferece “Menor quantidade” em ordem crescente do saldo atual, mantendo “Maior quantidade” em ordem
+decrescente. A ordenação só reorganiza a lista visível e segue o fluxo existente de aplicar filtros.
+
+## 2026-11-07 — Ordenação da lista de compras por menor quantidade
+
+O filtro dos itens da lista de compras também oferece “Menor quantidade” em ordem crescente da quantidade planejada,
+junto à ordenação existente por maior quantidade. A opção altera somente a ordem visível e segue o modal atual de
+aplicar o filtro.
+
 ## 2026-11-01 — Falha ao ler metadados de notificação
 
 Somente a ausência da chave local inicia metadados vazios. Erros de leitura, JSON inválido ou campos existentes com

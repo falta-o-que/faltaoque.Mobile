@@ -68,7 +68,9 @@ const SORT_OPTIONS = [{key: 'nameAsc', labelKey: 'shopping.sortNameAsc'}, {
     key: 'nameDesc', labelKey: 'shopping.sortNameDesc'
 }, {key: 'priceAsc', labelKey: 'shopping.sortPriceAsc', disabled: true}, {
     key: 'priceDesc', labelKey: 'shopping.sortPriceDesc', disabled: true
-}, {key: 'quantityDesc', labelKey: 'shopping.sortQuantityDesc'},];
+}, {key: 'quantityAsc', labelKey: 'shopping.sortQuantityAsc'}, {
+    key: 'quantityDesc', labelKey: 'shopping.sortQuantityDesc'
+},];
 
 const dateToIso = (value) => value ? normalizeDateOnly(value) : null;
 const dateToBr = (value) => value ? value.split('-').reverse().join('/') : '';

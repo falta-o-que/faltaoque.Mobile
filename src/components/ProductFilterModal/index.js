@@ -11,6 +11,7 @@ const SORT_OPTIONS = [
   { key: 'nameDesc', labelKey: 'product.filter.nameDesc' },
   { key: 'priceAsc', labelKey: 'product.filter.priceAsc' },
   { key: 'priceDesc', labelKey: 'product.filter.priceDesc' },
+  { key: 'quantityAsc', labelKey: 'product.filter.quantityAsc' },
   { key: 'quantityDesc', labelKey: 'product.filter.quantityDesc' },
 ];
 

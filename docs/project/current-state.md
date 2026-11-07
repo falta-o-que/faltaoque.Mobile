@@ -17,6 +17,12 @@
   interpretada como duplicidade. Ambiguidades reais continuam exigindo revisão. Sem validação física no Android; iOS não
   testado.
 
+## Ordenação da despensa — 7 de novembro de 2026
+
+- Adicionada a opção “Menor quantidade”, que mostra primeiro os produtos com menor saldo atual. “Maior quantidade” e
+  as demais ordenações existentes continuam disponíveis. A opção também foi adicionada ao filtro de itens das listas
+  de compras, usando a quantidade planejada.
+
 ## Cancelar edição na revisão de compra — 6 de novembro de 2026
 
 - O editor compartilhado de produto da revisão tem X vermelho padrão para cancelar e restaurar os campos anteriores,

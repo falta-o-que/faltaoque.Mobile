@@ -277,6 +277,7 @@ export default function PantryScreen({route, navigation}) {
             if (sortOption === 'nameDesc') return second.name.localeCompare(first.name, language);
             if (sortOption === 'priceAsc') return first.unitPrice - second.unitPrice;
             if (sortOption === 'priceDesc') return second.unitPrice - first.unitPrice;
+            if (sortOption === 'quantityAsc') return first.quantity - second.quantity;
             if (sortOption === 'quantityDesc') return second.quantity - first.quantity;
             return 0;
         });
