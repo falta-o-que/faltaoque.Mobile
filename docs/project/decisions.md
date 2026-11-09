@@ -3,9 +3,9 @@
 ## 2026-11-09 — Atualizações OTA com EAS Update
 
 O app mobile usa EAS Update para distribuir alterações compatíveis de JavaScript e assets. O `runtimeVersion` segue a
-política `appVersion`; mudanças nativas devem receber nova versão do app e uma nova build. Os perfis `preview` e
-`production` publicam nos canais de mesmo nome. A primeira build com `expo-updates` é necessária para habilitar OTA nas
-instalações; builds anteriores não recebem essas atualizações.
+política `appVersion`; mudanças nativas devem receber nova versão do app e uma nova build. Os perfis `development`,
+`preview` e `production` publicam nos canais de mesmo nome. A primeira build com `expo-updates` é necessária para
+habilitar OTA nas instalações; builds anteriores não recebem essas atualizações.
 
 ## 2026-11-09 — Remoção de dados demonstrativos locais
 
