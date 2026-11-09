@@ -1,5 +1,16 @@
 # Estado atual
 
+## Configuração de atualizações OTA — 9 de novembro de 2026
+
+- Instalado `expo-updates` compatível com o SDK 57. `app.json` agora define `updates.url` usando o ID EAS existente e
+  `runtimeVersion` com política `appVersion`; os perfis `preview` e `production` usam canais próprios em `eas.json`.
+- O comando `eas update:configure` foi tentado, mas o EAS CLI não está autenticado nesta máquina. A configuração local
+  equivalente foi aplicada manualmente conforme a documentação do Expo. Publicar atualizações ou iniciar builds EAS
+  ainda exige autenticação.
+- APKs já distribuídos não passam a receber OTA: é necessária uma nova build nativa com essa configuração. Próxima
+  etapa: autenticar no EAS, gerar e instalar uma build de produção e validar o recebimento de uma atualização de teste.
+- Nenhuma atualização foi publicada. iOS permanece sem validação física.
+
 ## Remoção de fixtures locais — 9 de novembro de 2026
 
 - Removidos os geradores de dados do Dashboard e das estimativas de mercado, seus botões e módulos de geração. As telas
