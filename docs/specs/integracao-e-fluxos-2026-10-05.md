@@ -153,8 +153,8 @@ aplicada no banco hospedado.
   quantidade e preço somados, com aviso do número de linhas agrupadas; o vínculo e a gravação criam uma ocorrência. Os
   dados das linhas originais são preservados em `sourceItems`. Como o portal fiscal pode separar linhas consolidadas no
   comprovante impresso, o app soma linhas idênticas sem mostrar aviso de duplicidade nem exigir revisão adicional por
-  causa do agrupamento. Ambiguidades reais de extração continuam exigindo revisão.
-  A lista vai ao histórico mesmo se alguns itens não forem comprados.
+  causa do agrupamento. Ambiguidades reais de extração continuam exigindo revisão. A lista vai ao histórico mesmo se
+  alguns itens não forem comprados.
 
 Decisões finais confirmadas em 9 de outubro: a lista sempre é concluída e mantida no histórico, mesmo se itens não forem
 comprados; esses itens não entram no estoque. A categoria escolhida após um conflito aplica-se apenas à nova ocorrência.
@@ -286,22 +286,21 @@ normalizado por g/ml dentro da mesma unidade de medida para estimar o tamanho so
   de compra, erros específicos e callbacks. A validação inicial no front foi confirmada pelo usuário; os últimos
   caminhos de falha e as permissões nativas ainda não tiveram validação específica relatada.
 
-## Dashboard local — 7 de novembro de 2026
+## Dashboard local — 9 de novembro de 2026
 
-- A aba Dashboard reúne compras das despensas pertencentes à conta autenticada. Filtros de período: 30 dias, 3 meses e
-  6 meses (30 dias por padrão); filtro de mercado pode mostrar todos ou um mercado específico e afeta todos os valores e
+- A aba Dashboard reúne compras das despensas pertencentes à conta autenticada. Filtros de período: 30 dias, 3 meses e 6
+  meses (30 dias por padrão); filtro de mercado pode mostrar todos ou um mercado específico e afeta todos os valores e
   gráficos.
 - O cartão principal usa `purchases.total_price` do mês atual e compara com o mês anterior. Os gráficos obedecem ao
   período selecionado. A página também mostra a data e o total da compra mais recente e a quantidade de compras no
-  período. Sem registros, valores e gráficos
-  exibem estados vazios.
+  período. Sem registros, valores e gráficos exibem estados vazios.
 - Gastos por categoria somam os valores em `pantry_products.price` das compras filtradas. A variação de preço usa
   `price / quantity` para manter comparações no mesmo produto e embalagem, exibindo a série histórica somente quando há
   pelo menos duas observações no período. Produtos com variação absoluta de 5% ou mais aparecem entre os destaques.
-- O Dashboard opera com os dados locais existentes e permanece independente do repositório de persistência na tela.
-  Em desenvolvimento, oferece uma ação confirmada para substituir compras/produtos associados da conta atual por uma
-  amostra fictícia; despensas e listas são preservadas. Economia não é apresentada porque o modelo atual não registra
-  economia realizada.
+- O Dashboard opera com os dados locais existentes e permanece independente do repositório de persistência na tela. Em 9
+  de novembro, os geradores de amostras do Dashboard foram removidos por solicitação do usuário. Os registros legados
+  foram apagados do aparelho Android via ADB e a rotina temporária de limpeza também foi removida. Economia não é
+  apresentada porque o modelo atual não registra economia realizada.
 
 ## Fora do escopo atual e validações pendentes
 

@@ -1,24 +1,20 @@
 # Estado atual
 
-## Dashboard local — 7 de novembro de 2026
+## Remoção de fixtures locais — 9 de novembro de 2026
 
-- A criação automática da “Despensa de teste — Dashboard” foi removida após a validação do usuário. A despensa fictícia
-  e seus dados vinculados são apagados para a conta ativa ao abrir a seleção do Dashboard com a versão atualizada.
-- Implementada a página Dashboard e adicionada à navegação autenticada pela Navbar. A tela reúne compras da despensa
-  escolhida na tela de seleção, filtra por 30 dias, 3 meses ou 6 meses e por todos os mercados ou um mercado específico.
-- A página mostra o gasto do mês comparado ao mês anterior, última compra, número de compras no intervalo, gastos por
-  período e categoria, histórico do preço por produto/embalagem e destaques de variação de pelo menos 5%. Usa gráficos
-  em SVG já suportados no projeto. Sem dados suficientes, apresenta estados vazios; não estima economia.
-- No modo de desenvolvimento, o botão de amostra substitui compras e produtos associados somente da conta atual por
-  24 compras fictícias de seis meses em três mercados. Essa ação foi removida. Ao carregar o Dashboard, o repositório
-  apaga as compras antigas identificadas pelo título e pelos CEPs sintéticos, junto aos produtos vinculados; mercados
-  demonstrativos sem referência restante também são removidos. Listas, despensas, compras comuns e mercados ainda em uso
-  são preservados. A limpeza é idempotente e ocorre para cada conta quando ela abre a tela; os dados locais só serão
-  atualizados quando a versão com esta alteração carregar o Dashboard.
+- Removidos os geradores de dados do Dashboard e das estimativas de mercado, seus botões e módulos de geração. As telas
+  de seleção de despensas e Dashboard não oferecem ações para criar dados mockados.
+- Os dados demonstrativos persistidos foram removidos do aparelho Android via ADB. A Home e o seletor do Dashboard
+  confirmaram que a despensa demonstrativa não aparece mais; os dados reais não foram redefinidos.
+- A rotina temporária usada para remover os registros também foi retirada do código após a confirmação. `node
+  tests/dashboard-repository.cjs` passou e `npx expo export --platform android` gerou o bundle. O processo Android
+  permaneceu aberto na Home e no seletor do Dashboard, sem erro JS/AndroidRuntime nos logs consultados. iOS não foi
+  testado fisicamente.
+- A tela Dashboard continua reunindo compras da despensa selecionada, com filtros de 30 dias, 3 meses ou 6 meses,
+  gráficos de gastos, categorias e preços e estados vazios quando necessário. Não estima economia.
 - Especificação e regras de cálculo foram registradas em `docs/specs/integracao-e-fluxos-2026-10-05.md` e
-  `docs/project/decisions.md`. O bundle Android passou; a inspeção por ADB confirmou os filtros e a leitura dos gráficos
-  de gastos, categorias e preços no Android. A suíte automatizada local passou após a implementação da limpeza. Não foi
-  feita nova inspeção por ADB nesta alteração; iOS não foi testado fisicamente.
+  `docs/project/decisions.md`. A inspeção Android anterior confirmou os filtros e a leitura dos gráficos de gastos,
+  categorias e preços; iOS não foi testado fisicamente.
 
 ## Nova auditoria de código — 6 de novembro de 2026
 
@@ -748,9 +744,8 @@ todos os IDs antes de alterar a lista da sessão.
 - O campo `grocery_lists.estimated_price` é recalculado para listas ativas como a soma dos itens com histórico na
   própria despensa: busca por nome (incluindo nome curto pelo termo principal), preço pela mediana das até três compras
   recentes por item e preferência pela mesma medida quando informada. Categoria e medida não são chaves obrigatórias;
-  itens sem histórico não entram na soma, e a tela mostra a cobertura. Listas concluídas preservam a estimativa. Em
-  desenvolvimento, fixtures de histórico sintéticas são acrescentadas caso ainda não existam, inclusive em despensas com
-  listas; produtos demonstrativos ficam excluídos do estoque visível. Nenhum mock é criado em produção.
+  itens sem histórico não entram na soma, e a tela mostra a cobertura. Listas concluídas preservam a estimativa. O
+  histórico sintético de desenvolvimento usado para validar esse cálculo foi removido em 9 de novembro de 2026.
 - Peso/volume é opcional e categoria obrigatória nos itens da lista. Sem peso/volume, a estimativa seleciona a
   apresentação de embalagem mais recorrente dentro da categoria escolhida, com desempate pela compra mais recente; se
   não houver histórico nela, usa ocorrências compatíveis pelo nome em outras categorias. Peso informado prioriza o
@@ -775,9 +770,8 @@ todos os IDs antes de alterar a lista da sessão.
   escolhido mesmo antes da inclusão dos primeiros itens. Nas configurações, a ação “Remover CEP da lista” limpa a
   localização e recalcula a estimativa sem filtro. Ao concluir a lista, o CEP da lista segue para `purchases.location`;
   o histórico de listas mostra o CEP, `estimated_price` preservado e a data efetiva lida de `purchases.purchase_date`.
-- Em desenvolvimento, o serviço `groceryEstimateDemoData` mantém dados demonstrativos locais para comparar estimativas
-  por mercado. Os mocks anteriores de CEPs genéricos foram substituídos em 8 de outubro de 2026 por unidades reais na
-  zona sul de São Paulo. Nenhum mock é criado em produção.
+- Histórico antigo: a fixture `groceryEstimateDemoData` usava mercados da zona sul de São Paulo para validar estimativas.
+  O módulo gerador foi removido em 9 de novembro de 2026.
 - A validação anterior das sugestões no Android usou dados demonstrativos locais. Em 9 de outubro, o usuário confirmou
   como validado o fluxo Android atual de endereço da despensa, nomes de mercados e estimativas na tela; não solicitou
   uma nova rodada de ADB. A fixture com endereços reais permanece desativada a pedido do usuário.
@@ -832,9 +826,8 @@ todos os IDs antes de alterar a lista da sessão.
 - Ao inserir a nova fixture, o serviço remove apenas os mocks antigos identificados pelos títulos/nome exatos. Registros
   de compras e mercados sem esses marcadores são preservados. Se a fixture completa já existir, ela não é recriada nem
   sobrescreve alterações feitas pelo usuário na lista demonstrativa.
-- A fixture de sugestões está temporariamente desativada a pedido do usuário em 9 de outubro:
-  `src/services/groceryEstimateDemoData.js` permanece no repositório, mas a tela não a importa nem executa. Dados
-  demonstrativos já salvos localmente não são apagados por essa alteração.
+- Em 9 de novembro de 2026, o módulo `src/services/groceryEstimateDemoData.js` foi removido por solicitação do usuário;
+  a fixture já salva no aparelho também foi apagada via ADB.
 - Em 9 de outubro, os valores nos cartões receberam o rótulo visual “Preço estimado”; ao expandir as opções, uma
   mensagem centralizada em caixa clara explica que o valor usa o histórico e pode variar. O custo-benefício também
   rotula o preço dentro da opção. O formulário de conclusão, que recebe o preço pago pelo usuário, permanece sem esse

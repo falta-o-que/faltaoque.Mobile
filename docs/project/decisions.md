@@ -1,16 +1,24 @@
 # Decisões do projeto
 
+## 2026-11-09 — Remoção de dados demonstrativos locais
+
+O usuário pediu remover dados mockados e as formas de criá-los no aplicativo. Foram removidos os geradores do Dashboard
+e da fixture de estimativas de mercado, os botões de criação/carga e os módulos de geração. Uma rotina temporária apagou
+em todas as contas locais somente registros identificados pelos marcadores exatos das antigas fixtures, incluindo a
+despensa de apresentação. A conferência via ADB confirmou a remoção dos dados do aparelho; depois, a rotina de limpeza
+também foi removida do código.
+
 ## 2026-11-07 — Métricas do Dashboard local
 
-O Dashboard resume o histórico das compras locais da conta autenticada. Os períodos disponíveis são 30 dias, 3 meses e
-6 meses, com 30 dias selecionado inicialmente. O filtro de mercado se aplica às métricas e aos gráficos. O cartão
+O Dashboard resume o histórico das compras locais da conta autenticada. Os períodos disponíveis são 30 dias, 3 meses e 6
+meses, com 30 dias selecionado inicialmente. O filtro de mercado se aplica às métricas e aos gráficos. O cartão
 principal soma `purchases.total_price` do mês atual e compara com os mesmos dias do mês anterior, limitado ao último dia
-do mês anterior quando necessário; não havendo gastos nesse intervalo anterior,
-a interface informa que não há comparação. Os gráficos usam o período selecionado. A distribuição por categoria soma os valores registrados em
+do mês anterior quando necessário; não havendo gastos nesse intervalo anterior, a interface informa que não há
+comparação. Os gráficos usam o período selecionado. A distribuição por categoria soma os valores registrados em
 `pantry_products.price`. A variação de preço compara o valor por unidade comprada (`price / quantity`) somente para o
 mesmo nome e embalagem, dentro do período e mercado selecionados. Produtos com variação absoluta de pelo menos 5% são
-apresentados em uma lista de destaques. A interface não estima economia, pois não existe
-registro confiável de economia no modelo local.
+apresentados em uma lista de destaques. A interface não estima economia, pois não existe registro confiável de economia
+no modelo local.
 
 ## 2026-11-06 — Agrupar linhas fiscais do mesmo produto
 
@@ -40,15 +48,15 @@ aplicar o filtro.
 ## 2026-11-01 — Falha ao ler metadados de notificação
 
 Somente a ausência da chave local inicia metadados vazios. Erros de leitura, JSON inválido ou campos existentes com
-formato inválido devem interromper a leitura/gravação; nunca substituir o histórico por uma base vazia. A recuperação
-do conteúdo inválido deve ser explícita e não pode apagar estados de leitura, dispensa, tratamento ou anúncio.
+formato inválido devem interromper a leitura/gravação; nunca substituir o histórico por uma base vazia. A recuperação do
+conteúdo inválido deve ser explícita e não pode apagar estados de leitura, dispensa, tratamento ou anúncio.
 
 ## 2026-11-01 — Desempate da ocorrência mais recente
 
 Ao exibir um grupo zerado ou aumentar o saldo agregado, escolher a ocorrência da compra mais recente. Como
 `purchase_date`
-guarda somente o dia, compras na mesma data são desempatadas pela ordem de inserção na despensa: a compra adicionada
-por último é a mais recente. Ao reduzir, consumir primeiro a compra mais antiga, usando a mesma ordem crescente como
+guarda somente o dia, compras na mesma data são desempatadas pela ordem de inserção na despensa: a compra adicionada por
+último é a mais recente. Ao reduzir, consumir primeiro a compra mais antiga, usando a mesma ordem crescente como
 desempate.
 
 ## 2026-11-01 — Ordem da lista de notificações
@@ -70,12 +78,11 @@ Para exibir dados de produto e decidir avisos de múltiplas compras e agrupament
 ocorrências com saldo positivo. Uma ocorrência zerada permanece na compra/histórico e não causa card separado nem aviso
 enquanto outra ocorrência da mesma marca/apresentação tem saldo. Com preferência explícita de separar marcas, cada
 marca/apresentação é um produto independente: ao zerar o saldo agregado daquela marca, manter seu card e emitir seu
-aviso
-mesmo que outra marca da apresentação ainda tenha saldo; se todas as marcas zerarem, manter um card e aviso por marca.
-No modo agrupado, o saldo é combinado entre marcas e o aviso só ocorre quando esse total chega a zero. Sem preferência
-explícita de separação, quando toda a apresentação estiver zerada, manter um card com os dados da ocorrência mais
-recente.
-A redução continua consumindo a compra mais antiga com saldo e o aumento é aplicado à ocorrência mais recente do grupo.
+aviso mesmo que outra marca da apresentação ainda tenha saldo; se todas as marcas zerarem, manter um card e aviso por
+marca. No modo agrupado, o saldo é combinado entre marcas e o aviso só ocorre quando esse total chega a zero. Sem
+preferência explícita de separação, quando toda a apresentação estiver zerada, manter um card com os dados da ocorrência
+mais recente. A redução continua consumindo a compra mais antiga com saldo e o aumento é aplicado à ocorrência mais
+recente do grupo.
 
 ## 2026-11-01 — Pergunta de agrupamento apenas para marcas distintas
 
