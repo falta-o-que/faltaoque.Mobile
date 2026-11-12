@@ -307,6 +307,11 @@ normalizado por g/ml dentro da mesma unidade de medida para estimar o tamanho so
   de novembro, os geradores de amostras do Dashboard foram removidos por solicitação do usuário. Os registros legados
   foram apagados do aparelho Android via ADB e a rotina temporária de limpeza também foi removida. Economia não é
   apresentada porque o modelo atual não registra economia realizada.
+- A variante EAS `demo` é isolada da edição production por package Android `com.faltaoque.app.demo` e canal OTA `demo`.
+  Na primeira execução, cria uma conta local demonstrativa, uma despensa com estoque, listas ativas e 18 meses de compras
+  sintéticas; o Dashboard demo adiciona um filtro de 12 meses. Marcas/mercados podem corresponder a locais reais, mas
+  registros e preços são fictícios e não representam transações. A fixture não é ativada no app production nem nos
+  perfis `development` e `preview`.
 
 ## Fora do escopo atual e validações pendentes
 

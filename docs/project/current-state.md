@@ -1,5 +1,20 @@
 # Estado atual
 
+## Variante de demonstração APK — 12 de novembro de 2026
+
+- Perfil EAS `demo` configurado para gerar APK interno no canal OTA `demo`, com identificador Android
+  `com.faltaoque.app.demo` e nome de launcher `FaltaOquê? Demo`. A configuração existente de `production` continua com
+  o identificador `com.faltaoque.app` e canal `production`; criar este perfil não publica OTA nem altera builds ou
+  instalações production.
+- A primeira execução da variante cria a conta local `demo@faltaoque.app`, inicia a sessão e preenche uma despensa com
+  estoque, duas listas ativas e 18 meses de compras sintéticas em três mercados. O Dashboard demo terá opção de 12 meses;
+  os filtros production permanecem em 30 dias, 3 meses e 6 meses. Dados e preços são fictícios, sem notas fiscais reais.
+- A build APK demo ainda precisa ser solicitada ao EAS e instalada para conferir login, persistência isolada e telas com
+  os dados. Não publicar atualizações desta variante no canal `production`.
+- Para publicar uma OTA demo no PowerShell, definir `EXPO_PUBLIC_APP_VARIANT=demo` somente durante o comando e usar
+  `npx eas-cli@latest update --channel demo --message "..." --environment production`; restaurar/remover a variável ao
+  terminar. O build profile production fixa o marcador `production` e mantém o package original.
+
 ## Configuração de atualizações OTA — 9 de novembro de 2026
 
 - Instalado `expo-updates` compatível com o SDK 57. `app.json` agora define `updates.url` usando o ID EAS existente e

@@ -3,7 +3,7 @@ import { PRODUCT_CATEGORIES } from './productValidation';
 const UNIT_BY_ID = { 1: 'g', 2: 'kg', 3: 'ml', 4: 'L' };
 const DAY = 24 * 60 * 60 * 1000;
 
-export const DASHBOARD_PERIODS = ['30d', '3m', '6m'];
+export const DASHBOARD_PERIODS = ['30d', '3m', '6m', '12m'];
 
 function dateValue(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}/.test(value)) return null;
@@ -20,6 +20,7 @@ function periodBounds(period, now) {
   const start = new Date(end);
   if (period === '3m') start.setMonth(start.getMonth() - 2, 1);
   else if (period === '6m') start.setMonth(start.getMonth() - 5, 1);
+  else if (period === '12m') start.setMonth(start.getMonth() - 11, 1);
   else start.setDate(start.getDate() - 29);
   return { start, end };
 }

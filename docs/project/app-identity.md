@@ -10,6 +10,9 @@ Este documento é a referência para os metadados dos builds Android e para mate
 - Identificador Android (`applicationId`): `com.faltaoque.app`.
 - Perfil EAS `production`: APK para instalação direta, com distribuição interna.
 - Ambiente EAS do perfil `production`: `production` (definido explicitamente em `eas.json`, pois distribuição interna sem esse campo selecionaria `preview`).
+- Variante isolada de demonstração: perfil EAS `demo`, nome `FaltaOquê? Demo`, identificador Android
+  `com.faltaoque.app.demo` e canal OTA `demo`. Ela pode ser instalada ao lado do app principal e não altera o canal
+  `production`.
 - Versão atual declarada: `1.0.0`.
 - Slug Expo mantido: `FaltaOQueFront`, associado ao projeto EAS já configurado. Não é o nome exibido ao usuário.
 - Repositório do projeto: [`falta-o-que/faltaoque.Mobile`](https://github.com/falta-o-que/faltaoque.Mobile); o proprietário/organização GitHub é `falta-o-que`.

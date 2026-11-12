@@ -1,5 +1,14 @@
 # Decisões do projeto
 
+## 2026-11-12 — Variante APK de demonstração isolada
+
+A demonstração completa deve ser distribuída como APK separado, com nome `FaltaOquê? Demo`, package Android
+`com.faltaoque.app.demo` e canal EAS Update `demo`. O perfil `production`, seu package e seu canal permanecem
+inalterados; atualizações de demonstração devem ser publicadas somente em `demo`. Na primeira execução, a variante cria
+e abre uma conta local demonstrativa, uma despensa, estoque e listas ativas, além de 18 meses de compras sintéticas em
+três mercados. O Dashboard da variante oferece o filtro de 12 meses. Esses registros e preços são fictícios e não podem
+ser usados como dados reais; a persistência fica no armazenamento isolado do package demo.
+
 ## 2026-11-12 — Texto do guia “Como usar”
 
 O texto fornecido pelo usuário para o guia deve ser aplicado integralmente, sem revisar as afirmações sobre convites,

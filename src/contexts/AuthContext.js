@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 import * as authService from '../services/authService';
+import {startDemoSession} from '../services/demoDataService';
+import {IS_DEMO_VARIANT} from '../config/appVariant';
 import { setNotificationSession } from '../services/notificationService';
 
 const AuthContext = createContext(null);
@@ -12,8 +14,12 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let isMounted = true;
 
-    authService
-      .restoreSession()
+    const restoreAccount = async () => {
+      const restoredAccount = await authService.restoreSession();
+      return IS_DEMO_VARIANT && !restoredAccount ? startDemoSession() : restoredAccount;
+    };
+
+    restoreAccount()
       .then((restoredAccount) => {
         if (isMounted) { setNotificationSession(restoredAccount?.id); setAccount(restoredAccount); }
       })
@@ -38,6 +44,12 @@ export function AuthProvider({ children }) {
         setNotificationSession(authenticatedAccount.id);
         setAccount(authenticatedAccount);
         return authenticatedAccount;
+      },
+      loginDemo: async () => {
+        const demoAccount = await startDemoSession();
+        setNotificationSession(demoAccount.id);
+        setAccount(demoAccount);
+        return demoAccount;
       },
       register: authService.register,
       completeRegistration: (registeredAccount) => { setNotificationSession(registeredAccount?.id); setAccount(registeredAccount); },

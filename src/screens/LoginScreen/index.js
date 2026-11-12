@@ -9,6 +9,7 @@ import { PUBLIC_ROUTES } from '../../navigation/routes';
 import { useAuth } from '../../contexts/AuthContext';
 import { showUserErrorAlert } from '../../utils/userErrors';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
+import {IS_DEMO_VARIANT} from '../../config/appVariant';
 import {
   Actions,
   Form,
@@ -26,7 +27,7 @@ export function LoginScreen({ navigation }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isSubmitActive, setIsSubmitActive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
+  const { login, loginDemo } = useAuth();
   const { t } = useAppPreferences();
   const errorText = (error) => error ? t(error) : undefined;
 
@@ -75,8 +76,19 @@ export function LoginScreen({ navigation }) {
     );
   };
 
+  const handleDemoLogin = async () => {
+    try {
+      setIsSubmitting(true);
+      await loginDemo();
+    } catch (error) {
+      showUserErrorAlert(error, { title: t('auth.errors.loginTitle'), fallback: t('auth.errors.connection'), dismissText: t('auth.common.ok'), t });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <AuthScreenLayout title="FaltaOquê?" subtitle={t('auth.login.subtitle')}>
+    <AuthScreenLayout title={IS_DEMO_VARIANT ? 'FaltaOquê? Demo' : 'FaltaOquê?'} subtitle={t('auth.login.subtitle')}>
       <Form>
         <FormField
           accessibilityLabel={t('auth.login.email')}
@@ -116,6 +128,9 @@ export function LoginScreen({ navigation }) {
         >
           <PrimaryLabel>{isSubmitting ? t('auth.login.submitting') : t('auth.login.submit')}</PrimaryLabel>
         </PrimaryButton>
+        {IS_DEMO_VARIANT ? <Link accessibilityRole="button" disabled={isSubmitting} onPress={handleDemoLogin}>
+          <LinkText>{t('auth.login.demo')}</LinkText>
+        </Link> : null}
         <Link accessibilityRole="button" onPress={handleForgotPassword}>
           <LinkText>{t('auth.login.forgotPassword')}</LinkText>
         </Link>
