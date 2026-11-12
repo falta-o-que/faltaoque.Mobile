@@ -12,6 +12,19 @@ export const Content = styled.View`
   padding: 42px 20px 0;
 `;
 
+export const GreetingRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+`;
+
+export const GreetingText = styled.View`
+  flex-shrink: 1;
+  min-width: 0;
+`;
+
 export const Avatar = styled.View`
   width: 100px;
   height: 100px;
@@ -20,22 +33,22 @@ export const Avatar = styled.View`
 `;
 
 export const Greeting = styled.Text`
-  margin-top: 10px;
+
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: ${({ theme }) => theme.fonts.sizes['4']}px;
+  font-size: ${({ theme }) => 22 * theme.fonts.scale}px;
 `;
 
 export const Subtitle = styled.Text`
   margin-top: 4px;
   color: ${({ theme }) => theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
 `;
 
 export const Section = styled.View`
   width: 100%;
-  margin-top: 30px;
+  margin-top: 18px;
 `;
 
 export const PantrySection = styled.View`
@@ -125,7 +138,7 @@ export const LoadError = styled.Text`
   margin-top: 16px;
   color: ${({ theme }) => theme.colors.danger[600]};
   font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
+  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
 `;
 
 export const RetryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`

@@ -26,6 +26,8 @@ import {
     CreateAction,
     EmptyText,
     Greeting,
+    GreetingRow,
+    GreetingText,
     LoadError,
     RetryButton,
     RetryText,
@@ -241,9 +243,7 @@ export function HomeScreen({navigation, route}) {
 
     return (<Screen edges={['top', 'right', 'left']}>
         <Content>
-            <Avatar $color={account?.avatarColor}/>
-            <Greeting>{account?.name ? t('home.greeting', {name: account.name}) : t('home.greetingFallback')}</Greeting>
-            <Subtitle>{t('home.subtitle')}</Subtitle>
+            <GreetingRow><Avatar $color={account?.avatarColor}/><GreetingText><Greeting numberOfLines={1} ellipsizeMode="tail">{account?.name ? t('home.greeting', {name: account.name}) : t('home.greetingFallback')}</Greeting><Subtitle>{t('home.subtitle')}</Subtitle></GreetingText></GreetingRow>
             <Section>
                 <Question>{t('home.question')}</Question>
                 <QuickActions>
