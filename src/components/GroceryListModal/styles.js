@@ -197,6 +197,8 @@ export const CompactAction = styled.TouchableOpacity.attrs(({ disabled }) => ({
 `;
 
 export const CompactActionLabel = styled.Text`
+  align-self: stretch;
+  text-align: center;
   color: ${({ $tone, theme }) =>
     $tone === 'danger' ? theme.colors.white[100] : theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
