@@ -7,10 +7,20 @@
   o identificador `com.faltaoque.app` e canal `production`; criar este perfil não publica OTA nem altera builds ou
   instalações production.
 - A primeira execução da variante cria a conta local `demo@faltaoque.app`, inicia a sessão e preenche uma despensa com
-  estoque, duas listas ativas e 18 meses de compras sintéticas em três mercados. O Dashboard demo terá opção de 12 meses;
-  os filtros production permanecem em 30 dias, 3 meses e 6 meses. Dados e preços são fictícios, sem notas fiscais reais.
-- A build APK demo ainda precisa ser solicitada ao EAS e instalada para conferir login, persistência isolada e telas com
-  os dados. Não publicar atualizações desta variante no canal `production`.
+  estoque, duas listas ativas e 18 meses de compras sintéticas em três mercados. O Dashboard mantém os filtros de 30 dias,
+  3 meses e 6 meses também na demo. Dados e preços são fictícios, sem notas fiscais reais.
+- APK demo criado no EAS em 12 de novembro, build `68cc457b-6efd-43e3-bccd-24d7ed545b65`
+  ([APK](https://expo.dev/artifacts/eas/bi3roQn0frrpAHY3DgKoLcRapFYb6bOwrT35cC8-IqQ.apk)), package
+  `com.faltaoque.app.demo`, canal `demo`, runtime `1.0.0`. A compilação inicial falhava ao tocar em “Acessar
+  demonstração”: os mercados carregavam campos auxiliares incompatíveis com o modelo local. O serviço agora persiste
+  somente as colunas válidas da tabela `markets`.
+- Correção publicada por OTA apenas no canal `demo`, grupo `589f4f21-36b0-423e-89ef-8d1f3a96c52e`, atualização Android
+  `01a1cfed-622b-74af-94cc-66e4e671d2fa` (runtime `1.0.0`). A mensagem de erro do botão também deixou de atribuir
+  falhas internas a problemas de conexão. A correção aguarda confirmação no APK instalado; encerrar e reabrir o app
+  permite baixar/aplicar a OTA. O canal `production` não recebeu atualização.
+- Removido o filtro de 12 meses do Dashboard demo por solicitação do usuário. A nova OTA foi publicada somente no canal
+  `demo`, grupo `27f299fa-df85-4b89-8207-795f33ab7a88`, atualização Android `01a1cff1-96fd-702f-85f8-3be0b3aaaccd`
+  (runtime `1.0.0`). O histórico armazenado continua cobrindo 18 meses; o Dashboard oferece 30 dias, 3 meses e 6 meses.
 - Para publicar uma OTA demo no PowerShell, definir `EXPO_PUBLIC_APP_VARIANT=demo` somente durante o comando e usar
   `npx eas-cli@latest update --channel demo --message "..." --environment production`; restaurar/remover a variável ao
   terminar. O build profile production fixa o marcador `production` e mantém o package original.

@@ -6,8 +6,12 @@ A demonstração completa deve ser distribuída como APK separado, com nome `Fal
 `com.faltaoque.app.demo` e canal EAS Update `demo`. O perfil `production`, seu package e seu canal permanecem
 inalterados; atualizações de demonstração devem ser publicadas somente em `demo`. Na primeira execução, a variante cria
 e abre uma conta local demonstrativa, uma despensa, estoque e listas ativas, além de 18 meses de compras sintéticas em
-três mercados. O Dashboard da variante oferece o filtro de 12 meses. Esses registros e preços são fictícios e não podem
-ser usados como dados reais; a persistência fica no armazenamento isolado do package demo.
+  três mercados. O Dashboard da variante usa os filtros existentes de 30 dias, 3 meses e 6 meses. Esses registros e preços são fictícios e não podem
+ser usados como dados reais; a persistência fica no armazenamento isolado do package demo. Em 12 de novembro, uma OTA
+no canal `demo` corrigiu a incompatibilidade entre os dados auxiliares dos mercados e as colunas aceitas pelo modelo
+local. A publicação em `production` permanece inalterada.
+Em seguida, por solicitação do usuário, o filtro adicional de 12 meses foi removido do Dashboard demo; ele mantém as
+opções de 30 dias, 3 meses e 6 meses, embora a fixture continue armazenando compras de 18 meses.
 
 ## 2026-11-12 — Texto do guia “Como usar”
 

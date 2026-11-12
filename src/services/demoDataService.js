@@ -207,7 +207,9 @@ async function ensureDemoData() {
           const demoMarket = markets.find((entry) => entry.id === market.id);
           return demoMarket ? {...market, local_name: demoMarket.name} : market;
         }),
-        ...markets.filter((market) => !database.markets.some((entry) => entry.id === market.id)),
+        ...markets
+          .filter((market) => !database.markets.some((entry) => entry.id === market.id))
+          .map(({name, priceFactor, ...market}) => ({...market, local_name: name})),
       ],
       purchases: [...database.purchases, ...history.map(({purchase}) => purchase)],
       pantry_products: [...database.pantry_products, ...history.flatMap(({products}) => products)],

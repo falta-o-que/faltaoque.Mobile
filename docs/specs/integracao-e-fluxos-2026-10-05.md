@@ -309,9 +309,10 @@ normalizado por g/ml dentro da mesma unidade de medida para estimar o tamanho so
   apresentada porque o modelo atual não registra economia realizada.
 - A variante EAS `demo` é isolada da edição production por package Android `com.faltaoque.app.demo` e canal OTA `demo`.
   Na primeira execução, cria uma conta local demonstrativa, uma despensa com estoque, listas ativas e 18 meses de compras
-  sintéticas; o Dashboard demo adiciona um filtro de 12 meses. Marcas/mercados podem corresponder a locais reais, mas
+  sintéticas; o Dashboard mantém os filtros existentes de 30 dias, 3 meses e 6 meses. Marcas/mercados podem corresponder a locais reais, mas
   registros e preços são fictícios e não representam transações. A fixture não é ativada no app production nem nos
-  perfis `development` e `preview`.
+  perfis `development` e `preview`. A OTA demo de 12 de novembro corrigiu o formato dos registros de mercado no seed;
+  uma segunda OTA removeu o filtro de 12 meses. Nenhuma foi publicada no canal production.
 
 ## Fora do escopo atual e validações pendentes
 

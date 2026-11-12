@@ -13,7 +13,6 @@ import {useAuth} from '../../contexts/AuthContext';
 import {useAppPreferences} from '../../contexts/AppPreferencesContext';
 import {AUTHENTICATED_ROUTES} from '../../navigation/routes';
 import {DASHBOARD_PERIODS} from '../../domain/dashboardAnalytics';
-import {IS_DEMO_VARIANT} from '../../config/appVariant';
 import {loadDashboard, buildDashboard} from '../../services/dashboardService';
 import {
     Card,
@@ -80,7 +79,7 @@ import {
     TitleArea,
 } from './styles';
 
-const PERIOD_KEYS = {'30d': '30d', '3m': '3m', '6m': '6m', '12m': '12m'};
+const PERIOD_KEYS = {'30d': '30d', '3m': '3m', '6m': '6m'};
 
 function categoryColor(name, colors) {
     if (name === 'limpezaHigiene') return colors.white[300];
@@ -303,7 +302,6 @@ export default function DashboardScreen({navigation, route}) {
     };
 
     const periodLabel = (key) => t(`dashboard.period.${PERIOD_KEYS[key]}`);
-    const periodOptions = IS_DEMO_VARIANT ? DASHBOARD_PERIODS : DASHBOARD_PERIODS.filter((item) => item !== '12m');
     const percentText = dashboard.monthChangePercent == null ? t('dashboard.noComparison') : Math.abs(dashboard.monthChangePercent) < 0.5 ? t('dashboard.noChange') : t(dashboard.monthChangePercent > 0 ? 'dashboard.increased' : 'dashboard.decreased', {percent: Math.abs(dashboard.monthChangePercent).toFixed(0)});
     const priceChangeText = dashboard.priceChangePercent == null ? t('dashboard.noPriceComparison') : Math.abs(dashboard.priceChangePercent) < 0.5 ? t('dashboard.priceNoChange') : t(dashboard.priceChangePercent > 0 ? 'dashboard.priceIncreased' : 'dashboard.priceDecreased', {percent: Math.abs(dashboard.priceChangePercent).toFixed(0)});
     const priceProduct = source.filters.products.find((item) => item.key === productId);
@@ -325,7 +323,7 @@ export default function DashboardScreen({navigation, route}) {
 
             <FilterLabel>{t('dashboard.periodLabel')}</FilterLabel>
             <PeriodLabel>
-                {periodOptions.map((item) => (<PeriodButton key={item} accessibilityRole="button"
+                {DASHBOARD_PERIODS.map((item) => (<PeriodButton key={item} accessibilityRole="button"
                                                                 accessibilityState={{selected: period === item}}
                                                                 $selected={period === item}
                                                                 onPress={() => setPeriod(item)}>

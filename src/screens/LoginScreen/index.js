@@ -81,7 +81,7 @@ export function LoginScreen({ navigation }) {
       setIsSubmitting(true);
       await loginDemo();
     } catch (error) {
-      showUserErrorAlert(error, { title: t('auth.errors.loginTitle'), fallback: t('auth.errors.connection'), dismissText: t('auth.common.ok'), t });
+      showUserErrorAlert(error, { title: t('auth.errors.loginTitle'), fallback: t('auth.login.demoError'), dismissText: t('auth.common.ok'), t });
     } finally {
       setIsSubmitting(false);
     }
