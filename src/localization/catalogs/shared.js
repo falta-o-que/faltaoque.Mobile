@@ -87,9 +87,8 @@ export default {
         'settings.team': 'Equipe',
         'settings.project': 'Projeto',
         'settings.projectName': 'Projeto FaltaOquê?',
-        'settings.betaVersion': 'Beta {{version}}',
-        'settings.privacy': 'Política de Privacidade',
-        'settings.terms': 'Termos de Uso',
+        'settings.versionValue': '{{version}}',
+        'settings.privacyTerms': 'Políticas de Privacidade e Termos de Uso',
         'settings.contentPending': 'O conteúdo será disponibilizado em breve.',
         'settings.unsavedTitle': 'Descartar alterações?',
         'settings.unsavedMessage': 'As alterações ainda não foram salvas.',
@@ -108,9 +107,132 @@ export default {
         'settings.logoutConfirmMessage': 'Você precisará entrar novamente para acessar o aplicativo.',
         'settings.logoutErrorTitle': 'Não foi possível sair da conta',
         'settings.logoutErrorMessage': 'Tente novamente em alguns instantes.',
-        'settings.content.guide': 'O guia do aplicativo será exibido aqui. O conteúdo está pendente de aprovação.',
-        'settings.content.privacy': 'A Política de Privacidade será exibida aqui após o envio do texto aprovado.',
-        'settings.content.terms': 'Os Termos de Uso serão exibidos aqui após o envio do texto aprovado.',
+        'settings.content.guide': `**Despensa**
+
+Com a sua conta criada no aplicativo, você poderá criar ou participar de
+despensas. Despensas são o lugar onde você vê, adiciona, edita ou exclui as
+suas compras e produtos, cria suas listas de compras e vê informações sobre
+consumo e gastos.
+
+Você pode participar de múltiplas despensas e convidar outras pessoas para
+participar das despenas que você criar. Para criar uma despensa toque em
+"Criar" e escolha um nome, localização e cor.
+
+Os produtos adicionados podem ser filtrados por categorias pré-definidas e ter
+suas quantidades atualizadas por todos os participantes conforme forem
+acabando. Você receberá uma notificação na data de validade de um produto
+específico se tiver adicionado essa informação.
+
+**Lista de compras**
+
+Você pode criar listas de compras com os produtos que deseja comprar na próxima
+ida ao mercado. As listas permitem que você escolha uma das seguintes opções
+para sugerir em qual mercado você deve ir e exibir o preço total estimado de
+acordo com as suas últimas compras:
+
+- Qual mercado você vai gastar menos;
+- Qual mercado está mais próximo de você, com base na localização da despensa;
+- Qual mercado possui as marcas que você mais comprou.
+
+Quando algum participante da despensa marca um item da lista como já adquirido
+no mercado, o restante dos participantes têm suas listas atualizadas.
+
+Se tiver recebido uma nota fiscal com QR Code ao finalizar uma compra, você
+pode escaneá-lo para comparar com os itens que havia colocado na lista e
+adicioná-los automaticamente na sua despensa.
+
+**Dashboards**
+
+No Dashboard você encontra informações sobre o resumo das suas compras com base
+em intervalos de tempo definidos (30 dias, 3 meses ou 6 meses). As seguintes
+informações estão disponíveis para consulta:
+
+- Gastos ao longo do tempo;
+- Gastos na última compra;
+- Gastos por mercado;
+- Gastos por categoria de produto;
+- Quantas compras foram feitas durante um período de tempo;
+- Variação de preço dos produtos comprados ao longo do tempo.`,
+        'settings.content.privacyTerms': `FaltaOquê?
+
+Última atualização: 11/11/2026
+
+1. Sobre este documento
+
+Este é um projeto acadêmico desenvolvido para fins de estudo e avaliação. O aplicativo não está disponível comercialmente e nenhum dado é utilizado com fins comerciais ou publicitários.
+
+Instituição: Escola SENAI Suíço-Brasileira "Paulo Ernesto Tolle"
+
+Orientadora: Professora Fiama Brenda
+
+Alunos:
+
+- Manuela Andrade (@Manuela0894)
+- Miguel Zacharias (@miguelzack)
+- Nikollas Oliveira (@nikidsy)
+- Sarah Santos (@sarahsj-dot)
+- Thiago Coelho (@th-cs)
+
+2. O que o aplicativo faz
+
+O FaltaOquê? é um aplicativo desenvolvido com o objetivo de facilitar o controle da despensa doméstica, sugerir listas de compras e analisar o consumo e gastos em mercados.
+
+Para esses fins, você será solicitado a fornecer informações básicas para criar uma conta necessária para o uso do aplicativo e informações sobre suas compras para acessar suas funcionalidades. Você também pode ser solicitado a permitir o acesso à câmera do seu celular e envio de notificações.
+
+3. Dados coletados
+
+Dados para criar a sua conta:
+
+- Nome
+- Endereço de email
+- Localização
+
+Dados para as funcionalidades do aplicativo:
+
+- Dados sobre compras (Data, Local, Quantidade de itens, Preço Total)
+- Dados sobre produtos (Nome, Marca, Quantidade, Preço, Data de validade)
+
+Dados técnicos:
+
+- Endereço de IP
+- Logs de uso
+
+4. Como os dados são usados
+
+Os dados são usados exclusivamente para o funcionamento, análise e melhoria do projeto e, com exceção dos dados de localização, não são compartilhados com terceiros.
+
+Os dados de localização são compartilhados com API's do Google para os cálculos de distâncias entre despensas e mercados apresentados no aplicativo.
+
+API's utilizadas:
+
+- Google Places API
+- Google Geocoding API
+
+5. Armazenamento e segurança
+
+Os dados ficam armazenados localmente e são acessíveis apenas por nós alunos. Após a conclusão do curso, todos os dados serão eliminados.
+
+Todas as senhas são criptografadas antes de serem armazenadas.
+
+6. Sua participação é voluntária
+
+Você pode parar de testar e solicitar acesso, edição ou exclusão dos seus dados a qualquer momento.
+
+7. Condições de uso
+
+Como se trata de um protótipo em desenvolvimento o aplicativo pode conter falhas, ficar indisponível ou perder dados inseridos. O aplicativo não deve ser usado para finalidades críticas.
+
+- Não utilize o aplicativo para fins ilícitos
+- Não faça requisições em massa às API's
+- Não modifique e redistribua o aplicativo para fins comerciais
+
+8. Propriedade do conteúdo
+
+Todo conteúdo que você inserir no aplicativo continua sendo seu e será usado apenas dentro da pesquisa.
+
+9. Entrar em contato
+
+Em caso de dúvidas, sugestões, relatos de erros ou solicitações para exclusão de dados, entre em contato com algum dos alunos integrantes do projeto.`,
         'home.greeting': 'Oi, {{name}}',
         'home.greetingFallback': 'Oi, pessoa viva',
         'home.subtitle': 'Sua casa está no ritmo.',
@@ -331,9 +453,8 @@ export default {
         'settings.team': 'Team',
         'settings.project': 'Project',
         'settings.projectName': 'FaltaOquê? Project',
-        'settings.betaVersion': 'Beta {{version}}',
-        'settings.privacy': 'Privacy Policy',
-        'settings.terms': 'Terms of Use',
+        'settings.versionValue': '{{version}}',
+        'settings.privacyTerms': 'Privacy Policy and Terms of Use',
         'settings.contentPending': 'This content will be available soon.',
         'settings.unsavedTitle': 'Discard changes?',
         'settings.unsavedMessage': 'Your changes have not been saved.',
@@ -352,9 +473,116 @@ export default {
         'settings.logoutConfirmMessage': 'You will need to sign in again to use the app.',
         'settings.logoutErrorTitle': 'Could not log out',
         'settings.logoutErrorMessage': 'Please try again in a few moments.',
-        'settings.content.guide': 'The app guide will appear here. Its content is awaiting approval.',
-        'settings.content.privacy': 'The Privacy Policy will appear here once its approved text is provided.',
-        'settings.content.terms': 'The Terms of Use will appear here once its approved text is provided.',
+        'settings.content.guide': `**Pantry**
+
+With your account created in the app, you can create or join pantries. Pantries are where you view, add, edit, or delete your purchases and products, create your shopping lists, and see information about consumption and spending.
+
+You can join multiple pantries and invite other people to join the pantries you create. To create a pantry, tap "Create" and choose a name, location, and color.
+
+Products added can be filtered by predefined categories, and their quantities can be updated by all participants as they run out. You will receive a notification on a product's expiration date if you added that information.
+
+**Shopping list**
+
+You can create shopping lists with the products you want to buy on your next trip to the market. Lists let you choose one of the following options to suggest which market you should go to and display an estimated total price based on your recent purchases:
+
+- Which market will cost you less;
+- Which market is closest to you, based on the pantry's location;
+- Which market has the brands you have bought most often.
+
+When a pantry participant marks an item on the list as already purchased at the market, the other participants' lists are updated.
+
+If you received a receipt with a QR Code at checkout, you can scan it to compare it with the items you had added to the list and add them automatically to your pantry.
+
+**Dashboards**
+
+On the Dashboard, you can find a summary of your purchases based on defined time periods (30 days, 3 months, or 6 months). The following information is available:
+
+- Spending over time;
+- Spending on your last purchase;
+- Spending by market;
+- Spending by product category;
+- Number of purchases made during a time period;
+- Price changes of products purchased over time.`,
+        'settings.content.privacyTerms': `FaltaOquê?
+
+Last updated: 11/11/2026
+
+1. About this document
+
+This is an academic project developed for study and evaluation purposes. The app is not commercially available, and no data is used for commercial or advertising purposes.
+
+Institution: Escola SENAI Suíço-Brasileira "Paulo Ernesto Tolle"
+
+Advisor: Professor Fiama Brenda
+
+Students:
+
+- Manuela Andrade (@Manuela0894)
+- Miguel Zacharias (@miguelzack)
+- Nikollas Oliveira (@nikidsy)
+- Sarah Santos (@sarahsj-dot)
+- Thiago Coelho (@th-cs)
+
+2. What the app does
+
+FaltaOquê? is an app developed to help manage household pantries, suggest shopping lists, and analyze consumption and spending at markets.
+
+For these purposes, you will be asked to provide basic information to create an account required to use the app, as well as information about your purchases to access its features. You may also be asked to allow access to your phone's camera and to receive notifications.
+
+3. Data collected
+
+Data to create your account:
+
+- Name
+- Email address
+- Location
+
+Data for app features:
+
+- Purchase data (Date, Location, Number of items, Total price)
+- Product data (Name, Brand, Quantity, Price, Expiration date)
+
+Technical data:
+
+- IP address
+- Usage logs
+
+4. How data is used
+
+Data is used exclusively for the operation, analysis, and improvement of the project and, except for location data, is not shared with third parties.
+
+Location data is shared with Google's APIs to calculate distances between pantries and markets shown in the app.
+
+APIs used:
+
+- Google Places API
+- Google Geocoding API
+
+5. Storage and security
+
+Data is stored locally and is accessible only to us students. After the course is completed, all data will be deleted.
+
+All passwords are encrypted before being stored.
+
+6. Your participation is voluntary
+
+You may stop testing and request access to, correction of, or deletion of your data at any time.
+
+7. Terms of use
+
+As this is a prototype under development, the app may contain bugs, become unavailable, or lose entered data. The app should not be used for critical purposes.
+
+- Do not use the app for unlawful purposes
+- Do not make requests to the APIs in bulk
+- Do not modify or redistribute the app for commercial purposes
+
+8. Ownership of content
+
+All content you enter in the app remains yours and will be used only within the research project.
+
+9. Contact
+
+For questions, suggestions, bug reports, or requests to delete data, contact any of the students on the project team.`,
         'home.greeting': 'Hi, {{name}}',
         'home.greetingFallback': 'Hello there',
         'home.subtitle': 'Your home is in good shape.',
@@ -575,9 +803,8 @@ export default {
         'settings.team': 'Equipo',
         'settings.project': 'Proyecto',
         'settings.projectName': 'Proyecto FaltaOquê?',
-        'settings.betaVersion': 'Beta {{version}}',
-        'settings.privacy': 'Política de Privacidad',
-        'settings.terms': 'Términos de Uso',
+        'settings.versionValue': '{{version}}',
+        'settings.privacyTerms': 'Política de Privacidad y Términos de Uso',
         'settings.contentPending': 'El contenido estará disponible pronto.',
         'settings.unsavedTitle': '¿Descartar los cambios?',
         'settings.unsavedMessage': 'Los cambios aún no se han guardado.',
@@ -596,9 +823,116 @@ export default {
         'settings.logoutConfirmMessage': 'Tendrás que iniciar sesión de nuevo para usar la aplicación.',
         'settings.logoutErrorTitle': 'No se pudo cerrar la sesión',
         'settings.logoutErrorMessage': 'Inténtalo de nuevo en unos momentos.',
-        'settings.content.guide': 'La guía de la aplicación aparecerá aquí. El contenido está pendiente de aprobación.',
-        'settings.content.privacy': 'La Política de Privacidad aparecerá aquí cuando se envíe el texto aprobado.',
-        'settings.content.terms': 'Los Términos de Uso aparecerán aquí cuando se envíe el texto aprobado.',
+        'settings.content.guide': `**Despensa**
+
+Con tu cuenta creada en la aplicación, podrás crear o unirte a despensas. Las despensas son el lugar donde ves, agregas, editas o eliminas tus compras y productos, creas tus listas de compras y consultas información sobre consumo y gastos.
+
+Puedes unirte a varias despensas e invitar a otras personas a participar en las despensas que crees. Para crear una despensa, toca "Crear" y elige un nombre, una ubicación y un color.
+
+Los productos agregados se pueden filtrar por categorías predefinidas y sus cantidades pueden ser actualizadas por todos los participantes a medida que se van agotando. Recibirás una notificación en la fecha de vencimiento de un producto si agregaste esa información.
+
+**Lista de compras**
+
+Puedes crear listas de compras con los productos que deseas comprar en tu próxima ida al mercado. Las listas te permiten elegir una de las siguientes opciones para sugerir a qué mercado deberías ir y mostrar el precio total estimado según tus últimas compras:
+
+- En qué mercado gastarás menos;
+- Qué mercado está más cerca de ti, según la ubicación de la despensa;
+- Qué mercado tiene las marcas que más has comprado.
+
+Cuando algún participante de la despensa marca un artículo de la lista como ya comprado en el mercado, las listas del resto de los participantes se actualizan.
+
+Si recibiste una factura con código QR al finalizar una compra, puedes escanearla para compararla con los productos que habías agregado a la lista y agregarlos automáticamente a tu despensa.
+
+**Paneles**
+
+En el Dashboard encontrarás un resumen de tus compras basado en períodos definidos (30 días, 3 meses o 6 meses). Puedes consultar la siguiente información:
+
+- Gastos a lo largo del tiempo;
+- Gastos de la última compra;
+- Gastos por mercado;
+- Gastos por categoría de producto;
+- Cantidad de compras realizadas durante un período;
+- Variación de precios de los productos comprados a lo largo del tiempo.`,
+        'settings.content.privacyTerms': `FaltaOquê?
+
+Última actualización: 11/11/2026
+
+1. Sobre este documento
+
+Este es un proyecto académico desarrollado con fines de estudio y evaluación. La aplicación no está disponible comercialmente y ningún dato se utiliza con fines comerciales o publicitarios.
+
+Institución: Escola SENAI Suíço-Brasileira "Paulo Ernesto Tolle"
+
+Orientadora: Profesora Fiama Brenda
+
+Alumnos:
+
+- Manuela Andrade (@Manuela0894)
+- Miguel Zacharias (@miguelzack)
+- Nikollas Oliveira (@nikidsy)
+- Sarah Santos (@sarahsj-dot)
+- Thiago Coelho (@th-cs)
+
+2. Qué hace la aplicación
+
+FaltaOquê? es una aplicación desarrollada para facilitar el control de la despensa del hogar, sugerir listas de compras y analizar el consumo y los gastos en mercados.
+
+Para estos fines, se te solicitará información básica para crear una cuenta necesaria para usar la aplicación, así como información sobre tus compras para acceder a sus funciones. También se te puede solicitar permiso para acceder a la cámara de tu celular y enviar notificaciones.
+
+3. Datos recopilados
+
+Datos para crear tu cuenta:
+
+- Nombre
+- Dirección de correo electrónico
+- Ubicación
+
+Datos para las funciones de la aplicación:
+
+- Datos de compras (Fecha, Lugar, Cantidad de artículos, Precio total)
+- Datos de productos (Nombre, Marca, Cantidad, Precio, Fecha de vencimiento)
+
+Datos técnicos:
+
+- Dirección IP
+- Registros de uso
+
+4. Cómo se utilizan los datos
+
+Los datos se utilizan exclusivamente para el funcionamiento, análisis y mejora del proyecto y, con excepción de los datos de ubicación, no se comparten con terceros.
+
+Los datos de ubicación se comparten con las API de Google para calcular las distancias entre despensas y mercados que se muestran en la aplicación.
+
+API utilizadas:
+
+- Google Places API
+- Google Geocoding API
+
+5. Almacenamiento y seguridad
+
+Los datos se almacenan localmente y solo nosotros, los alumnos, podemos acceder a ellos. Al finalizar el curso, se eliminarán todos los datos.
+
+Todas las contraseñas se cifran antes de almacenarse.
+
+6. Tu participación es voluntaria
+
+Puedes dejar de probar la aplicación y solicitar acceso, edición o eliminación de tus datos en cualquier momento.
+
+7. Condiciones de uso
+
+Como se trata de un prototipo en desarrollo, la aplicación puede tener fallas, quedar indisponible o perder los datos ingresados. La aplicación no debe usarse para fines críticos.
+
+- No utilices la aplicación para fines ilícitos
+- No realices solicitudes masivas a las API
+- No modifiques ni redistribuyas la aplicación con fines comerciales
+
+8. Propiedad del contenido
+
+Todo el contenido que ingreses en la aplicación sigue siendo tuyo y se utilizará únicamente dentro de la investigación.
+
+9. Contacto
+
+Si tienes dudas, sugerencias, informes de errores o solicitudes para eliminar datos, comunícate con alguno de los alumnos integrantes del proyecto.`,
         'home.greeting': 'Hola, {{name}}',
         'home.greetingFallback': 'Hola',
         'home.subtitle': 'Tu hogar está en orden.',

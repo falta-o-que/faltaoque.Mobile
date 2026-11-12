@@ -5,8 +5,9 @@ import {useTheme} from 'styled-components/native';
 
 import AuthScreenLayout from '../../components/AuthScreenLayout';
 import FormField from '../../components/FormField';
+import FormattedDocument from '../../components/FormattedDocument';
 import ModalActionButton from '../../components/ModalActionButton';
-import {ModalBackdrop, ModalCard, ModalHeader, ModalTitle, ModalBody} from '../SettingsScreen/styles';
+import {ModalBackdrop, ModalCard, ModalHeader, ModalTitle} from '../SettingsScreen/styles';
 import {
     AngleIcon, CheckIcon, CancelCircleIcon, EmailIcon, EyeClosedIcon, EyeIcon, UserIcon,
 } from '../../assets/icons/export';
@@ -266,10 +267,7 @@ export function RegisterScreen({navigation}) {
             <TermsText>
                 {t('auth.register.agreePrefix')}{' '}
                 <TermsLink accessibilityRole="link"
-                           onPress={() => setActiveLegalModal('terms')}>{t('settings.terms')}</TermsLink>
-                {' '}{t('auth.register.agreeAnd')}{' '}
-                <TermsLink accessibilityRole="link"
-                           onPress={() => setActiveLegalModal('privacy')}>{t('settings.privacy')}</TermsLink>.
+                           onPress={() => setActiveLegalModal('privacyTerms')}>{t('auth.register.agreeDocument')}</TermsLink>.
             </TermsText>
         </Terms>
         {errors.acceptedTerms ? <InlineError accessibilityLiveRegion="polite"
@@ -298,7 +296,10 @@ export function RegisterScreen({navigation}) {
                         <ModalActionButton accessibilityLabel={t('common.close')} Icon={CancelCircleIcon}
                                            onPress={() => setActiveLegalModal(null)} variant="cancel"/>
                     </ModalHeader>
-                    <ScrollView><ModalBody>{activeLegalModal ? t(`settings.content.${activeLegalModal}`) : ''}</ModalBody></ScrollView>
+                    <ScrollView>
+                        {activeLegalModal ? (
+                            <FormattedDocument content={t(`settings.content.${activeLegalModal}`)}/>) : null}
+                    </ScrollView>
                 </ModalCard>
             </ModalBackdrop>
         </Modal>

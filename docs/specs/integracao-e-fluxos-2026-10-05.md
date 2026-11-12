@@ -277,10 +277,16 @@ normalizado por g/ml dentro da mesma unidade de medida para estimar o tamanho so
 - Ao salvar, os avisos do dispositivo são sincronizados no idioma escolhido. Se a sincronização falhar, o app informa
   que as preferências foram salvas e oferece nova tentativa. Falhas ao abrir os ajustes do sistema ou o projeto mostram
   mensagens nos três idiomas.
-- Sobre apresenta `Beta 0.9`, equipe em ordem alfabética e link `https://github.com/falta-o-que`. Sair da conta exige
-  confirmação.
-- Guia, Política de Privacidade e Termos de Uso abrem modais internos roláveis com o mesmo botão circular vermelho de
-  fechamento das outras abas. A estrutura está concluída; os textos definitivos dependem do envio/aprovação do usuário.
+- Sobre apresenta a versão do app sem o prefixo “Beta”, equipe em ordem alfabética e link
+  `https://github.com/falta-o-que`. Sair da conta exige confirmação.
+- Guia e o documento combinado de Política de Privacidade e Termos de Uso abrem modais internos roláveis com o mesmo
+  botão circular vermelho de fechamento. O texto pt-BR de “Como usar” foi aplicado sem alterações de redação e traduzido
+  para inglês e espanhol; o cabeçalho fornece o título e o corpo não o repete. Em 12 de novembro, o documento combinado
+  “Políticas de Privacidade e Termos de Uso” enviado pelo usuário também foi aplicado e traduzido para inglês e espanhol.
+  Configurações e cadastro abrem o mesmo documento combinado. O aceite no cadastro mantém a frase familiar com o nome
+  do documento como link; os @ dos alunos abrem seus perfis no GitHub e instituição e orientadora aparecem em linhas
+  separadas. As senhas são armazenadas como hash no fluxo local atual, embora o texto
+  pt-BR recebido descreva a proteção como criptografia; essa divergência precisa ser revisada antes da divulgação.
 - Modo claro/escuro ficou fora desta feature por decisão do usuário.
 - A revisão de traduções corrigiu os 13 problemas apontados, incluindo chaves ausentes, notificações, sugestões, revisão
   de compra, erros específicos e callbacks. A validação inicial no front foi confirmada pelo usuário; os últimos

@@ -1,5 +1,20 @@
 # Decisões do projeto
 
+## 2026-11-12 — Texto do guia “Como usar”
+
+O texto fornecido pelo usuário para o guia deve ser aplicado integralmente, sem revisar as afirmações sobre convites,
+participantes ou atualização compartilhada. O modal preserva a redação pt-BR e disponibiliza traduções em inglês e
+espanhol. O cabeçalho do modal é o único título “Como usar”; o texto do corpo começa pela seção “Despensa”. O valor da
+versão é exibido sem o prefixo “Beta”.
+
+## 2026-11-12 — Política de Privacidade e Termos em documento único
+
+Política de Privacidade e Termos de Uso usam um único documento e um único modal, em português, inglês e espanhol. O
+mesmo conteúdo é aberto em Configurações e no cadastro. A redação pt-BR fornecida pelo usuário deve ser preservada.
+O título do modal é “Políticas de Privacidade e Termos de Uso”. No cadastro, o aceite mantém a frase “Concordo com os
+Termos de Uso e a Política de Privacidade”, com o nome do documento como link para o modal. Os identificadores dos
+alunos no documento apontam para seus perfis no GitHub, e instituição e orientadora aparecem em linhas separadas.
+
 ## 2026-11-09 — Atualizações OTA com EAS Update
 
 O app mobile usa EAS Update para distribuir alterações compatíveis de JavaScript e assets. O `runtimeVersion` segue a

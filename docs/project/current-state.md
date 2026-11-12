@@ -5,14 +5,36 @@
 - Instalado `expo-updates` compatível com o SDK 57. `app.json` agora define `updates.url` usando o ID EAS existente e
   `runtimeVersion` com política `appVersion`; os perfis `development`, `preview` e `production` usam canais próprios em
   `eas.json`.
-- O comando `eas update:configure` foi tentado, mas o EAS CLI não está autenticado nesta máquina. A configuração local
-  equivalente foi aplicada manualmente conforme a documentação do Expo. Publicar atualizações ou iniciar builds EAS
-  ainda exige autenticação.
-- O usuário autenticou no EAS em 9 de novembro. `eas update:configure` concluiu e criou o canal/branch `production`;
-  o canal `development` foi associado ao perfil de desenvolvimento.
-- APKs já distribuídos não passam a receber OTA: é necessária uma nova build nativa com essa configuração. Builds
-  Android dos perfis `production` e `development` foram solicitadas em 9 de novembro e aguardam compilação no EAS.
+- A primeira tentativa de `eas update:configure` parou porque o EAS CLI ainda não estava autenticado. Após a autenticação
+  do usuário em 9 de novembro, o comando concluiu com sucesso.
+- Canais e builds Android criados em 9 de novembro: `production` — build
+  `7924604f-2b71-4bdf-a6dd-ee5d11921c09` ([APK](https://expo.dev/artifacts/eas/xAVNN9wcmqv3uRr4yIpYj75fNEQqEIUdac7qx1BdVys.apk));
+  `development` — build `35978fc7-09c3-4a29-9dbb-003b622adfda`
+  ([APK](https://expo.dev/artifacts/eas/HQ7mJ3gtx6nA00ZEEopq_zUpl-Wfhtfa4acGOinIk-I.apk)). As duas compilações
+  terminaram com sucesso, distribuição interna e runtime `1.0.0`. Os links expiram em 23 de novembro de 2026.
+- Ambos os APKs usam o identificador `com.faltaoque.app`; instalar um sobre o outro substitui o app instalado. Cada
+  build recebe apenas atualizações do próprio canal. Os APKs anteriores à configuração não recebem OTA.
 - Nenhuma atualização OTA foi publicada. iOS permanece sem validação física.
+
+## Texto de “Como usar” — 12 de novembro de 2026
+
+- O texto enviado pelo usuário foi aplicado integralmente ao modal em português brasileiro, preservando a redação,
+  inclusive as referências a convites e sincronização compartilhada. O cabeçalho do modal é o único título “Como usar”; o
+  corpo começa em “Despensa” e seus equivalentes. O conteúdo está disponível em português, inglês e espanhol, com títulos
+  e listas formatados. A versão do app aparece sem o prefixo “Beta”.
+
+## Política de Privacidade e Termos — 12 de novembro de 2026
+
+- Os antigos modais de Política de Privacidade e Termos de Uso foram consolidados em um único documento, disponível em
+  português, inglês e espanhol tanto em Configurações quanto no cadastro. A redação em português foi aplicada conforme
+  enviada pelo usuário. O texto afirma que as senhas são criptografadas, mas a implementação local as armazena como hash.
+  Também afirma que os dados locais são acessíveis apenas aos alunos, enquanto o app atual armazena os dados no aparelho
+  do usuário sem um canal de acesso da equipe. Esses pontos precisam ser revisados antes da divulgação aos usuários.
+- O título do modal usa “Políticas de Privacidade e Termos de Uso”, com traduções correspondentes. No cadastro, a frase
+  de aceite mantém “Concordo com os Termos de Uso e a Política de Privacidade”; o trecho do documento abre o modal. Os
+  @ dos alunos abrem seus perfis no GitHub, e instituição e orientadora aparecem em parágrafos separados.
+- Corrigida a expressão JSX da lista de documentos em Configurações; a tela deixava de renderizar por `labelKey` fora de
+  uma expressão JSX.
 
 ## Remoção de fixtures locais — 9 de novembro de 2026
 
@@ -448,7 +470,7 @@ situação vigente, use primeiro o resumo abaixo e depois os registros datados m
 ## Revisão de traduções — 11 de outubro de 2026
 
 - **Feature Configurações finalizada por confirmação do usuário.** Inclui português/inglês/espanhol, fonte de 90% a
-  110%, Salvar/Cancelar reutilizados, controle de notificações pelo sistema, Sobre (`Beta 0.9`, equipe em ordem
+  110%, Salvar/Cancelar reutilizados, controle de notificações pelo sistema, Sobre (versão sem prefixo “Beta”, equipe em ordem
   alfabética e GitHub), modais de Guia/Política/Termos e saída da conta com confirmação. Título fixo segue as demais
   abas; conteúdo rola abaixo.
 - O usuário confirmou a validação inicial das traduções no front e encerrou a feature após as três correções adicionais
