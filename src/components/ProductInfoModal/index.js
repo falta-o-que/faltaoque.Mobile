@@ -4,7 +4,9 @@ import {Easing, Animated, Modal, Platform} from 'react-native';
 import {
     AngleIcon, BoxIcon, CancelCircleIcon, CheckIcon, DeliveryIcon, InfoIcon, PenIcon
 } from '../../assets/icons/export';
-import {PRODUCT_CATEGORIES, PRODUCT_PRICE_TYPES, PRODUCT_UNITS, validateProduct} from '../../domain/productValidation';
+import {
+    parseProductPrice, PRODUCT_CATEGORIES, PRODUCT_PRICE_TYPES, PRODUCT_UNITS, validateProduct
+} from '../../domain/productValidation';
 import {useAppPreferences} from '../../contexts/AppPreferencesContext';
 import {getUserErrorMessage} from '../../utils/userErrors';
 import CategoryTag, {CATEGORY_LABELS} from '../CategoryTag';
@@ -134,6 +136,21 @@ export function ProductInfoModal({visible, product, onDelete, onRequestClose, on
         setErrors((current) => ({...current, [field]: undefined, submit: undefined}));
     }
 
+    function handlePriceTypeChange(priceType) {
+        const purchasedQuantity = Number(product?.purchasedQuantity);
+        setDraft((current) => {
+            if (current.priceType === priceType) return current;
+            const currentPrice = parseProductPrice(current.price);
+            if (!(currentPrice > 0) || !Number.isSafeInteger(purchasedQuantity) || purchasedQuantity <= 0) {
+                return {...current, priceType};
+            }
+            const cents = Math.round(currentPrice * 100);
+            const convertedCents = priceType === 'total' ? cents * purchasedQuantity : Math.round(cents / purchasedQuantity);
+            return {...current, priceType, price: (convertedCents / 100).toFixed(2)};
+        });
+        setErrors((current) => ({...current, price: undefined, submit: undefined}));
+    }
+
     function handleExpiration(value) {
         const digits = value.replace(/\D/g, '').slice(0, 8);
         const formatted = digits.length > 4 ? `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}` : digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
@@ -212,7 +229,7 @@ export function ProductInfoModal({visible, product, onDelete, onRequestClose, on
                                 <PriceTypeOption key={priceType} accessibilityRole="radio"
                                                  accessibilityState={{checked: draft.priceType === priceType}}
                                                  disabled={isSubmitting}
-                                                 onPress={() => updateField('priceType', priceType)}
+                                                 onPress={() => handlePriceTypeChange(priceType)}
                                                  $selected={draft.priceType === priceType}><PriceTypeLabel
                                     $selected={draft.priceType === priceType}>{t(priceType === 'unit' ? 'product.add.priceUnit' : 'product.add.priceTotal')}</PriceTypeLabel></PriceTypeOption>)}</PriceTypeOptions>
                             <FormField

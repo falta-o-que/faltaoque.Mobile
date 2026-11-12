@@ -9,6 +9,10 @@ function parseDecimal(value, money = false) {
     return Number(normalized);
 }
 
+export function parseProductPrice(value) {
+    return parseDecimal(value, true);
+}
+
 function parseExpirationDate(value) {
     if (!value) return null;
     const match = String(value).match(/^(?:(\d{4})-(\d{2})-(\d{2})|(\d{2})\/(\d{2})\/(\d{4}))$/);
@@ -29,7 +33,7 @@ function isTodayOrFuture(isoDate) {
 
 export function validateProduct(draft = {}, {allowZero = false, existingExpirationDate = null} = {}) {
     const errors = {};
-    const price = parseDecimal(draft.price, true);
+    const price = parseProductPrice(draft.price);
     const quantity = Number(draft.quantity);
     const priceType = draft.priceType ?? 'unit';
     const hasWeight = String(draft.weight ?? '').trim() !== '';
@@ -56,7 +60,7 @@ export function normalizeProduct(draft, options) {
         error.fields = errors;
         throw error;
     }
-    const cents = Math.round(parseDecimal(draft.price, true) * 100);
+    const cents = Math.round(parseProductPrice(draft.price) * 100);
     const quantity = Number(draft.quantity);
     const priceType = draft.priceType ?? 'unit';
     const hasWeight = String(draft.weight ?? '').trim() !== '';
