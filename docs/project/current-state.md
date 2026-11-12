@@ -1,17 +1,380 @@
 # Estado atual
 
+## Configuração de atualizações OTA — 9 de novembro de 2026
+
+- Instalado `expo-updates` compatível com o SDK 57. `app.json` agora define `updates.url` usando o ID EAS existente e
+  `runtimeVersion` com política `appVersion`; os perfis `development`, `preview` e `production` usam canais próprios em
+  `eas.json`.
+- O comando `eas update:configure` foi tentado, mas o EAS CLI não está autenticado nesta máquina. A configuração local
+  equivalente foi aplicada manualmente conforme a documentação do Expo. Publicar atualizações ou iniciar builds EAS
+  ainda exige autenticação.
+- O usuário autenticou no EAS em 9 de novembro. `eas update:configure` concluiu e criou o canal/branch `production`;
+  o canal `development` foi associado ao perfil de desenvolvimento.
+- APKs já distribuídos não passam a receber OTA: é necessária uma nova build nativa com essa configuração. Builds
+  Android dos perfis `production` e `development` foram solicitadas em 9 de novembro e aguardam compilação no EAS.
+- Nenhuma atualização OTA foi publicada. iOS permanece sem validação física.
+
+## Remoção de fixtures locais — 9 de novembro de 2026
+
+- Removidos os geradores de dados do Dashboard e das estimativas de mercado, seus botões e módulos de geração. As telas
+  de seleção de despensas e Dashboard não oferecem ações para criar dados mockados.
+- Os dados demonstrativos persistidos foram removidos do aparelho Android via ADB. A Home e o seletor do Dashboard
+  confirmaram que a despensa demonstrativa não aparece mais; os dados reais não foram redefinidos.
+- A rotina temporária usada para remover os registros também foi retirada do código após a confirmação. `node
+  tests/dashboard-repository.cjs` passou e `npx expo export --platform android` gerou o bundle. O processo Android
+  permaneceu aberto na Home e no seletor do Dashboard, sem erro JS/AndroidRuntime nos logs consultados. iOS não foi
+  testado fisicamente.
+- A tela Dashboard continua reunindo compras da despensa selecionada, com filtros de 30 dias, 3 meses ou 6 meses,
+  gráficos de gastos, categorias e preços e estados vazios quando necessário. Não estima economia.
+- Especificação e regras de cálculo foram registradas em `docs/specs/integracao-e-fluxos-2026-10-05.md` e
+  `docs/project/decisions.md`. A inspeção Android anterior confirmou os filtros e a leitura dos gráficos de gastos,
+  categorias e preços; iOS não foi testado fisicamente.
+
+## Nova auditoria de código — 6 de novembro de 2026
+
+- Auditoria consolidada reúne B35 a B44 e C03 como 11 problemas abertos, além das decisões R01 e C05, em
+  `docs/reports/auditoria-bugs-2026-11-06.md`. A suíte existente de 36 scripts passou; cenários de concorrência e falha
+  foram reproduzidos com mocks/harness, sem ADB. Nenhuma correção dos novos achados foi aplicada nesta auditoria.
+- Conferência posterior da auditoria complementar de 18/10: C01 corresponde ao B36; C02 foi tratado na correção de
+  sessão das notificações; C03 continua presente por inspeção; C04 é um handler em Perfil independente sem rota ativa
+  identificada; C05 depende de decisão; C06 corresponde ao cenário do B38 e depende de confirmar a representação.
+- O usuário validou no Android o B30 e os ajustes dos botões da revisão de compra.
+
+## Agrupamento de linhas fiscais — 7 de novembro de 2026
+
+- Linhas fiscais idênticas são agrupadas automaticamente. Como o portal pode dividir um produto que aparece junto no
+  comprovante impresso, o agrupamento não mostra aviso nem exige revisão adicional; a quantidade de uma linha não é
+  interpretada como duplicidade. Ambiguidades reais continuam exigindo revisão. Sem validação física no Android; iOS não
+  testado.
+
+## Ordenação da despensa — 7 de novembro de 2026
+
+- Adicionada a opção “Menor quantidade”, que mostra primeiro os produtos com menor saldo atual. “Maior quantidade” e
+  as demais ordenações existentes continuam disponíveis. A opção também foi adicionada ao filtro de itens das listas
+  de compras, usando a quantidade planejada.
+
+## Cancelar edição na revisão de compra — 6 de novembro de 2026
+
+- O editor compartilhado de produto da revisão tem X vermelho padrão para cancelar e restaurar os campos anteriores,
+  tanto no checkout da lista quanto na importação direta. Testes automatizados e bundle Android passaram; falta validação
+  física no Android, iOS não testado.
+
+## Etapas da revisão fiscal — 6 de novembro de 2026
+
+- B30 corrigido: etapas concluídas deixam o progresso quando se avança, enquanto a etapa atual permanece estável.
+  Após pedido do usuário, o botão de voltar percorre as etapas já visitadas e permite avançar novamente. O resumo
+  permite reabrir decisões e editar dados da compra. Testes de transições e bundle Android passaram; validação física no
+  Android pendente, iOS não testado.
+
+## Atalhos da tela de notificações — 6 de novembro de 2026
+
+- O usuário validou no Android e considera o B25 resolvido.
+
+- B25 corrigido: os atalhos da tela independente abrem Despensa, Perfil e Configurações na Home; Perfil da barra abre
+  a área de perfil. Testes de navegação e bundle Android passaram; validação física pendente.
+
+## Carregamento de despensas — 6 de novembro de 2026
+
+- B24 corrigido na Home e em Despensas: um indicador aparece durante a leitura, e o estado vazio só aparece após
+  resposta vazia. Testes cobrem dados, vazio, falha e nova tentativa; bundle Android gerado. Validação física pendente.
+
+## Navegação da despensa — 6 de novembro de 2026
+
+- O usuário validou no Android e considera o B23 resolvido.
+
+- B23 corrigido: a tela da despensa informa a aba Despensa como ativa na barra de navegação. Validação física pendente.
+
+## Mensagens de erro na finalização — 6 de novembro de 2026
+
+- B19 corrigido: o serviço de checkout retorna códigos estáveis para erros esperados, traduzidos em português, inglês e
+  espanhol; erros desconhecidos usam mensagem geral. Testes cobrem falhas reais e traduções; 32 scripts e bundle Android
+  passaram. A apresentação no aparelho não foi validada fisicamente; iOS não testado.
+
+## Leituras simultâneas no scanner — 6 de novembro de 2026
+
+- B15 já havia sido corrigido junto ao B14: uma trava síncrona bloqueia novos eventos antes da atualização da tela e
+  durante a preparação da revisão. Teste do componente confirma uma única consulta e entrega; testes de cancelamento e
+  cache passaram. Validação física específica no Android pendente; iOS não testado fisicamente.
+
+## Linhas fiscais repetidas — 6 de novembro de 2026
+
+- B31 reclassificado após esclarecimento do usuário: linhas do mesmo produto e unidade, ainda que separadas no caixa,
+  são consolidadas em um produto e uma ocorrência com quantidade e preço somados. `sourceItems` mantém as linhas
+  fiscais originais; detalhes de duplicidade não exigem revisão adicional. Após constatar que o portal pode separar
+  linhas consolidadas no comprovante, a atualização de 7 de novembro removeu o aviso nos agrupamentos do portal.
+  Testes automatizados e bundle Android passaram em atualizações anteriores; nenhum teste foi executado nesta alteração.
+
+## Histórico protegido contra falha de leitura — 1º de novembro de 2026
+
+- B28 corrigido no fluxo local: metadados ausentes iniciam vazios; erro de leitura, JSON inválido ou estrutura inválida
+  interrompe a operação e não é gravado como estado vazio. Regressão cobre falha de leitura e JSON inválido. Os 29
+  scripts automatizados `.cjs` passaram; nenhum teste via ADB foi executado. Validação física não realizada.
+
+## Desempate de compras na mesma data — 1º de novembro de 2026
+
+- B34 corrigido no fluxo local: ao empatar a data de compra, a ordem de inserção define qual compra é a mais recente.
+  Cards agrupados sem saldo exibem essa ocorrência e o aumento pelo contador acrescenta unidades nela. Validação
+  automatizada e física ainda pendentes.
+
+## Ordem da lista de notificações — 1º de novembro de 2026
+
+- B33 corrigido no fluxo local: a lista é ordenada da notificação mais recente para a mais antiga. O instante em que
+  cada aviso fica ativo é guardado localmente; avisos de validade usam a própria data de vencimento. Validação
+  automatizada e física ainda pendentes.
+
+## Aviso de produto de marca separada com saldo zero — 1º de novembro de 2026
+
+- B32 corrigido no fluxo local: quando marcas de uma apresentação estão explicitamente separadas, cada marca continua
+  como card e produto de notificação independente ao chegar a zero, mesmo que outra marca equivalente tenha saldo.
+  Compras da mesma marca continuam agregadas; no modo agrupado, o aviso espera o saldo combinado chegar a zero. Testes
+  de agrupamento/notificação e bundle Android passaram; validação física pendente no Android. iOS não testado.
+
+## Sincronização ao conceder permissão de notificações — 1º de novembro de 2026
+
+- B27 corrigido e validado pelo usuário no Android: ao retornar dos ajustes do sistema com a permissão recém-concedida,
+  Configurações atualiza o controle e sincroniza imediatamente os avisos do aparelho, sem exigir Salvar. Leituras
+  assíncronas antigas são ignoradas, e eventos repetidos não duplicam a sincronização. Testes automatizados e bundle
+  Android passaram. iOS não testado fisicamente.
+
+## Pergunta de agrupamento após sair da despensa — 1º de novembro de 2026
+
+- B22 considerado resolvido pelo usuário. A validação física foi considerada difícil porque o timer é muito rápido.
+  No fluxo local, leituras assíncronas e timers usam a sessão de foco da tela. Ao sair da despensa, timers
+  são cancelados, alertas ainda pendentes deixam de abrir novas etapas, callbacks antigos não gravam a preferência e
+  rejeições dos timers são tratadas sem alerta fora da tela. Testes determinísticos do ciclo de vida, regressões de
+  agrupamento e bundle Android passaram; falta validação física no Android. iOS não testado.
+
+## Aberturas concorrentes de notificações — 1º de novembro de 2026
+
+- B21 considerado resolvido pelo usuário no fluxo local. A tela usa uma versão da seleção para ignorar respostas de
+  listas que pertencem a uma notificação anterior.
+  Resultado antigo não substitui listas, erro ou estado de carregamento da notificação atual. Teste de regressão cobre
+  respostas fora de ordem entre duas despensas, erro atrasado e a inclusão usando somente a despensa e a lista atuais.
+  Teste automatizado passou; falta validar a corrida no Android. iOS não testado fisicamente.
+
+## Modal de notificação — 1º de novembro de 2026
+
+- B20 confirmado como resolvido pelo usuário no Android. A proteção impede reabertura ou substituição por resultado
+  atrasado; a inclusão concluída atualiza também a mesma notificação reaberta durante a gravação, evitando que continue
+  parecendo pendente. Teste automatizado da tela com gravação suspensa e bundle Android passaram.
+
+## Carregamento de fontes — 1º de novembro de 2026
+
+- B18 corrigido: se o carregamento das fontes falhar, o app continua com fontes do sistema, sem bloquear a sessão.
+  Testes de inicialização e compilação Android passaram; falha física no aparelho ainda não simulada.
+
+## Validação de formulário da lista — 1º de novembro de 2026
+
+- O usuário testou e considera o B16 resolvido.
+
+- B16 corrigido no formulário de criação, edição e repetição: erros de nome, data e mercado são associados ao campo por
+  identificador e traduzidos na apresentação. Testes automatizados e bundle Android passaram; validação física pendente.
+
+## Cancelamento do scanner NFC-e — 1º de novembro de 2026
+
+- O usuário testou e considera o B14 resolvido.
+
+- B14 corrigido: fechar o scanner invalida a consulta e a preparação da revisão em ambos os fluxos; resultado e erro
+  atrasados não reabrem a tela nem interferem em nova leitura. Testes simulam concorrência; validação física pendente.
+
+## Associação no histórico de listas — 1º de novembro de 2026
+
+- O usuário não observou problemas no teste e considera o B13 resolvido no fluxo local.
+
+- B13 corrigido localmente: listas concluídas usam somente o vínculo exato gravado com a compra. Para registros sem
+  vínculo confiável, o histórico informa data desconhecida e valor não registrado; não tenta adivinhar. Testes cobrem
+  listas homônimas, finalização sem compra, vínculos inválidos e isolamento por despensa. Validação Android pendente.
+
+## Revisão de itens fiscais ambíguos — 1º de novembro de 2026
+
+- O usuário considera o B12 resolvido.
+
+- B12 corrigido nos fluxos de importação direta e por lista: itens ambíguos incluídos exigem confirmação explícita;
+  podem ser ignorados. A validação física no Android permanece pendente.
+
+## Preços na revisão direta de NFC-e — 1º de novembro de 2026
+
+- O usuário confirmou que o B11 está resolvido após o teste no aparelho.
+
+- B11 corrigido: alterações no preço unitário, total ou quantidade mantêm os preços do item coerentes; o total original
+  da nota é preservado. Testes automatizados passaram; falta validação física no Android.
+
+## Estimativa ao concluir lista — 1º de novembro de 2026
+
+- O usuário confirmou no Android que considera o B10 resolvido.
+
+- B10 corrigido no simulador local: a finalização preserva a estimativa e salva o valor pago na compra. Um vínculo
+  auxiliar local, gravado na mesma operação da finalização, mantém data e total no histórico existente sem alterar o
+  esquema hospedado ou adicionar detalhamento. A correção posterior do B13 elimina associações por suposição.
+
+## Conversão de unidades na estimativa — 1º de novembro de 2026
+
+- O usuário confirmou no Android a estimativa com o histórico e a lista vinculados ao mesmo mercado e considera o B07
+  resolvido.
+
+- B07 corrigido: a estimativa compara e converte g/kg e ml/L por dimensão, reconhece apresentações equivalentes e não
+  usa massa para estimar volume ou vice-versa. Testes automatizados cobrem conversões, prioridade da apresentação
+  equivalente, quantidade e histórico incompatível; bundle Android gerado. Validação física pendente.
+
+## Edição de produto zerado ou vencido — 1º de novembro de 2026
+
+- Teste Android via ADB: produto de teste zerado teve nome editado e salvo; depois, uma validade passada foi preparada
+  somente nesse produto com instrumento temporário removido antes do teste, e a edição da marca salvou mantendo saldo
+  zero e validade 01/01/2020. O produto fictício `TesteB06Vencido` permanece na despensa `Teste`.
+
+- B06 corrigido no fluxo local: editar aceita saldo zero e preserva a validade vencida já registrada; uma nova validade
+  passada continua inválida. O cadastro continua exigindo quantidade positiva e validade atual ou futura. Testes
+  simulados cobrem edição, preservação de preço histórico e validações de criação; validação física pendente.
+
+## Cadastro e sessão — 1º de novembro de 2026
+
+- Teste físico Android via ADB: com falha temporária simulada na gravação da sessão após criar uma conta fictícia, o app
+  informou que a conta existia e retornou ao login; o login posterior da conta de teste funcionou. A simulação foi
+  removida e o aparelho deixado desconectado. As contas locais fictícias `teste-b05@exemplo.test` e
+  `teste-b05-2@exemplo.test` foram criadas durante os testes e não foram removidas.
+
+- B05 corrigido no fluxo local: se a conta foi criada e a gravação da sessão falhar, o app verifica se a sessão foi
+  efetivada; caso não seja possível confirmá-la, informa que a conta existe e encaminha ao login. Testes simulam falhas
+  antes e depois da gravação e falha na leitura; bundle Android gerado. Validação física do caminho de erro pendente.
+
+## Notificações e troca de conta — 1º de novembro de 2026
+
+- O usuário confirmou no Android que o teste solicitado de notificações, logout e troca entre contas funcionou. A
+  corrida com sincronização pausada também foi exercitada em teste simulado; iOS não foi testado fisicamente.
+
+- B26 corrigido: a sessão de notificações é invalidada ao sair, sincronizações antigas são descartadas e a reconciliação
+  e limpeza usam fila compartilhada no aparelho. A limpeza é restrita às notificações desta funcionalidade e da conta
+  que saiu; a próxima sincronização aguarda sua conclusão. Teste simulado cobre sincronização anterior pausada, troca de
+  conta e preservação de notificações externas. Validação física Android pendente; iOS não testado fisicamente.
+
+## Seleção de endereço e mercado — 1º de novembro de 2026
+
+- Teste controlado no Android via ADB: com atraso temporário de 25 segundos na primeira resposta de detalhes, uma
+  segunda seleção permaneceu no campo após o prazo da resposta antiga; em outra rodada, o campo permaneceu vazio após
+  ser limpo durante a resposta pendente. O formulário foi cancelado sem salvar e o atraso temporário foi removido.
+
+- Teste Android via ADB: busca real por endereço retornou sugestões; uma edição logo após selecionar permaneceu no
+  campo, e uma seleção posterior foi preenchida. O formulário foi cancelado sem salvar. O teste não controlou a ordem
+  das respostas de rede; essa corrida foi coberta apenas em simulação.
+
+- B17 corrigido no campo Places: respostas antigas de detalhes são invalidadas ao escolher outra opção, editar ou limpar
+  o texto, desabilitar ou desmontar o campo; buscas antigas também são invalidadas ao selecionar. Teste isolado cobriu
+  respostas fora de ordem e cancelamento, e o bundle Android foi gerado. Validação com Places no aparelho pendente.
+
+## Total fiscal na importação direta — 1º de novembro de 2026
+
+- O usuário confirmou que considera o B09 resolvido após a correção e os testes.
+
+- B09 corrigido no simulador local: a importação direta grava o total extraído da NFC-e na compra, mesmo quando itens ou
+  sacolas não são incluídos no estoque. Total fiscal ausente ou inválido bloqueia a confirmação. Teste automatizado
+  cobre seleção parcial e total inválido; validação física pendente.
+
+## Card zerado e marca — 1º de novembro de 2026
+
+- O usuário confirmou no Android que, após recarregar o app com o código atualizado, o card agrupado deixou de mostrar
+  marcas enquanto havia duas compras com saldo.
+
+- Corrigida a divisão em cards por marca quando todas as ocorrências da apresentação chegam a zero. Uma apresentação
+  totalmente zerada mostra um card da ocorrência mais recente. Em um card com marcas agrupadas e duas ou mais compras
+  com saldo, o nome não exibe marca; com uma única compra, exibe sua marca ou “Sem marca”. Testes direcionados passaram;
+  validação no Android pendente.
+
+## Ocorrências zeradas na despensa — 1º de novembro de 2026
+
+- Na apresentação e nos avisos de compras/marcas, ocorrências com saldo zero deixam de competir com as que têm saldo. Se
+  apenas uma compra tiver saldo, seus dados aparecem sem aviso de múltiplas compras; histórico e regra FIFO são
+  preservados. Se todas estiverem zeradas, permanece card zerado da ocorrência mais recente. Teste automatizado cobre o
+  cenário relatado; validação no aparelho pendente.
+
+## Contador de produtos da despensa — 1º de novembro de 2026
+
+- B29 corrigido na listagem de despensas: o contador usa a mesma lista agrupada de cards da tela da despensa, inclusive
+  produtos zerados visíveis e preferência de separar/juntar marcas, em vez de contar ocorrências de compras. Teste
+  automatizado cobre compras repetidas e agrupamento de marcas; testes repetidos em 6 de novembro passaram. Validação
+  específica no aparelho pendente.
+
+## Marcas e notificação — 1º de novembro de 2026
+
+- Após relato do usuário, a edição persiste a marca na ocorrência; a pergunta de agrupamento passa a exigir marcas
+  distintas na mesma apresentação, incluindo a comparação de marca preenchida com ausência de marca. Foi corrigida uma
+  corrida que reabria o modal de notificação após seu fechamento durante a adição à lista, e protegida a seleção contra
+  respostas antigas. O caso de botão Fechar relatado ainda precisa de reteste no Android; a alteração da marca e a
+  escolha de agrupamento também precisam de validação física.
+
+## Correspondência automática na NFC-e — 1º de novembro de 2026
+
+- O usuário confirmou no Android que o vínculo de “Banana” com “BANANA NANICA kg” funcionou. Após isso passaram os
+  testes de reconciliação, checkout, extração fiscal, medidas e cache. O usuário considera encerrada esta correção do
+  B08; descrições adicionais ainda podem exigir revisão manual.
+
+- Na validação Android com NFC-e real, as linhas de desodorante e néctar com nomes parciais foram apresentadas para
+  vínculo manual; após correção feita pelo usuário, a leitura da tela via ADB confirmou cada vínculo no item
+  correspondente. A compra de teste não foi finalizada. O vínculo automático para nome equivalente ainda não foi
+  conferido nesse teste.
+- B08 corrigido no fluxo local de finalização de lista: somente nomes equivalentes após normalização, na mesma ordem,
+  são elegíveis para vínculo automático; nomes parciais ou com termos adicionais exigem revisão manual. A
+  compatibilidade de tamanho e a regra de vínculo um a um continuam obrigatórias. Testes automatizados cobrem os casos
+  relatados, normalizações e ambiguidades; validação física com NFC-e pendente.
+
+## Preço histórico do produto — 1º de novembro de 2026
+
+- B03 corrigido no simulador local e considerado resolvido pelo usuário após o teste solicitado: preço unitário editado
+  usa a quantidade comprada, não o saldo; compra manual de uma ocorrência tem o total corrigido, enquanto totais de
+  NFC-e e de compras com vários produtos são preservados. Testes automatizados cobrem consumo, preço unitário e total e
+  os três tipos de compra. Compras locais sem QR são tratadas como manuais; o contrato hospedado de origem permanece a
+  confirmar.
+
+## Banco local sem legado — 1º de novembro de 2026
+
+- Gravações do banco recebem identificador e marcador local de operação pendente. Se a escrita falhar, o app relê o
+  banco para verificar se o registro foi salvo; se a leitura também falhar, bloqueia novas gravações até verificar o
+  resultado, inclusive após reiniciar. Na verificação posterior, informa se a operação anterior foi gravada e não
+  executa automaticamente a nova tentativa. Testes simulados cobrem falhas antes/depois da gravação, indisponibilidade
+  de leitura e reinício. O marcador é local e não altera o modelo hospedado. O usuário confirmou no Android o teste
+  manual do fluxo normal de conta, despensa, produtos e listas, incluindo persistência após reabrir; os caminhos de
+  falha foram testados apenas em simulação, e não houve validação física no iOS.
+
+- O usuário autorizou descartar dados de versões anteriores. Bancos locais anteriores à versão 11 são recriados vazios
+  no esquema atual, sem migração; estrutura inválida na versão atual, versão futura e versão desconhecida são rejeitadas
+  sem sobrescrever dados. Versão e tabelas são gravadas juntas em uma única chave, corrigindo a falha de segunda
+  gravação do B02. O formato anterior da própria versão 11 é lido e convertido na próxima escrita para preservar a
+  instalação atual; versões de dados anteriores não são migradas.
+- Revisão localizada removeu o adaptador de checkout antigo sem uso e a limpeza de fixtures antigas. Os testes de
+  listas, produtos e checkout foram atualizados para o modelo atual; testes de versão verificam falha de gravação e o
+  formato anterior da própria versão 11. Bundle Android gerado e fluxo normal validado pelo usuário no aparelho. Os
+  novos testes não preservam toda a cobertura pretendida pelos antigos scripts desatualizados.
+
+## Decisão sobre lista sem produtos — 1º de novembro de 2026
+
+- O usuário confirmou que a finalização manual sem produtos selecionados conclui somente a lista, sem criar compra ou
+  estoque. Foi acrescentado aviso de confirmação; a NFC-e continua registrada mesmo sem produtos incluídos. A alteração
+  do aviso ainda requer verificação no aparelho.
+- Listas sem itens cadastrados não podem ser finalizadas; o app orienta a adicionar um produto ou excluir a lista. A
+  regra é verificada também no serviço e na gravação local. Validação em aparelho pendente.
+
 ## Calendário nos campos de data — 1º de novembro de 2026
 
-- Campos editáveis de validade, data planejada da lista e data da compra manual oferecem calendário nativo pelo ícone. Validade e data planejada limitam a escolha a hoje ou depois; compra manual, a hoje ou antes. A data da NFC-e continua somente para leitura. O preenchimento digitado e as validações existentes permanecem. A biblioteca nativa exige nova development build; validação física Android e iOS ainda pendente.
+- Campos editáveis de validade, data planejada da lista e data da compra manual oferecem calendário nativo pelo ícone.
+  Validade e data planejada limitam a escolha a hoje ou depois; compra manual, a hoje ou antes. A data da NFC-e continua
+  somente para leitura. O preenchimento digitado e as validações existentes permanecem. A biblioteca nativa exige nova
+  development build; validação física Android e iOS ainda pendente.
 
 ## Criar despensa na página Despensas — 1º de novembro de 2026
 
-- A página Despensas voltou a oferecer o botão flutuante Criar, reutilizando o botão, o formulário e o serviço da Home. A lista atualiza após a criação e reserva espaço para os últimos cards. Bundle Android compilado; validação visual e interativa no aparelho ainda pendente.
+- A página Despensas voltou a oferecer o botão flutuante Criar, reutilizando o botão, o formulário e o serviço da Home.
+  A lista atualiza após a criação e reserva espaço para os últimos cards. Bundle Android compilado; validação visual e
+  interativa no aparelho ainda pendente.
 
 ## Cache local de NFC-e — 1º de novembro de 2026
 
-- Notas lidas com sucesso são armazenadas em cache local versionado por conta e código fiscal, sem URL completa ou HTML. Leituras posteriores da mesma nota pela mesma conta reutilizam os dados em qualquer despensa, inclusive entre os fluxos de lista e despensa. A verificação de duplicidade por despensa continua obrigatória antes da revisão e na gravação. Contas diferentes não compartilham cache; notas lidas antes da implementação só entram no cache após nova leitura. Falhas de cache não impedem consulta à SEFAZ; registros inválidos não são sobrescritos automaticamente.
-- Testes simulados verificam reutilização, isolamento, preservação de cache inválido e falha de gravação. O usuário confirmou a validação do cache e dos fluxos no Android. O cache é local ao aparelho e pode não refletir alterações posteriores na nota; não houve confirmação de teste físico no iOS.
+- Notas lidas com sucesso são armazenadas em cache local versionado por conta e código fiscal, sem URL completa ou HTML.
+  Leituras posteriores da mesma nota pela mesma conta reutilizam os dados em qualquer despensa, inclusive entre os
+  fluxos de lista e despensa. A verificação de duplicidade por despensa continua obrigatória antes da revisão e na
+  gravação. Contas diferentes não compartilham cache; notas lidas antes da implementação só entram no cache após nova
+  leitura. Falhas de cache não impedem consulta à SEFAZ; registros inválidos não são sobrescritos automaticamente.
+- Testes simulados verificam reutilização, isolamento, preservação de cache inválido e falha de gravação. O usuário
+  confirmou a validação do cache e dos fluxos no Android. O cache é local ao aparelho e pode não refletir alterações
+  posteriores na nota; não houve confirmação de teste físico no iOS.
 
 ## Consulta direta NFC-e — 1º de novembro de 2026
 
@@ -58,6 +421,12 @@ situação vigente, use primeiro o resumo abaixo e depois os registros datados m
   `app.json`.
 - O build Android Development foi concluído com sucesso. Build:
   `d1abfbab-0c51-4e94-b1b5-a1c72660c9f0`. [Instalar APK](https://expo.dev/accounts/zackkmini/projects/FaltaOQueFront/builds/d1abfbab-0c51-4e94-b1b5-a1c72660c9f0).
+
+## Retorno ao vínculo Expo/EAS anterior — 6 de novembro de 2026
+
+- Por solicitação do usuário, o `app.json` voltou a apontar para o projeto EAS anterior, com `owner` `miguelzack` e
+  `projectId` `73ea38cc-3585-408a-bd46-eaceabefa581`. O projeto temporário `@zackkmini/FaltaOQueFront` e seu build
+  continuam existentes na nuvem, mas deixaram de ser o vínculo configurado neste checkout.
 
 ## Vínculo Expo/EAS removido — 31 de outubro de 2026
 
@@ -109,8 +478,8 @@ situação vigente, use primeiro o resumo abaixo e depois os registros datados m
   fixture demonstrativa está desligada e não é uma etapa pendente.
 - O fluxo de finalização manual/NFC-e, a revisão de compra e o estoque agregado estão implementados no simulador local e
   foram validados pelo usuário no Android, incluindo leitura de uma NFC-e real. iOS não foi testado fisicamente.
-- O esquema local atual é a versão 11. Migrações posteriores à versão 8 preservam os dados existentes e adicionam os
-  campos e tabelas locais definidos nas decisões de mercado. Isso não confirma migração no banco hospedado.
+- O esquema local atual é a versão 11. Desde 1º de novembro, versões locais anteriores são recriadas sem preservar
+  dados. Isso não confirma migração no banco hospedado.
 - A API hospedada não foi confirmada/recebida. O JSON de 8 de outubro é a fotografia de referência do modelo recebido; a
   entidade `markets` e seus vínculos ainda são responsabilidade da equipe de backend.
 - A identidade configurada do aplicativo é `FaltaOquê?` (`com.faltaoque.app`). O perfil EAS `production` gera APK de
@@ -389,9 +758,8 @@ todos os IDs antes de alterar a lista da sessão.
 - O campo `grocery_lists.estimated_price` é recalculado para listas ativas como a soma dos itens com histórico na
   própria despensa: busca por nome (incluindo nome curto pelo termo principal), preço pela mediana das até três compras
   recentes por item e preferência pela mesma medida quando informada. Categoria e medida não são chaves obrigatórias;
-  itens sem histórico não entram na soma, e a tela mostra a cobertura. Listas concluídas preservam a estimativa. Em
-  desenvolvimento, fixtures de histórico sintéticas são acrescentadas caso ainda não existam, inclusive em despensas com
-  listas; produtos demonstrativos ficam excluídos do estoque visível. Nenhum mock é criado em produção.
+  itens sem histórico não entram na soma, e a tela mostra a cobertura. Listas concluídas preservam a estimativa. O
+  histórico sintético de desenvolvimento usado para validar esse cálculo foi removido em 9 de novembro de 2026.
 - Peso/volume é opcional e categoria obrigatória nos itens da lista. Sem peso/volume, a estimativa seleciona a
   apresentação de embalagem mais recorrente dentro da categoria escolhida, com desempate pela compra mais recente; se
   não houver histórico nela, usa ocorrências compatíveis pelo nome em outras categorias. Peso informado prioriza o
@@ -416,9 +784,8 @@ todos os IDs antes de alterar a lista da sessão.
   escolhido mesmo antes da inclusão dos primeiros itens. Nas configurações, a ação “Remover CEP da lista” limpa a
   localização e recalcula a estimativa sem filtro. Ao concluir a lista, o CEP da lista segue para `purchases.location`;
   o histórico de listas mostra o CEP, `estimated_price` preservado e a data efetiva lida de `purchases.purchase_date`.
-- Em desenvolvimento, o serviço `groceryEstimateDemoData` mantém dados demonstrativos locais para comparar estimativas
-  por mercado. Os mocks anteriores de CEPs genéricos foram substituídos em 8 de outubro de 2026 por unidades reais na
-  zona sul de São Paulo. Nenhum mock é criado em produção.
+- Histórico antigo: a fixture `groceryEstimateDemoData` usava mercados da zona sul de São Paulo para validar estimativas.
+  O módulo gerador foi removido em 9 de novembro de 2026.
 - A validação anterior das sugestões no Android usou dados demonstrativos locais. Em 9 de outubro, o usuário confirmou
   como validado o fluxo Android atual de endereço da despensa, nomes de mercados e estimativas na tela; não solicitou
   uma nova rodada de ADB. A fixture com endereços reais permanece desativada a pedido do usuário.
@@ -473,9 +840,8 @@ todos os IDs antes de alterar a lista da sessão.
 - Ao inserir a nova fixture, o serviço remove apenas os mocks antigos identificados pelos títulos/nome exatos. Registros
   de compras e mercados sem esses marcadores são preservados. Se a fixture completa já existir, ela não é recriada nem
   sobrescreve alterações feitas pelo usuário na lista demonstrativa.
-- A fixture de sugestões está temporariamente desativada a pedido do usuário em 9 de outubro:
-  `src/services/groceryEstimateDemoData.js` permanece no repositório, mas a tela não a importa nem executa. Dados
-  demonstrativos já salvos localmente não são apagados por essa alteração.
+- Em 9 de novembro de 2026, o módulo `src/services/groceryEstimateDemoData.js` foi removido por solicitação do usuário;
+  a fixture já salva no aparelho também foi apagada via ADB.
 - Em 9 de outubro, os valores nos cartões receberam o rótulo visual “Preço estimado”; ao expandir as opções, uma
   mensagem centralizada em caixa clara explica que o valor usa o histórico e pode variar. O custo-benefício também
   rotula o preço dentro da opção. O formulário de conclusão, que recebe o preço pago pelo usuário, permanece sem esse

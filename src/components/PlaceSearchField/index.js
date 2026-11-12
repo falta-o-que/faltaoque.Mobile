@@ -1,86 +1,126 @@
-import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
-import { useAppPreferences } from '../../contexts/AppPreferencesContext';
+import {useEffect, useRef, useState} from 'react';
+import {ActivityIndicator} from 'react-native';
+import {useAppPreferences} from '../../contexts/AppPreferencesContext';
 import FormField from '../FormField';
-import { createPlacesSessionToken, getPlaceDetails, searchPlaces } from '../../services/googlePlacesService';
-import { getUserErrorMessage } from '../../utils/userErrors';
-import { Attribution, GoogleLetter, Helper, Option, OptionSubtitle, OptionTitle, Options, Status } from './styles';
+import {createPlacesSessionToken, getPlaceDetails, searchPlaces} from '../../services/googlePlacesService';
+import {getUserErrorMessage} from '../../utils/userErrors';
+import {createRequestGate} from '../../utils/requestGate';
+import {Attribution, GoogleLetter, Helper, Option, OptionSubtitle, OptionTitle, Options, Status} from './styles';
 
-export default function PlaceSearchField({ value, selected, onChangeText, onSelect, disabled, error, accessibilityLabel = 'Endereço ou mercado', placeholder = 'Busque um endereço ou mercado', Icon }) {
-  const { t } = useAppPreferences();
-  const [predictions, setPredictions] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [hasNoResults, setHasNoResults] = useState(false);
-  const sequence = useRef(0);
-  const token = useRef(createPlacesSessionToken());
+export default function PlaceSearchField({
+                                             value,
+                                             selected,
+                                             onChangeText,
+                                             onSelect,
+                                             disabled,
+                                             error,
+                                             accessibilityLabel = 'Endereço ou mercado',
+                                             placeholder = 'Busque um endereço ou mercado',
+                                             Icon
+                                         }) {
+    const {t} = useAppPreferences();
+    const [predictions, setPredictions] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
+    const [hasNoResults, setHasNoResults] = useState(false);
+    const sequence = useRef(0);
+    const detailGate = useRef(createRequestGate()).current;
+    const token = useRef(createPlacesSessionToken());
 
-  useEffect(() => {
-    const query = String(value ?? '').trim();
-    const requestId = ++sequence.current;
-    if (selected || query.length < 3) {
-      setPredictions([]);
-      setLoading(false);
-      setMessage('');
-      setHasNoResults(false);
-      return undefined;
+    useEffect(() => {
+        detailGate.invalidate();
+        if (disabled) setLoading(false);
+        return () => detailGate.invalidate();
+    }, [detailGate, value, selected, disabled]);
+
+    useEffect(() => {
+        const query = String(value ?? '').trim();
+        const requestId = ++sequence.current;
+        if (selected || query.length < 3) {
+            setPredictions([]);
+            setLoading(false);
+            setMessage('');
+            setHasNoResults(false);
+            return undefined;
+        }
+        setMessage('');
+        setHasNoResults(false);
+        setPredictions([]);
+        setLoading(false);
+        const timer = setTimeout(async () => {
+            setLoading(true);
+            try {
+                const results = await searchPlaces(query, token.current);
+                if (sequence.current === requestId) {
+                    setPredictions(results);
+                    setHasNoResults(results.length === 0);
+                }
+            } catch (requestError) {
+                if (sequence.current === requestId) {
+                    setPredictions([]);
+                    setHasNoResults(false);
+                    setMessage(getUserErrorMessage(requestError, t('placeSearch.searchError'), t));
+                }
+            } finally {
+                if (sequence.current === requestId) setLoading(false);
+            }
+        }, 350);
+        return () => {
+            clearTimeout(timer);
+            if (sequence.current === requestId) sequence.current += 1;
+        };
+    }, [value, selected, t]);
+
+    async function choose(prediction) {
+        const isCurrent = detailGate.start();
+        sequence.current += 1;
+        setPredictions([]);
+        setLoading(true);
+        setMessage('');
+        setHasNoResults(false);
+        try {
+            const details = await getPlaceDetails(prediction.placeId, token.current);
+            if (!isCurrent()) return;
+            onSelect({...details, localName: prediction.title, displayName: prediction.title});
+            token.current = createPlacesSessionToken();
+            setPredictions([]);
+        } catch (requestError) {
+            if (isCurrent()) setMessage(getUserErrorMessage(requestError, t('placeSearch.selectError'), t));
+        } finally {
+            if (isCurrent()) setLoading(false);
+        }
     }
-    setMessage('');
-    setHasNoResults(false);
-    setPredictions([]);
-    setLoading(false);
-    const timer = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const results = await searchPlaces(query, token.current);
-        if (sequence.current === requestId) {
-          setPredictions(results);
-          setHasNoResults(results.length === 0);
-        }
-      } catch (requestError) {
-        if (sequence.current === requestId) {
-          setPredictions([]);
-          setHasNoResults(false);
-          setMessage(getUserErrorMessage(requestError, t('placeSearch.searchError'), t));
-        }
-      } finally {
-        if (sequence.current === requestId) setLoading(false);
-      }
-    }, 350);
-    return () => {
-      clearTimeout(timer);
-      if (sequence.current === requestId) sequence.current += 1;
+
+    const handleChangeText = (text) => {
+        detailGate.invalidate();
+        sequence.current += 1;
+        setLoading(false);
+        setPredictions([]);
+        onChangeText(text);
     };
-  }, [value, selected, t]);
 
-  async function choose(prediction) {
-    setLoading(true);
-    setMessage('');
-    setHasNoResults(false);
-    try {
-      const details = await getPlaceDetails(prediction.placeId, token.current);
-      onSelect({ ...details, localName: prediction.title, displayName: prediction.title });
-      token.current = createPlacesSessionToken();
-      setPredictions([]);
-    } catch (requestError) {
-      setMessage(getUserErrorMessage(requestError, t('placeSearch.selectError'), t));
-    } finally { setLoading(false); }
-  }
-
-  return <>
-    <FormField accessibilityLabel={accessibilityLabel === 'Endereço ou mercado' ? t('placeSearch.addressA11y') : accessibilityLabel} autoCapitalize="words" editable={!disabled} error={error} Icon={Icon} onChangeText={onChangeText} placeholder={placeholder === 'Busque um endereço ou mercado' ? t('placeSearch.placeholder') : placeholder} value={value} />
-    {loading ? <Status><ActivityIndicator size="small" /><Helper>{t('placeSearch.searching')}</Helper></Status> : null}
-    {predictions.length ? <Options keyboardShouldPersistTaps="handled">
-      {predictions.map((prediction) => <Option key={prediction.placeId} accessibilityRole="button" disabled={disabled} onPress={() => choose(prediction)}>
-        <OptionTitle>{prediction.title}</OptionTitle>{prediction.subtitle ? <OptionSubtitle>{prediction.subtitle}</OptionSubtitle> : null}
-      </Option>)}
-      <Attribution>Powered by <GoogleLetter $color="#4285F4">G</GoogleLetter><GoogleLetter $color="#EA4335">o</GoogleLetter><GoogleLetter $color="#FBBC05">o</GoogleLetter><GoogleLetter $color="#4285F4">g</GoogleLetter><GoogleLetter $color="#34A853">l</GoogleLetter><GoogleLetter $color="#EA4335">e</GoogleLetter></Attribution>
-    </Options> : null}
-    {message ? <Helper $error accessibilityLiveRegion="polite" accessibilityRole="alert">{message}</Helper> : null}
-    {!message && hasNoResults ? (
-      <Helper $error accessibilityLiveRegion="polite" accessibilityRole="alert">
-        {t('placeSearch.noResults')}
-      </Helper>
-    ) : null}
-  </>;
+    return <>
+        <FormField
+            accessibilityLabel={accessibilityLabel === 'Endereço ou mercado' ? t('placeSearch.addressA11y') : accessibilityLabel}
+            autoCapitalize="words" editable={!disabled} error={error} Icon={Icon} onChangeText={handleChangeText}
+            placeholder={placeholder === 'Busque um endereço ou mercado' ? t('placeSearch.placeholder') : placeholder}
+            value={value}/>
+        {loading ?
+            <Status><ActivityIndicator size="small"/><Helper>{t('placeSearch.searching')}</Helper></Status> : null}
+        {predictions.length ? <Options keyboardShouldPersistTaps="handled">
+            {predictions.map((prediction) => <Option key={prediction.placeId} accessibilityRole="button"
+                                                     disabled={disabled} onPress={() => choose(prediction)}>
+                <OptionTitle>{prediction.title}</OptionTitle>{prediction.subtitle ?
+                <OptionSubtitle>{prediction.subtitle}</OptionSubtitle> : null}
+            </Option>)}
+            <Attribution>Powered by <GoogleLetter $color="#4285F4">G</GoogleLetter><GoogleLetter
+                $color="#EA4335">o</GoogleLetter><GoogleLetter $color="#FBBC05">o</GoogleLetter><GoogleLetter
+                $color="#4285F4">g</GoogleLetter><GoogleLetter $color="#34A853">l</GoogleLetter><GoogleLetter
+                $color="#EA4335">e</GoogleLetter></Attribution>
+        </Options> : null}
+        {message ? <Helper $error accessibilityLiveRegion="polite" accessibilityRole="alert">{message}</Helper> : null}
+        {!message && hasNoResults ? (<Helper $error accessibilityLiveRegion="polite" accessibilityRole="alert">
+            {t('placeSearch.noResults')}
+        </Helper>) : null}
+    </>;
 }

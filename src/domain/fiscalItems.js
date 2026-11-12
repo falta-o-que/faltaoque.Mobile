@@ -25,10 +25,17 @@ export function groupFiscalItems(items) {
       : lines[0].unitPrice;
     return {
       ...lines[0], quantity, totalPrice, unitPrice, hasDifferentPrices,
+      sourceFiscalLineCount: lines.length,
       // Preserve the fiscal lines independently of subsequent review edits.
       sourceItems: lines.map(({ sourceDescription, quantity: count, unitLabel, sourceUnitLabel, unitPrice: price, totalPrice: total }) => ({
         sourceDescription, quantity: count, unitLabel, sourceUnitLabel, unitPrice: price, totalPrice: total,
       })),
     };
   });
+}
+
+// Only multiple source rows count as duplicates; quantity on one row does not.
+export function hasGroupedFiscalLines(item) {
+  if (Number.isInteger(item?.sourceFiscalLineCount)) return item.sourceFiscalLineCount > 1;
+  return Array.isArray(item?.sourceItems) && item.sourceItems.length > 1;
 }

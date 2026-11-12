@@ -2,36 +2,59 @@
 
 ## Purpose
 
-Use subagents to reduce elapsed time and context usage while keeping one accountable orchestrator in control of scope, integration, and final verification.
+Use subagents to reduce elapsed time and context usage while keeping one accountable orchestrator in control of scope,
+integration, and final verification.
 
 ## Current project context
 
-Before work on backend integration or new product flows, read `docs/specs/integracao-e-fluxos-2026-10-05.md` and the newer dated entries in `docs/project/decisions.md`. The 14 September milestone remains the original local MVP specification. The 8 October hosted model JSON is the latest model snapshot; the 1 October SQL is an older received script, and neither alone confirms the deployed database or API contract. Hosted grocery lists use `grocery_lists`, and NFC-e identity uses the code between `p=` and the first `|` in the QR URL. Record later user corrections in the memory bank and SDD, marking unresolved contract details explicitly.
+Before work on backend integration or new product flows, read `docs/specs/integracao-e-fluxos-2026-10-05.md` and the
+newer dated entries in `docs/project/decisions.md`. The 14 September milestone remains the original local MVP
+specification. The 8 October hosted model JSON is the latest model snapshot; the 1 October SQL is an older received
+script, and neither alone confirms the deployed database or API contract. Hosted grocery lists use `grocery_lists`, and
+NFC-e identity uses the code between `p=` and the first `|` in the QR URL. Record later user corrections in the memory
+bank and SDD, marking unresolved contract details explicitly.
 
 ## Model policy
 
 - Orchestrator: `gpt-6-sol`, reasoning effort `low` by default.
 - Default worker: `gpt-5.6-luna`, reasoning effort `medium`.
 - Intermediate worker: `gpt-5.6-sol`, reasoning effort `medium`, or `high` for demanding bounded work.
-- Concurrency limit: three workers across the whole tree, including descendants, and never beyond runtime capacity. The current runtime supports four agents including the root.
+- Concurrency limit: three workers across the whole tree, including descendants, and never beyond runtime capacity. The
+  current runtime supports four agents including the root.
 
-The user controls the root model and reasoning setting in Codex. These instructions do not change that setting. Workers must receive explicit model/effort overrides with only the relevant context. Smaller workers here are available Codex models; do not assume a local inference runtime exists.
+The user controls the root model and reasoning setting in Codex. These instructions do not change that setting. Workers
+must receive explicit model/effort overrides with only the relevant context. Smaller workers here are available Codex
+models; do not assume a local inference runtime exists.
 
 ## Routing and root reasoning
 
-The root agent owns macro planning, SDD decisions, architectural boundaries, final integration and acceptance. Low is the routine starting point for clear requests, triage, delegation and small reviews. Keep reports concise and load only task-relevant context; use workers when independent work saves time or improves quality, not to satisfy a quota.
+The root agent owns macro planning, SDD decisions, architectural boundaries, final integration and acceptance. Low is
+the routine starting point for clear requests, triage, delegation and small reviews. Keep reports concise and load only
+task-relevant context; use workers when independent work saves time or improves quality, not to satisfy a quota.
 
-Use Luna/medium for closed scopes with clear acceptance criteria. Use Sol/medium for medium-complexity implementations spanning a few related modules, substantive documentation, structured-data work, investigations or independent technical reviews. Sol is an optional execution lead, not a mandatory management layer. Simple text work may remain with the root or Luna.
+Use Luna/medium for closed scopes with clear acceptance criteria. Use Sol/medium for medium-complexity implementations
+spanning a few related modules, substantive documentation, structured-data work, investigations or independent technical
+reviews. Sol is an optional execution lead, not a mandatory management layer. Simple text work may remain with the root
+or Luna.
 
-Prefer the root agent directly assigning Luna or Sol. A worker may delegate a genuinely independent subtask only within its assigned scope, exclusive file ownership and the global concurrency budget; it must not expand the task. Do not introduce a chain between models without a concrete benefit.
+Prefer the root agent directly assigning Luna or Sol. A worker may delegate a genuinely independent subtask only within
+its assigned scope, exclusive file ownership and the global concurrency budget; it must not expand the task. Do not
+introduce a chain between models without a concrete benefit.
 
-Recommend raising the root's reasoning to medium when unresolved ambiguity or cross-module integration requires deeper reasoning. For demanding data migration, authentication/security decisions, fiscal extraction or difficult debugging, recommend high reasoning when appropriate, or assign a bounded investigation to a stronger worker. Explain the actual issue and expected benefit in Portuguese. Do not repeat the recommendation for the same unchanged condition. High or higher is exceptional and needs a concrete difficult problem.
+Recommend raising the root's reasoning to medium when unresolved ambiguity or cross-module integration requires deeper
+reasoning. For demanding data migration, authentication/security decisions, fiscal extraction or difficult debugging,
+recommend high reasoning when appropriate, or assign a bounded investigation to a stronger worker. Explain the actual
+issue and expected benefit in Portuguese. Do not repeat the recommendation for the same unchanged condition. High or
+higher is exceptional and needs a concrete difficult problem.
 
-Continue useful independent work while the user adjusts the setting. A recommendation alone is not a blocker, and elapsed time is not confirmation that the setting changed. Report any actual blocker separately. After the demanding stage, suggest returning to low when appropriate.
+Continue useful independent work while the user adjusts the setting. A recommendation alone is not a blocker, and
+elapsed time is not confirmation that the setting changed. Report any actual blocker separately. After the demanding
+stage, suggest returning to low when appropriate.
 
 ## Delegation rules
 
-Delegate work when it is concrete, bounded, and can proceed without blocking the orchestrator's immediate next action. Good worker tasks include:
+Delegate work when it is concrete, bounded, and can proceed without blocking the orchestrator's immediate next action.
+Good worker tasks include:
 
 - Implementing one isolated component.
 - Reviewing a bounded group of SVG assets.
@@ -39,7 +62,8 @@ Delegate work when it is concrete, bounded, and can proceed without blocking the
 - Researching one external integration and returning evidence.
 - Auditing one screen against a specific Figma node.
 
-At the beginning of substantial implementation work, briefly state what stays with the orchestrator and what is delegated. If there is no useful independent work, explain that briefly instead of spawning an idle worker.
+At the beginning of substantial implementation work, briefly state what stays with the orchestrator and what is
+delegated. If there is no useful independent work, explain that briefly instead of spawning an idle worker.
 
 Keep work with the orchestrator when it involves:
 
@@ -60,9 +84,14 @@ The orchestrator may replace Luna with a stronger available model when at least 
 - The work requires difficult debugging, extensive synthesis, or security judgment.
 - A previous bounded Luna attempt produced an incomplete or unreliable result.
 
-Escalation is a judgment call, not an automatic retry ladder. Prefer improving the task boundary and context before spending more tokens on a stronger model.
+Escalation is a judgment call, not an automatic retry ladder. Prefer improving the task boundary and context before
+spending more tokens on a stronger model.
 
-Choose Sol or another stronger available worker before starting when the complexity is already evident. When escalating an active assignment, stop or finish the previous worker, inspect its changes, and transfer exclusive file ownership along with findings, attempted checks and unresolved issues. Never let the replacement edit files while the original worker still owns them. Keep responsibility for high-risk architecture and security decisions with the orchestrator, recommending a stronger root when needed; a worker can investigate or review bounded evidence independently.
+Choose Sol or another stronger available worker before starting when the complexity is already evident. When escalating
+an active assignment, stop or finish the previous worker, inspect its changes, and transfer exclusive file ownership
+along with findings, attempted checks and unresolved issues. Never let the replacement edit files while the original
+worker still owns them. Keep responsibility for high-risk architecture and security decisions with the orchestrator,
+recommending a stronger root when needed; a worker can investigate or review bounded evidence independently.
 
 ## Context and token discipline
 
@@ -82,6 +111,10 @@ Choose Sol or another stronger available worker before starting when the complex
 
 ## Completion rule
 
-The orchestrator must inspect worker output, resolve integration issues, run proportionate verification, and report remaining uncertainty. A worker saying that a task is complete is not sufficient by itself.
+The orchestrator must inspect worker output, resolve integration issues, run relevant automated tests after
+implementation, and report remaining uncertainty. Use repository-local test harnesses when no package test script
+exists. Do not use ADB to run tests. A worker saying that a task is complete is not sufficient by itself.
 
-For substantial changes, use an independent review or meaningful test subtask when a suitable independent scope exists. Do not force redundant reviews for trivial edits. Reviewers should receive acceptance criteria and evidence, not instructions to approve a predetermined conclusion.
+For substantial changes, use an independent review or meaningful test subtask when a suitable independent scope exists.
+Do not force redundant reviews for trivial edits. Reviewers should receive acceptance criteria and evidence, not
+instructions to approve a predetermined conclusion.

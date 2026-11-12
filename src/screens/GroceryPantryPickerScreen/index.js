@@ -2,14 +2,14 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { ShoppingListIcon } from '../../assets/icons/export';
 import Navbar from '../../components/Navbar';
+import SearchField from '../../components/SearchField';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
 import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
 import { listPantries } from '../../services/pantryService';
 import {
-  Card, ColorCircle, Content, EmptyText, Header, List, PantryName,
+  Avatar, Card, ColorCircle, Content, EmptyText, GradientBackground, Header, List, PantryName, SearchArea, TitleRow,
   RetryButton, RetryText, Screen, StatusText, Subtitle, Title,
 } from './styles';
 
@@ -20,6 +20,9 @@ export default function GroceryPantryPickerScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const normalize = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const filteredPantries = pantries.filter((pantry) => normalize(pantry.name).includes(normalize(searchQuery)));
 
   useFocusEffect(useCallback(() => {
     let active = true;
@@ -34,13 +37,18 @@ export default function GroceryPantryPickerScreen({ navigation }) {
   const handleNavbar = (key, item) => {
     if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME);
     else if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
+    else if (key === 'dashboard') navigation.navigate(AUTHENTICATED_ROUTES.DASHBOARD_PANTRY_PICKER);
     else if (key !== 'shopping-list') Alert.alert(t('shopping.upcoming'), t('shopping.availableSoon', { label: item.label }), [{ text: t('common.ok') }]);
   };
 
   return (
     <Screen edges={['top', 'right', 'left']}>
+      <GradientBackground />
       <Content>
-        <Header><ShoppingListIcon size={28} color="#00DD00" /><Title>{t('shopping.title')}</Title></Header>
+        <Header>
+          <TitleRow><Avatar $color={account?.avatarColor} /><Title>{t('shopping.title')}</Title></TitleRow>
+          <SearchArea><SearchField accessibilityLabel={t('pantries.searchA11y')} placeholder={t('pantries.search')} value={searchQuery} onChangeText={setSearchQuery} /></SearchArea>
+        </Header>
         <Subtitle>{t('shopping.choosePantry')}</Subtitle>
         {loading ? <ActivityIndicator accessibilityLabel={t('shopping.loadingPantries')} /> : error ? (
           <>
@@ -51,9 +59,11 @@ export default function GroceryPantryPickerScreen({ navigation }) {
           </>
         ) : pantries.length === 0 ? (
           <EmptyText>{t('shopping.noPantries')}</EmptyText>
+        ) : filteredPantries.length === 0 ? (
+          <EmptyText>{t('pantries.noneFound')}</EmptyText>
         ) : (
           <List>
-            {pantries.map((pantry) => (
+            {filteredPantries.map((pantry) => (
               <Card key={pantry.id} accessibilityRole="button" accessibilityLabel={t('shopping.openPantryLists', { name: pantry.name })} onPress={() => navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_LIST, { pantryId: pantry.id })}>
                 <ColorCircle $color={pantry.color} />
                 <PantryName numberOfLines={1} ellipsizeMode="tail">{pantry.name}</PantryName>

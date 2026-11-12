@@ -1,122 +1,343 @@
 # SDD — integração e fluxos definidos até 10 de outubro de 2026
 
-Status: especificação funcional atualizada até 10 de outubro de 2026. Não confirma API implementada nem migração aplicada no banco hospedado.
+Status: especificação funcional atualizada até 10 de outubro de 2026. Não confirma API implementada nem migração
+aplicada no banco hospedado.
 
 ## Fontes e precedência
 
-- O marco de 14 de setembro em `milestone-2026-09-14.md` descreve o MVP local e permanece como referência histórica de sua implementação.
-- Este SDD e as decisões datadas em `../project/decisions.md` descrevem os fluxos posteriores discutidos com o grupo. Decisões posteriores do usuário prevalecem quando divergem do marco antigo.
-- `../architecture/hosted-database-model-2026-10-05.json` é o retrato inicial da modelagem MySQL recebido em 5 de outubro. `../architecture/hosted-database.sql` é o último script SQL recebido, de 1º de outubro, e já não representa as mudanças dos retratos posteriores.
-- O modelo oficial fechado recebido em 8 de outubro está preservado em `../architecture/hosted-database-model-2026-10-08.json`; ele atualiza a referência recebida em 6 de outubro. Ainda não confirma o esquema implantado nem o contrato da API.
-- As decisões de 9 de outubro em `../project/decisions.md` atualizam os fluxos de finalização, revisão fiscal, normalização e comportamento da página de listas descritos anteriormente neste documento.
-- As decisões de 10 de outubro em `../project/decisions.md` registram a edição local do perfil e da despensa e o respiro do ícone adaptável Android; elas não confirmam nem alteram o contrato do backend.
-- O backend e o banco são mantidos por outra parte da equipe. Este documento especifica comportamento do mobile e contratos a confirmar; não autoriza presumir que campos ou rotas já estejam disponíveis.
+- O marco de 14 de setembro em `milestone-2026-09-14.md` descreve o MVP local e permanece como referência histórica de
+  sua implementação.
+- Este SDD e as decisões datadas em `../project/decisions.md` descrevem os fluxos posteriores discutidos com o grupo.
+  Decisões posteriores do usuário prevalecem quando divergem do marco antigo.
+- `../architecture/hosted-database-model-2026-10-05.json` é o retrato inicial da modelagem MySQL recebido em 5 de
+  outubro. `../architecture/hosted-database.sql` é o último script SQL recebido, de 1º de outubro, e já não representa
+  as mudanças dos retratos posteriores.
+- O modelo oficial fechado recebido em 8 de outubro está preservado em
+  `../architecture/hosted-database-model-2026-10-08.json`; ele atualiza a referência recebida em 6 de outubro. Ainda não
+  confirma o esquema implantado nem o contrato da API.
+- As decisões de 9 de outubro em `../project/decisions.md` atualizam os fluxos de finalização, revisão fiscal,
+  normalização e comportamento da página de listas descritos anteriormente neste documento.
+- As decisões de 10 de outubro em `../project/decisions.md` registram a edição local do perfil e da despensa e o respiro
+  do ícone adaptável Android; elas não confirmam nem alteram o contrato do backend.
+- O backend e o banco são mantidos por outra parte da equipe. Este documento especifica comportamento do mobile e
+  contratos a confirmar; não autoriza presumir que campos ou rotas já estejam disponíveis.
 
 ## Compras, produtos e estoque
 
-- Todo produto hospedado pertence a uma compra, e toda compra pertence a uma despensa. A adição manual de um produto deverá consumir a rota de compras e criar uma compra com esse produto.
-- `purchases` representa compras operacionais; seus registros também alimentam histórico e dashboards. Compras não devem ser apagadas. Produtos novos iniciam com `pantry_products.is_deleted = false`; ao removê-los da visualização, o campo passa a `true`, sem apagar o registro. Saldo zero, por si só, não altera `is_deleted`. Um saldo zerado poderá voltar a receber unidades.
-- Cada ocorrência do produto em uma compra mantém ID próprio. O modelo de 5 de outubro separa `pantry_products.quantity` (quantidade comprada) de `current_quantity` (saldo). O histórico e o cálculo do preço unitário devem usar a quantidade comprada, nunca o saldo restante. `pantry_products.price` representa o preço total daquele item na compra; `purchases.total_price` representa o total da compra.
-- O front soma o saldo dos registros equivalentes da despensa. Ao reduzir o saldo agregado, o backend consome primeiro o registro da compra mais antiga que ainda tenha saldo; ao aumentar pelo controle de estoque, acrescenta ao registro da compra mais recente. Compras na mesma data podem ser escolhidas em qualquer ordem. Alterações simultâneas de participantes devem ser aplicadas de forma consistente pelo backend, e o front exibe o saldo confirmado pela API.
-- Produtos em embalagens ou apresentações diferentes não são somados. Marcas diferentes são registros distintos. O usuário poderá escolher visualizá-los juntos ou separados por marca sem fundir os registros. A persistência dessa preferência ainda não foi definida.
-- A medida fracionada de um produto vendido por peso ou volume, como 0,750 kg de carne, será guardada em `content_value` com `unit_of_measure`. `quantity` e `current_quantity` aparecem como inteiros no retrato recebido. A unidade de medida será um enum; os valores finais e a regra para consumo parcial da medida ainda precisam ser confirmados.
+- Decisão de 1º de novembro: na edição do preço unitário de uma ocorrência, calcular o total usando a quantidade
+  comprada original, sem usar o saldo. Quando a compra é manual e contém apenas uma ocorrência, atualizar também o total
+  da compra. Em NFC-e ou compras com vários produtos, preservar o total original da compra. O contrato hospedado
+  permanece a confirmar.
+
+- Todo produto hospedado pertence a uma compra, e toda compra pertence a uma despensa. A adição manual de um produto
+  deverá consumir a rota de compras e criar uma compra com esse produto.
+- `purchases` representa compras operacionais; seus registros também alimentam histórico e dashboards. Compras não devem
+  ser apagadas. Produtos novos iniciam com `pantry_products.is_deleted = false`; ao removê-los da visualização, o campo
+  passa a `true`, sem apagar o registro. Saldo zero, por si só, não altera `is_deleted`. Um saldo zerado poderá voltar a
+  receber unidades.
+- Cada ocorrência do produto em uma compra mantém ID próprio. O modelo de 5 de outubro separa `pantry_products.quantity`
+  (quantidade comprada) de `current_quantity` (saldo). O histórico e o cálculo do preço unitário devem usar a quantidade
+  comprada, nunca o saldo restante. `pantry_products.price` representa o preço total daquele item na compra;
+  `purchases.total_price` representa o total da compra.
+- O front soma o saldo dos registros equivalentes da despensa. Ao reduzir o saldo agregado, o backend consome primeiro o
+  registro da compra mais antiga que ainda tenha saldo; ao aumentar pelo controle de estoque, acrescenta ao registro da
+  compra mais recente. Como `purchase_date` guarda somente o dia, compras na mesma data usam a ordem de inserção como
+  desempate: a primeira é a mais antiga e a última, a mais recente. Alterações simultâneas de participantes devem ser
+  aplicadas de forma consistente pelo backend, e o front exibe o saldo confirmado pela API.
+- Produtos em embalagens ou apresentações diferentes não são somados. Marcas diferentes são registros distintos. A
+  preferência local por despensa pode juntá-las ou separá-las visualmente sem fundir registros. Separadas, cada
+  marca/apresentação tem saldo e aviso de esgotamento próprios, inclusive quando outra marca equivalente ainda tem
+  estoque; agrupadas, o aviso ocorre quando o saldo combinado chega a zero.
+- A medida fracionada de um produto vendido por peso ou volume, como 0,750 kg de carne, será guardada em `content_value`
+  com `unit_of_measure`. `quantity` e `current_quantity` aparecem como inteiros no retrato recebido. A unidade de medida
+  será um enum; os valores finais e a regra para consumo parcial da medida ainda precisam ser confirmados.
 
 ## NFC-e e identificação da compra
 
-- A mesma NFC-e não poderá ser importada duas vezes na mesma despensa, mas poderá ser usada em despensas diferentes. O identificador será o código único no início do parâmetro `p` do link do QR Code: extrair o trecho após `p=` e antes do primeiro `|`, descartando os demais segmentos do parâmetro. O modelo final recebido em 6 de outubro nomeia o campo `purchases.qr_code_id`; rota, formato aceito e validação do contrato da API ainda precisam ser confirmados.
-- A decisão inicial de não criar tabela de mercados foi substituída pela decisão de 8 de outubro registrada abaixo. Na importação, o CNPJ ainda pode vir da nota, mas não substitui o vínculo ao mercado escolhido.
-- O modelo recebido usa `purchases.is_finished` e `finish_date` opcional. Esses campos substituem, no retrato da modelagem, o antigo `finish_products NOT NULL` do script SQL de 1º de outubro. A API e a migração efetiva precisam ser verificadas antes de integrar.
+- A mesma NFC-e não poderá ser importada duas vezes na mesma despensa, mas poderá ser usada em despensas diferentes. O
+  identificador será o código único no início do parâmetro `p` do link do QR Code: extrair o trecho após `p=` e antes do
+  primeiro `|`, descartando os demais segmentos do parâmetro. O modelo final recebido em 6 de outubro nomeia o campo
+  `purchases.qr_code_id`; rota, formato aceito e validação do contrato da API ainda precisam ser confirmados.
+- A decisão inicial de não criar tabela de mercados foi substituída pela decisão de 8 de outubro registrada abaixo. Na
+  importação, o CNPJ ainda pode vir da nota, mas não substitui o vínculo ao mercado escolhido.
+- O modelo recebido usa `purchases.is_finished` e `finish_date` opcional. Esses campos substituem, no retrato da
+  modelagem, o antigo `finish_products NOT NULL` do script SQL de 1º de outubro. A API e a migração efetiva precisam ser
+  verificadas antes de integrar.
 
 ## Listas de compras hospedadas
 
-- As listas deste fluxo serão persistidas no banco hospedado em `grocery_lists` e `grocery_list_products`; itens planejados não são `pantry_products` e não usam `grocery_lists_pantry_products`. Compras realizadas por NFC-e ou adição manual também serão enviadas ao banco hospedado. A API e o esquema implantado ainda precisam ser confirmados.
-- Quando um produto chegar a zero, o app pergunta se o usuário quer incluí-lo numa lista. Se não houver lista, sugere criar uma com nome; a data planejada da compra é opcional. A inclusão depende de escolha explícita do usuário.
-- Uma despensa pode ter várias listas, para compras previstas em locais ou períodos diferentes. O usuário escolhe a lista de destino. Cada item ainda planejado fica em `grocery_list_products` com seu próprio ID e `grocery_list_id`; nomes repetidos em listas diferentes não implicam entidade compartilhada nem fusão automática. Após a compra, os produtos de estoque são registrados em `pantry_products` e ligados à compra.
-- Neste fluxo, o item da lista apresenta somente o nome do produto, sem marca ou demais atributos. O sistema deverá lembrar as listas usadas anteriormente e sugeri-las quando o produto voltar a acabar, sem impedir a escolha de outra lista. A relação necessária para essa sugestão e o gatilho para produtos agregados ainda precisam ser definidos com o backend.
-- Atualização de 6 e 8 de outubro: a estimativa usa compras da mesma despensa e busca itens pelo nome normalizado; unidade e conteúdo priorizam apresentações iguais quando disponíveis. O preço por ocorrência comprada é `price / quantity`, e o estimador-base usa a mediana das até três observações mais recentes. Quando `grocery_lists.location` contém o CEP do mercado escolhido, a soma de `grocery_lists.estimated_price` deve usar apenas o histórico de compras (`purchases.location`) daquele CEP. Itens sem histórico nesse mercado não entram na soma; o app informa quais faltam para aproximar a estimativa. CEP e valor estimado permanecem na lista para o histórico, e o CEP também é gravado em `purchases.location` ao concluir a lista. Sem CEP na lista ativa, as sugestões controlam o cartão e cada opção pode exibir a estimativa para o mercado sugerido. Remover o CEP da lista ativa reabre as opções de sugestão; os CEPs de compras já concluídas permanecem no histórico. A sugestão de custo-benefício compara o total estimado por CEP; proximidade usa os CEPs distintos do histórico e o CEP da despensa via Maps; marcas são inferidas de `pantry_products.brand` no histórico por mercado, sem coluna de marca em `grocery_list_products`. Listas concluídas preservam seu total estimado e CEP. O contrato da API e a implantação ainda precisam ser verificados.
-- Listas concluídas podem deixar a tela ativa e continuar no histórico hospedado. Repetir uma lista cria uma nova versão editável; a versão histórica fica intacta. O modelo final já explicita despensa e data, mas não estado ativo/concluído; a representação do histórico e a sincronização entre participantes precisam constar do contrato do backend.
-- A data planejada da lista é opcional ao criar, editar ou repetir uma lista. A data efetiva obrigatória em `purchases.purchase_date` representa o dia da compra realizada e é registrada ao concluir a lista, não no formulário de planejamento.
-- A entrada em listas de compras pela Navbar abre primeiro uma seleção da despensa. A página da despensa exibe apenas listas ativas; o histórico de listas concluídas é aberto por um botão próprio em modal. A retirada de itens de uma lista usa um modo de seleção com confirmação, separado da marcação de itens comprados.
-- O modelo final separa itens planejados (`grocery_list_products`) de produtos comprados (`pantry_products`, com `purchase_id` obrigatório), sem exigir compra fictícia para uma lista. O contrato da API ainda precisa definir como a conclusão converte os itens planejados em compra e estoque.
-- Status informado pelo usuário em 9 de outubro: a página de listas e as sugestões de mercado estão concluídas e validadas no Android. A fixture de demonstração permanece desligada. O fluxo de finalização manual/NFC-e e a normalização foram implementados no simulador local; a validação física Android desse fluxo permanece registrada como próxima verificação em `../project/current-state.md`.
-- Direção definida em 9 de outubro para a próxima finalização: oferecer entrada manual ou leitura de NFC-e por QR Code. Ambos os caminhos coletam a data efetiva da compra (hoje ou data anterior) e mercado opcional selecionado pelo Places. Na leitura, tentar vincular linhas da nota aos itens genéricos da lista e preencher quantidade, preço e marca encontrados. A lista não armazena marca; a marca só é aplicada quando a compra finalizada cria `pantry_products`. Itens sem vínculo devem ser destacados e revisados antes de qualquer gravação; o usuário escolhe explicitamente adicionar ou ignorar cada um, podendo vincular e completar dados manualmente. Normalizar descrições fiscais para nome legível e marca separada (ex.: `CAIXA DE CHOCOLATE PRESTIGIO NESTLE` → `Caixa de Chocolate Prestígio`, marca `Nestlé`). Cada ocorrência comprada mantém ID, vínculo à compra, quantidade original e saldo próprio. O front soma `current_quantity` de ocorrências equivalentes da mesma apresentação/tamanho/unidade; tamanhos diferentes ficam separados. A visualização pode agrupar ou separar marcas, incluindo itens sem marca, sem fundir registros. Ao reduzir o agregado, o serviço de estoque consome primeiro a ocorrência mais antiga com saldo; ao aumentar, acrescenta à mais recente. O simulador local deve espelhar esse contrato sem alterar o esquema hospedado.
-- Requisito de segurança dos dados e clareza: antes da confirmação, mostrar para cada linha a descrição fiscal original, os campos extraídos e o resultado exato na despensa (nome, marca, tamanho/unidade, vínculo e agrupamento visual). Permitir corrigir esses campos. Correspondências ambíguas exigem decisão manual; nenhum nome, vínculo, marca ou saldo pode ser alterado silenciosamente. A nuvem mantém apenas o modelo atual: ocorrência `pantry_products` por compra, sem ID canônico ou nova coluna para a linha fiscal original. Metadados e preferências necessários ao front podem ficar somente no aparelho, fora do contrato remoto. Calcular no front o saldo agregado somando `current_quantity` das ocorrências equivalentes por nome normalizado e tamanho/unidade; não usar correspondência difusa para somar. As ocorrências e `quantity` original não são fundidas. A preferência de agrupar marcas, inclusive itens sem marca, só muda a apresentação; reduzir o total consome o registro mais antigo e aumentar acrescenta ao mais recente. Na tela da despensa, perguntar a exibição quando houver duas ocorrências de nome normalizado e tamanho equivalente, mesmo que tenham marcas diferentes; vincular a preferência à apresentação específica e repetir o aviso a cada nova ocorrência. Não exibir essa opção no modal de filtros. O simulador local deve seguir essas regras sem alterar o esquema hospedado.
-- Na NFC-e, usar a data extraída como `purchases.purchase_date`, exibir preenchida e sem edição. Na entrada manual, a data pode ser escolhida pelo usuário; o front converte preço unitário ou total do item para os campos atuais `pantry_products.price` (total da ocorrência) e `purchases.total_price` (total da compra). O item planejado não armazena marca; a marca reconhecida ou informada é aplicada ao `pantry_products` criado ao finalizar. Para categoria, usar a da lista no novo registro; se o vínculo apontar para produto já existente com categoria diferente, mostrar o conflito e deixar o usuário escolher qual manter. A escolha muda somente a nova ocorrência. O app sempre tenta o vínculo automático e solicita ação manual quando não houver correspondência segura. A preferência de agrupar/separar marcas fica no aparelho e será solicitada novamente após reinstalação; seu escopo é por despensa. Se itens da lista não forem localizados, avisar e oferecer registro manual dos dados ou a opção de não adicioná-los. Exibir linhas fiscais sem vínculo separadamente para que o usuário possa associá-las manualmente, adicioná-las como novos produtos com dados manuais ou ignorá-las. Cada linha fiscal pode ser associada a, no máximo, um item genérico da lista, e cada item genérico pode ser usado por uma única linha fiscal; cada ocorrência conserva seu próprio ID, compra, marca e preço. A lista vai ao histórico mesmo se alguns itens não forem comprados.
+- Decisão de 1º de novembro: uma lista sem itens cadastrados não pode ser finalizada; orientar a adicionar um produto ou
+  excluir a lista. Para lista com itens, na finalização manual sem produtos selecionados, confirmar com aviso e concluir
+  apenas a lista, sem criar compra nem estoque. Na NFC-e, registrar a compra mesmo sem produtos selecionados,
+  preservando a proteção contra importação duplicada. O contrato hospedado permanece a confirmar.
 
-Decisões finais confirmadas em 9 de outubro: a lista sempre é concluída e mantida no histórico, mesmo se itens não forem comprados; esses itens não entram no estoque. A categoria escolhida após um conflito aplica-se apenas à nova ocorrência. A preferência de agrupar marcas fica salva localmente por despensa e é solicitada novamente após reinstalação.
+- As listas deste fluxo serão persistidas no banco hospedado em `grocery_lists` e `grocery_list_products`; itens
+  planejados não são `pantry_products` e não usam `grocery_lists_pantry_products`. Compras realizadas por NFC-e ou
+  adição manual também serão enviadas ao banco hospedado. A API e o esquema implantado ainda precisam ser confirmados.
+- Quando um produto chegar a zero, o app pergunta se o usuário quer incluí-lo numa lista. Se não houver lista, sugere
+  criar uma com nome; a data planejada da compra é opcional. A inclusão depende de escolha explícita do usuário.
+- Uma despensa pode ter várias listas, para compras previstas em locais ou períodos diferentes. O usuário escolhe a
+  lista de destino. Cada item ainda planejado fica em `grocery_list_products` com seu próprio ID e `grocery_list_id`;
+  nomes repetidos em listas diferentes não implicam entidade compartilhada nem fusão automática. Após a compra, os
+  produtos de estoque são registrados em `pantry_products` e ligados à compra.
+- Neste fluxo, o item da lista apresenta somente o nome do produto, sem marca ou demais atributos. O sistema deverá
+  lembrar as listas usadas anteriormente e sugeri-las quando o produto voltar a acabar, sem impedir a escolha de outra
+  lista. A relação necessária para essa sugestão e o gatilho para produtos agregados ainda precisam ser definidos com o
+  backend.
+- Atualização de 6 e 8 de outubro: a estimativa usa compras da mesma despensa e busca itens pelo nome normalizado;
+  unidade e conteúdo priorizam apresentações iguais quando disponíveis. O preço por ocorrência comprada é
+  `price / quantity`, e o estimador-base usa a mediana das até três observações mais recentes. Quando
+  `grocery_lists.location` contém o CEP do mercado escolhido, a soma de `grocery_lists.estimated_price` deve usar apenas
+  o histórico de compras (`purchases.location`) daquele CEP. Itens sem histórico nesse mercado não entram na soma; o app
+  informa quais faltam para aproximar a estimativa. CEP e valor estimado permanecem na lista para o histórico, e o CEP
+  também é gravado em `purchases.location` ao concluir a lista. Sem CEP na lista ativa, as sugestões controlam o cartão
+  e cada opção pode exibir a estimativa para o mercado sugerido. Remover o CEP da lista ativa reabre as opções de
+  sugestão; os CEPs de compras já concluídas permanecem no histórico. A sugestão de custo-benefício compara o total
+  estimado por CEP; proximidade usa os CEPs distintos do histórico e o CEP da despensa via Maps; marcas são inferidas de
+  `pantry_products.brand` no histórico por mercado, sem coluna de marca em `grocery_list_products`. Listas concluídas
+  preservam seu total estimado e CEP. O contrato da API e a implantação ainda precisam ser verificados.
+- Listas concluídas podem deixar a tela ativa e continuar no histórico hospedado. Repetir uma lista cria uma nova versão
+  editável; a versão histórica fica intacta. O modelo final já explicita despensa e data, mas não estado
+  ativo/concluído; a representação do histórico e a sincronização entre participantes precisam constar do contrato do
+  backend.
+- A data planejada da lista é opcional ao criar, editar ou repetir uma lista. A data efetiva obrigatória em
+  `purchases.purchase_date` representa o dia da compra realizada e é registrada ao concluir a lista, não no formulário
+  de planejamento.
+- A entrada em listas de compras pela Navbar abre primeiro uma seleção da despensa. A página da despensa exibe apenas
+  listas ativas; o histórico de listas concluídas é aberto por um botão próprio em modal. A retirada de itens de uma
+  lista usa um modo de seleção com confirmação, separado da marcação de itens comprados.
+- O modelo final separa itens planejados (`grocery_list_products`) de produtos comprados (`pantry_products`, com
+  `purchase_id` obrigatório), sem exigir compra fictícia para uma lista. O contrato da API ainda precisa definir como a
+  conclusão converte os itens planejados em compra e estoque.
+- Status informado pelo usuário em 9 de outubro: a página de listas e as sugestões de mercado estão concluídas e
+  validadas no Android. A fixture de demonstração permanece desligada. O fluxo de finalização manual/NFC-e e a
+  normalização foram implementados no simulador local; a validação física Android desse fluxo permanece registrada como
+  próxima verificação em `../project/current-state.md`.
+- Direção definida em 9 de outubro para a próxima finalização: oferecer entrada manual ou leitura de NFC-e por QR Code.
+  Ambos os caminhos coletam a data efetiva da compra (hoje ou data anterior) e mercado opcional selecionado pelo Places.
+  Na leitura, tentar vincular linhas da nota aos itens genéricos da lista e preencher quantidade, preço e marca
+  encontrados. A lista não armazena marca; a marca só é aplicada quando a compra finalizada cria `pantry_products`.
+  Itens sem vínculo devem ser destacados e revisados antes de qualquer gravação; o usuário escolhe explicitamente
+  adicionar ou ignorar cada um, podendo vincular e completar dados manualmente. Normalizar descrições fiscais para nome
+  legível e marca separada (ex.: `CAIXA DE CHOCOLATE PRESTIGIO NESTLE` → `Caixa de Chocolate Prestígio`, marca
+  `Nestlé`). Cada ocorrência comprada mantém ID, vínculo à compra, quantidade original e saldo próprio. O front soma
+  `current_quantity` de ocorrências equivalentes da mesma apresentação/tamanho/unidade; tamanhos diferentes ficam
+  separados. A visualização pode agrupar ou separar marcas, incluindo itens sem marca, sem fundir registros. Ao reduzir
+  o agregado, o serviço de estoque consome primeiro a ocorrência mais antiga com saldo; ao aumentar, acrescenta à mais
+  recente. O simulador local deve espelhar esse contrato sem alterar o esquema hospedado.
+- Requisito de segurança dos dados e clareza: antes da confirmação, mostrar para cada linha a descrição fiscal original,
+  os campos extraídos e o resultado exato na despensa (nome, marca, tamanho/unidade, vínculo e agrupamento visual).
+  Permitir corrigir esses campos. Correspondências ambíguas exigem decisão manual; nenhum nome, vínculo, marca ou saldo
+  pode ser alterado silenciosamente. A nuvem mantém apenas o modelo atual: ocorrência `pantry_products` por compra, sem
+  ID canônico ou nova coluna para a linha fiscal original. Metadados e preferências necessários ao front podem ficar
+  somente no aparelho, fora do contrato remoto. Calcular no front o saldo agregado somando `current_quantity` das
+  ocorrências equivalentes por nome normalizado e tamanho/unidade; não usar correspondência difusa para somar. As
+  ocorrências e `quantity` original não são fundidas. A preferência de agrupar marcas, inclusive itens sem marca, só
+  muda a apresentação; reduzir o total consome o registro mais antigo e aumentar acrescenta ao mais recente. Na tela da
+  despensa, perguntar a exibição quando houver duas ocorrências de nome normalizado e tamanho equivalente, mesmo que
+  tenham marcas diferentes; vincular a preferência à apresentação específica e repetir o aviso a cada nova ocorrência.
+  Não exibir essa opção no modal de filtros. O simulador local deve seguir essas regras sem alterar o esquema hospedado.
+- Na NFC-e, usar a data extraída como `purchases.purchase_date`, exibir preenchida e sem edição. Na entrada manual, a
+  data pode ser escolhida pelo usuário; o front converte preço unitário ou total do item para os campos atuais
+  `pantry_products.price` (total da ocorrência) e `purchases.total_price` (total da compra). O item planejado não
+  armazena marca; a marca reconhecida ou informada é aplicada ao `pantry_products` criado ao finalizar. Para categoria,
+  usar a da lista no novo registro; se o vínculo apontar para produto já existente com categoria diferente, mostrar o
+  conflito e deixar o usuário escolher qual manter. A escolha muda somente a nova ocorrência. O app sempre tenta o
+  vínculo automático e solicita ação manual quando não houver correspondência segura. A preferência de agrupar/separar
+  marcas fica no aparelho e será solicitada novamente após reinstalação; seu escopo é por despensa. Se itens da lista
+  não forem localizados, avisar e oferecer registro manual dos dados ou a opção de não adicioná-los. Exibir linhas
+  fiscais sem vínculo separadamente para que o usuário possa associá-las manualmente, adicioná-las como novos produtos
+  com dados manuais ou ignorá-las. Cada linha fiscal pode ser associada a, no máximo, um item genérico da lista, e cada
+  item genérico pode ser usado por um único produto revisado da nota; cada ocorrência conserva seu próprio ID, compra,
+  marca e preço. Linhas com a mesma descrição fiscal normalizada e unidade de venda são exibidas como um produto com
+  quantidade e preço somados, com aviso do número de linhas agrupadas; o vínculo e a gravação criam uma ocorrência. Os
+  dados das linhas originais são preservados em `sourceItems`. Como o portal fiscal pode separar linhas consolidadas no
+  comprovante impresso, o app soma linhas idênticas sem mostrar aviso de duplicidade nem exigir revisão adicional por
+  causa do agrupamento. Ambiguidades reais de extração continuam exigindo revisão. A lista vai ao histórico mesmo se
+  alguns itens não forem comprados.
+
+Decisões finais confirmadas em 9 de outubro: a lista sempre é concluída e mantida no histórico, mesmo se itens não forem
+comprados; esses itens não entram no estoque. A categoria escolhida após um conflito aplica-se apenas à nova ocorrência.
+A preferência de agrupar marcas fica salva localmente por despensa e é solicitada novamente após reinstalação.
 
 ## Atualização do modelo recebida em 8 de outubro
 
-O JSON oficial fechado recebido em 8 de outubro, preservado em `docs/architecture/hosted-database-model-2026-10-08.json`, define `grocery_lists.pantry_id`, `date`, `location`, `suggestion`, `estimated_price` e `is_active`. `grocery_lists.is_active` é `true` para lista ativa e `false` para concluída; isso não remove nem substitui o campo distinto `purchases.is_finished` presente no retrato recebido. Cada item planejado fica em `grocery_list_products`, com nome, quantidade, medida, marcação de retirada, `category_id` (chave para `categories.id`) e chave da lista. `pantry_products` mantém `is_in_pantry` e também `is_deleted`; a remoção lógica usa `is_deleted`, conforme a decisão de 6 de outubro. `purchases.qr_code_id` é a coluna disponível para guardar o código da NFC-e extraído do parâmetro `p`.
+O JSON oficial fechado recebido em 8 de outubro, preservado em
+`docs/architecture/hosted-database-model-2026-10-08.json`, define `grocery_lists.pantry_id`, `date`, `location`,
+`suggestion`, `estimated_price` e `is_active`. `grocery_lists.is_active` é `true` para lista ativa e `false` para
+concluída; isso não remove nem substitui o campo distinto `purchases.is_finished` presente no retrato recebido. Cada
+item planejado fica em `grocery_list_products`, com nome, quantidade, medida, marcação de retirada, `category_id` (chave
+para `categories.id`) e chave da lista. `pantry_products` mantém `is_in_pantry` e também `is_deleted`; a remoção lógica
+usa `is_deleted`, conforme a decisão de 6 de outubro. `purchases.qr_code_id` é a coluna disponível para guardar o código
+da NFC-e extraído do parâmetro `p`.
 
 ## Decisão posterior de 8 de outubro: mercado como entidade
 
-O usuário aprovou uma entidade `markets` com `id` interno, CEP, latitude e longitude. O CEP não é único; as coordenadas permitem distinguir unidades no mesmo CEP. `grocery_lists` e `purchases` passam a referenciar o mercado escolhido por `market_id` opcional. O nome escolhido pelo usuário permanece local no aparelho. O `place_id` do Google não será chave primária. A modelagem está detalhada em `../architecture/markets-model-addendum-2026-10-08.md`.
+O usuário aprovou uma entidade `markets` com `id` interno, CEP, latitude e longitude. O CEP não é único; as coordenadas
+permitem distinguir unidades no mesmo CEP. `grocery_lists` e `purchases` passam a referenciar o mercado escolhido por
+`market_id` opcional. O nome escolhido pelo usuário permanece local no aparelho. O `place_id` do Google não será chave
+primária. A modelagem está detalhada em `../architecture/markets-model-addendum-2026-10-08.md`.
 
-Esta decisão substitui as regras anteriores de comparação e associação de histórico exclusivamente por CEP. As estimativas e sugestões devem agrupar compras e listas por `market_id`; CEP segue disponível no registro relacionado `markets`. O usuário informou em 9 de outubro que a entidade, os vínculos e o tratamento do histórico legado serão ajustados no banco hospedado pela equipe responsável; isso não é uma pendência atual do mobile. O JSON oficial recebido em 8 de outubro continua sendo a fotografia do modelo anterior, não a confirmação da implantação.
+Esta decisão substitui as regras anteriores de comparação e associação de histórico exclusivamente por CEP. As
+estimativas e sugestões devem agrupar compras e listas por `market_id`; CEP segue disponível no registro relacionado
+`markets`. O usuário informou em 9 de outubro que a entidade, os vínculos e o tratamento do histórico legado serão
+ajustados no banco hospedado pela equipe responsável; isso não é uma pendência atual do mobile. O JSON oficial recebido
+em 8 de outubro continua sendo a fotografia do modelo anterior, não a confirmação da implantação.
 
 ### Regra posterior de embalagem para a estimativa — 8 de outubro de 2026
 
-Peso/volume de um item planejado é opcional; a categoria é obrigatória, conforme `grocery_list_products.category_id`. Sem peso/volume, o estimador escolhe a apresentação histórica mais recorrente dentro da categoria no mercado considerado, usando recência para desempatar, e calcula o preço do pacote pelas até três ocorrências mais recentes dessa apresentação. Se não houver histórico nessa categoria, o estimador usa as ocorrências compatíveis pelo nome em outras categorias. Com peso/volume informado, a apresentação exata tem prioridade; sem uma correspondência exata, o valor é normalizado por g/ml dentro da mesma unidade de medida para estimar o tamanho solicitado.
+Peso/volume de um item planejado é opcional; a categoria é obrigatória, conforme `grocery_list_products.category_id`.
+Sem peso/volume, o estimador escolhe a apresentação histórica mais recorrente dentro da categoria no mercado
+considerado, usando recência para desempatar, e calcula o preço do pacote pelas até três ocorrências mais recentes dessa
+apresentação. Se não houver histórico nessa categoria, o estimador usa as ocorrências compatíveis pelo nome em outras
+categorias. Com peso/volume informado, a apresentação exata tem prioridade; sem uma correspondência exata, o valor é
+normalizado por g/ml dentro da mesma unidade de medida para estimar o tamanho solicitado.
 
 ### Sugestões de mercado e fixture local de desenvolvimento — 8 de outubro de 2026
 
-- Quando a lista ativa não tem mercado definido, o cartão oferece três tipos: **Mais perto**, **Melhor custo-benefício** e **Marcas mais compradas**. O usuário pode trocar o tipo de sugestão e ver o mercado e a estimativa correspondente. Se escolher um CEP/mercado na lista, esse mercado determina a estimativa e o histórico da compra; remover o mercado volta a habilitar as sugestões.
-- As candidatas vêm dos mercados vinculados a compras do histórico da mesma despensa (`purchases.market_id`). A proximidade compara a localização da despensa geocodificada pelo Google Maps com latitude/longitude dos mercados. Custo-benefício compara cobertura e total estimado por mercado. A preferência de marca é inferida de `pantry_products.brand` e da disponibilidade dessa marca no histórico de cada mercado; não se adiciona coluna de marca aos itens planejados.
-- Toda quantia calculada para uma lista ou sugestão é rotulada visivelmente como estimada; ao abrir as opções de mercado, a interface explica que o valor se baseia no histórico e pode variar. O preço informado pelo usuário no fluxo de conclusão continua representando o valor pago e não recebe esse rótulo.
-- Em desenvolvimento, a fixture usa três estabelecimentos reais da zona sul de São Paulo e produtos/marcas reais para uma lista com categoria obrigatória e embalagens definidas. Ela cria compras anteriores sintéticas para que as opções possam ser exercitadas sem recibos do usuário. Os preços são referências demonstrativas, não preços transacionais, ofertas válidas ou cotações ao vivo. A fixture não pode ser criada em produção nem sobrescrever compras/listas reais; sua limpeza fica limitada aos marcadores exatos de demonstração.
-- Na fixture de 8 de outubro, use a Estação São Judas, Av. Jabaquara, 2438, como endereço de teste da despensa. Em 9 de outubro, o usuário confirmou como validado no Android o fluxo atual de endereço, nomes de mercados e estimativas. A fixture de demonstração segue desativada por solicitação do usuário.
+- Quando a lista ativa não tem mercado definido, o cartão oferece três tipos: **Mais perto**, **Melhor custo-benefício**
+  e **Marcas mais compradas**. O usuário pode trocar o tipo de sugestão e ver o mercado e a estimativa correspondente.
+  Se escolher um CEP/mercado na lista, esse mercado determina a estimativa e o histórico da compra; remover o mercado
+  volta a habilitar as sugestões.
+- As candidatas vêm dos mercados vinculados a compras do histórico da mesma despensa (`purchases.market_id`). A
+  proximidade compara a localização da despensa geocodificada pelo Google Maps com latitude/longitude dos mercados.
+  Custo-benefício compara cobertura e total estimado por mercado. A preferência de marca é inferida de
+  `pantry_products.brand` e da disponibilidade dessa marca no histórico de cada mercado; não se adiciona coluna de marca
+  aos itens planejados.
+- Toda quantia calculada para uma lista ou sugestão é rotulada visivelmente como estimada; ao abrir as opções de
+  mercado, a interface explica que o valor se baseia no histórico e pode variar. O preço informado pelo usuário no fluxo
+  de conclusão continua representando o valor pago e não recebe esse rótulo.
+- Em desenvolvimento, a fixture usa três estabelecimentos reais da zona sul de São Paulo e produtos/marcas reais para
+  uma lista com categoria obrigatória e embalagens definidas. Ela cria compras anteriores sintéticas para que as opções
+  possam ser exercitadas sem recibos do usuário. Os preços são referências demonstrativas, não preços transacionais,
+  ofertas válidas ou cotações ao vivo. A fixture não pode ser criada em produção nem sobrescrever compras/listas reais;
+  sua limpeza fica limitada aos marcadores exatos de demonstração.
+- Na fixture de 8 de outubro, use a Estação São Judas, Av. Jabaquara, 2438, como endereço de teste da despensa. Em 9 de
+  outubro, o usuário confirmou como validado no Android o fluxo atual de endereço, nomes de mercados e estimativas. A
+  fixture de demonstração segue desativada por solicitação do usuário.
 
 ## Despensas e contas
 
-- A despensa receberá um indicador para deixar de ser exibida sem apagar compras e histórico. Todos os participantes convidados terão as mesmas ações na despensa; não haverá papéis individuais por participante neste escopo.
-- O indicador do usuário é `users.is_active`. O modelo final de 6 de outubro contém tanto `pantry_products.is_in_pantry` quanto `pantry_products.is_deleted`; a remoção lógica usa `is_deleted`, iniciado em `false` e alterado para `true`. Confirmar a implantação do JSON antes da integração.
+- A despensa receberá um indicador para deixar de ser exibida sem apagar compras e histórico. Todos os participantes
+  convidados terão as mesmas ações na despensa; não haverá papéis individuais por participante neste escopo.
+- O indicador do usuário é `users.is_active`. O modelo final de 6 de outubro contém tanto `pantry_products.is_in_pantry`
+  quanto `pantry_products.is_deleted`; a remoção lógica usa `is_deleted`, iniciado em `false` e alterado para `true`.
+  Confirmar a implantação do JSON antes da integração.
 
 ## Atualização de 10 de outubro — edição local do perfil concluída
 
-- O atalho Perfil alterna o componente da parte inferior da Home; o cabeçalho e a navegação permanecem na Home. A interface permite editar nome, e-mail e cor do avatar.
-- A alteração de senha é opcional. Para alterá-la, o usuário preenche nova senha e confirmação; ambas devem coincidir e respeitar o limite de 8 a 20 caracteres. Deixar os dois campos vazios mantém a senha atual. Cada campo tem seu próprio controle para mostrar ou ocultar o texto.
-- O e-mail é validado e não pode pertencer a outra conta local. A gravação atualizada do perfil permanece no armazenamento local, acompanha a conta ativa e não pressupõe rota nem contrato de perfil hospedado. A senha continua persistida como hash, nunca em texto simples.
-- A funcionalidade foi implementada, o bundle Android exportado e o usuário informou que testou o fluxo no aparelho e que aparentemente está tudo correto.
+- O atalho Perfil alterna o componente da parte inferior da Home; o cabeçalho e a navegação permanecem na Home. A
+  interface permite editar nome, e-mail e cor do avatar.
+- A alteração de senha é opcional. Para alterá-la, o usuário preenche nova senha e confirmação; ambas devem coincidir e
+  respeitar o limite de 8 a 20 caracteres. Deixar os dois campos vazios mantém a senha atual. Cada campo tem seu próprio
+  controle para mostrar ou ocultar o texto.
+- O e-mail é validado e não pode pertencer a outra conta local. A gravação atualizada do perfil permanece no
+  armazenamento local, acompanha a conta ativa e não pressupõe rota nem contrato de perfil hospedado. A senha continua
+  persistida como hash, nunca em texto simples.
+- A funcionalidade foi implementada, o bundle Android exportado e o usuário informou que testou o fluxo no aparelho e
+  que aparentemente está tudo correto.
 
 ## Atualização de 10 de outubro — edição local da despensa concluída
 
-- O ícone de configuração nos cards da Home e da página `Despensas` abre o mesmo modal de edição. Nome e cor são obrigatórios; a localização é opcional e continua no modal. A localização atual é preservada ao salvar os outros campos, pode ser removida e, para substituí-la, o usuário seleciona uma sugestão válida do Places.
-- O modal segue o Figma `750:3139`. O seletor de cores aberto segue `775:2517`: o controle mostra o rótulo e a seta; ao abrir, exibe as doze opções sem uma amostra circular ao lado do rótulo. A seção de participantes foi retirada enquanto compartilhar despensas permanecer desativado.
-- A exclusão da despensa apresenta confirmação explícita, avisando que os dados vinculados serão removidos deste dispositivo. A gravação local remove atomicamente a despensa, associações de conta, compras, produtos vinculados, listas e itens; remove também mercados sem referências restantes e o convite se órfão. Após a exclusão, o serviço tenta remover as preferências locais de visualização da despensa.
-- O botão de exclusão usa o componente comum `DangerActionButton`, com raio de 20 px, altura mínima de 45 px, espaçamento interno e estilo de perigo. Produto, lista e despensa passam o texto por propriedade ao mesmo componente.
-- Critérios concluídos no simulador local: editar nome/cor/localização em ambas as telas; preservar ou limpar localização; validar os campos obrigatórios; confirmar ou cancelar exclusão; atualizar imediatamente a listagem e remover vínculos locais sem deixar registros dependentes órfãos. O bundle Android foi exportado com sucesso em 10 de outubro. Validação em aparelho permanece pendente.
-- O comportamento de exclusão acima é do adaptador local. Não determina exclusão física ou lógica, retenção histórica, sincronização de participantes ou cascatas no banco hospedado; esses pontos dependem do contrato de backend e não devem ser inferidos desta implementação.
+- O ícone de configuração nos cards da Home e da página `Despensas` abre o mesmo modal de edição. Nome e cor são
+  obrigatórios; a localização é opcional e continua no modal. A localização atual é preservada ao salvar os outros
+  campos, pode ser removida e, para substituí-la, o usuário seleciona uma sugestão válida do Places.
+- O modal segue o Figma `750:3139`. O seletor de cores aberto segue `775:2517`: o controle mostra o rótulo e a seta; ao
+  abrir, exibe as doze opções sem uma amostra circular ao lado do rótulo. A seção de participantes foi retirada enquanto
+  compartilhar despensas permanecer desativado.
+- A exclusão da despensa apresenta confirmação explícita, avisando que os dados vinculados serão removidos deste
+  dispositivo. A gravação local remove atomicamente a despensa, associações de conta, compras, produtos vinculados,
+  listas e itens; remove também mercados sem referências restantes e o convite se órfão. Após a exclusão, o serviço
+  tenta remover as preferências locais de visualização da despensa.
+- O botão de exclusão usa o componente comum `DangerActionButton`, com raio de 20 px, altura mínima de 45 px,
+  espaçamento interno e estilo de perigo. Produto, lista e despensa passam o texto por propriedade ao mesmo componente.
+- Critérios concluídos no simulador local: editar nome/cor/localização em ambas as telas; preservar ou limpar
+  localização; validar os campos obrigatórios; confirmar ou cancelar exclusão; atualizar imediatamente a listagem e
+  remover vínculos locais sem deixar registros dependentes órfãos. O bundle Android foi exportado com sucesso em 10 de
+  outubro. Validação em aparelho permanece pendente.
+- O comportamento de exclusão acima é do adaptador local. Não determina exclusão física ou lógica, retenção histórica,
+  sincronização de participantes ou cascatas no banco hospedado; esses pontos dependem do contrato de backend e não
+  devem ser inferidos desta implementação.
 
 ## Tela de Configurações — finalizada em 11 de outubro de 2026
 
-- Feature encerrada por confirmação do usuário, após validação inicial no front. Disponível na Home, com título fixo `Configurações do Aplicativo`, marcador na cor do avatar e conteúdo rolável abaixo, seguindo o padrão das demais abas.
-- Idiomas: português brasileiro, inglês e espanhol. Idioma e tamanho de fonte são preferências locais persistentes; Salvar aplica as alterações e Cancelar restaura os valores salvos. A fonte oferece escalas de 90%, 100% e 110%. Os controles ficam bloqueados durante o salvamento. As ações reutilizam o componente do perfil.
-- Notificações: o controle mostra a permissão atual e abre os ajustes do sistema para alterá-la; o estado é consultado novamente ao retornar ao app. Não é uma preferência pendente do botão Salvar.
-- Ao salvar, os avisos do dispositivo são sincronizados no idioma escolhido. Se a sincronização falhar, o app informa que as preferências foram salvas e oferece nova tentativa. Falhas ao abrir os ajustes do sistema ou o projeto mostram mensagens nos três idiomas.
-- Sobre apresenta `Beta 0.9`, equipe em ordem alfabética e link `https://github.com/falta-o-que`. Sair da conta exige confirmação.
-- Guia, Política de Privacidade e Termos de Uso abrem modais internos roláveis com o mesmo botão circular vermelho de fechamento das outras abas. A estrutura está concluída; os textos definitivos dependem do envio/aprovação do usuário.
+- Feature encerrada por confirmação do usuário, após validação inicial no front. Disponível na Home, com título fixo
+  `Configurações do Aplicativo`, marcador na cor do avatar e conteúdo rolável abaixo, seguindo o padrão das demais abas.
+- Idiomas: português brasileiro, inglês e espanhol. Idioma e tamanho de fonte são preferências locais persistentes;
+  Salvar aplica as alterações e Cancelar restaura os valores salvos. A fonte oferece escalas de 90%, 100% e 110%. Os
+  controles ficam bloqueados durante o salvamento. As ações reutilizam o componente do perfil.
+- Notificações: o controle mostra a permissão atual e abre os ajustes do sistema para alterá-la; o estado é consultado
+  novamente ao retornar ao app. Quando a permissão muda de negada para concedida, os avisos são sincronizados
+  imediatamente, sem exigir alteração ou salvamento das outras preferências. Não é uma preferência pendente do botão
+  Salvar.
+- A lista de notificações é ordenada de cima para baixo, da mais recente para a mais antiga. O app registra localmente
+  quando cada aviso fica ativo; para avisos de validade, usa a data de vencimento como referência temporal.
+- A ausência de metadados locais de notificação inicia o estado vazio. Falha de leitura, JSON inválido ou estrutura
+  inválida deve interromper a operação e nunca sobrescrever o histórico com valores vazios.
+- Ao salvar, os avisos do dispositivo são sincronizados no idioma escolhido. Se a sincronização falhar, o app informa
+  que as preferências foram salvas e oferece nova tentativa. Falhas ao abrir os ajustes do sistema ou o projeto mostram
+  mensagens nos três idiomas.
+- Sobre apresenta `Beta 0.9`, equipe em ordem alfabética e link `https://github.com/falta-o-que`. Sair da conta exige
+  confirmação.
+- Guia, Política de Privacidade e Termos de Uso abrem modais internos roláveis com o mesmo botão circular vermelho de
+  fechamento das outras abas. A estrutura está concluída; os textos definitivos dependem do envio/aprovação do usuário.
 - Modo claro/escuro ficou fora desta feature por decisão do usuário.
-- A revisão de traduções corrigiu os 13 problemas apontados, incluindo chaves ausentes, notificações, sugestões, revisão de compra, erros específicos e callbacks. A validação inicial no front foi confirmada pelo usuário; os últimos caminhos de falha e as permissões nativas ainda não tiveram validação específica relatada.
+- A revisão de traduções corrigiu os 13 problemas apontados, incluindo chaves ausentes, notificações, sugestões, revisão
+  de compra, erros específicos e callbacks. A validação inicial no front foi confirmada pelo usuário; os últimos
+  caminhos de falha e as permissões nativas ainda não tiveram validação específica relatada.
+
+## Dashboard local — 9 de novembro de 2026
+
+- A aba Dashboard reúne compras das despensas pertencentes à conta autenticada. Filtros de período: 30 dias, 3 meses e 6
+  meses (30 dias por padrão); filtro de mercado pode mostrar todos ou um mercado específico e afeta todos os valores e
+  gráficos.
+- O cartão principal usa `purchases.total_price` do mês atual e compara com o mês anterior. Os gráficos obedecem ao
+  período selecionado. A página também mostra a data e o total da compra mais recente e a quantidade de compras no
+  período. Sem registros, valores e gráficos exibem estados vazios.
+- Gastos por categoria somam os valores em `pantry_products.price` das compras filtradas. A variação de preço usa
+  `price / quantity` para manter comparações no mesmo produto e embalagem, exibindo a série histórica somente quando há
+  pelo menos duas observações no período. Produtos com variação absoluta de 5% ou mais aparecem entre os destaques.
+- O Dashboard opera com os dados locais existentes e permanece independente do repositório de persistência na tela. Em 9
+  de novembro, os geradores de amostras do Dashboard foram removidos por solicitação do usuário. Os registros legados
+  foram apagados do aparelho Android via ADB e a rotina temporária de limpeza também foi removida. Economia não é
+  apresentada porque o modelo atual não registra economia realizada.
 
 ## Fora do escopo atual e validações pendentes
 
 - Automações recorrentes de listas não serão implementadas agora.
 - Validar com notas reais a extração do código do parâmetro `p` e o mapeamento de quantidades fiscais fracionadas.
-- Testar saldos agregados, consumo por antiguidade, atualizações simultâneas e o vínculo das listas hospedadas à despensa e aos participantes quando esses fluxos forem implementados.
+- Testar saldos agregados, consumo por antiguidade, atualizações simultâneas e o vínculo das listas hospedadas à
+  despensa e aos participantes quando esses fluxos forem implementados.
 
 ## Atualização de 9 de outubro — revisão fiscal em etapas
 
-- A NFC-e usa até quatro etapas: correspondências automáticas; vínculo manual das linhas fiscais restantes; itens planejados que não apareceram na nota; e linhas fiscais ainda sem vínculo, que podem ser incluídas como produtos novos ou ignoradas. Cada etapa só aparece se tiver itens pendentes, e tratativas concluídas removem etapas vazias. A tela deve deixar explícita a separação entre os itens da lista e as linhas da nota.
-- O vínculo é um para um nos dois sentidos: cada linha fiscal pode usar no máximo um item planejado, e cada item planejado pode estar relacionado a no máximo uma linha fiscal. Correspondências automáticas e manuais obedecem à mesma restrição; a tela desabilita itens já usados e o serviço valida novamente antes de salvar.
-- A normalização de descrições reconhece abreviações fiscais comuns, como `Bic.` e `Bisc.` para biscoito, e `Rech.` para recheio; remove os pontos do nome normalizado e preserva a descrição original visível para revisão. Correspondências aproximadas só são automáticas quando há um candidato claramente seguro.
-- A revisão da lista e a entrada direta por QR na despensa reutilizam o mesmo card e editor de produto, com os mesmos campos e ordem: nome, marca, quantidade, preço unitário/total, embalagem, unidade e categoria. Informações específicas da lista, como vínculo e conflito de categoria, aparecem no card recolhido e não alteram esse editor. A etapa atualiza apenas a interface mobile e o simulador local; não altera o esquema hospedado.
+- A NFC-e usa até quatro etapas: correspondências automáticas; vínculo manual das linhas fiscais restantes; itens
+  planejados que não apareceram na nota; e linhas fiscais ainda sem vínculo, que podem ser incluídas como produtos novos
+  ou ignoradas. Cada etapa só aparece se tiver itens pendentes, e tratativas concluídas removem etapas vazias. A tela
+  deve deixar explícita a separação entre os itens da lista e as linhas da nota.
+- O vínculo é um para um nos dois sentidos entre cada produto revisado da nota e cada item planejado. Linhas idênticas
+  pela descrição fiscal normalizada e unidade de venda formam um produto revisado com quantidade somada antes do
+  vínculo; os dados originais permanecem em `sourceItems`. Correspondências automáticas e manuais obedecem à mesma
+  restrição; a tela desabilita itens já usados e o serviço valida novamente antes de salvar.
+- A normalização de descrições reconhece abreviações fiscais comuns, como `Bic.` e `Bisc.` para biscoito, e `Rech.` para
+  recheio; remove os pontos do nome normalizado e preserva a descrição original visível para revisão. Correspondências
+  aproximadas só são automáticas quando há um candidato claramente seguro.
+- A revisão da lista e a entrada direta por QR na despensa reutilizam o mesmo card e editor de produto, com os mesmos
+  campos e ordem: nome, marca, quantidade, preço unitário/total, embalagem, unidade e categoria. Informações específicas
+  da lista, como vínculo e conflito de categoria, aparecem no card recolhido e não alteram esse editor. A etapa atualiza
+  apenas a interface mobile e o simulador local; não altera o esquema hospedado.
 
 ## Atualização de 10 de outubro — área segura na finalização da compra
 
-- O modal em tela cheia de revisão/finalização da lista deve respeitar as áreas seguras superior, inferior e laterais em Android edge-to-edge. Cabeçalho, conteúdo e ações não podem ficar sob a barra de status ou a navegação do sistema.
-- A implementação aplica os insets ao contêiner do modal; a alteração é apenas de interface mobile e não muda o contrato de compras nem o esquema local ou hospedado. Ela foi incluída no APK de produção `e0cca5a0-3cb9-4398-bfd9-12be32a5b79b`; a validação física no Android continua registrada em `../project/current-state.md`.
+- O modal em tela cheia de revisão/finalização da lista deve respeitar as áreas seguras superior, inferior e laterais em
+  Android edge-to-edge. Cabeçalho, conteúdo e ações não podem ficar sob a barra de status ou a navegação do sistema.
+- A implementação aplica os insets ao contêiner do modal; a alteração é apenas de interface mobile e não muda o contrato
+  de compras nem o esquema local ou hospedado. Ela foi incluída no APK de produção
+  `e0cca5a0-3cb9-4398-bfd9-12be32a5b79b`; a validação física no Android continua registrada em
+  `../project/current-state.md`.
 
 ## Atualização de 10 de outubro — solicitação da permissão de notificações
 
-- O app solicita a permissão uma vez quando a Home autenticada abre pela primeira vez na sessão. Abrir a tela pelo sino não solicita permissão novamente; essa tela apenas sincroniza o estado local e os avisos do aparelho. A sincronização inicial respeita o resultado do sistema e segue a API de permissões do `expo-notifications` no SDK 57.
+- O app solicita a permissão uma vez quando a Home autenticada abre pela primeira vez na sessão. Abrir a tela pelo sino
+  não solicita permissão novamente; essa tela apenas sincroniza o estado local e os avisos do aparelho. A sincronização
+  inicial respeita o resultado do sistema e segue a API de permissões do `expo-notifications` no SDK 57.

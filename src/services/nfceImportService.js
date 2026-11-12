@@ -2,7 +2,7 @@ import * as Crypto from 'expo-crypto';
 import {normalizeCep} from '../domain/locationValidation';
 import {PRODUCT_CATEGORIES, PRODUCT_UNITS} from '../domain/productValidation';
 import {extractPackageMeasure} from '../domain/packageMeasure';
-import {groupFiscalItems, isDisposableBagFiscalItem} from '../domain/fiscalItems';
+import {groupFiscalItems, hasGroupedFiscalLines, isDisposableBagFiscalItem} from '../domain/fiscalItems';
 import {normalizeFiscalProduct} from '../domain/groceryCheckoutReconciliation';
 import {normalizeDateOnly} from '../domain/dateValidation';
 import {importFiscalPurchase} from '../repositories/productRepository';
@@ -56,7 +56,8 @@ function parseFiscalPurchaseHtml(qrUrl, html) {
                 weight: measure.weight,
                 unit: measure.unit,
                 category: suggestCategory(item.sourceDescription),
-                selected: true
+                selected: true,
+                showDuplicateNotice: false
             };
         })
     };
@@ -66,7 +67,10 @@ export async function loadFiscalPurchase(qrUrl, accountId) {
     if (!isSaoPauloFiscalUrl(qrUrl)) throw new Error('INVALID_FISCAL_QR');
     const qrCodeId = extractNfceCode(qrUrl);
     const cached = await readFiscalNoteCache(accountId, qrCodeId);
-    if (cached.purchase) return cached.purchase;
+    if (cached.purchase) return {
+        ...cached.purchase,
+        items: (cached.purchase.items ?? []).map((item) => ({...item, showDuplicateNotice: false})),
+    };
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
     try {
@@ -88,6 +92,9 @@ export async function loadFiscalPurchase(qrUrl, accountId) {
 
 export async function confirmFiscalPurchase({accountId, pantryId, purchase, items, location, market}) {
     if (!purchase?.qrCodeId || purchase.qrCodeId.length > 44) throw new Error('INVALID_FISCAL_QR');
+    if (typeof purchase.totalAmount !== 'number' || !Number.isFinite(purchase.totalAmount) || purchase.totalAmount <= 0) {
+        throw new Error('INVALID_FISCAL_TOTAL');
+    }
     const noteDate = normalizeDateOnly(String(purchase.purchasedAt ?? '').slice(0, 10));
     const today = new Date();
     const localToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -100,6 +107,7 @@ export async function confirmFiscalPurchase({accountId, pantryId, purchase, item
     }
     const selected = items.filter((item) => item.selected && !isDisposableBagFiscalItem(item.sourceDescription));
     if (!selected.length) throw new Error('NO_FISCAL_ITEMS');
+    if (selected.some((item) => !hasGroupedFiscalLines(item) && (item.requiresReview || normalizeFiscalProduct(item.sourceDescription).requiresReview) && item.reviewed !== true)) throw new Error('FISCAL_REVIEW_REQUIRED');
     if (selected.some((item) => item.weight != null && String(item.weight).trim() !== '' && (!Number.isFinite(Number(item.weight)) || Number(item.weight) <= 0 || !PRODUCT_UNITS.includes(item.unit)))) throw new Error('INVALID_FISCAL_ITEM');
     if (selected.some((item) => !PRODUCT_CATEGORIES.includes(item.category) || !(Number(item.quantity) > 0) || !(Number(item.totalPrice) > 0))) throw new Error('INVALID_FISCAL_ITEM');
     if (selected.some((item) => !Number.isInteger(Number(item.quantity)) && !item.weight && !({
@@ -139,7 +147,7 @@ export async function confirmFiscalPurchase({accountId, pantryId, purchase, item
         market,
         purchasedAt: purchase.purchasedAt,
         location: normalizedLocation,
-        totalPrice: products.reduce((sum, product) => sum + product.totalPrice, 0),
+        totalPrice: purchase.totalAmount,
         qrCodeId: purchase.qrCodeId,
         items: selected.map((item, index) => ({...item, productId: products[index].id}))
     };

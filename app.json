@@ -4,6 +4,12 @@
     "description": "Organize a despensa, acompanhe produtos e planeje as compras da casa.",
     "slug": "FaltaOQueFront",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/73ea38cc-3585-408a-bd46-eaceabefa581"
+    },
     "primaryColor": "#00DD00",
     "orientation": "portrait",
     "icon": "./src/assets/branding/app-icon.png",
@@ -54,8 +60,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "f19e401e-2ee1-41b0-a9a9-dadd61f8a60b"
+        "projectId": "73ea38cc-3585-408a-bd46-eaceabefa581"
       }
-    }
+    },
+    "owner": "miguelzack"
   }
 }

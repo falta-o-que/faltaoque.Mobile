@@ -190,6 +190,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
     if (key === 'profile') return;
     if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
     else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
+    else if (key === 'dashboard') navigation.navigate(AUTHENTICATED_ROUTES.DASHBOARD_PANTRY_PICKER);
     else Alert.alert(t('auth.common.comingSoon'), t('auth.common.willBeAvailable', { label: item.label }), [{ text: t('common.ok') }]);
   };
 
