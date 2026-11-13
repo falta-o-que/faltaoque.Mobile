@@ -20,7 +20,7 @@ export function QuickActionButton({
         <Icon color="#FFFFFF" size={24} />
         {showBadge ? <NotificationBadge /> : null}
       </IconArea>
-      <TextButton>{text}</TextButton>
+      <TextButton numberOfLines={1} ellipsizeMode="tail">{text}</TextButton>
     </ActionButton>
   );
 }

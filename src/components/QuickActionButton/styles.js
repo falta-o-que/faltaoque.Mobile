@@ -10,6 +10,7 @@ export const ActionButton = styled.TouchableOpacity.attrs({
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 0 5px;
   border-color: #0b8c0b;
   border-width: ${({$selected}) => ($selected ? 2 : 0)}px;
   border-radius: 21px;
@@ -17,6 +18,8 @@ export const ActionButton = styled.TouchableOpacity.attrs({
 `;
 
 export const TextButton = styled.Text`
+  width: 100%;
+  text-align: center;
   color: ${({ theme }) => theme.colors.white[100]};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
   font-size: ${({ theme }) => 10 * theme.fonts.scale}px;
