@@ -29,6 +29,11 @@ export const TextButton = styled.Text`
   letter-spacing: 0.2px;
 `;
 
+export const MeasurementText = styled(TextButton)`
+  position: absolute;
+  opacity: 0;
+`;
+
 export const IconArea = styled.View`
   width: 24px;
   height: 24px;
