@@ -116,8 +116,6 @@ export function RegisterScreen({navigation}) {
     const formValues = {
         name, email, avatarColor, password, passwordConfirmation, acceptedTerms,
     };
-    const formHasErrors = hasValidationErrors(errors);
-    const formNeedsScroll = isAvatarColorOpen || shouldRenderAvatarColorPanel || formHasErrors;
 
     const updateField = (field, value) => {
         const nextValues = {...formValues, [field]: value};
@@ -174,10 +172,7 @@ export function RegisterScreen({navigation}) {
     };
 
     return (<AuthScreenLayout title={t('auth.register.title')} subtitle={t('auth.register.subtitle')}>
-        <Form
-            $expanded={isAvatarColorOpen || shouldRenderAvatarColorPanel}
-            scrollEnabled={formNeedsScroll}
-        >
+        <Form>
             <FormField
                 accessibilityLabel={t('auth.common.name')}
                 autoComplete="name"

@@ -1,11 +1,9 @@
 import styled from 'styled-components/native';
 import {Animated} from 'react-native';
 
-export const Form = styled.ScrollView.attrs({
-    contentContainerStyle: {rowGap: 20}, nestedScrollEnabled: true, showsVerticalScrollIndicator: false,
-})`
+export const Form = styled.View`
     width: 100%;
-    height: ${({$expanded}) => ($expanded ? 350 : 360)}px;
+    gap: 20px;
 `;
 
 export const ColorField = styled.View`
