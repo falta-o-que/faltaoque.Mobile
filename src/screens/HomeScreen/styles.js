@@ -26,9 +26,9 @@ export const GreetingText = styled.View`
 `;
 
 export const Avatar = styled.View`
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
+  width: 90px;
+  height: 90px;
+  border-radius: 100px;
   background-color: ${({ $color }) => $color ?? '#202e67'};
 `;
 
