@@ -28,7 +28,7 @@
 
 ## Sobre o projeto
 
-O **FaltaOquê?** ajuda a acompanhar o que há em casa e a organizar o próximo supermercado. O app reúne despensas, produtos, listas de compras e histórico para facilitar o controle de quantidades, validades e gastos.
+O **FaltaOquê?** é um projeto acadêmico que ajuda a acompanhar o que há em casa e a planejar as próximas compras. O app reúne despensas, produtos, listas de compras e histórico para facilitar o controle de quantidades, validades e gastos. O projeto também prevê que pessoas da mesma casa possam colaborar em uma despensa compartilhada.
 
 Este repositório contém o aplicativo mobile do Projeto FaltaOquê?. O Android é a plataforma principal de desenvolvimento e validação. O código também inclui suporte a iOS, mas a versão atual ainda não foi validada em um dispositivo iOS físico.
 
@@ -52,13 +52,18 @@ Este repositório contém o aplicativo mobile do Projeto FaltaOquê?. O Android 
 - Crie listas vinculadas à despensa escolhida e adicione os produtos que pretende comprar.
 - Organize os itens e acompanhe as quantidades planejadas.
 - Consulte listas concluídas no histórico e repita uma lista quando precisar.
-- Veja sugestões de mercado e estimativas calculadas a partir das compras registradas.
+- Consulte estimativas calculadas a partir das compras registradas e sugestões de mercado por proximidade, custo-benefício ou marcas mais compradas.
+
+As estimativas dependem do histórico disponível e podem variar em relação aos preços praticados no mercado.
 
 ### Registro de compras
 
 - Registre compras manualmente ou leia o QR Code de uma NFC-e compatível de São Paulo.
-- Revise os itens identificados na nota, corrija as informações e escolha o que deve entrar na despensa.
+- Compare os itens da nota com os planejados na lista, revise os dados identificados e escolha o que deve entrar na despensa.
+- Adicione produtos por QR Code também a partir da despensa, com revisão antes da confirmação.
 - Consulte as compras anteriores e os produtos associados a cada registro.
+
+A leitura de NFC-e requer acesso à câmera e depende da disponibilidade da consulta fiscal externa.
 
 ### Dashboard
 
@@ -66,12 +71,20 @@ Este repositório contém o aplicativo mobile do Projeto FaltaOquê?. O Android 
 - Consulte gráficos de gastos por categoria e variações de preço dos produtos registrados.
 - Use os períodos de 30 dias, 3 meses ou 6 meses para explorar o histórico.
 
-As estimativas dependem do histórico disponível e podem variar em relação aos preços praticados no mercado.
-
 ### Preferências
 
 - Use o app em português, inglês ou espanhol.
 - Ajuste o tamanho do texto e as preferências de notificação nas configurações.
+- Consulte o guia **Como usar** e o documento de **Políticas de Privacidade e Termos de Uso** no aplicativo.
+
+### Colaboração entre participantes
+
+Use as despensas compartilhadas para organizar produtos e compras em conjunto entre pessoas de uma mesma casa:
+
+- Criar despensas, convidar outras pessoas e participar de várias despensas.
+- Permitir que os participantes consultem e atualizem produtos e quantidades da despensa.
+- Compartilhar listas de compras e atualizar a marcação dos itens para os demais participantes.
+- Oferecer as mesmas ações da despensa aos participantes convidados, conforme os requisitos do projeto.
 
 ## Download
 
@@ -82,7 +95,6 @@ Para instalar uma versão publicada no Android:
 3. Abra o arquivo no aparelho e siga as instruções de instalação.
 4. Se solicitado, autorize a instalação de aplicativos pela fonte utilizada para abrir o arquivo.
 
-Na primeira utilização, crie sua conta para começar a cadastrar despensas e produtos.
 
 ## Tecnologias
 
@@ -112,13 +124,6 @@ src/
 ├── services/        Casos de uso e coordenação dos fluxos
 ├── storage/         Camada de armazenamento de dados
 └── theme/           Tokens e tema visual
-
-docs/
-├── agents/          Orientações para agentes e fluxo de trabalho
-├── architecture/    Documentos de arquitetura
-├── project/         Contexto, decisões e estado atual
-├── reports/         Relatórios e auditorias
-└── specs/           Especificações funcionais
 
 tests/               Testes e harnesses Node.js
 ```
