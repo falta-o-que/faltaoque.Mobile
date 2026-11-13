@@ -88,8 +88,7 @@ export const ProfileSection = styled.View`
 
 export const FormScroll = styled.ScrollView.attrs({
   contentContainerStyle: {
-    gap: 10,
-    paddingTop: 20,
+    gap: 20,
     paddingBottom: 24,
   },
   keyboardShouldPersistTaps: 'handled',

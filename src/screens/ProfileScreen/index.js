@@ -196,10 +196,9 @@ export default function ProfileScreen({ navigation, embedded = false }) {
 
   const profileSection = (
     <ProfileSection>
-          <ScreenSectionHeading color={account?.avatarColor} title={t('auth.profile.title')} />
-
           <KeyboardArea>
           <FormScroll>
+          <ScreenSectionHeading color={account?.avatarColor} title={t('auth.profile.title')} />
           <Form>
           <FormField
             accessibilityLabel={t('auth.common.name')}

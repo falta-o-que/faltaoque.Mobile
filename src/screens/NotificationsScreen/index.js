@@ -327,6 +327,7 @@ export default function NotificationsScreen({navigation, route, embedded = false
     };
 
     const notificationSection = (<NotificationSection>
+        <NotificationList>
         <NotificationHeading>
             <HeadingMarker $color={account?.avatarColor}/>
             <SectionTitle accessibilityRole="header">{t('notifications.title')}</SectionTitle>
@@ -366,7 +367,7 @@ export default function NotificationsScreen({navigation, route, embedded = false
             </RetryButton>
         </StatusArea>) : notifications.length === 0 ? (<StatusArea>
             <StatusText>{t('notifications.empty')}</StatusText>
-        </StatusArea>) : (<NotificationList>
+        </StatusArea>) : (<>
             {notifications.map((notification) => (<NotificationRow
                 key={notification.id}
                 accessibilityLabel={notification.title}
@@ -377,7 +378,8 @@ export default function NotificationsScreen({navigation, route, embedded = false
                 {!notification.isRead ? <NotificationDot/> : null}
                 <NotificationText>{notification.title}</NotificationText>
             </NotificationRow>))}
-        </NotificationList>)}
+        </>)}
+        </NotificationList>
     </NotificationSection>);
 
     const notificationDetailsModal = (<NotificationDetailsModal

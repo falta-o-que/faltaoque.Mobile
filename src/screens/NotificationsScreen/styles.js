@@ -153,7 +153,7 @@ export const SectionTitle = styled.Text`
 `;
 
 export const NotificationList = styled.ScrollView.attrs({
-  contentContainerStyle: { gap: 10, paddingTop: 20, paddingBottom: 16 },
+  contentContainerStyle: { flexGrow: 1, gap: 10, paddingBottom: 16 },
   keyboardShouldPersistTaps: 'handled',
   showsVerticalScrollIndicator: false,
 })`

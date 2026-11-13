@@ -9,7 +9,7 @@ export const Screen = styled(SafeAreaView)`
 
 export const Content = styled.ScrollView.attrs(({$embedded}) => ({
     contentContainerStyle: {
-        paddingHorizontal: $embedded ? 0 : 20, paddingTop: 20, paddingBottom: 32, gap: 16,
+        paddingHorizontal: $embedded ? 0 : 20, paddingBottom: 32, gap: 16,
     }, showsVerticalScrollIndicator: false, keyboardShouldPersistTaps: 'handled',
 }))`
     flex: 1;

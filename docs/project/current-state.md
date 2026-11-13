@@ -1,5 +1,10 @@
 # Estado atual
 
+## Rolagem dos atalhos da Home — 13 de novembro de 2026
+
+- Os títulos de Notificações, Perfil e Configurações integram a rolagem do conteúdo de cada atalho. A saudação, os
+  atalhos e a navegação da Home continuam fora dessas áreas roláveis. Validação física pendente.
+
 ## Configuração de atualizações OTA — 9 de novembro de 2026
 
 - Instalado `expo-updates` compatível com o SDK 57. `app.json` agora define `updates.url` usando o ID EAS existente e
@@ -14,7 +19,10 @@
   terminaram com sucesso, distribuição interna e runtime `1.0.0`. Os links expiram em 23 de novembro de 2026.
 - Ambos os APKs usam o identificador `com.faltaoque.app`; instalar um sobre o outro substitui o app instalado. Cada
   build recebe apenas atualizações do próprio canal. Os APKs anteriores à configuração não recebem OTA.
-- Nenhuma atualização OTA foi publicada. iOS permanece sem validação física.
+- Em 13 de novembro, a atualização “Ajusta rolagem do cadastro e atalhos da Home” foi publicada no canal `production`,
+  Android, runtime `1.0.0` (grupo `a2fbba67-5c73-4725-9c4d-f705816f0015`; atualização Android
+  `01a1d4e4-a163-75a5-a23f-a1835d8d0489`). [Detalhes no EAS](https://expo.dev/accounts/miguelzack/projects/FaltaOQueFront/updates/a2fbba67-5c73-4725-9c4d-f705816f0015).
+  iOS permanece sem validação física.
 
 ## Texto de “Como usar” — 12 de novembro de 2026
 
