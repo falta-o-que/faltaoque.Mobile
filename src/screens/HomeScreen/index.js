@@ -68,7 +68,7 @@ export function HomeScreen({navigation, route}) {
 
     useEffect(() => {
         const section = route?.params?.section;
-        if (!['pantry', 'profile', 'settings'].includes(section)) return;
+        if (!['pantry', 'notifications', 'profile', 'settings'].includes(section)) return;
         setSelectedAction(section);
         navigation.setParams({section: undefined});
     }, [navigation, route?.params?.section]);
@@ -292,11 +292,11 @@ export function HomeScreen({navigation, route}) {
                 </CreateAction>
             </PantrySection>) : null}
             {selectedAction === 'notifications' ? (<NotificationsScreen
-                embedded
                 navigation={navigation}
+                route={route}
                 onUnreadCountChange={handleUnreadCountChange}
             />) : null}
-            {selectedAction === 'profile' ? (<ProfileScreen embedded navigation={navigation}/>) : null}
+            {selectedAction === 'profile' ? (<ProfileScreen/>) : null}
             {selectedAction === 'settings' ? <SettingsScreen embedded/> : null}
         </Content>
         <CreatePantryModal

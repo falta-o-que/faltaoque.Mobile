@@ -45,6 +45,21 @@ async function main() {
   db = await readDatabase();
   assert.equal(db.pantry_products.find((entry) => entry.id === product.id).price, 45);
   assert.equal(db.purchases.find((entry) => entry.id === row.purchase_id).total_price, 80);
+
+  const fractional = await addProduct({ ...draft, name: 'Feijão', price: '10', priceType: 'total', quantity: '3' });
+  await updateProductQuantity({ ...scope, productId: fractional.id, quantity: 2 });
+  const fractionalView = (await listProductOccurrences('a', 'p')).find((entry) => entry.id === fractional.id);
+  assert.equal(fractionalView.totalPrice, 10);
+  assert.equal(fractionalView.stockValue.toFixed(2), '6.67');
+  const batch = await addProduct({ ...draft, name: 'Leite', price: '5', priceType: 'unit', quantity: '2' });
+  await updateProductQuantity({ ...scope, productId: batch.id, quantity: 1 });
+  let batchView = (await listProductOccurrences('a', 'p')).find((entry) => entry.id === batch.id);
+  assert.equal(batchView.stockValue, 5);
+  assert.equal(batchView.totalPrice, 10);
+  await updateProductQuantity({ ...scope, productId: batch.id, quantity: 2 });
+  batchView = (await listProductOccurrences('a', 'p')).find((entry) => entry.id === batch.id);
+  assert.equal(batchView.stockValue, 10);
+  assert.equal(batchView.totalPrice, 10);
   console.log('product-price-history tests passed');
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

@@ -1,5 +1,9 @@
 # Decisões do projeto
 
+## 2026-11-13 — Valor do saldo em estoque
+
+O campo “Preço do lote” no detalhe do produto mostra o preço unitário da compra multiplicado pelo saldo atual do lote. O valor varia com os controles de quantidade e é arredondado para centavos na apresentação. O valor originalmente pago permanece no histórico. Quando houver compras agrupadas, o detalhe continua mostrando o lote selecionado pelo fluxo existente.
+
 ## 2026-11-12 — Texto do guia “Como usar”
 
 O texto fornecido pelo usuário para o guia deve ser aplicado integralmente, sem revisar as afirmações sobre convites,

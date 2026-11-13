@@ -205,7 +205,15 @@ export function ProductInfoModal({visible, product, onDelete, onRequestClose, on
             })
         }]
     };
-    const details = [['product.info.unitPrice', formatPrice(product?.unitPrice, language)], ['product.info.totalPrice', formatPrice(product?.totalPrice, language)], ['product.info.brand', draft.brand || t('product.info.noBrand')], ['product.info.quantity', draft.quantity || '—'], ['product.info.expiration', draft.expirationDate || t('product.info.noExpiration')], ['product.info.weight', [draft.weight, draft.unit].filter(Boolean).join(' ') || '—'], ['product.info.category', draft.category ? t(`product.category.${categoryKey}`) : '—'],];
+    const details = [
+        ['product.info.unitPrice', formatPrice(product?.unitPrice, language)],
+        ['product.info.totalPrice', formatPrice(product?.stockValue, language)],
+        ['product.info.brand', draft.brand || t('product.info.noBrand')],
+        ['product.info.quantity', draft.quantity || '—'],
+        ['product.info.expiration', draft.expirationDate || t('product.info.noExpiration')],
+        ['product.info.weight', [draft.weight, draft.unit].filter(Boolean).join(' ') || '—'],
+        ['product.info.category', draft.category ? t(`product.category.${categoryKey}`) : '—'],
+    ];
 
     return (<Modal animationType="fade" onRequestClose={handleCancel} transparent visible={visible}>
         <Overlay behavior={Platform.OS === 'ios' ? 'padding' : 'height'} accessibilityViewIsModal>

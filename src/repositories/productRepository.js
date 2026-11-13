@@ -48,6 +48,7 @@ function toProductView(database, row, accountId) {
         quantity: row.current_quantity,
         purchasedQuantity: row.quantity,
         unitPrice: row.quantity ? Number(row.price ?? 0) / row.quantity : 0,
+        stockValue: row.quantity ? Number(row.price ?? 0) * Number(row.current_quantity ?? 0) / row.quantity : 0,
         totalPrice: Number(row.price ?? 0),
         priceType: 'total',
         weight: row.content_value,

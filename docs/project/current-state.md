@@ -1,5 +1,13 @@
 # Estado atual
 
+## Valor do saldo em estoque — 13 de novembro de 2026
+
+- O detalhe do produto mostra “Preço do lote” calculado pelo saldo atual e pelo preço unitário da compra. Os controles de quantidade atualizam esse valor sem alterar o histórico da compra. Validação física pendente.
+
+## Abertura de notificações — 13 de novembro de 2026
+
+- Ao tocar em uma notificação do sistema, o aplicativo abre a seção atual de Notificações na Home e apresenta os detalhes. O usuário validou o fluxo no aparelho. As versões independentes antigas de Perfil e Notificações e a rota antiga foram removidas.
+
 ## Rolagem dos atalhos da Home — 13 de novembro de 2026
 
 - Os títulos de Notificações, Perfil e Configurações integram a rolagem do conteúdo de cada atalho. A saudação, os

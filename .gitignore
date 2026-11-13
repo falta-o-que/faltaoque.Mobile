@@ -45,5 +45,5 @@ yarn-error.*
 
 .idea
 
-
-
+node-*/
+metro*/

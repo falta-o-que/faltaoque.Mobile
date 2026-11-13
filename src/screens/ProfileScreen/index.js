@@ -1,56 +1,33 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Animated, Easing } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import { useFocusEffect } from '@react-navigation/native';
 
-import { AngleIcon, EmailIcon, EyeClosedIcon, EyeIcon, PantryIcon, SettingsIcon, SinoIcon, UserIcon } from '../../assets/icons/export';
+import { AngleIcon, EmailIcon, EyeClosedIcon, EyeIcon, UserIcon } from '../../assets/icons/export';
 import AnimatedDropdown from '../../components/AnimatedDropdown';
 import FormField from '../../components/FormField';
-import Navbar from '../../components/Navbar';
 import FormActions from '../../components/FormActions';
 import ScreenSectionHeading from '../../components/ScreenSectionHeading';
-import QuickActionButton from '../../components/QuickActionButton';
 import { COLOR_OPTION_ROWS } from '../../constants/colorOptions';
 import { hasValidationErrors, validateProfile } from '../../domain/authValidation';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppPreferences } from '../../contexts/AppPreferencesContext';
-import { AUTHENTICATED_ROUTES } from '../../navigation/routes';
-import { listNotifications, syncDeviceNotifications } from '../../services/notificationService';
 import { showUserErrorAlert } from '../../utils/userErrors';
 import {
-  Avatar,
   ColorField,
   ColorFieldHeader,
   ColorGrid,
   ColorOption,
   ColorPanel,
   ColorRow,
-  Content,
   FieldLabel,
   Form,
   FormScroll,
-  GradientBackground,
-  Greeting,
-  GreetingGroup,
   InlineError,
   KeyboardArea,
   ProfileSection,
-  QuickActions,
-  QuickSection,
-  Question,
-  Screen,
-  Subtitle,
   Chevron,
 } from './styles';
 
-const QUICK_ACTIONS = [
-  { key: 'pantry', labelKey: 'auth.quick.pantry', textKey: 'auth.quick.pantry', icon: PantryIcon },
-  { key: 'notifications', labelKey: 'auth.quick.notifications', textKey: 'auth.quick.notificationsShort', icon: SinoIcon },
-  { key: 'profile', labelKey: 'auth.quick.profile', textKey: 'auth.quick.profile', icon: UserIcon },
-  { key: 'settings', labelKey: 'auth.quick.settings', textKey: 'auth.quick.settingsShort', icon: SettingsIcon },
-];
-
-export default function ProfileScreen({ navigation, embedded = false }) {
+export default function ProfileScreen() {
   const { account, updateProfile } = useAuth();
   const { t } = useAppPreferences();
   const localizedErrors = (values) => Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value ? t(value) : value]));
@@ -64,36 +41,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
   const [isColorOpen, setIsColorOpen] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
   const colorChevronProgress = useRef(new Animated.Value(0)).current;
-
-  useFocusEffect(useCallback(() => {
-    let isActive = true;
-
-    syncDeviceNotifications(account?.id)
-      .then(({ unreadCount }) => {
-        if (isActive) setHasUnreadNotifications(unreadCount > 0);
-      })
-      .catch(() => listNotifications(account?.id)
-        .then((items) => {
-          if (isActive) setHasUnreadNotifications(items.some((item) => !item.isRead));
-        })
-        .catch(() => {}));
-
-    return () => { isActive = false; };
-  }, [account?.id]));
-
-  useEffect(() => {
-    const subscription = Notifications.addNotificationReceivedListener(() => {
-      syncDeviceNotifications(account?.id)
-        .then(({ unreadCount }) => setHasUnreadNotifications(unreadCount > 0))
-        .catch(() => listNotifications(account?.id)
-          .then((items) => setHasUnreadNotifications(items.some((item) => !item.isRead)))
-          .catch(() => {}));
-    });
-
-    return () => subscription.remove();
-  }, [account?.id]);
 
   useEffect(() => {
     setName(account?.name ?? '');
@@ -180,25 +128,11 @@ export default function ProfileScreen({ navigation, embedded = false }) {
     }
   };
 
-  const handleQuickAction = (key, label) => {
-    if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.HOME);
-    else if (key === 'notifications') navigation.navigate(AUTHENTICATED_ROUTES.NOTIFICATIONS);
-    else if (key === 'settings') Alert.alert(t('auth.common.comingSoon'), t('auth.common.willBeAvailable', { label }), [{ text: t('common.ok') }]);
-  };
-
-  const handleNavbar = (key, item) => {
-    if (key === 'profile') return;
-    if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES);
-    else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER);
-    else if (key === 'dashboard') navigation.navigate(AUTHENTICATED_ROUTES.DASHBOARD_PANTRY_PICKER);
-    else Alert.alert(t('auth.common.comingSoon'), t('auth.common.willBeAvailable', { label: item.label }), [{ text: t('common.ok') }]);
-  };
-
-  const profileSection = (
+  return (
     <ProfileSection>
           <KeyboardArea>
           <FormScroll>
-          <ScreenSectionHeading color={account?.avatarColor} showMarker={!embedded} title={t('auth.profile.title')} />
+          <ScreenSectionHeading color={account?.avatarColor} showMarker={false} title={t('auth.profile.title')} />
           <Form>
           <FormField
             accessibilityLabel={t('auth.common.name')}
@@ -300,37 +234,4 @@ export default function ProfileScreen({ navigation, embedded = false }) {
     </ProfileSection>
   );
 
-  if (embedded) return profileSection;
-
-  return (
-    <Screen edges={['top', 'left', 'right']}>
-      <GradientBackground colors={['#FFFFFF', '#F9F9F9']} />
-      <Content>
-        <GreetingGroup>
-          <Avatar $color={account?.avatarColor ?? '#1E2B5E'} />
-          <Greeting numberOfLines={1}>{t('auth.profile.greeting', { name: account?.name ?? 'pessoa viva' })}</Greeting>
-          <Subtitle>{t('auth.profile.subtitle')}</Subtitle>
-        </GreetingGroup>
-
-        <QuickSection>
-          <Question>{t('auth.profile.question')}</Question>
-          <QuickActions>
-            {QUICK_ACTIONS.map(({ icon, key, labelKey, textKey }) => (
-              <QuickActionButton
-                key={key}
-                Icon={icon}
-                accessibilityLabel={t(labelKey)}
-                onPress={() => handleQuickAction(key, t(labelKey))}
-                selected={key === 'profile'}
-                showBadge={key === 'notifications' && hasUnreadNotifications}
-                text={t(textKey)}
-              />
-            ))}
-          </QuickActions>
-        </QuickSection>
-        {profileSection}
-      </Content>
-      <Navbar activeItem="profile" onItemChange={handleNavbar} />
-    </Screen>
-  );
 }

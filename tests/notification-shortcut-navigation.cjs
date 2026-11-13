@@ -108,21 +108,10 @@ function all(tree, type, result = []) {
     return result;
 }
 
-const notifications = harness('src/screens/NotificationsScreen/index.js');
-const notificationTree = notifications.render();
-for (const [label, section] of [['notifications.pantry', 'pantry'], ['notifications.profile', 'profile'], ['notifications.settings', 'settings']]) {
-    const action = all(notificationTree, 'QuickActionButton').find((entry) => entry.props.accessibilityLabel === label);
-    assert.ok(action, `missing ${label}`);
-    action.props.onPress();
-    assert.deepEqual(notifications.calls.pop(), ['Home', {section}]);
-}
-all(notificationTree, 'Navbar')[0].props.onItemChange('profile', {});
-assert.deepEqual(notifications.calls.pop(), ['Home', {section: 'profile'}]);
-
 const home = harness('src/screens/HomeScreen/index.js');
 const selected = () => all(home.render(), 'QuickActionButton').find((entry) => entry.props.selected)?.props.accessibilityLabel;
 assert.equal(selected(), 'home.action.pantry');
-for (const section of ['settings', 'profile', 'pantry']) {
+for (const section of ['settings', 'profile', 'notifications', 'pantry']) {
     home.params.section = section;
     home.render();
     assert.equal(home.params.section, undefined, 'handled section should be cleared');

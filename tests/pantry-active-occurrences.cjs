@@ -22,12 +22,18 @@ async function main() {
     assert.equal(cards[0].primaryOccurrence.id, second.id);
     assert.equal(cards[0].unitPrice, 5);
     assert.equal(cards[0].totalPrice, 10);
+    assert.equal(cards[0].primaryOccurrence.stockValue, 10);
     assert.ok(cards[0].occurrenceIds.includes(first.id));
     await updateProductQuantity({...scope, productIds: cards[0].occurrenceIds, quantity: 0});
     cards = await listProducts('a', 'p');
     assert.equal(cards.length, 1);
     assert.equal(cards[0].occurrenceCount, 1);
     assert.equal(cards[0].quantity, 0);
+    assert.equal(cards[0].primaryOccurrence.stockValue, 0);
+    assert.equal(cards[0].primaryOccurrence.totalPrice, 10);
+    await updateProductQuantity({...scope, productIds: cards[0].occurrenceIds, quantity: 1});
+    cards = await listProducts('a', 'p');
+    assert.equal(cards[0].primaryOccurrence.stockValue, 5);
     const another = await addProduct({...draft, name: 'Suco', brand: 'Marca A'});
     await addProduct({...draft, name: 'Suco', brand: ''});
     cards = await listProducts('a', 'p');

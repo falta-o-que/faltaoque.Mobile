@@ -3,12 +3,7 @@ import {ActivityIndicator, Alert} from 'react-native';
 import * as Notifications from 'expo-notifications';
 import {useFocusEffect} from '@react-navigation/native';
 
-import Navbar from '../../components/Navbar';
 import NotificationDetailsModal from '../../components/NotificationDetailsModal';
-import QuickActionButton from '../../components/QuickActionButton';
-import {
-    PantryIcon, SettingsIcon, SinoIcon, UserIcon,
-} from '../../assets/icons/export';
 import {useAuth} from '../../contexts/AuthContext';
 import {useAppPreferences} from '../../contexts/AppPreferencesContext';
 import {AUTHENTICATED_ROUTES} from '../../navigation/routes';
@@ -23,14 +18,8 @@ import {
 } from '../../services/notificationService';
 import {showUserErrorAlert} from '../../utils/userErrors';
 import {
-    Avatar,
     ClearButton,
     ClearText,
-    Content,
-    GradientBackground,
-    Greeting,
-    GreetingGroup,
-    HeadingMarker,
     NotificationHeading,
     NotificationActions,
     NotificationList,
@@ -41,27 +30,14 @@ import {
     MarkAllReadButton,
     MarkAllReadText,
     PermissionHint,
-    QuickActions,
-    QuickSection,
-    Question,
     RetryButton,
     RetryText,
-    Screen,
     SectionTitle,
     StatusArea,
     StatusText,
-    Subtitle,
 } from './styles';
 
-const QUICK_ACTIONS = [{
-    key: 'pantry', labelKey: 'notifications.pantry', textKey: 'notifications.pantry', icon: PantryIcon
-}, {
-    key: 'notifications', labelKey: 'notifications.title', textKey: 'notifications.short', icon: SinoIcon
-}, {
-    key: 'profile', labelKey: 'notifications.profile', textKey: 'notifications.profile', icon: UserIcon
-}, {key: 'settings', labelKey: 'notifications.settings', textKey: 'home.action.settingsShort', icon: SettingsIcon},];
-
-export default function NotificationsScreen({navigation, route, embedded = false, onUnreadCountChange}) {
+export default function NotificationsScreen({navigation, route, onUnreadCountChange}) {
     const {account} = useAuth();
     const {t} = useAppPreferences();
     const [notifications, setNotifications] = useState([]);
@@ -140,18 +116,6 @@ export default function NotificationsScreen({navigation, route, embedded = false
     useEffect(() => {
         if (!loading) onUnreadCountChange?.(notifications.filter((item) => !item.isRead).length);
     }, [loading, notifications, onUnreadCountChange]);
-
-    const handleQuickAction = (key, label) => {
-        if (['pantry', 'profile', 'settings'].includes(key)) {
-            navigation.navigate(AUTHENTICATED_ROUTES.HOME, {section: key});
-        } else if (key !== 'notifications') {
-            Alert.alert(t('notifications.comingSoon'), t('notifications.comingSoonMessage', {feature: label}), [{text: t('common.ok')}]);
-        }
-    };
-
-    const handleNavbar = (key, item) => {
-        if (key === 'profile') navigation.navigate(AUTHENTICATED_ROUTES.HOME, {section: 'profile'}); else if (key === 'pantry') navigation.navigate(AUTHENTICATED_ROUTES.PANTRIES); else if (key === 'shopping-list') navigation.navigate(AUTHENTICATED_ROUTES.GROCERY_PANTRY_PICKER); else if (key === 'dashboard') navigation.navigate(AUTHENTICATED_ROUTES.DASHBOARD_PANTRY_PICKER); else Alert.alert(t('notifications.comingSoon'), t('notifications.comingSoonMessage', {feature: item.label}), [{text: t('common.ok')}]);
-    };
 
     const handleOpenNotification = async (notification) => {
         const selectionVersion = ++notificationSelectionVersion.current;
@@ -329,7 +293,6 @@ export default function NotificationsScreen({navigation, route, embedded = false
     const notificationSection = (<NotificationSection>
         <NotificationList>
         <NotificationHeading>
-            {!embedded ? <HeadingMarker $color={account?.avatarColor}/> : null}
             <SectionTitle accessibilityRole="header">{t('notifications.title')}</SectionTitle>
         </NotificationHeading>
 
@@ -395,40 +358,5 @@ export default function NotificationsScreen({navigation, route, embedded = false
         visible={Boolean(selectedNotification)}
     />);
 
-    if (embedded) {
-        return <>{notificationSection}{notificationDetailsModal}</>;
-    }
-
-    return (<Screen edges={['top', 'left', 'right']}>
-        <GradientBackground/>
-        <Content>
-            <GreetingGroup>
-                <Avatar $color={account?.avatarColor}/>
-                <Greeting>{account?.name ? t('notifications.greeting', {name: account.name}) : t('notifications.greetingFallback')}</Greeting>
-                <Subtitle>{t('notifications.subtitle')}</Subtitle>
-            </GreetingGroup>
-
-            <QuickSection>
-                <Question>{t('notifications.question')}</Question>
-                <QuickActions>
-                    {QUICK_ACTIONS.map(({icon, key, labelKey, textKey}) => {
-                        const label = t(labelKey);
-                        return (<QuickActionButton
-                            key={key}
-                            Icon={icon}
-                            accessibilityLabel={label}
-                            onPress={() => handleQuickAction(key, label)}
-                            selected={key === 'notifications'}
-                            showBadge={key === 'notifications' && notifications.some((item) => !item.isRead)}
-                            text={t(textKey)}
-                        />);
-                    })}
-                </QuickActions>
-            </QuickSection>
-            {notificationSection}
-        </Content>
-
-        {notificationDetailsModal}
-        <Navbar activeItem="profile" onItemChange={handleNavbar}/>
-    </Screen>);
+    return <>{notificationSection}{notificationDetailsModal}</>;
 }
