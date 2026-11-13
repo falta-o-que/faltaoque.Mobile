@@ -202,10 +202,10 @@ Os testes cobrem listas de compras, conciliação fiscal, produtos, notificaçõ
 
 **Projeto FaltaOquê?**
 
-- [Miguel Zacharias da Silva](https://github.com/miguelzack)
-- [Sarah Santos de Jesus](https://github.com/sarahsj-dot)
-- [Thiago Soares Coelho da Costa](https://github.com/th-cs)
-- [Manuela Vitória Barbosa de Andrade](https://github.com/Manuela0894)
-- [Nikollas Oliveira Andrade dos Santos](https://github.com/nikidsy)
+- [Manuela Vitória Barbosa de Andrade (@Manuela0894)](https://github.com/Manuela0894)
+- [Miguel Zacharias da Silva (@miguelzack)](https://github.com/miguelzack)
+- [Nikollas Oliveira Andrade dos Santos (@nikidsy)](https://github.com/nikidsy)
+- [Sarah Santos de Jesus (@sarahsj-dot)](https://github.com/sarahsj-dot)
+- [Thiago Soares Coelho da Costa (@th-cs)](https://github.com/th-cs)
 
 Conheça também a [organização do projeto no GitHub](https://github.com/falta-o-que).
