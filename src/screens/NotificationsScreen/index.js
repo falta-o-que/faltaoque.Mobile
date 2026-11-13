@@ -329,7 +329,7 @@ export default function NotificationsScreen({navigation, route, embedded = false
     const notificationSection = (<NotificationSection>
         <NotificationList>
         <NotificationHeading>
-            <HeadingMarker $color={account?.avatarColor}/>
+            {!embedded ? <HeadingMarker $color={account?.avatarColor}/> : null}
             <SectionTitle accessibilityRole="header">{t('notifications.title')}</SectionTitle>
         </NotificationHeading>
 

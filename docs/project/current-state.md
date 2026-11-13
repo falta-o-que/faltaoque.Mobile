@@ -4,6 +4,7 @@
 
 - Os títulos de Notificações, Perfil e Configurações integram a rolagem do conteúdo de cada atalho. A saudação, os
   atalhos e a navegação da Home continuam fora dessas áreas roláveis. Validação física pendente.
+- Nos três atalhos da Home, os títulos não exibem o marcador circular da cor do perfil.
 
 ## Configuração de atualizações OTA — 9 de novembro de 2026
 

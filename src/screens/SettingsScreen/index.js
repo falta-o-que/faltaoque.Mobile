@@ -174,7 +174,7 @@ export default function SettingsScreen({embedded = false}) {
     return (<Screen edges={embedded ? [] : ['top', 'left', 'right']}>
         <SettingsSection>
             <Content $embedded={embedded}>
-                <ScreenSectionHeading color={account?.avatarColor} title={t('settings.title')}/>
+                <ScreenSectionHeading color={account?.avatarColor} showMarker={!embedded} title={t('settings.title')}/>
                 <Section>
                     <SectionTitle>{t('settings.language')}</SectionTitle>
                     <LanguageRow>

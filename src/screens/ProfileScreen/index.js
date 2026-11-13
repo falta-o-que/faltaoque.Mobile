@@ -198,7 +198,7 @@ export default function ProfileScreen({ navigation, embedded = false }) {
     <ProfileSection>
           <KeyboardArea>
           <FormScroll>
-          <ScreenSectionHeading color={account?.avatarColor} title={t('auth.profile.title')} />
+          <ScreenSectionHeading color={account?.avatarColor} showMarker={!embedded} title={t('auth.profile.title')} />
           <Form>
           <FormField
             accessibilityLabel={t('auth.common.name')}
