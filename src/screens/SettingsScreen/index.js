@@ -202,7 +202,7 @@ export default function SettingsScreen({embedded = false}) {
                                         ...current,
                                         fontScale: Math.max(0.9, Number((current.fontScale - 0.1).toFixed(1)))
                                     }))}>
-                            <FontValue>−</FontValue>
+                            <FontValue $raise>−</FontValue>
                         </FontButton>
                         <Description>{draft.fontScale === 1 ? t('settings.fontSize.default') : `${Math.round(draft.fontScale * 100)}%`}</Description>
                         <FontButton accessibilityLabel={t('settings.fontSize.increase')} accessibilityRole="button"
@@ -211,7 +211,7 @@ export default function SettingsScreen({embedded = false}) {
                                         ...current,
                                         fontScale: Math.min(1.1, Number((current.fontScale + 0.1).toFixed(1)))
                                     }))}>
-                            <FontValue>+</FontValue>
+                            <FontValue $raise>+</FontValue>
                         </FontButton>
                     </FontControls>
                 </Section>

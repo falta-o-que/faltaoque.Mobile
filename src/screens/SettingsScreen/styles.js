@@ -91,6 +91,7 @@ export const FontButton = styled.TouchableOpacity.attrs({activeOpacity: 0.7})`
 `;
 
 export const FontValue = styled.Text`
+    top: ${({$raise}) => $raise ? -1 : 0}px;
     color: ${({theme}) => theme.colors.black.Black};
     font-family: ${({theme}) => theme.fonts.families.inter.medium};
     font-size: ${({theme}) => 22 * theme.fonts.scale}px;
