@@ -57,13 +57,15 @@ export const PantryName = styled.Text`
     font-size: ${({theme}) => 16 * theme.fonts.scale}px;
 `;
 export const EmptyText = styled.Text`
-    color: ${({theme}) => theme.colors.black[300]};
+    color: ${({theme}) => theme.colors.black.Black};
     font-family: ${({theme}) => theme.fonts.families.inter.regular};
-    font-size: ${({theme}) => 14 * theme.fonts.scale}px;
+    font-size: ${({theme}) => 16 * theme.fonts.scale}px;
     text-align: center;
 `;
 export const StatusText = styled(EmptyText)`
     color: ${({theme}) => theme.colors.danger[600]};
+    font-size: ${({theme}) => 14 * theme.fonts.scale}px;
+    text-align: center;
 `;
 export const RetryButton = styled.TouchableOpacity.attrs({activeOpacity: 0.7})`
     align-self: center;
