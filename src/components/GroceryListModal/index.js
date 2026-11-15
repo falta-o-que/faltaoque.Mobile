@@ -7,7 +7,7 @@ import {
 import {normalizeDateOnly} from '../../domain/dateValidation';
 import {validateGroceryListForm} from '../../domain/groceryListFormValidation';
 import {PRODUCT_CATEGORIES, PRODUCT_UNITS} from '../../domain/productValidation';
-import {ProductCartIcon} from '../AddProductModal/icons';
+import {ProductCartIcon} from '../../assets/icons/export';
 import {useAppPreferences} from '../../contexts/AppPreferencesContext';
 import CategoryTag from '../CategoryTag';
 import AnimatedDropdown from '../AnimatedDropdown';

@@ -8,7 +8,7 @@ import {
 import CategoryTag from '../../components/CategoryTag';
 import AnimatedDropdown from '../../components/AnimatedDropdown';
 import GroceryListItemCard from '../../components/GroceryListItemCard';
-import RemoveItemCircleIcon from '../../components/RemoveItemCircleIcon';
+import {RemoveItemCircleIcon} from '../../assets/icons/export';
 import GroceryListHistoryModal from '../../components/GroceryListHistoryModal';
 import GroceryListModal from '../../components/GroceryListModal';
 import AddProductMethodModal from '../../components/AddProductMethodModal';

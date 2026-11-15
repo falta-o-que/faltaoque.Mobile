@@ -14,7 +14,7 @@ import FormField from '../FormField';
 import DateField from '../DateField';
 import ModalActionButton from '../ModalActionButton';
 import PlaceSearchField from '../PlaceSearchField';
-import {ProductCartIcon} from './icons';
+import {ProductCartIcon} from '../../assets/icons/export';
 import {
     Accordion,
     AccordionHeader,
