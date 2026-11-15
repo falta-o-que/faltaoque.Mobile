@@ -215,7 +215,7 @@ export default function GroceryListModal({
                     <Body bounces={false} contentContainerStyle={{flexGrow: 1}} keyboardShouldPersistTaps="handled"
                           showsVerticalScrollIndicator={false}>
                         <Content>
-                            <Header><HeaderIcon size={24} color="#00DD00"/><Heading>{title}</Heading></Header>
+                            <Header><HeaderIcon size={24} color="#168a62"/><Heading>{title}</Heading></Header>
 
                             {isListForm ? (<Fields>
                                 <FormField

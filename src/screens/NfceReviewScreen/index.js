@@ -201,7 +201,7 @@ export default function NfceReviewScreen({route, navigation}) {
                                            }}>
             {item.selected && item.requiresReview && !item.reviewed ? <Group>
                 <Muted>{t('nfce.reviewNotice')}</Muted>
-                <ButtonClick disabled={saving}
+                <ButtonClick variant={item.reviewOpened ? "success" : "primary"} disabled={saving}
                              title={item.reviewOpened ? t('shopping.confirmProductToPantry') : t('nfce.openReview')}
                              onPress={() => {
                                  if (item.reviewOpened) update(index, {reviewed: true}); else {
@@ -271,7 +271,7 @@ export default function NfceReviewScreen({route, navigation}) {
                                           accessibilityRole="alert">{submitError}</ErrorText> : null}
                 {saving ? <ActivityIndicator color={theme.colors.primary.Green}
                                              accessibilityLabel={t('nfce.adding')}/> : null}
-                <ButtonClick disabled={saving || completed || !selected.length} onPress={confirm}
+                <ButtonClick variant="success" disabled={saving || completed || !selected.length} onPress={confirm}
                              title={saving ? t('nfce.saving') : t('nfce.save')}/>
             </Footer>
         </KeyboardArea>

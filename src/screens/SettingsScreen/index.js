@@ -224,8 +224,8 @@ export default function SettingsScreen({embedded = false}) {
                             value={notificationPermission}
                             disabled={isPermissionLoading}
                             onValueChange={handleNotificationPress}
-                            trackColor={{false: '#D5D5D5', true: '#8AFF8A'}}
-                            thumbColor={notificationPermission ? '#00A900' : undefined}
+                            trackColor={{false: '#D5D5D5', true: '#c5eadc'}}
+                            thumbColor={notificationPermission ? '#168a62' : undefined}
                         />
                     </PreferenceRow>
                     <Description>{t('settings.notifications.description')}</Description>

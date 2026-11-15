@@ -39,7 +39,7 @@ export function PantryDestinationModal({
             accessibilityRole="button"
             onPress={onOpenPantry}
           >
-            <DestinationText>{t('pantry.destination.openPantry')}</DestinationText>
+            <DestinationText $primary>{t('pantry.destination.openPantry')}</DestinationText>
           </DestinationButton>
           <DestinationButton
             $secondary

@@ -146,7 +146,7 @@ export const RepeatButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.72 
   padding: 10px 16px;
   border-radius: 12px;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
-  background-color: #95e880;
+  background-color: #3DD09A;
 `;
 
 export const RepeatButtonText = styled.Text`

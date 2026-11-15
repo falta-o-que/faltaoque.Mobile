@@ -17,7 +17,7 @@ export const SafeAreaContainer = styled(SafeAreaView)`
 
 export const Container = styled.View`
   width: 100%;
-  height: 52px;
+  height: 68px;
   flex-direction: row;
   align-items: center;
   padding: 0 12px;
@@ -29,8 +29,17 @@ export const Container = styled.View`
 export const NavItem = styled.TouchableOpacity.attrs({
   activeOpacity: 0.65,
 })`
-  height: 52px;
+  height: 68px;
   flex: 1;
   align-items: center;
   justify-content: center;
+`;
+
+export const NavLabel = styled.Text`
+  margin-top: 4px;
+  width: 100%;
+  text-align: center;
+  color: ${({ theme, $selected }) => $selected ? theme.colors.primary.Green : theme.colors.black[400]};
+  font-family: ${({ theme, $selected }) => $selected ? theme.fonts.families.inter.bold : theme.fonts.families.inter.medium};
+  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
 `;

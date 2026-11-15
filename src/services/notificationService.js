@@ -232,7 +232,7 @@ async function ensureChannel() {
         description: translate(language, 'notifications.channelDescription'),
         importance: Notifications.AndroidImportance.DEFAULT,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#00DD00',
+        lightColor: '#168a62',
         showBadge: false,
     });
 }

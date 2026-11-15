@@ -1,6 +1,6 @@
 import Svg, { Path } from 'react-native-svg';
 
-export default function PantryIcon({ size = 24, color = '#00DD00' }) {
+export default function PantryIcon({ size = 24, color = '#168A62' }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path

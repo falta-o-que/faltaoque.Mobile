@@ -322,7 +322,7 @@ export default function NotificationsScreen({navigation, route, onUnreadCountCha
         </NotificationActions>) : null}
 
         {loading ? (<StatusArea>
-            <ActivityIndicator accessibilityLabel={t('notifications.loading')} color="#00DD00"/>
+            <ActivityIndicator accessibilityLabel={t('notifications.loading')} color="#168a62"/>
         </StatusArea>) : error ? (<StatusArea>
             <StatusText $error accessibilityRole="alert">{error}</StatusText>
             <RetryButton accessibilityRole="button" onPress={() => setReloadKey((value) => value + 1)}>

@@ -11,7 +11,7 @@ export const Touchable = styled.TouchableOpacity.attrs(({ disabled }) => ({
   border-radius: 20px;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   background-color: ${({ $variant, theme }) =>
-    $variant === 'cancel' ? theme.colors.danger[500] : '#95E880'};
+    $variant === 'cancel' ? theme.colors.danger[500] : '#3DD09A'};
 `;
 
 export const IconContainer = styled.View`

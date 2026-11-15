@@ -4,15 +4,15 @@ export const ActionButton = styled.TouchableOpacity.attrs({
   activeOpacity: 0.72,
   hitSlop: { top: 6, right: 6, bottom: 6, left: 6 },
 })`
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   gap: 4px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0 5px;
-  border-color: #0b8c0b;
-  border-width: ${({$selected}) => ($selected ? 2 : 0)}px;
+  border-color: #3DD09A;
+  border-width: ${({$selected}) => ($selected ? 3 : 0)}px;
   border-radius: 21px;
   background-color: ${({theme}) => theme.colors.primary.Green};
 `;
@@ -22,10 +22,10 @@ export const TextButton = styled.Text`
   text-align: center;
   color: ${({ theme }) => theme.colors.white[100]};
   font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: ${({ theme }) => 10 * theme.fonts.scale}px;
+  font-size: ${({ theme }) => 10.7 * theme.fonts.scale}px;
   font-style: normal;
   font-weight: 500;
-  line-height: ${({ theme }) => 12 * theme.fonts.scale}px;
+  line-height: ${({ theme }) => 12.8 * theme.fonts.scale}px;
   letter-spacing: 0.2px;
 `;
 
@@ -35,8 +35,8 @@ export const MeasurementText = styled(TextButton)`
 `;
 
 export const IconArea = styled.View`
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   align-items: center;
   justify-content: center;
 `;

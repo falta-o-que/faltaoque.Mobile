@@ -137,7 +137,7 @@ function ExpenseChart({data, width, language, money, emptyLabel}) {
                 const y = plotTop + plotHeight - barHeight;
                 return (<React.Fragment key={item.key}>
                     <Rect x={x} y={y} width={barWidth} height={barHeight} rx="6"
-                          fill={index === data.length - 1 ? '#00DD00' : '#DFF8E7'}/>
+                          fill={index === data.length - 1 ? '#168a62' : '#DFF8E7'}/>
                     <SvgText x={x + barWidth / 2} y={labelY} fill="#708077" fontSize="10"
                              textAnchor="middle">{item.label}</SvgText>
                     <SvgText x={x + barWidth / 2} y={Math.max(10, y - 5)} fill="#494949" fontSize="9"
@@ -220,10 +220,10 @@ function PriceChart({data, width, emptyLabel, money}) {
         <Svg width={chartWidth} height={chartHeight}>
             {[0, 0.5, 1].map((step) => <Line key={step} x1="0" x2={chartWidth} y1={14 + step * 82}
                                              y2={14 + step * 82} stroke="#E7EEE8" strokeDasharray="3 4"/>)}
-            <Polyline points={points.map((item) => `${item.x},${item.y}`).join(' ')} fill="none" stroke="#00BB00"
+            <Polyline points={points.map((item) => `${item.x},${item.y}`).join(' ')} fill="none" stroke="#168a62"
                       strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"/>
             {points.map((point, index) => (<React.Fragment key={`${point.date.toISOString()}-${index}`}>
-                <Circle cx={point.x} cy={point.y} r="4" fill="#fff" stroke="#00BB00" strokeWidth="2.5"/>
+                <Circle cx={point.x} cy={point.y} r="4" fill="#fff" stroke="#168a62" strokeWidth="2.5"/>
                 {valueLabelIndexes.has(index) ? (() => {
                     const label = money(point.price);
                     const adjacentPoints = [points[index - 1], points[index + 1]].filter(Boolean);

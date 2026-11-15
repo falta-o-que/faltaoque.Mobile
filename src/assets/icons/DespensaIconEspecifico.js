@@ -1,6 +1,6 @@
 import Svg, { Path } from 'react-native-svg';
 
-export default function DespensaIconEspecifico({ size = 24, color = '#5CFF5C' }) {
+export default function DespensaIconEspecifico({ size = 24, color = '#91D5BA' }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path

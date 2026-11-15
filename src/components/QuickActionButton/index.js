@@ -19,7 +19,7 @@ export function QuickActionButton({
       onPress={onPress}
     >
       <IconArea>
-        <Icon color="#FFFFFF" size={24} />
+        <Icon color="#FFFFFF" size={26} />
         {showBadge ? <NotificationBadge /> : null}
       </IconArea>
       {text === 'Despensa' && <MeasurementText accessibilityElementsHidden importantForAccessibility="no-hide-descendants" onTextLayout={({nativeEvent}) => setOverflows(nativeEvent.lines.length > 1)}>{text}</MeasurementText>}

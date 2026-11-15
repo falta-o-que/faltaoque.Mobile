@@ -71,10 +71,10 @@ export const SortOption = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
   align-items: center;
   justify-content: center;
   padding: 6px 10px;
-  border-width: ${({ $selected }) => ($selected ? 2 : 0)}px;
-  border-color: ${({ theme }) => theme.colors.black.Black};
+  border-width: 2px;
+  border-color: ${({ $selected, theme }) => $selected ? theme.colors.black.Black : 'transparent'};
   border-radius: 20px;
-  background-color: ${({ theme }) => theme.colors.tags.organicos};
+  background-color: ${({ theme }) => theme.colors.primary[300]};
 `;
 
 export const SortOptionLabel = styled.Text`

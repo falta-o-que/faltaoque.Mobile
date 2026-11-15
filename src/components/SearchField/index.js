@@ -25,7 +25,7 @@ export function SearchField({ value, onChangeText, onSearch, placeholder, ...pro
         onSubmitEditing={handleSearch}
       />
       <SearchButton accessibilityRole="button" accessibilityLabel={t('search.submit')} onPress={handleSearch}>
-        <SearchIcon size={24} />
+        <SearchIcon size={24} color="#000000" />
       </SearchButton>
     </Container>
   );

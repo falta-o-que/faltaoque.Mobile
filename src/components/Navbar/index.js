@@ -7,11 +7,12 @@ import {
   PantryIcon,
   ShoppingListIcon,
   UserIcon,
+
 } from '../../assets/icons/export';
-import { Container, NavItem, SafeAreaContainer } from './styles';
+import { Container, NavItem, NavLabel, SafeAreaContainer } from './styles';
 
 export const DEFAULT_NAV_ITEMS = [
-  { key: 'profile', label: 'Perfil', icon: UserIcon },
+  { key: 'profile', label: 'Início', icon: UserIcon },
   { key: 'shopping-list', label: 'Lista de compras', icon: ShoppingListIcon },
   { key: 'pantry', label: 'Despensa', icon: PantryIcon },
   { key: 'dashboard', label: 'Dashboard', icon: DashboardIcon },
@@ -27,8 +28,8 @@ export function Navbar({
   const theme = useTheme();
   const { t } = useAppPreferences();
   const labelKeys = {
-    profile: 'navbar.profile',
-    'shopping-list': 'navbar.shoppingList',
+    profile: 'navbar.home',
+    'shopping-list': 'navbar.lists',
     pantry: 'navbar.pantry',
     dashboard: 'navbar.dashboard',
   };
@@ -57,8 +58,8 @@ export function Navbar({
           const Icon = item.icon;
           const isSelected = selectedItem === item.key;
           const color = isSelected
-            ? theme.colors.black[400]
-            : theme.colors.primary.Green;
+            ? theme.colors.primary.Green
+            : theme.colors.black[400];
 
           return (
             <NavItem
@@ -69,6 +70,7 @@ export function Navbar({
               onPress={() => handleItemPress(item)}
             >
               <Icon size={24} color={color} />
+              <NavLabel $selected={isSelected} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{item.label}</NavLabel>
             </NavItem>
           );
         })}

@@ -15,7 +15,7 @@ const colorRows = [{id: 1, name: 'Ciano', hex_code: '#00F0FF'}, {
     id: 8, name: 'Verde', hex_code: '#36B83F'
 }, {id: 9, name: 'Verde claro', hex_code: '#97F7CD'}, {id: 10, name: 'Vermelho', hex_code: '#FF0505'}, {
     id: 11, name: 'Laranja', hex_code: '#FFB405'
-}, {id: 12, name: 'Verde limão', hex_code: '#00DD00'},];
+}, {id: 12, name: 'Verde limão', hex_code: '#168A62'},];
 
 const emptyTables = () => ({
     users: [],

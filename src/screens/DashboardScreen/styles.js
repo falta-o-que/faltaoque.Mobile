@@ -97,7 +97,7 @@ export const MetricCard = styled.View`
   justify-content: center;
   padding: 10px;
   border-radius: 14px;
-  background-color: ${({ $primary }) => $primary ? '#00DD00' : '#f2f8f3'};
+  background-color: ${({ $primary }) => $primary ? '#168a62' : '#f2f8f3'};
 `;
 
 export const MetricMain = styled.View`

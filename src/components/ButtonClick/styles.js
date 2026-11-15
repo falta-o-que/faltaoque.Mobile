@@ -3,12 +3,14 @@ import styled from 'styled-components/native';
 const backgroundByVariant = {
   primary: (theme) => theme.colors.primary[500],
   secondary: (theme) => theme.colors.primary[500],
+  success: () => '#3DD09A',
   danger: (theme) => theme.colors.danger[600],
 };
 
 const textColorByVariant = {
   primary: (theme) => theme.colors.white[100],
   secondary: (theme) => theme.colors.black.Black,
+  success: (theme) => theme.colors.black.Black,
   danger: (theme) => theme.colors.white[100],
 };
 

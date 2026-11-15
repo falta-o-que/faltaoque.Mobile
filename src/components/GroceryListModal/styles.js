@@ -154,10 +154,10 @@ export const SortOption = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
   align-items: center;
   justify-content: center;
   padding: 6px 10px;
-  border-width: ${({ $selected }) => ($selected ? 2 : 0)}px;
-  border-color: ${({ theme }) => theme.colors.black.Black};
+  border-width: 2px;
+  border-color: ${({ $selected, theme }) => $selected ? theme.colors.black.Black : 'transparent'};
   border-radius: 20px;
-  background-color: ${({ theme }) => theme.colors.tags.organicos};
+  background-color: ${({ theme }) => theme.colors.primary[300]};
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 `;
 
@@ -193,7 +193,7 @@ export const CompactAction = styled.TouchableOpacity.attrs(({ disabled }) => ({
   border-radius: 20px;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   background-color: ${({ $tone, theme }) =>
-    $tone === 'danger' ? theme.colors.danger[600] : theme.colors.primary[200]};
+    $tone === 'danger' ? theme.colors.danger[600] : '#3DD09A'};
 `;
 
 export const CompactActionLabel = styled.Text`

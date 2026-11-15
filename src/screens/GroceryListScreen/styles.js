@@ -69,7 +69,7 @@ export const RoundButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.75 }
   border-radius: 20px;
   align-items: center;
   justify-content: center;
-  background-color: #95e880;
+  background-color: #3DD09A;
   opacity: ${({ $disabled }) => $disabled ? 0.5 : 1};
 `;
 

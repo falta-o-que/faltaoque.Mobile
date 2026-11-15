@@ -57,7 +57,7 @@ export const DestinationButton = styled.TouchableOpacity.attrs({ activeOpacity: 
 `;
 
 export const DestinationText = styled.Text`
-  color: ${({ theme }) => theme.colors.black.Black};
+  color: ${({ $primary, theme }) => $primary ? theme.colors.white[100] : theme.colors.black.Black};
   font-family: ${({ theme }) => theme.fonts.families.inter.bold};
   font-size: ${({ theme }) => theme.fonts.sizes['1']}px;
 `;
