@@ -100,6 +100,7 @@ export default {
         'settings.openErrorTitle': 'Não foi possível abrir',
         'settings.openSystemSettingsError': 'Abra as configurações do dispositivo para alterar a permissão de notificações.',
         'settings.openProjectError': 'Não foi possível abrir o link do projeto. Tente novamente.',
+        'settings.openTeamError': 'Não foi possível abrir o perfil. Tente novamente.',
         'settings.notificationSyncErrorTitle': 'Configurações salvas; notificações pendentes',
         'settings.notificationSyncErrorMessage': 'Não foi possível atualizar os avisos no dispositivo. Eles podem continuar no idioma anterior. Tente novamente para concluir a atualização.',
         'settings.saveErrorTitle': 'Não foi possível salvar as configurações',
@@ -169,11 +170,11 @@ Orientadora: Professora Fiama Brenda
 
 Alunos:
 
-- Manuela Andrade (@Manuela0894)
-- Miguel Zacharias (@miguelzack)
-- Nikollas Oliveira (@nikidsy)
-- Sarah Santos (@sarahsj-dot)
-- Thiago Coelho (@th-cs)
+- Manuela Vitória Barbosa de Andrade ([LinkedIn](https://www.linkedin.com/in/manuela-barbosa-andrade4/))
+- Miguel Zacharias da Silva ([LinkedIn](https://www.linkedin.com/in/miguel-zacharias-da-silva-8074b7323/))
+- Nikollas Oliveira Andrade dos Santos (@nikidsy)
+- Sarah Santos de Jesus ([LinkedIn](https://www.linkedin.com/in/sarah-santos-a1b45128a/))
+- Thiago Soares Coelho da Costa (@th-cs)
 
 2. O que o aplicativo faz
 
@@ -468,6 +469,7 @@ Em caso de dúvidas, sugestões, relatos de erros ou solicitações para exclus�
         'settings.openErrorTitle': 'Could not open',
         'settings.openSystemSettingsError': 'Open your device settings to change notification permissions.',
         'settings.openProjectError': 'Could not open the project link. Please try again.',
+        'settings.openTeamError': 'Could not open the profile. Please try again.',
         'settings.notificationSyncErrorTitle': 'Settings saved; notifications pending',
         'settings.notificationSyncErrorMessage': 'Could not update notifications on this device. They may remain in the previous language. Try again to complete the update.',
         'settings.saveErrorTitle': 'Could not save settings',
@@ -521,11 +523,11 @@ Advisor: Professor Fiama Brenda
 
 Students:
 
-- Manuela Andrade (@Manuela0894)
-- Miguel Zacharias (@miguelzack)
-- Nikollas Oliveira (@nikidsy)
-- Sarah Santos (@sarahsj-dot)
-- Thiago Coelho (@th-cs)
+- Manuela Vitória Barbosa de Andrade ([LinkedIn](https://www.linkedin.com/in/manuela-barbosa-andrade4/))
+- Miguel Zacharias da Silva ([LinkedIn](https://www.linkedin.com/in/miguel-zacharias-da-silva-8074b7323/))
+- Nikollas Oliveira Andrade dos Santos (@nikidsy)
+- Sarah Santos de Jesus ([LinkedIn](https://www.linkedin.com/in/sarah-santos-a1b45128a/))
+- Thiago Soares Coelho da Costa (@th-cs)
 
 2. What the app does
 
@@ -820,6 +822,7 @@ For questions, suggestions, bug reports, or requests to delete data, contact any
         'settings.openErrorTitle': 'No se pudo abrir',
         'settings.openSystemSettingsError': 'Abre los ajustes del dispositivo para cambiar el permiso de notificaciones.',
         'settings.openProjectError': 'No se pudo abrir el enlace del proyecto. Inténtalo de nuevo.',
+        'settings.openTeamError': 'No se pudo abrir el perfil. Inténtalo de nuevo.',
         'settings.notificationSyncErrorTitle': 'Configuración guardada; notificaciones pendientes',
         'settings.notificationSyncErrorMessage': 'No se pudieron actualizar los avisos en el dispositivo. Pueden seguir en el idioma anterior. Inténtalo de nuevo para completar la actualización.',
         'settings.saveErrorTitle': 'No se pudo guardar la configuración',
@@ -873,11 +876,11 @@ Orientadora: Profesora Fiama Brenda
 
 Alumnos:
 
-- Manuela Andrade (@Manuela0894)
-- Miguel Zacharias (@miguelzack)
-- Nikollas Oliveira (@nikidsy)
-- Sarah Santos (@sarahsj-dot)
-- Thiago Coelho (@th-cs)
+- Manuela Vitória Barbosa de Andrade ([LinkedIn](https://www.linkedin.com/in/manuela-barbosa-andrade4/))
+- Miguel Zacharias da Silva ([LinkedIn](https://www.linkedin.com/in/miguel-zacharias-da-silva-8074b7323/))
+- Nikollas Oliveira Andrade dos Santos (@nikidsy)
+- Sarah Santos de Jesus ([LinkedIn](https://www.linkedin.com/in/sarah-santos-a1b45128a/))
+- Thiago Soares Coelho da Costa (@th-cs)
 
 2. Qué hace la aplicación
 

@@ -10,6 +10,7 @@ import FormattedDocument from '../../components/FormattedDocument';
 import {CancelCircleIcon} from '../../assets/icons/export';
 import {useAuth} from '../../contexts/AuthContext';
 import {useAppPreferences} from '../../contexts/AppPreferencesContext';
+import {DocumentLink} from '../../components/FormattedDocument/styles';
 import {syncDeviceNotifications} from '../../services/notificationService';
 import {translate} from '../../localization';
 import {
@@ -44,7 +45,13 @@ const LANGUAGES = [{key: 'pt-BR', labelKey: 'settings.language.pt-BR'}, {
     key: 'en', labelKey: 'settings.language.en'
 }, {key: 'es', labelKey: 'settings.language.es'},];
 
-const TEAM = ['Manuela Vitória Barbosa de Andrade', 'Miguel Zacharias da Silva', 'Nikollas Oliveira Andrade dos Santos', 'Sarah Santos de Jesus', 'Thiago Soares Coelho da Costa',];
+const TEAM = [
+    {name: 'Manuela Vitória Barbosa de Andrade', url: 'https://www.linkedin.com/in/manuela-barbosa-andrade4/', label: 'LinkedIn'},
+    {name: 'Miguel Zacharias da Silva', url: 'https://www.linkedin.com/in/miguel-zacharias-da-silva-8074b7323/', label: 'LinkedIn'},
+    {name: 'Nikollas Oliveira Andrade dos Santos', url: 'https://github.com/nikidsy', label: '@nikidsy'},
+    {name: 'Sarah Santos de Jesus', url: 'https://www.linkedin.com/in/sarah-santos-a1b45128a/', label: 'LinkedIn'},
+    {name: 'Thiago Soares Coelho da Costa', url: 'https://github.com/th-cs', label: '@th-cs'},
+];
 
 const LEGAL_LINKS = {
     guide: 'settings.help', privacyTerms: 'settings.privacyTerms',
@@ -155,6 +162,14 @@ export default function SettingsScreen({embedded = false}) {
         }
     };
 
+    const handleTeamPress = async (url) => {
+        try {
+            await Linking.openURL(url);
+        } catch {
+            Alert.alert(t('settings.openErrorTitle'), t('settings.openTeamError'), [{text: t('common.ok')}]);
+        }
+    };
+
     const handleLogout = () => {
         Alert.alert(t('settings.logoutConfirmTitle'), t('settings.logoutConfirmMessage'), [{
             text: t('common.cancel'), style: 'cancel'
@@ -242,7 +257,9 @@ export default function SettingsScreen({embedded = false}) {
                         <LinkArrow>›</LinkArrow>
                     </LinkRow>
                     <AboutLabel>{t('settings.team')}</AboutLabel>
-                    <TeamList>{TEAM.map((name) => <TeamMember key={name}>{name}</TeamMember>)}</TeamList>
+                    <TeamList>{TEAM.map(({name, url, label}) => <TeamMember key={url}>{name} (<DocumentLink
+                        accessibilityRole="link"
+                        onPress={() => handleTeamPress(url)}>{label}</DocumentLink>)</TeamMember>)}</TeamList>
                 </Section>
 
                 <Section>

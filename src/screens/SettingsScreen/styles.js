@@ -166,7 +166,7 @@ export const TeamList = styled.View`
 `;
 
 export const TeamMember = styled.Text`
-    color: ${({theme}) => theme.colors.black.Black};
+    color: ${({theme}) => theme.colors.black[400]};
     font-family: ${({theme}) => theme.fonts.families.inter.regular};
     font-size: ${({theme}) => 13 * theme.fonts.scale}px;
     line-height: ${({theme}) => 19 * theme.fonts.scale}px;
