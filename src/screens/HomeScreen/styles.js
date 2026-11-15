@@ -55,13 +55,13 @@ export const PantrySection = styled.View`
   width: 100%;
   flex: 1;
   position: relative;
-  margin-top: 30px;
+  margin-top: 24px;
 `;
 
 export const HomeActionSection = styled.View`
   width: 100%;
   flex: 1;
-  margin-top: 30px;
+  margin-top: 24px;
 `;
 
 export const HomeActionTitle = styled.Text`

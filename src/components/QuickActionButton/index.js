@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ActionButton, IconArea, MeasurementText, NotificationBadge, TextButton } from './styles';
+import { ActionButton, ActionWrapper, ActiveIndicator, IconArea, MeasurementText, NotificationBadge, TextButton } from './styles';
 
 export function QuickActionButton({
   Icon,
@@ -11,6 +11,7 @@ export function QuickActionButton({
 }) {
   const [overflows, setOverflows] = useState(false);
   return (
+    <ActionWrapper>
     <ActionButton
       $selected={selected}
       accessibilityLabel={accessibilityLabel}
@@ -25,6 +26,8 @@ export function QuickActionButton({
       {text === 'Despensa' && <MeasurementText accessibilityElementsHidden importantForAccessibility="no-hide-descendants" onTextLayout={({nativeEvent}) => setOverflows(nativeEvent.lines.length > 1)}>{text}</MeasurementText>}
       <TextButton numberOfLines={1} ellipsizeMode="tail">{text === 'Despensa' && overflows ? 'Desp.' : text}</TextButton>
     </ActionButton>
+    {selected && <ActiveIndicator />}
+    </ActionWrapper>
   );
 }
 

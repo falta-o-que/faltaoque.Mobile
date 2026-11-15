@@ -18,7 +18,7 @@ export const Content = styled.ScrollView.attrs(({$embedded}) => ({
 export const SettingsSection = styled.View`
     width: 100%;
     flex: 1;
-    margin-top: 30px;
+    margin-top: 24px;
 `;
 
 export const Section = styled.View`

@@ -1,5 +1,11 @@
 import styled from 'styled-components/native';
 
+export const ActionWrapper = styled.View`
+  width: 64px;
+  height: 72px;
+  align-items: center;
+`;
+
 export const ActionButton = styled.TouchableOpacity.attrs({
   activeOpacity: 0.72,
   hitSlop: { top: 6, right: 6, bottom: 6, left: 6 },
@@ -11,10 +17,17 @@ export const ActionButton = styled.TouchableOpacity.attrs({
   align-items: center;
   justify-content: center;
   padding: 0 5px;
-  border-color: #3DD09A;
-  border-width: ${({$selected}) => ($selected ? 3 : 0)}px;
   border-radius: 21px;
   background-color: ${({theme}) => theme.colors.primary.Green};
+`;
+
+export const ActiveIndicator = styled.View`
+  position: absolute;
+  bottom: 0;
+  width: 44px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: ${({ theme }) => theme.colors.primary.Green};
 `;
 
 export const TextButton = styled.Text`
