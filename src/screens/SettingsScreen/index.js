@@ -45,13 +45,19 @@ const LANGUAGES = [{key: 'pt-BR', labelKey: 'settings.language.pt-BR'}, {
     key: 'en', labelKey: 'settings.language.en'
 }, {key: 'es', labelKey: 'settings.language.es'},];
 
-const TEAM = [
-    {name: 'Manuela Vitória Barbosa de Andrade', url: 'https://www.linkedin.com/in/manuela-barbosa-andrade4/', label: 'LinkedIn'},
-    {name: 'Miguel Zacharias da Silva', url: 'https://www.linkedin.com/in/miguel-zacharias-da-silva-8074b7323/', label: 'LinkedIn'},
-    {name: 'Nikollas Oliveira Andrade dos Santos', url: 'https://github.com/nikidsy', label: '@nikidsy'},
-    {name: 'Sarah Santos de Jesus', url: 'https://www.linkedin.com/in/sarah-santos-a1b45128a/', label: 'LinkedIn'},
-    {name: 'Thiago Soares Coelho da Costa', url: 'https://github.com/th-cs', label: '@th-cs'},
-];
+const TEAM = [{
+    name: 'Manuela Vitória Barbosa de Andrade',
+    url: 'https://www.linkedin.com/in/manuela-barbosa-andrade4/',
+    label: 'LinkedIn'
+}, {
+    name: 'Miguel Zacharias da Silva',
+    url: 'https://www.linkedin.com/in/miguel-zacharias-da-silva-8074b7323/',
+    label: 'LinkedIn'
+}, {
+    name: 'Nikollas Oliveira Andrade dos Santos', url: 'https://github.com/nikidsy', label: '@nikidsy'
+}, {
+    name: 'Sarah Santos de Jesus', url: 'https://www.linkedin.com/in/sarah-santos-a1b45128a/', label: 'LinkedIn'
+}, {name: 'Thiago Soares Coelho da Costa', url: 'https://github.com/th-cs', label: '@th-cs'},];
 
 const LEGAL_LINKS = {
     guide: 'settings.help', privacyTerms: 'settings.privacyTerms',

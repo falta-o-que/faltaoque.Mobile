@@ -33,20 +33,20 @@ export const Section = styled.View`
     gap: 8px;
 `;
 export const SectionTitle = styled.Text`
-  color: ${({theme}) => theme.colors.black.Black};
-  font-family: ${({theme}) => theme.fonts.families.poppins.medium};
-  font-size: ${({theme}) => 18 * theme.fonts.scale}px;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.poppins.medium};
+    font-size: ${({theme}) => 18 * theme.fonts.scale}px;
 `;
 export const StepHeader = styled.View`
-  padding: 14px;
-  gap: 8px;
-  border-radius: 12px;
-  background-color: ${({theme}) => theme.colors.white[200]};
+    padding: 14px;
+    gap: 8px;
+    border-radius: 12px;
+    background-color: ${({theme}) => theme.colors.white[200]};
 `;
 export const ProgressTrack = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 6px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
 `;
 export const ProgressChip = styled.View`
   min-height: 30px;
@@ -116,10 +116,10 @@ export const PurchaseContext = styled.View`
     background-color: ${({theme}) => theme.colors.white[100]};
 `;
 export const ContextHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 `;
 export const ContextEyebrow = styled.Text`
   color: ${({theme}) => theme.colors.primary[700]};
@@ -153,10 +153,10 @@ export const LinkRoute = styled.View`
   background-color: ${({theme}) => theme.colors.white[200]};
 `;
 export const LinkRouteLabel = styled.Text`
-  color: ${({theme}) => theme.colors.black[400]};
-  font-family: ${({theme}) => theme.fonts.families.inter.bold};
-  font-size: ${({theme}) => 10 * theme.fonts.scale}px;
-  letter-spacing: 0.6px;
+    color: ${({theme}) => theme.colors.black[400]};
+    font-family: ${({theme}) => theme.fonts.families.inter.bold};
+    font-size: ${({theme}) => 10 * theme.fonts.scale}px;
+    letter-spacing: 0.6px;
 `;
 export const LinkRouteValue = styled.Text`
   color: ${({theme}) => theme.colors.black.Black};
@@ -206,9 +206,9 @@ export const SummaryBannerText = styled.Text`
   line-height: ${({theme}) => 19 * theme.fonts.scale}px;
 `;
 export const ChoiceRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
 `;
 export const Choice = styled.TouchableOpacity`
   min-height: 44px;

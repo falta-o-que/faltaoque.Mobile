@@ -1,58 +1,54 @@
-import { Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {Image} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 export const Container = styled(SafeAreaView)`
-  flex: 1;
-  background-color: ${({ theme }) => theme.colors.white[100]};
+    flex: 1;
+    background-color: ${({theme}) => theme.colors.white[100]};
 `;
 
 export const KeyboardArea = styled.KeyboardAvoidingView.attrs({
-  behavior: 'padding',
+    behavior: 'padding',
 })`
-  flex: 1;
+    flex: 1;
 `;
 
 export const ScrollArea = styled.ScrollView.attrs({
-  contentContainerStyle: {
-    flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 48,
-  },
-  keyboardShouldPersistTaps: 'handled',
-  showsVerticalScrollIndicator: false,
+    contentContainerStyle: {
+        flexGrow: 1, paddingHorizontal: 20, paddingVertical: 48,
+    }, keyboardShouldPersistTaps: 'handled', showsVerticalScrollIndicator: false,
 })``;
 
 export const Content = styled.View`
-  flex: 1;
-  width: 100%;
-  max-width: 390px;
-  align-self: center;
-  justify-content: center;
+    flex: 1;
+    width: 100%;
+    max-width: 390px;
+    align-self: center;
+    justify-content: center;
 `;
 
 export const Header = styled.View`
-  align-items: center;
-  margin-bottom: 50px;
+    align-items: center;
+    margin-bottom: 50px;
 `;
 
 export const Logo = styled(Image)`
-  width: 95px;
-  height: 103px;
-  margin-bottom: 2px;
+    width: 95px;
+    height: 103px;
+    margin-bottom: 2px;
 `;
 
 export const Title = styled.Text`
-  color: ${({ theme }) => theme.colors.primary.Green};
-  font-family: ${({ theme }) => theme.fonts.families.poppins.bold};
-  font-size: ${({ theme }) => 40 * theme.fonts.scale}px;
-  text-align: center;
+    color: ${({theme}) => theme.colors.primary.Green};
+    font-family: ${({theme}) => theme.fonts.families.poppins.bold};
+    font-size: ${({theme}) => 40 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
 export const Subtitle = styled.Text`
-  margin-top: 4px;
-  color: ${({ theme }) => theme.colors.black[400]};
-  font-family: ${({ theme }) => theme.fonts.families.poppins.regular};
-  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
-  text-align: center;
+    margin-top: 4px;
+    color: ${({theme}) => theme.colors.black[400]};
+    font-family: ${({theme}) => theme.fonts.families.poppins.regular};
+    font-size: ${({theme}) => 16 * theme.fonts.scale}px;
+    text-align: center;
 `;

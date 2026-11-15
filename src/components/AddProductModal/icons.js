@@ -1,4 +1,4 @@
-import { SvgXml } from 'react-native-svg';
+import {SvgXml} from 'react-native-svg';
 
 const CART_XML = `
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -12,7 +12,7 @@ const CART_XML = `
   </svg>
 `;
 
-export function ProductCartIcon({ size = 24 }) {
-  return <SvgXml xml={CART_XML} width={size} height={size} />;
+export function ProductCartIcon({size = 24}) {
+    return <SvgXml xml={CART_XML} width={size} height={size}/>;
 }
 

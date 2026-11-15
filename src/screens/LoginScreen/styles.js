@@ -1,46 +1,45 @@
 import styled from 'styled-components/native';
-import { Pressable } from 'react-native';
+import {Pressable} from 'react-native';
 
 export const Form = styled.View`
-  gap: 20px;
+    gap: 20px;
 `;
 
 export const Actions = styled.View`
-  align-items: center;
-  gap: 10px;
-  margin-top: 30px;
+    align-items: center;
+    gap: 10px;
+    margin-top: 30px;
 `;
 
-export const PrimaryButton = styled(Pressable).attrs(({ $active }) => ({
-  style: {
-    transform: [{ scale: $active ? 0.98 : 1 }],
-  },
+export const PrimaryButton = styled(Pressable).attrs(({$active}) => ({
+    style: {
+        transform: [{scale: $active ? 0.98 : 1}],
+    },
 }))`
-  width: 100%;
-  height: 47px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 20px;
-  background-color: ${({ $active, theme }) =>
-    $active ? theme.colors.primary[300] : theme.colors.primary[200]};
+    width: 100%;
+    height: 47px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background-color: ${({$active, theme}) => $active ? theme.colors.primary[300] : theme.colors.primary[200]};
 `;
 
 export const PrimaryLabel = styled.Text`
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.inter.bold};
+    font-size: ${({theme}) => 16 * theme.fonts.scale}px;
 `;
 
-export const Link = styled.TouchableOpacity.attrs({ activeOpacity: 0.65 })`
-  padding: 7px;
+export const Link = styled.TouchableOpacity.attrs({activeOpacity: 0.65})`
+    padding: 7px;
 `;
 
 export const LinkText = styled.Text`
-  color: ${({ theme }) => theme.colors.primary.Green};
-  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
+    color: ${({theme}) => theme.colors.primary.Green};
+    font-family: ${({theme}) => theme.fonts.families.inter.regular};
+    font-size: ${({theme}) => 14 * theme.fonts.scale}px;
 `;
 
 export const Muted = styled.Text`
-  color: ${({ theme }) => theme.colors.black[400]};
+    color: ${({theme}) => theme.colors.black[400]};
 `;

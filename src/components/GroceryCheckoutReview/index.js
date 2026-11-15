@@ -335,9 +335,9 @@ export default function GroceryCheckoutReview({
                         {t('shopping.completeRequired', {errors: Object.values(checkoutItemErrors(item, t)).join(' ')})}
                     </ErrorText> : null}
                 {(item.needsReview || standalone) && !item.reviewed && item.included ? <ButtonClick variant="success"
-                    disabled={busy || Object.keys(checkoutItemErrors(item, t)).length > 0}
-                    onPress={() => patch(item, {reviewed: true})}
-                    title={t('shopping.confirmProductToPantry')}/> : null}
+                                                                                                    disabled={busy || Object.keys(checkoutItemErrors(item, t)).length > 0}
+                                                                                                    onPress={() => patch(item, {reviewed: true})}
+                                                                                                    title={t('shopping.confirmProductToPantry')}/> : null}
                 {allowLink ? <Section>
                     <Label>{t('shopping.matchProductQuestion')}</Label>
                     <Muted>{t('shopping.matchProductHint')}</Muted>
@@ -457,10 +457,10 @@ export default function GroceryCheckoutReview({
                     <ErrorText accessibilityLiveRegion="polite">
                         {t('shopping.completeRequired', {errors: Object.values(checkoutItemErrors(draft, t)).join(' ')})}
                     </ErrorText> : null}
-                {!draft.reviewed && draft.included ?
-                    <ButtonClick variant="success" disabled={busy || Object.keys(checkoutItemErrors(draft, t)).length > 0}
-                                 onPress={() => patch(draft, {reviewed: true})}
-                                 title={t('shopping.confirmProductToPantry')}/> : null}
+                {!draft.reviewed && draft.included ? <ButtonClick variant="success"
+                                                                  disabled={busy || Object.keys(checkoutItemErrors(draft, t)).length > 0}
+                                                                  onPress={() => patch(draft, {reviewed: true})}
+                                                                  title={t('shopping.confirmProductToPantry')}/> : null}
             </PurchaseProductReviewCard>
         </Section>;
     }
@@ -656,8 +656,7 @@ export default function GroceryCheckoutReview({
         setEditingPurchaseData(false);
     };
     const confirmRestart = () => Alert.alert(t('shopping.restartConfirmTitle'), t('shopping.restartConfirmMessage'), [{
-        text: t('common.cancel'),
-        style: 'cancel'
+        text: t('common.cancel'), style: 'cancel'
     }, {text: t('shopping.restartConfirmAction'), style: 'destructive', onPress: restartReview},],);
     const nextStepTitle = activeSteps[stepIndex + 1]?.title;
     const confirmationTitle = includedItems.length ? t('shopping.addProductsToPantry', {count: includedItems.length}) : t('shopping.finishPurchaseNoProducts');

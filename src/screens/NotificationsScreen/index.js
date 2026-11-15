@@ -292,56 +292,56 @@ export default function NotificationsScreen({navigation, route, onUnreadCountCha
 
     const notificationSection = (<NotificationSection>
         <NotificationList>
-        <NotificationHeading>
-            <SectionTitle accessibilityRole="header">{t('notifications.title')}</SectionTitle>
-        </NotificationHeading>
+            <NotificationHeading>
+                <SectionTitle accessibilityRole="header">{t('notifications.title')}</SectionTitle>
+            </NotificationHeading>
 
-        {!notificationsPermissionGranted && !loading ? (
-            <PermissionHint>{t('notifications.permissionHint')}</PermissionHint>) : null}
+            {!notificationsPermissionGranted && !loading ? (
+                <PermissionHint>{t('notifications.permissionHint')}</PermissionHint>) : null}
 
-        {!loading && !error && notifications.length > 0 ? (<NotificationActions>
-            <MarkAllReadButton
-                accessibilityRole="button"
-                accessibilityState={{
-                    disabled: isMarkingAllRead || isClearing || !notifications.some((item) => !item.isRead),
-                }}
-                disabled={isMarkingAllRead || isClearing || !notifications.some((item) => !item.isRead)}
-                onPress={requestMarkAllRead}
-            >
-                <MarkAllReadText>
-                    {isMarkingAllRead ? t('notifications.marking') : t('notifications.markAllRead')}
-                </MarkAllReadText>
-            </MarkAllReadButton>
-            <ClearButton
-                accessibilityRole="button"
-                disabled={isClearing || isMarkingAllRead}
-                onPress={requestClearNotifications}
-            >
-                <ClearText>{isClearing ? t('notifications.clearing') : t('notifications.clear')}</ClearText>
-            </ClearButton>
-        </NotificationActions>) : null}
+            {!loading && !error && notifications.length > 0 ? (<NotificationActions>
+                <MarkAllReadButton
+                    accessibilityRole="button"
+                    accessibilityState={{
+                        disabled: isMarkingAllRead || isClearing || !notifications.some((item) => !item.isRead),
+                    }}
+                    disabled={isMarkingAllRead || isClearing || !notifications.some((item) => !item.isRead)}
+                    onPress={requestMarkAllRead}
+                >
+                    <MarkAllReadText>
+                        {isMarkingAllRead ? t('notifications.marking') : t('notifications.markAllRead')}
+                    </MarkAllReadText>
+                </MarkAllReadButton>
+                <ClearButton
+                    accessibilityRole="button"
+                    disabled={isClearing || isMarkingAllRead}
+                    onPress={requestClearNotifications}
+                >
+                    <ClearText>{isClearing ? t('notifications.clearing') : t('notifications.clear')}</ClearText>
+                </ClearButton>
+            </NotificationActions>) : null}
 
-        {loading ? (<StatusArea>
-            <ActivityIndicator accessibilityLabel={t('notifications.loading')} color="#168a62"/>
-        </StatusArea>) : error ? (<StatusArea>
-            <StatusText $error accessibilityRole="alert">{error}</StatusText>
-            <RetryButton accessibilityRole="button" onPress={() => setReloadKey((value) => value + 1)}>
-                <RetryText>{t('notifications.retry')}</RetryText>
-            </RetryButton>
-        </StatusArea>) : notifications.length === 0 ? (<StatusArea>
-            <StatusText>{t('notifications.empty')}</StatusText>
-        </StatusArea>) : (<>
-            {notifications.map((notification) => (<NotificationRow
-                key={notification.id}
-                accessibilityLabel={notification.title}
-                accessibilityHint={`${notification.isRead ? t('notifications.read') : t('notifications.unread')}. ${t('notifications.openDetails')}`}
-                accessibilityRole="button"
-                onPress={() => handleOpenNotification(notification)}
-            >
-                {!notification.isRead ? <NotificationDot/> : null}
-                <NotificationText>{notification.title}</NotificationText>
-            </NotificationRow>))}
-        </>)}
+            {loading ? (<StatusArea>
+                <ActivityIndicator accessibilityLabel={t('notifications.loading')} color="#168a62"/>
+            </StatusArea>) : error ? (<StatusArea>
+                <StatusText $error accessibilityRole="alert">{error}</StatusText>
+                <RetryButton accessibilityRole="button" onPress={() => setReloadKey((value) => value + 1)}>
+                    <RetryText>{t('notifications.retry')}</RetryText>
+                </RetryButton>
+            </StatusArea>) : notifications.length === 0 ? (<StatusArea>
+                <StatusText>{t('notifications.empty')}</StatusText>
+            </StatusArea>) : (<>
+                {notifications.map((notification) => (<NotificationRow
+                    key={notification.id}
+                    accessibilityLabel={notification.title}
+                    accessibilityHint={`${notification.isRead ? t('notifications.read') : t('notifications.unread')}. ${t('notifications.openDetails')}`}
+                    accessibilityRole="button"
+                    onPress={() => handleOpenNotification(notification)}
+                >
+                    {!notification.isRead ? <NotificationDot/> : null}
+                    <NotificationText>{notification.title}</NotificationText>
+                </NotificationRow>))}
+            </>)}
         </NotificationList>
     </NotificationSection>);
 

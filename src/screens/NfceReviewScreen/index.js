@@ -49,7 +49,8 @@ export default function NfceReviewScreen({route, navigation}) {
         ...item, ...(() => {
             const proposal = normalizeFiscalProduct(item.sourceDescription);
             return {
-                name: proposal.name, brand: proposal.brand ?? '',
+                name: proposal.name,
+                brand: proposal.brand ?? '',
                 requiresReview: !hasGroupedFiscalLines(item) && proposal.requiresReview,
             };
         })(),
