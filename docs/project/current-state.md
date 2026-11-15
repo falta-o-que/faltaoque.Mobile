@@ -972,3 +972,7 @@ agrupamento.
 - Sombras no Android dependem de `elevation` e não reproduzem de forma idêntica o `box-shadow` uniforme do Figma; a
   aparência final deve continuar sendo validada no aparelho-alvo.
 - A compatibilidade visual e comportamental desta fatia ainda não foi validada em dispositivo iOS físico.
+
+## 2026-11-15 — Versão demonstrativa local
+
+Na branch `feature/MockData`, a primeira abertura de uma instalação sem banco inicializa conta e sessão demonstrativas, despensa, 24 compras ao longo de oito meses, produtos, mercados e listas ativa e concluída. Login após logout: `demo@faltaoque.app` / `Demo@1234`. O banco fica no aparelho e não sobrescreve instalações com dados existentes. A sugestão de proximidade depende da configuração Google Maps/Geocoding. Para voltar ao estado inicial da demo, limpar os dados da instalação remove também as alterações feitas nela.

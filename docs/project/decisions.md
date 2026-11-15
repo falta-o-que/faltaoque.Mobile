@@ -1,5 +1,10 @@
 # Decisões do projeto
 
+## 2026-11-15 — Build demonstrativa com dados locais
+
+Na branch `feature/MockData`, uma instalação sem banco local cria uma conta demonstrativa, inicia sua sessão e popula uma despensa com oito meses de compras, estoque, mercados e listas. Os dados são gerados uma única vez com datas relativas à primeira abertura; alterações posteriores e logout são preservados. Bancos já existentes não são substituídos. A conta é local e suas credenciais são públicas para demonstração: `demo@faltaoque.app` e `Demo@1234`. A sugestão de mercado mais próximo continua dependente de Geocoding e da configuração da chave Google Maps. Esta decisão aplica-se à versão demonstrativa da branch e substitui a remoção de mocks apenas nela.
+
+
 ## 2026-11-13 — Valor do saldo em estoque
 
 O campo “Preço do lote” no detalhe do produto mostra o preço unitário da compra multiplicado pelo saldo atual do lote. O valor varia com os controles de quantidade e é arredondado para centavos na apresentação. O valor originalmente pago permanece no histórico. Quando houver compras agrupadas, o detalhe continua mostrando o lote selecionado pelo fluxo existente.

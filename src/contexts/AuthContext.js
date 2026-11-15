@@ -1,6 +1,7 @@
 import {createContext, useContext, useEffect, useMemo, useState} from 'react';
 
 import * as authService from '../services/authService';
+import {initializeDemo} from '../services/demoInitialization';
 import {setNotificationSession} from '../services/notificationService';
 
 const AuthContext = createContext(null);
@@ -12,8 +13,8 @@ export function AuthProvider({children}) {
     useEffect(() => {
         let isMounted = true;
 
-        authService
-            .restoreSession()
+        initializeDemo()
+            .then(() => authService.restoreSession())
             .then((restoredAccount) => {
                 if (isMounted) {
                     setNotificationSession(restoredAccount?.id);
@@ -68,4 +69,3 @@ export function useAuth() {
 
     return context;
 }
-
