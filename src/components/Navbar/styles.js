@@ -35,6 +35,24 @@ export const NavItem = styled.TouchableOpacity.attrs({
   justify-content: center;
 `;
 
+export const NavContent = styled.View`
+  width: 94%;
+  height: 58px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+`;
+
+export const ActiveIndicator = styled.View`
+  position: absolute;
+  top: 0;
+  width: 52px;
+  height: 4px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  background-color: ${({ theme }) => theme.colors.primary.Green};
+`;
+
 export const NavLabel = styled.Text`
   margin-top: 4px;
   width: 100%;

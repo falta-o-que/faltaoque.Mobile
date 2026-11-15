@@ -9,7 +9,7 @@ import {
   UserIcon,
 
 } from '../../assets/icons/export';
-import { Container, NavItem, NavLabel, SafeAreaContainer } from './styles';
+import { ActiveIndicator, Container, NavContent, NavItem, NavLabel, SafeAreaContainer } from './styles';
 
 export const DEFAULT_NAV_ITEMS = [
   { key: 'profile', label: 'Início', icon: UserIcon },
@@ -69,8 +69,11 @@ export function Navbar({
               accessibilityState={{ selected: isSelected }}
               onPress={() => handleItemPress(item)}
             >
-              <Icon size={24} color={color} />
-              <NavLabel $selected={isSelected} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{item.label}</NavLabel>
+              {isSelected && <ActiveIndicator />}
+              <NavContent $selected={isSelected}>
+                <Icon size={24} color={color} />
+                <NavLabel $selected={isSelected} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{item.label}</NavLabel>
+              </NavContent>
             </NavItem>
           );
         })}
