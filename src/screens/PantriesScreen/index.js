@@ -186,7 +186,7 @@ export default function PantriesScreen({navigation}) {
                     </RetryButton>
                 </>) : null}
                 {!pantriesLoading && filteredPantries.length === 0 && !pantriesError ? (<EmptyText>
-                    {pantries.length === 0 ? t('pantries.empty') : t('pantries.noneFound')}
+                    {pantries.length === 0 ? t('shopping.noPantries') : t('pantries.noneFound')}
                 </EmptyText>) : null}
                 {!pantriesLoading && filteredPantries.length > 0 ? (<PantryList>
                     {filteredPantries.map((pantry) => (<PantryCard

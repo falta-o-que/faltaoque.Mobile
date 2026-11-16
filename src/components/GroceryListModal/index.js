@@ -7,7 +7,7 @@ import {
 import {normalizeDateOnly} from '../../domain/dateValidation';
 import {validateGroceryListForm} from '../../domain/groceryListFormValidation';
 import {PRODUCT_CATEGORIES, PRODUCT_UNITS} from '../../domain/productValidation';
-import {ProductCartIcon} from '../AddProductModal/icons';
+import {ProductCartIcon} from '../../assets/icons/export';
 import {useAppPreferences} from '../../contexts/AppPreferencesContext';
 import CategoryTag from '../CategoryTag';
 import AnimatedDropdown from '../AnimatedDropdown';
@@ -215,7 +215,7 @@ export default function GroceryListModal({
                     <Body bounces={false} contentContainerStyle={{flexGrow: 1}} keyboardShouldPersistTaps="handled"
                           showsVerticalScrollIndicator={false}>
                         <Content>
-                            <Header><HeaderIcon size={24} color="#00DD00"/><Heading>{title}</Heading></Header>
+                            <Header><HeaderIcon size={24} color="#168a62"/><Heading>{title}</Heading></Header>
 
                             {isListForm ? (<Fields>
                                 <FormField

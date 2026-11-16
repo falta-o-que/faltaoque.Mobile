@@ -61,7 +61,7 @@ export const FinishEditButton = styled.TouchableOpacity.attrs({activeOpacity: 0.
     gap: 8px;
     padding: 10px 16px;
     border-radius: 12px;
-    background-color: ${({theme}) => theme.colors.primary[300]};
+    background-color: #3DD09A;
     opacity: ${({disabled}) => disabled ? 0.5 : 1};
 `;
 export const EditButton = styled.TouchableOpacity.attrs({activeOpacity: 0.72})`

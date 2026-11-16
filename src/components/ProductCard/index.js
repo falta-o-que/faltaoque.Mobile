@@ -1,99 +1,99 @@
-import { useTheme } from 'styled-components/native';
-import { useAppPreferences } from '../../contexts/AppPreferencesContext';
+import {useTheme} from 'styled-components/native';
+import {useAppPreferences} from '../../contexts/AppPreferencesContext';
 
-import { InfoIcon } from '../../assets/icons/export';
-import CategoryTag, { CATEGORY_LABELS } from '../CategoryTag';
+import {InfoIcon} from '../../assets/icons/export';
+import CategoryTag, {CATEGORY_LABELS} from '../CategoryTag';
 import {
-  Card,
-  CategoryIndicator,
-  Expiration,
-  InfoButton,
-  InfoLabel,
-  ProductDetails,
-  ProductHeader,
-  ProductImage,
-  ProductMeasure,
-  ProductName,
-  ProductPrice,
-  Quantity,
-  QuantityButton,
-  QuantityButtonLabel,
-  QuantityControl,
+    Card,
+    CategoryIndicator,
+    Expiration,
+    InfoButton,
+    InfoLabel,
+    ProductDetails,
+    ProductHeader,
+    ProductImage,
+    ProductMeasure,
+    ProductName,
+    ProductPrice,
+    Quantity,
+    QuantityButton,
+    QuantityButtonLabel,
+    QuantityControl,
 } from './styles';
 
 const productImage = require('../../assets/grocery/legumesGrocery.png');
 
 export function ProductCard({
-  name,
-  quantity = 0,
-  unitPrice,
-  weight,
-  unit,
-  expirationLabel,
-  category,
-  showCategory = false,
-  onInfoPress,
-  onIncrement,
-  onDecrement,
-  disabled = false,
-}) {
-  const theme = useTheme();
-  const { t } = useAppPreferences();
-  const hasInfoAction = typeof onInfoPress === 'function';
-  const canDecrement = !disabled && quantity > 0 && typeof onDecrement === 'function';
-  const canIncrement = !disabled && typeof onIncrement === 'function';
-  const measure = [weight, unit].filter(Boolean).join(' ');
-  const categoryKey = CATEGORY_LABELS[category] ? category : 'organicos';
-  const price = Number(unitPrice);
-  const priceLabel = Number.isFinite(price) ? `R$ ${price.toFixed(2).replace('.', ',')}` : null;
+                                name,
+                                quantity = 0,
+                                unitPrice,
+                                weight,
+                                unit,
+                                expirationLabel,
+                                category,
+                                showCategory = false,
+                                onInfoPress,
+                                onIncrement,
+                                onDecrement,
+                                disabled = false,
+                            }) {
+    const theme = useTheme();
+    const {t} = useAppPreferences();
+    const hasInfoAction = typeof onInfoPress === 'function';
+    const canDecrement = !disabled && quantity > 0 && typeof onDecrement === 'function';
+    const canIncrement = !disabled && typeof onIncrement === 'function';
+    const measure = [weight, unit].filter(Boolean).join(' ');
+    const categoryKey = CATEGORY_LABELS[category] ? category : 'organicos';
+    const price = Number(unitPrice);
+    const priceLabel = Number.isFinite(price) ? `R$ ${price.toFixed(2).replace('.', ',')}` : null;
 
-  return (
-    <Card>
-      <ProductDetails>
-        <ProductImage accessibilityLabel={t('productCard.imageA11y', { name })} source={productImage} />
-        <ProductHeader>
-          <CategoryIndicator accessibilityLabel={t('productCard.categoryA11y', { category: t(`product.category.${categoryKey}`) })} $category={categoryKey} />
-          <ProductName>{name}</ProductName>
-          {measure ? <ProductMeasure>{measure}</ProductMeasure> : null}
-        </ProductHeader>
-        {priceLabel ? <ProductPrice>{priceLabel}</ProductPrice> : null}
-        {expirationLabel ? <Expiration>{expirationLabel}</Expiration> : null}
-        {showCategory && category ? <CategoryTag category={categoryKey} disabled variant="product" /> : null}
-        <InfoButton
-          accessibilityLabel={t('productCard.infoA11y', { name })}
-          accessibilityRole="button"
-          disabled={!hasInfoAction}
-          onPress={hasInfoAction ? onInfoPress : undefined}
-        >
-          <InfoIcon color={theme.colors.black[400]} size={24} />
-          <InfoLabel>{t('productCard.info')}</InfoLabel>
-        </InfoButton>
-      </ProductDetails>
-      <QuantityControl>
-        <QuantityButton
-          $disabled={!canDecrement}
-          $variant="minus"
-          accessibilityLabel={t('productCard.decreaseA11y', { name })}
-          accessibilityRole="button"
-          disabled={!canDecrement}
-          onPress={canDecrement ? onDecrement : undefined}
-        >
-          <QuantityButtonLabel $disabled={!canDecrement}>-</QuantityButtonLabel>
-        </QuantityButton>
-        <Quantity accessibilityLabel={t('productCard.quantityA11y', { quantity })}>{String(quantity)}</Quantity>
-        <QuantityButton
-          $disabled={!canIncrement}
-          $variant="plus"
-          accessibilityLabel={t('productCard.increaseA11y', { name })}
-          accessibilityRole="button"
-          disabled={!canIncrement}
-          onPress={canIncrement ? onIncrement : undefined}
-        >
-          <QuantityButtonLabel $disabled={!canIncrement}>+</QuantityButtonLabel>
-        </QuantityButton>
-      </QuantityControl>
-    </Card>
-  );
+    return (<Card>
+        <ProductDetails>
+            <ProductImage accessibilityLabel={t('productCard.imageA11y', {name})} source={productImage}/>
+            <ProductHeader>
+                <CategoryIndicator
+                    accessibilityLabel={t('productCard.categoryA11y', {category: t(`product.category.${categoryKey}`)})}
+                    $category={categoryKey}/>
+                <ProductName>{name}</ProductName>
+                {measure ? <ProductMeasure>{measure}</ProductMeasure> : null}
+            </ProductHeader>
+            {priceLabel ? <ProductPrice>{priceLabel}</ProductPrice> : null}
+            {expirationLabel ? <Expiration>{expirationLabel}</Expiration> : null}
+            {showCategory && category ? <CategoryTag category={categoryKey} disabled variant="product"/> : null}
+            <InfoButton
+                accessibilityLabel={t('productCard.infoA11y', {name})}
+                accessibilityRole="button"
+                disabled={!hasInfoAction}
+                onPress={hasInfoAction ? onInfoPress : undefined}
+            >
+                <InfoIcon color={theme.colors.black[400]} size={24}/>
+                <InfoLabel>{t('productCard.info')}</InfoLabel>
+            </InfoButton>
+        </ProductDetails>
+        <QuantityControl>
+            <QuantityButton
+                $disabled={!canDecrement}
+                $variant="minus"
+                accessibilityLabel={t('productCard.decreaseA11y', {name})}
+                accessibilityRole="button"
+                disabled={!canDecrement}
+                onPress={canDecrement ? onDecrement : undefined}
+            >
+                <QuantityButtonLabel $disabled={!canDecrement}>-</QuantityButtonLabel>
+            </QuantityButton>
+            <Quantity accessibilityLabel={t('productCard.quantityA11y', {quantity})}>{String(quantity)}</Quantity>
+            <QuantityButton
+                $disabled={!canIncrement}
+                $variant="plus"
+                accessibilityLabel={t('productCard.increaseA11y', {name})}
+                accessibilityRole="button"
+                disabled={!canIncrement}
+                onPress={canIncrement ? onIncrement : undefined}
+            >
+                <QuantityButtonLabel $disabled={!canIncrement}>+</QuantityButtonLabel>
+            </QuantityButton>
+        </QuantityControl>
+    </Card>);
 }
 
 export default ProductCard;

@@ -68,8 +68,7 @@ export async function loadFiscalPurchase(qrUrl, accountId) {
     const qrCodeId = extractNfceCode(qrUrl);
     const cached = await readFiscalNoteCache(accountId, qrCodeId);
     if (cached.purchase) return {
-        ...cached.purchase,
-        items: (cached.purchase.items ?? []).map((item) => ({...item, showDuplicateNotice: false})),
+        ...cached.purchase, items: (cached.purchase.items ?? []).map((item) => ({...item, showDuplicateNotice: false})),
     };
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);

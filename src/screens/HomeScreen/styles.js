@@ -1,116 +1,110 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 export const Screen = styled(SafeAreaView)`
-  flex: 1;
-  background-color: ${({ theme }) => theme.colors.white[100]};
+    flex: 1;
+    background-color: ${({theme}) => theme.colors.white[100]};
 `;
 
 export const Content = styled.View`
-  flex: 1;
-  align-items: center;
-  padding: 42px 20px 0;
+    flex: 1;
+    align-items: center;
+    padding: 42px 20px 0;
 `;
 
 export const GreetingRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    justify-content: center;
 `;
 
 export const GreetingText = styled.View`
-  flex-shrink: 1;
-  min-width: 0;
+    flex-shrink: 1;
+    min-width: 0;
 `;
 
 export const Avatar = styled.View`
-  width: 90px;
-  height: 90px;
-  border-radius: 100px;
-  background-color: ${({ $color }) => $color ?? '#202e67'};
+    width: 90px;
+    height: 90px;
+    border-radius: 100px;
+    background-color: ${({$color}) => $color ?? '#202e67'};
 `;
 
 export const Greeting = styled.Text`
 
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: ${({ theme }) => 22 * theme.fonts.scale}px;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.poppins.medium};
+    font-size: ${({theme}) => 22 * theme.fonts.scale}px;
 `;
 
 export const Subtitle = styled.Text`
-  margin-top: 4px;
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
+    margin-top: 0;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.inter.regular};
+    font-size: ${({theme}) => 16 * theme.fonts.scale}px;
 `;
 
 export const Section = styled.View`
-  width: 100%;
-  margin-top: 18px;
+    width: 100%;
+    margin-top: 18px;
 `;
 
 export const PantrySection = styled.View`
-  width: 100%;
-  flex: 1;
-  position: relative;
-  margin-top: 30px;
+    width: 100%;
+    flex: 1;
+    position: relative;
+    margin-top: 24px;
 `;
 
 export const HomeActionSection = styled.View`
-  width: 100%;
-  flex: 1;
-  margin-top: 30px;
+    width: 100%;
+    flex: 1;
+    margin-top: 24px;
 `;
 
 export const HomeActionTitle = styled.Text`
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: ${({ theme }) => 20 * theme.fonts.scale}px;
-  text-align: center;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.poppins.medium};
+    font-size: ${({theme}) => 20 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
 export const HomeActionText = styled.Text`
-  margin-top: 16px;
-  color: ${({ theme }) => theme.colors.black[400]};
-  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
-  text-align: center;
+    margin-top: 16px;
+    color: ${({theme}) => theme.colors.black[400]};
+    font-family: ${({theme}) => theme.fonts.families.inter.regular};
+    font-size: ${({theme}) => 14 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
 export const CreateAction = styled.View`
-  position: absolute;
-  right: 0;
-  bottom: 20px;
-  align-items: flex-end;
-  z-index: 1;
-  elevation: 4;
+    position: absolute;
+    right: 0;
+    bottom: 20px;
+    align-items: flex-end;
+    z-index: 1;
+    elevation: 4;
 `;
 
 export const PantryList = styled.ScrollView.attrs({
-  contentContainerStyle: {
-    gap: 16,
-    paddingTop: 16,
-    paddingRight: 8,
-    paddingBottom: 84,
-    paddingLeft: 8,
-  },
-  removeClippedSubviews: false,
-  showsVerticalScrollIndicator: false,
+    contentContainerStyle: {
+        gap: 16, paddingTop: 0, paddingRight: 8, paddingBottom: 84, paddingLeft: 8,
+    }, removeClippedSubviews: false, showsVerticalScrollIndicator: false,
 })`
-  flex: 1;
-  align-self: stretch;
-  margin: 0 -8px;
-  overflow: hidden;
+    flex: 1;
+    align-self: stretch;
+    margin: 0 -8px;
+    overflow: hidden;
 `;
 
 export const Question = styled.Text`
-  margin-bottom: 10px;
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
-  text-align: center;
+    margin-bottom: 10px;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.poppins.medium};
+    font-size: ${({theme}) => 16 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
 export const QuickActions = styled.View`
@@ -122,35 +116,36 @@ export const QuickActions = styled.View`
 `;
 
 export const PantryTitle = styled.Text`
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: ${({ theme }) => 20 * theme.fonts.scale}px;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.poppins.medium};
+    font-size: ${({theme}) => 20 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
 export const EmptyText = styled.Text`
-  margin-top: 16px;
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.inter.regular};
+    font-size: ${({theme}) => 16 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
 export const LoadError = styled.Text`
-  margin-top: 16px;
-  color: ${({ theme }) => theme.colors.danger[600]};
-  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: ${({ theme }) => 16 * theme.fonts.scale}px;
+    margin-top: 16px;
+    color: ${({theme}) => theme.colors.danger[600]};
+    font-family: ${({theme}) => theme.fonts.families.inter.regular};
+    font-size: ${({theme}) => 16 * theme.fonts.scale}px;
 `;
 
-export const RetryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
-  align-self: flex-start;
-  margin-top: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.colors.white[200]};
+export const RetryButton = styled.TouchableOpacity.attrs({activeOpacity: 0.7})`
+    align-self: flex-start;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: ${({theme}) => theme.colors.white[200]};
 `;
 
 export const RetryText = styled.Text`
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.inter.medium};
+    font-size: ${({theme}) => 13 * theme.fonts.scale}px;
 `;

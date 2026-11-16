@@ -256,7 +256,7 @@ export function RegisterScreen({navigation}) {
                 accessibilityState={{checked: acceptedTerms}}
                 onPress={() => setAcceptedTerms(updateField('acceptedTerms', !acceptedTerms))}
             >
-                {acceptedTerms ? <CheckIcon width={22} height={23}/> :
+                {acceptedTerms ? <CheckIcon width={22} height={23} color={theme.colors.primary.Green}/> :
                     <UncheckedTermsIcon color={theme.colors.primary.Green}/>}
             </Checkbox>
             <TermsText>

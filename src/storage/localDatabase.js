@@ -15,7 +15,7 @@ const colorRows = [{id: 1, name: 'Ciano', hex_code: '#00F0FF'}, {
     id: 8, name: 'Verde', hex_code: '#36B83F'
 }, {id: 9, name: 'Verde claro', hex_code: '#97F7CD'}, {id: 10, name: 'Vermelho', hex_code: '#FF0505'}, {
     id: 11, name: 'Laranja', hex_code: '#FFB405'
-}, {id: 12, name: 'Verde limão', hex_code: '#00DD00'},];
+}, {id: 12, name: 'Verde limão', hex_code: '#168A62'},];
 
 const emptyTables = () => ({
     users: [],
@@ -47,7 +47,8 @@ const TABLE_FIELDS = {
 
 const byId = (rows, id) => rows.find((row) => row.id === id);
 const categoryId = (name, categories) => categories.find((row) => row.name === name)?.id ?? categories[categories.length - 1]?.id ?? 1;
-const colorId = (value, colors) => colors.find((row) => row.hex_code.toLowerCase() === String(value).toLowerCase())?.id ?? colors[0]?.id ?? 1;
+const displayColor = (value) => String(value ?? '').toLowerCase() === '#00dd00' ? '#168A62' : value;
+const colorId = (value, colors) => colors.find((row) => String(displayColor(row.hex_code)).toLowerCase() === String(displayColor(value)).toLowerCase())?.id ?? colors[0]?.id ?? 1;
 
 function normalizeDatabase(value) {
     const tableNames = Object.keys(TABLE_FIELDS);
@@ -239,7 +240,8 @@ export function updateDatabase(update) {
 }
 
 export function resolveColor(database, id) {
-    return byId(database.colors, id);
+    const color = byId(database.colors, id);
+    return color ? {...color, hex_code: displayColor(color.hex_code)} : color;
 }
 
 export function resolveCategory(database, id) {

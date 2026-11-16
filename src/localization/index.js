@@ -8,17 +8,11 @@ import dashboard from './catalogs/dashboard';
 
 const catalogues = [shared, auth, pantry, shopping, notifications, errors, dashboard];
 const languages = ['pt-BR', 'en', 'es'];
-const messages = Object.fromEntries(languages.map((language) => [
-  language,
-  Object.assign({}, ...catalogues.map((catalogue) => catalogue[language] ?? {})),
-]));
+const messages = Object.fromEntries(languages.map((language) => [language, Object.assign({}, ...catalogues.map((catalogue) => catalogue[language] ?? {})),]));
 
 export function translate(language, key, values = {}) {
-  const template = messages[language]?.[key] ?? messages['pt-BR']?.[key] ?? key;
-  return Object.entries(values).reduce(
-    (result, [name, value]) => result.replaceAll(`{{${name}}}`, String(value)),
-    template,
-  );
+    const template = messages[language]?.[key] ?? messages['pt-BR']?.[key] ?? key;
+    return Object.entries(values).reduce((result, [name, value]) => result.replaceAll(`{{${name}}}`, String(value)), template,);
 }
 
-export { languages };
+export {languages};

@@ -1,137 +1,136 @@
 import styled from 'styled-components/native';
 
 export const NotificationSection = styled.View`
-  width: 100%;
-  flex: 1;
-  margin-top: 30px;
+    width: 100%;
+    flex: 1;
+    margin-top: 24px;
 `;
 
 export const NotificationHeading = styled.View`
-  align-items: center;
-  gap: 10px;
+    align-items: center;
+    gap: 10px;
 `;
 
 export const NotificationActions = styled.View`
-  width: 100%;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 8px;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
 `;
 
-export const MarkAllReadButton = styled.TouchableOpacity.attrs(({ disabled }) => ({
-  activeOpacity: 0.7,
-  disabled,
+export const MarkAllReadButton = styled.TouchableOpacity.attrs(({disabled}) => ({
+    activeOpacity: 0.7, disabled,
 }))`
-  min-height: 41px;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  padding: 0 8px;
-  border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.primary[200]};
-  opacity: ${({ disabled }) => disabled ? 0.5 : 1};
+    min-height: 41px;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    border-radius: 12px;
+    background-color: ${({theme}) => theme.colors.primary[200]};
+    opacity: ${({disabled}) => disabled ? 0.5 : 1};
 `;
 
 export const MarkAllReadText = styled.Text`
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
-  text-align: center;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.inter.medium};
+    font-size: ${({theme}) => 11 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
-export const ClearButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
-  min-height: 41px;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  padding: 0 8px;
-  border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.white[200]};
-  opacity: ${({ disabled }) => disabled ? 0.5 : 1};
+export const ClearButton = styled.TouchableOpacity.attrs({activeOpacity: 0.7})`
+    min-height: 41px;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    border-radius: 12px;
+    background-color: ${({theme}) => theme.colors.white[200]};
+    opacity: ${({disabled}) => disabled ? 0.5 : 1};
 `;
 
 export const ClearText = styled.Text`
-  color: ${({ theme }) => theme.colors.black[400]};
-  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: ${({ theme }) => 11 * theme.fonts.scale}px;
-  text-align: center;
+    color: ${({theme}) => theme.colors.black[400]};
+    font-family: ${({theme}) => theme.fonts.families.inter.medium};
+    font-size: ${({theme}) => 11 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
 export const PermissionHint = styled.Text`
-  margin-top: 8px;
-  color: ${({ theme }) => theme.colors.black[400]};
-  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: ${({ theme }) => 12 * theme.fonts.scale}px;
-  text-align: center;
+    margin-top: 8px;
+    color: ${({theme}) => theme.colors.black[400]};
+    font-family: ${({theme}) => theme.fonts.families.inter.regular};
+    font-size: ${({theme}) => 12 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
 export const SectionTitle = styled.Text`
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.poppins.medium};
-  font-size: ${({ theme }) => 20 * theme.fonts.scale}px;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.poppins.medium};
+    font-size: ${({theme}) => 20 * theme.fonts.scale}px;
 `;
 
 export const NotificationList = styled.ScrollView.attrs({
-  contentContainerStyle: { flexGrow: 1, gap: 10, paddingBottom: 16 },
-  keyboardShouldPersistTaps: 'handled',
-  showsVerticalScrollIndicator: false,
+    contentContainerStyle: {flexGrow: 1, gap: 10, paddingBottom: 16},
+    keyboardShouldPersistTaps: 'handled',
+    showsVerticalScrollIndicator: false,
 })`
-  flex: 1;
-  width: 100%;
+    flex: 1;
+    width: 100%;
 `;
 
-export const NotificationRow = styled.TouchableOpacity.attrs({ activeOpacity: 0.76 })`
-  width: 100%;
-  height: 41px;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  overflow: hidden;
-  padding: 0 20px;
-  border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.primary.Green};
+export const NotificationRow = styled.TouchableOpacity.attrs({activeOpacity: 0.76})`
+    width: 100%;
+    height: 41px;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    padding: 0 20px;
+    border-radius: 12px;
+    background-color: ${({theme}) => theme.colors.primary.Green};
 `;
 
 export const NotificationDot = styled.View`
-  width: 10px;
-  height: 10px;
-  flex-shrink: 0;
-  border-radius: 5px;
-  background-color: ${({ theme }) => theme.colors.white[100]};
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 5px;
+    background-color: ${({theme}) => theme.colors.white[100]};
 `;
 
-export const NotificationText = styled.Text.attrs({ numberOfLines: 1, ellipsizeMode: 'tail' })`
-  flex: 1;
-  color: ${({ theme }) => theme.colors.white[100]};
-  font-family: ${({ theme }) => theme.fonts.families.inter.bold};
-  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
+export const NotificationText = styled.Text.attrs({numberOfLines: 1, ellipsizeMode: 'tail'})`
+    flex: 1;
+    color: ${({theme}) => theme.colors.white[100]};
+    font-family: ${({theme}) => theme.fonts.families.inter.bold};
+    font-size: ${({theme}) => 14 * theme.fonts.scale}px;
 `;
 
 export const StatusArea = styled.View`
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
 `;
 
 export const StatusText = styled.Text`
-  color: ${({ theme, $error }) => $error ? theme.colors.danger[600] : theme.colors.black[400]};
-  font-family: ${({ theme }) => theme.fonts.families.inter.regular};
-  font-size: ${({ theme }) => 14 * theme.fonts.scale}px;
-  text-align: center;
+    color: ${({theme, $error}) => $error ? theme.colors.danger[600] : theme.colors.black[400]};
+    font-family: ${({theme}) => theme.fonts.families.inter.regular};
+    font-size: ${({theme}) => 14 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
-export const RetryButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.7 })`
-  margin-top: 12px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.colors.white[200]};
+export const RetryButton = styled.TouchableOpacity.attrs({activeOpacity: 0.7})`
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: ${({theme}) => theme.colors.white[200]};
 `;
 
 export const RetryText = styled.Text`
-  color: ${({ theme }) => theme.colors.black.Black};
-  font-family: ${({ theme }) => theme.fonts.families.inter.medium};
-  font-size: ${({ theme }) => 13 * theme.fonts.scale}px;
+    color: ${({theme}) => theme.colors.black.Black};
+    font-family: ${({theme}) => theme.fonts.families.inter.medium};
+    font-size: ${({theme}) => 13 * theme.fonts.scale}px;
 `;

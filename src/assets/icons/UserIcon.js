@@ -1,6 +1,6 @@
 import Svg, { Circle, Path } from 'react-native-svg';
 
-export default function UserIcon({ size = 24, color = '#00DD00' }) {
+export default function UserIcon({ size = 24, color = '#168A62' }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Circle cx={12} cy={6} r={4} stroke={color} strokeWidth={1.5} />

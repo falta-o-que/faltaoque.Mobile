@@ -1,80 +1,66 @@
-import { useState } from 'react';
-import { useTheme } from 'styled-components/native';
-import { useAppPreferences } from '../../contexts/AppPreferencesContext';
+import {useState} from 'react';
+import {useTheme} from 'styled-components/native';
+import {useAppPreferences} from '../../contexts/AppPreferencesContext';
 
 import {
-  DashboardIcon,
-  PantryIcon,
-  ShoppingListIcon,
-  UserIcon,
-} from '../../assets/icons/export';
-import { Container, NavItem, SafeAreaContainer } from './styles';
+    DashboardIcon, PantryIcon, ShoppingListIcon, UserIcon,
 
-export const DEFAULT_NAV_ITEMS = [
-  { key: 'profile', label: 'Perfil', icon: UserIcon },
-  { key: 'shopping-list', label: 'Lista de compras', icon: ShoppingListIcon },
-  { key: 'pantry', label: 'Despensa', icon: PantryIcon },
-  { key: 'dashboard', label: 'Dashboard', icon: DashboardIcon },
-];
+} from '../../assets/icons/export';
+import {ActiveIndicator, Container, NavContent, NavItem, NavLabel, SafeAreaContainer} from './styles';
+
+export const DEFAULT_NAV_ITEMS = [{key: 'profile', label: 'Início', icon: UserIcon}, {
+    key: 'shopping-list', label: 'Lista de compras', icon: ShoppingListIcon
+}, {key: 'pantry', label: 'Despensa', icon: PantryIcon}, {key: 'dashboard', label: 'Dashboard', icon: DashboardIcon},];
 
 export function Navbar({
-  items = DEFAULT_NAV_ITEMS,
-  activeItem,
-  defaultActiveItem,
-  onItemChange,
-  ...props
-}) {
-  const theme = useTheme();
-  const { t } = useAppPreferences();
-  const labelKeys = {
-    profile: 'navbar.profile',
-    'shopping-list': 'navbar.shoppingList',
-    pantry: 'navbar.pantry',
-    dashboard: 'navbar.dashboard',
-  };
-  const localizedItems = items.map((item) => ({
-    ...item,
-    label: labelKeys[item.key] ? t(labelKeys[item.key]) : item.label,
-  }));
-  const initialItem = defaultActiveItem ?? items[0]?.key;
-  const [internalActiveItem, setInternalActiveItem] = useState(initialItem);
-  const isControlled = activeItem !== undefined;
-  const selectedItem = isControlled ? activeItem : internalActiveItem;
+                           items = DEFAULT_NAV_ITEMS, activeItem, defaultActiveItem, onItemChange, ...props
+                       }) {
+    const theme = useTheme();
+    const {t} = useAppPreferences();
+    const labelKeys = {
+        profile: 'navbar.home', 'shopping-list': 'navbar.lists', pantry: 'navbar.pantry', dashboard: 'navbar.dashboard',
+    };
+    const localizedItems = items.map((item) => ({
+        ...item, label: labelKeys[item.key] ? t(labelKeys[item.key]) : item.label,
+    }));
+    const initialItem = defaultActiveItem ?? items[0]?.key;
+    const [internalActiveItem, setInternalActiveItem] = useState(initialItem);
+    const isControlled = activeItem !== undefined;
+    const selectedItem = isControlled ? activeItem : internalActiveItem;
 
-  function handleItemPress(item) {
-    if (!isControlled) {
-      setInternalActiveItem(item.key);
+    function handleItemPress(item) {
+        if (!isControlled) {
+            setInternalActiveItem(item.key);
+        }
+
+        onItemChange?.(item.key, item);
+        item.onPress?.();
     }
 
-    onItemChange?.(item.key, item);
-    item.onPress?.();
-  }
+    return (<SafeAreaContainer edges={['bottom']} {...props}>
+        <Container accessibilityRole="tablist">
+            {localizedItems.map((item) => {
+                const Icon = item.icon;
+                const isSelected = selectedItem === item.key;
+                const color = isSelected ? theme.colors.primary.Green : theme.colors.black[400];
 
-  return (
-    <SafeAreaContainer edges={['bottom']} {...props}>
-      <Container accessibilityRole="tablist">
-        {localizedItems.map((item) => {
-          const Icon = item.icon;
-          const isSelected = selectedItem === item.key;
-          const color = isSelected
-            ? theme.colors.black[400]
-            : theme.colors.primary.Green;
-
-          return (
-            <NavItem
-              key={item.key}
-              accessibilityRole="tab"
-              accessibilityLabel={item.label}
-              accessibilityState={{ selected: isSelected }}
-              onPress={() => handleItemPress(item)}
-            >
-              <Icon size={24} color={color} />
-            </NavItem>
-          );
-        })}
-      </Container>
-    </SafeAreaContainer>
-  );
+                return (<NavItem
+                    key={item.key}
+                    accessibilityRole="tab"
+                    accessibilityLabel={item.label}
+                    accessibilityState={{selected: isSelected}}
+                    onPress={() => handleItemPress(item)}
+                >
+                    {isSelected && <ActiveIndicator/>}
+                    <NavContent $selected={isSelected}>
+                        <Icon size={24} color={color}/>
+                        <NavLabel $selected={isSelected} numberOfLines={1} adjustsFontSizeToFit
+                                  minimumFontScale={0.75}>{item.label}</NavLabel>
+                    </NavContent>
+                </NavItem>);
+            })}
+        </Container>
+    </SafeAreaContainer>);
 }
 
 export default Navbar;

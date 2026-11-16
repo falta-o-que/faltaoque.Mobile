@@ -63,7 +63,7 @@ export default function GroceryListHistoryModal({
             <Card>
                 <Content>
                     <Header>
-                        <ShoppingListIcon color="#00DD00" size={24}/>
+                        <ShoppingListIcon color="#168a62" size={24}/>
                         <Heading>{t('shopping.historyTitle')}</Heading>
                     </Header>
 

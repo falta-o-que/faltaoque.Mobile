@@ -12,15 +12,16 @@ import {
 } from './styles';
 
 function renderLinks(text) {
-    return text.split(/(@[\w.-]+)/g).map((part, index) => {
-        if (!part.startsWith('@')) return part;
+    return text.split(/(\[LinkedIn\]\(https:\/\/www\.linkedin\.com\/in\/[\w-]+\/\)|@[\w.-]+)/g).map((part, index) => {
+        const linkedIn = part.match(/^\[LinkedIn\]\((https:\/\/www\.linkedin\.com\/in\/[\w-]+\/)\)$/);
+        if (!linkedIn && !part.startsWith('@')) return part;
 
-        const username = part.slice(1);
+        const url = linkedIn ? linkedIn[1] : `https://github.com/${part.slice(1)}`;
         return (<DocumentLink key={`link-${index}`}
                               accessibilityRole="link"
-                              onPress={() => Linking.openURL(`https://github.com/${username}`).catch(() => {
+                              onPress={() => Linking.openURL(url).catch(() => {
                               })}>
-            {part}
+            {linkedIn ? 'LinkedIn' : part}
         </DocumentLink>);
     });
 }

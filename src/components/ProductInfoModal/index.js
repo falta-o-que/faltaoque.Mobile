@@ -205,23 +205,15 @@ export function ProductInfoModal({visible, product, onDelete, onRequestClose, on
             })
         }]
     };
-    const details = [
-        ['product.info.unitPrice', formatPrice(product?.unitPrice, language)],
-        ['product.info.totalPrice', formatPrice(product?.stockValue, language)],
-        ['product.info.brand', draft.brand || t('product.info.noBrand')],
-        ['product.info.quantity', draft.quantity || '—'],
-        ['product.info.expiration', draft.expirationDate || t('product.info.noExpiration')],
-        ['product.info.weight', [draft.weight, draft.unit].filter(Boolean).join(' ') || '—'],
-        ['product.info.category', draft.category ? t(`product.category.${categoryKey}`) : '—'],
-    ];
+    const details = [['product.info.unitPrice', formatPrice(product?.unitPrice, language)], ['product.info.totalPrice', formatPrice(product?.stockValue, language)], ['product.info.brand', draft.brand || t('product.info.noBrand')], ['product.info.quantity', draft.quantity || '—'], ['product.info.expiration', draft.expirationDate || t('product.info.noExpiration')], ['product.info.weight', [draft.weight, draft.unit].filter(Boolean).join(' ') || '—'], ['product.info.category', draft.category ? t(`product.category.${categoryKey}`) : '—'],];
 
     return (<Modal animationType="fade" onRequestClose={handleCancel} transparent visible={visible}>
         <Overlay behavior={Platform.OS === 'ios' ? 'padding' : 'height'} accessibilityViewIsModal>
             <Card><Scroller bounces={false} contentContainerStyle={{flexGrow: 1}}
                             keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
                 <Content>
-                    <TitleGroup><Header><InfoIcon
-                        size={24}/><Heading>{isEditing ? t('product.info.edit') : t('product.info.title')}</Heading></Header><ProductName>{draft.name.trim() || t('product.info.fallback')}</ProductName></TitleGroup>
+                    <TitleGroup><Header><InfoIcon size={24}
+                                                  color="#168A62"/><Heading>{isEditing ? t('product.info.edit') : t('product.info.title')}</Heading></Header><ProductName>{draft.name.trim() || t('product.info.fallback')}</ProductName></TitleGroup>
                     {!isEditing ? <ReadonlyPanel>{details.map(([labelKey, value]) => <DetailRow
                         key={labelKey}><DetailLabel>{t(labelKey)}</DetailLabel><DetailValue>{value}</DetailValue></DetailRow>)}</ReadonlyPanel> : (
                         <FormContent><Fields>

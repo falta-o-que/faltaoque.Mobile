@@ -18,7 +18,7 @@ export const Content = styled.ScrollView.attrs(({$embedded}) => ({
 export const SettingsSection = styled.View`
     width: 100%;
     flex: 1;
-    margin-top: 30px;
+    margin-top: 24px;
 `;
 
 export const Section = styled.View`
@@ -91,6 +91,7 @@ export const FontButton = styled.TouchableOpacity.attrs({activeOpacity: 0.7})`
 `;
 
 export const FontValue = styled.Text`
+    top: ${({$raise}) => $raise ? -1 : 0}px;
     color: ${({theme}) => theme.colors.black.Black};
     font-family: ${({theme}) => theme.fonts.families.inter.medium};
     font-size: ${({theme}) => 22 * theme.fonts.scale}px;
@@ -165,7 +166,7 @@ export const TeamList = styled.View`
 `;
 
 export const TeamMember = styled.Text`
-    color: ${({theme}) => theme.colors.black.Black};
+    color: ${({theme}) => theme.colors.black[400]};
     font-family: ${({theme}) => theme.fonts.families.inter.regular};
     font-size: ${({theme}) => 13 * theme.fonts.scale}px;
     line-height: ${({theme}) => 19 * theme.fonts.scale}px;

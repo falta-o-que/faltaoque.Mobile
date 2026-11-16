@@ -1,5 +1,9 @@
 # Estado atual
 
+## Compatibilidade da cor verde — 15 de novembro de 2026
+
+- Bancos locais existentes que guardam a cor antiga `#00DD00` passam a exibi-la como `#168A62`; ao escolher o novo verde, a gravação reutiliza o identificador da cor existente sem substituir dados. Verificados os cenários de banco antigo e cadastro em harness, além dos scripts de versão do banco e sessão de cadastro. Validação física pendente.
+
 ## Valor do saldo em estoque — 13 de novembro de 2026
 
 - O detalhe do produto mostra “Preço do lote” calculado pelo saldo atual e pelo preço unitário da compra. Os controles de quantidade atualizam esse valor sem alterar o histórico da compra. Validação física pendente.

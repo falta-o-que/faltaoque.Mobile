@@ -3,7 +3,7 @@ import Svg, { Path } from 'react-native-svg';
 export default function AngleIcon({
   width = 19,
   height = 12,
-  color = '#00DD00',
+  color = '#168A62',
   direction = 'down',
 }) {
   return (

@@ -10,7 +10,7 @@
     "updates": {
       "url": "https://u.expo.dev/73ea38cc-3585-408a-bd46-eaceabefa581"
     },
-    "primaryColor": "#00DD00",
+    "primaryColor": "#168A62",
     "orientation": "portrait",
     "icon": "./src/assets/branding/app-icon.png",
     "userInterfaceStyle": "light",

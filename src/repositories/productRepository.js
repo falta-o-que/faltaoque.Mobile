@@ -84,8 +84,7 @@ function groupProductOccurrences(occurrences, brandGroupingByPresentation = {}) 
     occurrences.forEach((product) => {
         const presentationKey = getProductPresentationKey(product);
         const groupingPreference = brandGroupingByPresentation[presentationKey];
-        const groupBrands = groupingPreference === 'grouped' ||
-            (groupingPreference !== 'separate' && !stockedPresentations.has(presentationKey));
+        const groupBrands = groupingPreference === 'grouped' || (groupingPreference !== 'separate' && !stockedPresentations.has(presentationKey));
         const key = productGroupKey(product, groupBrands);
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key).push(product);
@@ -93,14 +92,11 @@ function groupProductOccurrences(occurrences, brandGroupingByPresentation = {}) 
 
     return [...groups.entries()].filter(([, entries]) => {
         const presentationKey = getProductPresentationKey(entries[0]);
-        return !stockedPresentations.has(presentationKey) ||
-            brandGroupingByPresentation[presentationKey] !== 'grouped' ||
-            entries.some((item) => Number(item.quantity) > 0);
+        return !stockedPresentations.has(presentationKey) || brandGroupingByPresentation[presentationKey] !== 'grouped' || entries.some((item) => Number(item.quantity) > 0);
     }).map(([key, entries]) => {
         const presentationKey = getProductPresentationKey(entries[0]);
         const groupingPreference = brandGroupingByPresentation[presentationKey];
-        const groupBrands = groupingPreference === 'grouped' ||
-            (groupingPreference !== 'separate' && !stockedPresentations.has(presentationKey));
+        const groupBrands = groupingPreference === 'grouped' || (groupingPreference !== 'separate' && !stockedPresentations.has(presentationKey));
         const ordered = [...entries].sort(compareOccurrenceAge);
         const stocked = ordered.filter((entry) => Number(entry.quantity) > 0);
         const displayed = stocked.length ? stocked : [ordered[ordered.length - 1]];
@@ -229,8 +225,7 @@ export async function updateProductQuantity({accountId, pantryId, productId, pro
                 const secondPurchase = database.purchases.find((entry) => entry.id === second.purchase_id);
                 const dateOrder = String(secondPurchase?.purchase_date ?? '').localeCompare(String(firstPurchase?.purchase_date ?? ''));
                 if (dateOrder) return dateOrder;
-                return database.purchases.findIndex((entry) => secondPurchase?.id === entry.id) -
-                    database.purchases.findIndex((entry) => firstPurchase?.id === entry.id);
+                return database.purchases.findIndex((entry) => secondPurchase?.id === entry.id) - database.purchases.findIndex((entry) => firstPurchase?.id === entry.id);
             })[0];
             changes.set(latest.id, changes.get(latest.id) + quantity - currentTotal);
         }

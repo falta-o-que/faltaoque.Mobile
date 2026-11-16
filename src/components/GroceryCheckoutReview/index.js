@@ -334,10 +334,10 @@ export default function GroceryCheckoutReview({
                     <ErrorText accessibilityLiveRegion="polite">
                         {t('shopping.completeRequired', {errors: Object.values(checkoutItemErrors(item, t)).join(' ')})}
                     </ErrorText> : null}
-                {(item.needsReview || standalone) && !item.reviewed && item.included ? <ButtonClick
-                    disabled={busy || Object.keys(checkoutItemErrors(item, t)).length > 0}
-                    onPress={() => patch(item, {reviewed: true})}
-                    title={t('shopping.confirmProductToPantry')}/> : null}
+                {(item.needsReview || standalone) && !item.reviewed && item.included ? <ButtonClick variant="success"
+                                                                                                    disabled={busy || Object.keys(checkoutItemErrors(item, t)).length > 0}
+                                                                                                    onPress={() => patch(item, {reviewed: true})}
+                                                                                                    title={t('shopping.confirmProductToPantry')}/> : null}
                 {allowLink ? <Section>
                     <Label>{t('shopping.matchProductQuestion')}</Label>
                     <Muted>{t('shopping.matchProductHint')}</Muted>
@@ -457,10 +457,10 @@ export default function GroceryCheckoutReview({
                     <ErrorText accessibilityLiveRegion="polite">
                         {t('shopping.completeRequired', {errors: Object.values(checkoutItemErrors(draft, t)).join(' ')})}
                     </ErrorText> : null}
-                {!draft.reviewed && draft.included ?
-                    <ButtonClick disabled={busy || Object.keys(checkoutItemErrors(draft, t)).length > 0}
-                                 onPress={() => patch(draft, {reviewed: true})}
-                                 title={t('shopping.confirmProductToPantry')}/> : null}
+                {!draft.reviewed && draft.included ? <ButtonClick variant="success"
+                                                                  disabled={busy || Object.keys(checkoutItemErrors(draft, t)).length > 0}
+                                                                  onPress={() => patch(draft, {reviewed: true})}
+                                                                  title={t('shopping.confirmProductToPantry')}/> : null}
             </PurchaseProductReviewCard>
         </Section>;
     }
@@ -656,8 +656,7 @@ export default function GroceryCheckoutReview({
         setEditingPurchaseData(false);
     };
     const confirmRestart = () => Alert.alert(t('shopping.restartConfirmTitle'), t('shopping.restartConfirmMessage'), [{
-        text: t('common.cancel'),
-        style: 'cancel'
+        text: t('common.cancel'), style: 'cancel'
     }, {text: t('shopping.restartConfirmAction'), style: 'destructive', onPress: restartReview},],);
     const nextStepTitle = activeSteps[stepIndex + 1]?.title;
     const confirmationTitle = includedItems.length ? t('shopping.addProductsToPantry', {count: includedItems.length}) : t('shopping.finishPurchaseNoProducts');
@@ -717,7 +716,7 @@ export default function GroceryCheckoutReview({
                     {t(incompleteIncludedItems.length === 1 ? 'shopping.incompleteProducts.one' : 'shopping.incompleteProducts.other', {count: incompleteIncludedItems.length})}
                 </ErrorText> : null}
                 {busy ?
-                    <ActivityIndicator accessibilityLabel={t('shopping.confirmingPurchase')} color="#228B22"/> : null}
+                    <ActivityIndicator accessibilityLabel={t('shopping.confirmingPurchase')} color="#168a62"/> : null}
                 {isFiscal && previousStages.length > 0 ?
                     <Choice accessibilityRole="button" disabled={busy} onPress={previousStep}>
                         <ChoiceText>{t('shopping.backOneStep')}</ChoiceText>
@@ -729,7 +728,7 @@ export default function GroceryCheckoutReview({
                 {isFiscal && canGoNext ? <>
                     {nextStepTitle ? <Muted>{t('shopping.nextStep', {title: nextStepTitle})}</Muted> : null}
                     <ButtonClick disabled={!canContinue} onPress={nextStep} title={t('shopping.continue')}/>
-                </> : <ButtonClick accessibilityLabel={confirmationTitle} disabled={!canConfirm}
+                </> : <ButtonClick variant="success" accessibilityLabel={confirmationTitle} disabled={!canConfirm}
                                    onPress={onConfirm}
                                    title={busy ? t('shopping.finalizingPurchase') : confirmationTitle}/>}
             </Footer>
