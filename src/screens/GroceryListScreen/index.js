@@ -151,6 +151,7 @@ export default function GroceryListScreen({navigation, route}) {
     const [suggestionOptionsByList, setSuggestionOptionsByList] = useState({});
     const [selectedSuggestionByList, setSelectedSuggestionByList] = useState({});
     const [loadingSuggestionListId, setLoadingSuggestionListId] = useState(null);
+    const suggestionGenerationRef = useRef(0);
     const [checkoutMode, setCheckoutMode] = useState('manual');
     const [checkoutPurchase, setCheckoutPurchase] = useState(null);
     const [checkoutItems, setCheckoutItems] = useState([]);
@@ -161,6 +162,7 @@ export default function GroceryListScreen({navigation, route}) {
     const [pantryOccurrences, setPantryOccurrences] = useState([]);
 
     const refresh = useCallback(async () => {
+        suggestionGenerationRef.current += 1;
         const [pantries, storedLists] = await Promise.all([listPantries(account?.id), groceryListService.listGroceryLists(account?.id, pantryId),]);
         const found = pantries.find((entry) => entry.id === pantryId);
         if (!found) throw new Error('Esta despensa não está disponível para sua conta.');
@@ -174,6 +176,7 @@ export default function GroceryListScreen({navigation, route}) {
 
     useFocusEffect(useCallback(() => {
         let active = true;
+        suggestionGenerationRef.current += 1;
         setLoading(true);
         setPantry(null);
         setSuggestionPanelListId(null);
@@ -206,6 +209,7 @@ export default function GroceryListScreen({navigation, route}) {
             });
         return () => {
             active = false;
+            suggestionGenerationRef.current += 1;
         };
     }, [account?.id, pantryId, t]));
 
@@ -267,10 +271,20 @@ export default function GroceryListScreen({navigation, route}) {
         setSuggestionPanelListId(list.id);
         if (suggestionOptionsByList[list.id]) return;
         setLoadingSuggestionListId(list.id);
+        const generation = suggestionGenerationRef.current;
         try {
-            const options = await getGroceryMarketSuggestions({pantryId, pantryCep: pantry?.location, list});
+            const options = await getGroceryMarketSuggestions({
+                pantryId, pantryCep: pantry?.location, list,
+                onInitialOptions: (initialOptions) => {
+                    if (generation !== suggestionGenerationRef.current) return;
+                    setSuggestionOptionsByList((current) => ({...current, [list.id]: initialOptions}));
+                    setLoadingSuggestionListId((current) => current === list.id ? null : current);
+                },
+            });
+            if (generation !== suggestionGenerationRef.current) return;
             setSuggestionOptionsByList((current) => ({...current, [list.id]: options}));
         } catch (suggestionError) {
+            if (generation !== suggestionGenerationRef.current) return;
             console.error('[GroceryListScreen] Falha ao calcular sugestões:', suggestionError);
             showUserErrorAlert(suggestionError, {
                 title: t('shopping.suggestionsUnavailable'),
@@ -280,7 +294,7 @@ export default function GroceryListScreen({navigation, route}) {
             });
             setSuggestionPanelListId(null);
         } finally {
-            setLoadingSuggestionListId((current) => current === list.id ? null : current);
+            if (generation === suggestionGenerationRef.current) setLoadingSuggestionListId((current) => current === list.id ? null : current);
         }
     };
 

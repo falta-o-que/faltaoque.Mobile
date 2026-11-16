@@ -146,12 +146,13 @@ async function mutateScope(accountId, pantryId, mutate) {
 
 export async function listGroceryLists(accountId, pantryId) {
     const scope = scopeKey(accountId, pantryId);
+    let views = [];
     await updateDatabase((database) => {
         if (!database.users_pantries.some((row) => row.user_id === scope.accountId && row.pantry_id === scope.pantryId)) return database;
-        const views = readScope(database, scope.accountId, scope.pantryId);
+        views = readScope(database, scope.accountId, scope.pantryId);
         const estimates = new Map(views
             .filter((list) => list.status === 'active')
-            .map((list) => [list.id, estimateGroceryListPrices(database, list).estimatedPrice]));
+            .map((list) => [list.id, list.estimatedPrice]));
         if ([...estimates].every(([id, price]) => database.grocery_lists.find((list) => list.id === id)?.estimated_price === price)) return database;
         return {
             ...database, grocery_lists: database.grocery_lists.map((list) => estimates.has(list.id) ? {
@@ -159,8 +160,7 @@ export async function listGroceryLists(accountId, pantryId) {
             } : list),
         };
     });
-    const database = await readDatabase();
-    return copy(readScope(database, scope.accountId, scope.pantryId));
+    return copy(views);
 }
 
 export async function createGroceryList({accountId, pantryId, name, plannedDate, location, market}) {

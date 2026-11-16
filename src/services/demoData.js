@@ -31,7 +31,8 @@ export function createDemoData(database, metadata, today = new Date()) {
         for (let trip = 0; trip < 3; trip += 1) {
             const day = month === 0 ? Math.min(today.getDate(), [5, 10, 14][trip]) : [5, 10, 14][trip];
             const date = dateOnly(new Date(today.getFullYear(), today.getMonth() - month, day));
-            const market = markets[(month + trip) % markets.length];
+            const marketIndex = (month + trip) % markets.length;
+            const market = markets[marketIndex];
             const purchaseId = id();
             const rows = products.map((product, index) => {
                 const [name, brand, content_value, unit_of_measure, category_id, basePrice] = product;
@@ -39,8 +40,9 @@ export function createDemoData(database, metadata, today = new Date()) {
                 const current_quantity = month === 0 && trip === 2 && index % 5 !== 0 ? quantity : 0;
                 const expiration = new Date(today.getFullYear(), today.getMonth(), today.getDate() + (index % 3 === 0 ? 5 : 100));
                 return {id: id(), name, quantity, current_quantity, is_in_pantry: current_quantity > 0, content_value, unit_of_measure,
-                    price: Math.round(basePrice * quantity * (1 + (7 - month) * 0.012 + ((month + trip) % 3) * 0.035) * 100) / 100,
-                    brand, expiration_date: current_quantity ? dateOnly(expiration) : null, finish_date: current_quantity ? null : date,
+                    price: Math.round(basePrice * quantity * (1 + (7 - month) * 0.012 + [0.12, 0, 0.06][marketIndex]) * 100) / 100,
+                    brand: marketIndex === 2 || index % 2 === marketIndex ? brand : `${brand} Seleção`,
+                    expiration_date: current_quantity ? dateOnly(expiration) : null, finish_date: current_quantity ? null : date,
                     is_deleted: false, purchase_id: purchaseId, category_id};
             });
             database.pantry_products.push(...rows);

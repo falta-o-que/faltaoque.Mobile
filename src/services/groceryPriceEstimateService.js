@@ -3,19 +3,12 @@ const UNIT_IDS = {g: 1, kg: 2, ml: 3, L: 4};
 const normalizeName = (value) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]+/g, ' ').trim();
 
-function nameSimilarity(first, second) {
-    const firstTokens = new Set(normalizeName(first).split(' ').filter(Boolean));
-    const secondTokens = new Set(normalizeName(second).split(' ').filter(Boolean));
-    if (firstTokens.size === 0 || secondTokens.size === 0) return 0;
-    const common = [...firstTokens].filter((token) => secondTokens.has(token)).length;
-    return common / new Set([...firstTokens, ...secondTokens]).size;
-}
-
-function matchesName(plannedName, historicalName) {
-    const plannedTokens = normalizeName(plannedName).split(' ').filter(Boolean);
-    const historicalTokens = normalizeName(historicalName).split(' ').filter(Boolean);
+function matchesName(plannedTokens, historicalTokens) {
     if (!plannedTokens.length || !historicalTokens.length) return false;
-    if (nameSimilarity(plannedName, historicalName) >= 0.6) return true;
+    const plannedSet = new Set(plannedTokens);
+    const historicalSet = new Set(historicalTokens);
+    const common = [...plannedSet].filter((token) => historicalSet.has(token)).length;
+    if (common / (plannedSet.size + historicalSet.size - common) >= 0.6) return true;
 
     const samePrimaryToken = plannedTokens[0] === historicalTokens[0];
     const smallerTokens = plannedTokens.length <= historicalTokens.length ? plannedTokens : historicalTokens;
@@ -42,10 +35,6 @@ function getHistory(database, pantryId, location, marketId) {
         if (!purchase || !(quantity > 0) || !(price > 0) || !Number.isFinite(price)) return [];
         return [{product, purchasedAt: purchase.purchase_date, unitPrice: price / quantity}];
     });
-}
-
-function matchesProduct(plannedItem, observation) {
-    return matchesName(plannedItem.name, observation.product.name);
 }
 
 function comparableCategory(matches, item) {
@@ -114,9 +103,14 @@ export function estimateGroceryListPrices(database, list) {
     if (items.length === 0) return {estimatedPrice: null, matchedItems: 0, totalItems: 0, missingItems: []};
 
     const categories = new Map((database.categories ?? []).map((category) => [category.id, category.name]));
+    const tokensByName = new Map();
+    const tokensFor = (name) => {
+        if (!tokensByName.has(name)) tokensByName.set(name, normalizeName(name).split(' ').filter(Boolean));
+        return tokensByName.get(name);
+    };
     const history = getHistory(database, list.pantryId, list.location, list.marketId)
         .map((observation) => ({
-            ...observation, product: {
+            ...observation, nameTokens: tokensFor(observation.product.name), product: {
                 ...observation.product, category_name: categories.get(observation.product.category_id) ?? null
             }
         }));
@@ -124,7 +118,8 @@ export function estimateGroceryListPrices(database, list) {
     let total = 0;
     const missingItems = [];
     items.forEach((item) => {
-        const matches = comparableCategory(history.filter((observation) => matchesProduct(item, observation)), item);
+        const plannedTokens = tokensFor(item.name);
+        const matches = comparableCategory(history.filter((observation) => matchesName(plannedTokens, observation.nameTokens)), item);
         let unitPrice = null;
         if (item.weight != null && Number(item.weight) > 0 && UNIT_IDS[item.unit]) {
             const compatibleHistory = matches.filter(({product}) => measureFamily(product.unit_of_measure) === measureFamily(UNIT_IDS[item.unit]));

@@ -11,9 +11,7 @@ function normalizeName(value) {
         .toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
-function matchesProduct(plannedName, historicName) {
-    const plannedTokens = normalizeName(plannedName).split(' ').filter(Boolean);
-    const historicTokens = normalizeName(historicName).split(' ').filter(Boolean);
+function matchesProduct(plannedTokens, historicTokens) {
     if (!plannedTokens.length || !historicTokens.length) return false;
     const plannedSet = new Set(plannedTokens);
     const historicSet = new Set(historicTokens);
@@ -79,9 +77,8 @@ function getBrandPreferences(items, history) {
     const preferences = new Map();
     items.forEach((item, index) => {
         const counts = new Map();
-        history.filter(({product, brand}) => brand && matchesProduct(item.name, product.name))
-            .forEach(({brand}) => {
-                const normalizedBrand = normalizeName(brand);
+        history.filter(({nameTokens, brand}) => brand && matchesProduct(item.nameTokens, nameTokens))
+            .forEach(({normalizedBrand}) => {
                 counts.set(normalizedBrand, (counts.get(normalizedBrand) ?? 0) + 1);
             });
         if (!counts.size) return;
@@ -97,8 +94,8 @@ function countPreferredBrands(items, history, preferences) {
         const preferredBrands = preferences.get(index);
         if (!preferredBrands) return;
         if (history.some(({
-                              product, brand
-                          }) => brand && matchesProduct(item.name, product.name) && preferredBrands.has(normalizeName(brand)))) available += 1;
+                              nameTokens, brand, normalizedBrand
+                          }) => brand && matchesProduct(item.nameTokens, nameTokens) && preferredBrands.has(normalizedBrand))) available += 1;
     });
     return {available, total: preferences.size};
 }
@@ -110,9 +107,18 @@ function compareCoverageThenPrice(first, second) {
     return (first.estimate.estimatedPrice ?? Number.POSITIVE_INFINITY) - (second.estimate.estimatedPrice ?? Number.POSITIVE_INFINITY);
 }
 
-export async function getGroceryMarketSuggestions({pantryId, pantryCep, list}) {
+export async function getGroceryMarketSuggestions({pantryId, pantryCep, list, onInitialOptions}) {
     const database = await readDatabase();
-    const marketHistory = getMarketHistory(database, pantryId);
+    const normalizedNames = new Map();
+    const normalizeCached = (value) => {
+        if (!normalizedNames.has(value)) normalizedNames.set(value, normalizeName(value));
+        return normalizedNames.get(value);
+    };
+    const tokensFor = (value) => normalizeCached(value).split(' ').filter(Boolean);
+    const marketHistory = getMarketHistory(database, pantryId).map((row) => ({
+        ...row, nameTokens: tokensFor(row.product.name), normalizedBrand: normalizeCached(row.brand),
+    }));
+    const items = (list.items ?? []).map((item) => ({...item, nameTokens: tokensFor(item.name)}));
     const historicalMarketIds = new Set(marketHistory.map((observation) => observation.marketId));
     const markets = database.markets.filter((market) => historicalMarketIds.has(market.id));
     const candidates = markets.map((market) => ({
@@ -121,12 +127,28 @@ export async function getGroceryMarketSuggestions({pantryId, pantryCep, list}) {
 
     const bestValue = [...candidates].filter((candidate) => candidate.estimate.estimatedPrice != null)
         .sort(compareCoverageThenPrice)[0] ?? null;
-    const preferences = getBrandPreferences(list.items ?? [], marketHistory);
+    const preferences = getBrandPreferences(items, marketHistory);
     const bestBrands = [...candidates].map((candidate) => ({
         ...candidate,
-        brandCoverage: countPreferredBrands(list.items ?? [], marketHistory.filter((row) => row.marketId === candidate.market.id), preferences),
+        brandCoverage: countPreferredBrands(items, marketHistory.filter((row) => row.marketId === candidate.market.id), preferences),
     })).filter((candidate) => candidate.brandCoverage.total > 0)
         .sort((first, second) => second.brandCoverage.available - first.brandCoverage.available || compareCoverageThenPrice(first, second))[0] ?? null;
+
+    const emptyEstimate = {
+        estimatedPrice: null,
+        matchedItems: 0,
+        totalItems: list.items?.length ?? 0,
+        missingItems: (list.items ?? []).map((item) => item.name),
+    };
+    const buildOptions = (nearest, nearestError) => [{
+        type: GROCERY_SUGGESTION_TYPES.NEAREST, candidate: nearest, disabled: !nearest, messageKey: nearestError
+    }, {
+        type: GROCERY_SUGGESTION_TYPES.BEST_VALUE,
+        candidate: bestValue, disabled: !bestValue, messageKey: bestValue ? null : 'errors.suggestionPricesRequired'
+    }, {
+        type: GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS,
+        candidate: bestBrands, disabled: !bestBrands, messageKey: bestBrands ? null : 'errors.suggestionBrandsRequired'
+    }].map((option) => ({...option, candidate: option.candidate ?? {market: null, estimate: emptyEstimate}}));
 
     let nearest = null;
     let nearestError = null;
@@ -138,6 +160,7 @@ export async function getGroceryMarketSuggestions({pantryId, pantryCep, list}) {
             nearestError = 'errors.suggestionCoordinatesRequired';
         } else {
             try {
+                onInitialOptions?.(buildOptions(null, 'shopping.loadingHistory'));
                 const pantryCoordinates = await geocodePantryCep(pantryCep);
                 nearest = [...locatedCandidates].map((candidate) => ({
                     ...candidate, distanceKm: distanceKm(pantryCoordinates, candidate.market),
@@ -148,23 +171,5 @@ export async function getGroceryMarketSuggestions({pantryId, pantryCep, list}) {
         }
     }
 
-    const emptyEstimate = {
-        estimatedPrice: null,
-        matchedItems: 0,
-        totalItems: list.items?.length ?? 0,
-        missingItems: (list.items ?? []).map((item) => item.name),
-    };
-    return [{
-        type: GROCERY_SUGGESTION_TYPES.NEAREST, candidate: nearest, disabled: !nearest, messageKey: nearestError
-    }, {
-        type: GROCERY_SUGGESTION_TYPES.BEST_VALUE,
-        candidate: bestValue,
-        disabled: !bestValue,
-        messageKey: bestValue ? null : 'errors.suggestionPricesRequired'
-    }, {
-        type: GROCERY_SUGGESTION_TYPES.MOST_BOUGHT_BRANDS,
-        candidate: bestBrands,
-        disabled: !bestBrands,
-        messageKey: bestBrands ? null : 'errors.suggestionBrandsRequired'
-    },].map((option) => ({...option, candidate: option.candidate ?? {market: null, estimate: emptyEstimate}}));
+    return buildOptions(nearest, nearestError);
 }

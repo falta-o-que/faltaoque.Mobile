@@ -27,7 +27,11 @@ function createHarness() {
         new Function('require', 'module', 'exports', code)((name) => {
             if (name === '@react-native-async-storage/async-storage') return storage;
             if (name === 'expo-crypto') return {randomUUID};
-            if (name.startsWith('.')) return load(path.relative(path.resolve(__dirname, '..'), path.resolve(path.dirname(absolute), `${name}.js`)));
+            if (name === 'react-native') return {Alert: {alert() {}}};
+            if (name.startsWith('.')) {
+                const target = path.resolve(path.dirname(absolute), name);
+                return load(path.relative(path.resolve(__dirname, '..'), fs.existsSync(`${target}.js`) ? `${target}.js` : path.join(target, 'index.js')));
+            }
             return require(name);
         }, moduleObject, moduleObject.exports);
         return moduleObject.exports;
