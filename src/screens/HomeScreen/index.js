@@ -260,20 +260,20 @@ export function HomeScreen({navigation, route}) {
                 </QuickActions>
             </Section>
             {selectedAction === 'pantry' ? (<PantrySection>
-                <PantryTitle>{t('home.pantries')}</PantryTitle>
-                {pantriesLoading ? <ActivityIndicator accessibilityLabel={t('common.loading')}/> : null}
-                {!pantriesLoading && pantriesError ? (<>
-                    <LoadError accessibilityLiveRegion="polite"
-                               accessibilityRole="alert">{pantriesError}</LoadError>
-                    <RetryButton accessibilityRole="button"
-                                 onPress={() => setReloadKey((value) => value + 1)}>
-                        <RetryText>{t('common.retry')}</RetryText>
-                    </RetryButton>
-                </>) : null}
-                {!pantriesLoading && pantries.length === 0 && !pantriesError ? (
-                    <EmptyText>{t('home.noPantries')}</EmptyText>) : null}
-                {!pantriesLoading && pantries.length > 0 ? (<PantryList>
-                    {pantries.map((pantry) => (<PantryCard
+                <PantryList>
+                    <PantryTitle>{t('home.pantries')}</PantryTitle>
+                    {pantriesLoading ? <ActivityIndicator accessibilityLabel={t('common.loading')}/> : null}
+                    {!pantriesLoading && pantriesError ? (<>
+                        <LoadError accessibilityLiveRegion="polite"
+                                   accessibilityRole="alert">{pantriesError}</LoadError>
+                        <RetryButton accessibilityRole="button"
+                                     onPress={() => setReloadKey((value) => value + 1)}>
+                            <RetryText>{t('common.retry')}</RetryText>
+                        </RetryButton>
+                    </>) : null}
+                    {!pantriesLoading && pantries.length === 0 && !pantriesError ? (
+                        <EmptyText>{t('home.noPantries')}</EmptyText>) : null}
+                    {!pantriesLoading && pantries.length > 0 ? pantries.map((pantry) => (<PantryCard
                         key={pantry.id}
                         color={pantry.color}
                         name={pantry.name}
@@ -281,8 +281,8 @@ export function HomeScreen({navigation, route}) {
                         shoppingListCount={pantry.shoppingListCount}
                         onPress={() => handlePantryPress(pantry)}
                         onSettingsPress={() => handlePantrySettingsPress(pantry)}
-                    />))}
-                </PantryList>) : null}
+                    />)) : null}
+                </PantryList>
                 <CreateAction>
                     <QuickActionButton
                         Icon={AddCircleIcon}
