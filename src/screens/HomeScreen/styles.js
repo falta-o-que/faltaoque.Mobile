@@ -40,7 +40,7 @@ export const Greeting = styled.Text`
 `;
 
 export const Subtitle = styled.Text`
-    margin-top: 4px;
+    margin-top: 0;
     color: ${({theme}) => theme.colors.black.Black};
     font-family: ${({theme}) => theme.fonts.families.inter.regular};
     font-size: ${({theme}) => 16 * theme.fonts.scale}px;
@@ -90,7 +90,7 @@ export const CreateAction = styled.View`
 
 export const PantryList = styled.ScrollView.attrs({
     contentContainerStyle: {
-        gap: 16, paddingTop: 16, paddingRight: 8, paddingBottom: 84, paddingLeft: 8,
+        gap: 16, paddingTop: 0, paddingRight: 8, paddingBottom: 84, paddingLeft: 8,
     }, removeClippedSubviews: false, showsVerticalScrollIndicator: false,
 })`
     flex: 1;
@@ -102,7 +102,7 @@ export const PantryList = styled.ScrollView.attrs({
 export const Question = styled.Text`
     margin-bottom: 10px;
     color: ${({theme}) => theme.colors.black.Black};
-    font-family: ${({theme}) => theme.fonts.families.inter.bold};
+    font-family: ${({theme}) => theme.fonts.families.poppins.medium};
     font-size: ${({theme}) => 16 * theme.fonts.scale}px;
     text-align: center;
 `;
@@ -119,13 +119,14 @@ export const PantryTitle = styled.Text`
     color: ${({theme}) => theme.colors.black.Black};
     font-family: ${({theme}) => theme.fonts.families.poppins.medium};
     font-size: ${({theme}) => 20 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
 export const EmptyText = styled.Text`
-    margin-top: 16px;
     color: ${({theme}) => theme.colors.black.Black};
     font-family: ${({theme}) => theme.fonts.families.inter.regular};
     font-size: ${({theme}) => 16 * theme.fonts.scale}px;
+    text-align: center;
 `;
 
 export const LoadError = styled.Text`
