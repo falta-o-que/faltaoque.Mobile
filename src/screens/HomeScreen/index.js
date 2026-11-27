@@ -69,9 +69,13 @@ export function HomeScreen({navigation, route}) {
     useEffect(() => {
         const section = route?.params?.section;
         if (!['pantry', 'notifications', 'profile', 'settings'].includes(section)) return;
-        setSelectedAction(section);
+        if (section === 'profile') {
+            Alert.alert(t('auth.profile.updatingTitle'), t('auth.profile.updatingBody'), [{text: t('common.ok')}]);
+        } else {
+            setSelectedAction(section);
+        }
         navigation.setParams({section: undefined});
-    }, [navigation, route?.params?.section]);
+    }, [navigation, route?.params?.section, t]);
 
     useFocusEffect(useCallback(() => {
         let isMounted = true;
@@ -125,6 +129,10 @@ export function HomeScreen({navigation, route}) {
     }, [account?.id]);
 
     const handleActionPress = (key) => {
+        if (key === 'profile') {
+            Alert.alert(t('auth.profile.updatingTitle'), t('auth.profile.updatingBody'), [{text: t('common.ok')}]);
+            return;
+        }
         setSelectedAction(key);
     };
 

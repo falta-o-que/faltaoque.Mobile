@@ -41,10 +41,7 @@ function createHarness() {
 }
 
 async function seed(harness) {
-    const {createAccount} = harness.load('src/repositories/accountRepository.js');
     const {createPantry} = harness.load('src/repositories/pantryRepository.js');
-    await createAccount({id: 'a', name: 'A', email: 'a@example.test', passwordHash: 'hash', avatarColor: '#00F0FF'});
-    await createAccount({id: 'b', name: 'B', email: 'b@example.test', passwordHash: 'hash', avatarColor: '#00F0FF'});
     await createPantry({id: 'p', accountId: 'a', name: 'Casa', color: '#00F0FF'});
 }
 

@@ -26,20 +26,38 @@ const { readDatabase } = moduleObject.exports;
 
 async function main() {
   const fresh = await readDatabase();
-  assert.deepEqual(fresh.users, []);
+  assert.equal(Object.hasOwn(fresh, 'users'), false);
   const complete = data.get(databaseKey);
-  assert.equal(JSON.parse(complete).version, 11);
+  assert.equal(JSON.parse(complete).version, 12);
 
-  for (const version of [1, 8, 9, 10]) {
+  for (const version of [1, 8, 9, 10, 11]) {
     data.set(databaseKey, JSON.stringify({ oldData: ['discarded'] }));
     data.set(versionKey, String(version));
-    assert.deepEqual((await readDatabase()).users, []);
-    assert.equal(JSON.parse(data.get(databaseKey)).version, 11);
+    assert.equal(Object.hasOwn(await readDatabase(), 'users'), false);
+    assert.equal(JSON.parse(data.get(databaseKey)).version, 12);
   }
+
+  const linked = JSON.parse(JSON.stringify(fresh));
+  linked.pantries.push({
+    id: 'pantry-1', title: 'Despensa', location: null, location_name: null, color_id: 1, share_invite_id: null,
+  });
+  linked.users_pantries.push({user_id: 'external-user-id', pantry_id: 'pantry-1'});
+  data.set(databaseKey, JSON.stringify({version: 12, tables: linked}));
+  data.delete(versionKey);
+  assert.deepEqual((await readDatabase()).users_pantries, [{user_id: 'external-user-id', pantry_id: 'pantry-1'}]);
+
+  const brokenMembership = JSON.parse(JSON.stringify(linked));
+  brokenMembership.users_pantries[0].pantry_id = 'missing-pantry';
+  const brokenMembershipPayload = JSON.stringify({version: 12, tables: brokenMembership});
+  data.set(databaseKey, brokenMembershipPayload);
+  await assert.rejects(readDatabase(), /vínculos locais/);
+  assert.equal(data.get(databaseKey), brokenMembershipPayload);
 
   const incomplete = JSON.parse(complete);
   delete incomplete.tables.markets;
-  for (const payload of [JSON.stringify(incomplete), JSON.stringify({ version: 12, tables: {} }), '{', JSON.stringify({ users: [] })]) {
+  const obsoleteUsers = JSON.parse(complete);
+  obsoleteUsers.tables.users = [];
+  for (const payload of [JSON.stringify(incomplete), JSON.stringify(obsoleteUsers), JSON.stringify({ version: 13, tables: {} }), '{', JSON.stringify({ users: [] })]) {
     data.set(databaseKey, payload);
     data.delete(versionKey);
     await assert.rejects(readDatabase());
@@ -47,7 +65,7 @@ async function main() {
   }
   const oldCurrent = JSON.stringify(fresh);
   data.set(databaseKey, oldCurrent);
-  data.set(versionKey, '11');
+  data.set(versionKey, '12');
   assert.deepEqual(await readDatabase(), fresh);
   assert.equal(data.get(databaseKey), oldCurrent);
   failWrite = true;
@@ -55,9 +73,9 @@ async function main() {
   assert.equal(data.get(databaseKey), oldCurrent);
   failWrite = false;
   await moduleObject.exports.updateDatabase((db) => ({ ...db, colors: db.colors.map((row, index) => index === 0 ? { ...row, name: 'Changed' } : row) }));
-  assert.equal(JSON.parse(data.get(databaseKey)).version, 11);
+  assert.equal(JSON.parse(data.get(databaseKey)).version, 12);
   assert.equal((await readDatabase()).colors[0].name, 'Changed');
-  data.set(versionKey, '12');
+  data.set(versionKey, '13');
   assert.equal((await readDatabase()).colors[0].name, 'Changed');
   failAfterWrite = true;
   await moduleObject.exports.updateDatabase((db) => ({ ...db, colors: db.colors.map((row, index) => index === 0 ? { ...row, name: 'Saved' } : row) }));

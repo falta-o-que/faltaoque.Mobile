@@ -1,60 +1,92 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const path = require('node:path');
 const {transformSync} = require('@babel/core');
-
-let account;
-let session;
-let writeMode = 'success';
-let failRead = false;
-const modules = {
-    'expo-crypto': {
-        randomUUID: () => 'id-a', CryptoDigestAlgorithm: {SHA256: 'sha256'}, digestStringAsync: async () => 'hash'
-    }, '../repositories/accountRepository': {
-        createAccount: async (value) => {
-            account = value;
-        }, findAccountByEmail: async () => account ?? null, normalizeEmail: (value) => value.trim().toLowerCase(),
-    }, '../repositories/sessionRepository': {
-        saveActiveAccountId: async (id) => {
-            if (writeMode !== 'before') session = id;
-            if (writeMode !== 'success') throw new Error('storage failed');
-        }, getActiveAccountId: async () => {
-            if (failRead) throw new Error('read failed');
-            return session;
-        },
-    },
+let session = null;
+let status = 200;
+let colorStatus = 200;
+let calls = [];
+let failSave = false;
+let failNetwork = false;
+let catalog = [{id: 17, hexCode: '#ABCDEF'}, {id: 8, hexCode: '#aabbcc'}];
+const user = {id:'user-1', name:'Pessoa', email:'a@example.test', avatar:17, isActive:true};
+const expiryDate = new Date(Date.now() + 3600000);
+const backendDate = new Date(expiryDate.getTime() - 3 * 60 * 60 * 1000);
+const pad = n => String(n).padStart(2, '0');
+let expiry = `${pad(backendDate.getUTCDate())}/${pad(backendDate.getUTCMonth()+1)}/${backendDate.getUTCFullYear()} ${pad(backendDate.getUTCHours())}:${pad(backendDate.getUTCMinutes())}:${pad(backendDate.getUTCSeconds())}`;
+const deps = {
+  '../repositories/sessionRepository': {getSession: async () => session, saveSession: async s => { if (failSave) throw Error('write'); session=s; }, clearSession: async () => {session=null;}},
 };
-const file = path.resolve(__dirname, '../src/services/authService.js');
-const {code} = transformSync(fs.readFileSync(file, 'utf8'), {
-    babelrc: false, configFile: false, plugins: ['@babel/plugin-transform-modules-commonjs']
-});
-const mod = {exports: {}};
-new Function('require', 'module', 'exports', code)((name) => {
-    if (!(name in modules)) throw new Error(`Unexpected import: ${name}`);
-    return modules[name];
-}, mod, mod.exports);
-const input = {name: 'Pessoa', email: 'A@example.test', avatarColor: '#fff', password: 'password'};
-
-async function main() {
-    writeMode = 'before';
-    await assert.rejects(mod.exports.register(input), /ACCOUNT_CREATED_SESSION_FAILED/);
-    assert.equal(account.email, 'a@example.test');
-    await assert.rejects(mod.exports.register(input), /EMAIL_ALREADY_EXISTS/);
-    account = null;
-    session = undefined;
-    writeMode = 'after';
-    const result = await mod.exports.register(input);
-    assert.equal(result.id, 'id-a');
-    assert.equal(session, 'id-a');
-    account = null;
-    session = undefined;
-    failRead = true;
-    await assert.rejects(mod.exports.register(input), /ACCOUNT_CREATED_SESSION_FAILED/);
-    assert.ok(account);
-    console.log('registration-session tests passed');
-}
-
-main().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-});
+process.env.EXPO_PUBLIC_API_URL = 'http://localhost:8080';
+global.fetch = async (url, options) => {
+  calls.push({url, options});
+  if (failNetwork) throw Error('network');
+  const responseStatus = url.endsWith('/colors') ? colorStatus : status;
+  if (url.endsWith('/auth/sign-up') && status === 200) user.avatar = JSON.parse(options.body).avatar;
+  return {ok: responseStatus === 200, status: responseStatus, json: async () => url.endsWith('/colors') ? catalog : url.endsWith('/auth/login') ? {token:'token', expiration:expiry, user} : user};
+};
+const source = fs.readFileSync(require('node:path').resolve(__dirname,'../src/services/authService.js'),'utf8');
+const code = transformSync(source,{babelrc:false,configFile:false,plugins:['@babel/plugin-transform-modules-commonjs']}).code;
+const mod = {exports:{}};
+new Function('require','module','exports',code)(name => deps[name], mod, mod.exports);
+const auth = mod.exports;
+(async () => {
+  let account = await auth.register({name:' Pessoa ',email:'A@example.test',password:'password',avatarColor:'#abcdef'});
+  assert.equal(account.avatarColor, '#ABCDEF');
+  assert.equal(calls[0].url, 'http://localhost:8080/colors');
+  assert.deepEqual(JSON.parse(calls[1].options.body), {name:'Pessoa',email:'a@example.test',password:'password',avatar:17});
+  assert.equal(session.token, 'token');
+  assert.equal(Date.parse(session.expiration), Math.floor(expiryDate.getTime() / 1000) * 1000);
+  const validExpiry = expiry;
+  expiry = '31/02/2099 12:00:00';
+  await assert.rejects(auth.login({email:'a@example.test',password:'password'}),/INVALID_API_RESPONSE/);
+  expiry = '01/01/2000 00:00:00';
+  await assert.rejects(auth.login({email:'a@example.test',password:'password'}),/INVALID_API_RESPONSE/);
+  expiry = validExpiry;
+  catalog=[{id: 2,hexCode:'#00DD00'}];
+  calls=[];
+  account = await auth.register({name:'Pessoa',email:'a@example.test',password:'password',avatarColor:'#00DD00'});
+  assert.equal(JSON.parse(calls[1].options.body).avatar, 2);
+  assert.equal(account.avatarColor, '#00DD00');
+  catalog=[{id:17,hexCode:'#abcdef'}];
+  user.avatar=17;
+  catalog.push({id:8,hexCode:'#AABBCC'});
+  user.avatar=8;
+  assert.equal((await auth.login({email:'a@example.test',password:'password'})).avatarColor, '#AABBCC');
+  user.avatar=999;
+  await assert.rejects(auth.login({email:'a@example.test',password:'password'}),/AVATAR_COLOR_UNAVAILABLE/);
+  user.avatar=17;
+  calls=[];
+  account=await auth.restoreSession();
+  assert.equal(account.id,'user-1');
+  assert.equal(calls[0].options.headers.Authorization,'Bearer token');
+  colorStatus=401;
+  await assert.rejects(auth.restoreSession(), error => error.status === 401);
+  assert.equal(session.token, 'token');
+  colorStatus=403;
+  await assert.rejects(auth.restoreSession(), error => error.status === 403);
+  assert.equal(session.token, 'token');
+  colorStatus=200;
+  failNetwork=true;
+  await assert.rejects(auth.restoreSession(),/network/);
+  assert.equal(session.token,'token');
+  failNetwork=false;
+  calls=[];
+  await assert.rejects(auth.register({name:'Pessoa',email:'a@example.test',password:'password',avatarColor:'#000000'}),/AVATAR_COLOR_UNAVAILABLE/);
+  assert.equal(calls.length, 1);
+  catalog=[{id: 17,hexCode:'#abcdef'},{id: 18,hexCode:'#abcdef'}];
+  await assert.rejects(auth.register({name:'Pessoa',email:'a@example.test',password:'password',avatarColor:'#abcdef'}),/AVATAR_COLOR_UNAVAILABLE/);
+  catalog=[{id:17,hexCode:'#abcdef'}];
+  status=401;
+  assert.equal(await auth.restoreSession(),null);
+  await assert.rejects(auth.login({email:'a@example.test',password:'wrongpass'}),/INVALID_CREDENTIALS/);
+  status=404;
+  await assert.rejects(auth.login({email:'a@example.test',password:'password'}), /LOGIN_ENDPOINT_UNAVAILABLE/);
+  status=409;
+  await assert.rejects(auth.register({name:'Pessoa',email:'a@example.test',password:'password',avatarColor:'#abcdef'}),/EMAIL_ALREADY_EXISTS/);
+  status=200; failSave=true;
+  await assert.rejects(auth.register({name:'Pessoa',email:'a@example.test',password:'password',avatarColor:'#abcdef'}),/ACCOUNT_CREATED_SESSION_FAILED/);
+  failSave=false; session={token:'old',account:user,expiration:new Date(0).toISOString()};
+  assert.equal(await auth.restoreSession(),null);
+  await assert.rejects(auth.updateProfile({}),/PROFILE_API_UNAVAILABLE/);
+  console.log('registration-session tests passed');
+})().catch(error => {console.error(error);process.exitCode=1;});

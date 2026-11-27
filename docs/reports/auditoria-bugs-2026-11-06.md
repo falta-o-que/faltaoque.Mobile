@@ -1,5 +1,8 @@
 # Auditoria consolidada de bugs em aberto — 6 de novembro de 2026
 
+**Atualização de 27/11/2026:** B41 e C03 foram corrigidos no código local e aguardam validação física. Os demais achados
+abaixo preservam o estado da auditoria original e devem ser reavaliados antes de contabilizar as pendências atuais.
+
 Consolidação das auditorias de 11/10, 18/10 e 06/11, considerando as correções locais e as validações registradas até
 esta data. Contém **11 problemas em aberto**: B35–B44 e C03. C01 é o mesmo problema do B36; C06 é o mesmo cenário do
 B38, cuja representação funcional ainda precisa ser definida. Os IDs históricos foram preservados para evitar

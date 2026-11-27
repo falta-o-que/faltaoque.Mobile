@@ -7,6 +7,7 @@ function harness(file) {
     let cursor = 0;
     const effects = [];
     const calls = [];
+    const alerts = [];
     const params = {};
     const navigation = {
         navigate: (...args) => calls.push(args), setParams: (values) => Object.assign(params, values),
@@ -41,9 +42,7 @@ function harness(file) {
         'react/jsx-runtime': {jsx: node, jsxs: node, Fragment: 'Fragment'},
         'react-native': {
             ActivityIndicator: 'ActivityIndicator', Alert: {
-                alert() {
-                    throw new Error('unexpected alert');
-                }
+                alert(...args) { alerts.push(args); }
             }
         },
         'expo-notifications': {
@@ -88,7 +87,7 @@ function harness(file) {
         throw new Error(`Unexpected import: ${name}`);
     }, module, module.exports);
     return {
-        calls, params, render() {
+        calls, alerts, params, render() {
             cursor = 0;
             const tree = module.exports.default({navigation, route: {params}});
             while (effects.length) effects.shift()();
@@ -111,12 +110,21 @@ function all(tree, type, result = []) {
 const home = harness('src/screens/HomeScreen/index.js');
 const selected = () => all(home.render(), 'QuickActionButton').find((entry) => entry.props.selected)?.props.accessibilityLabel;
 assert.equal(selected(), 'home.action.pantry');
-for (const section of ['settings', 'profile', 'notifications', 'pantry']) {
+for (const section of ['settings', 'notifications', 'pantry']) {
     home.params.section = section;
     home.render();
     assert.equal(home.params.section, undefined, 'handled section should be cleared');
     assert.equal(selected(), `home.action.${section}`);
 }
+home.params.section = 'profile';
+home.render();
+assert.equal(home.params.section, undefined);
+assert.equal(selected(), 'home.action.pantry');
+assert.equal(home.alerts.at(-1)[0], 'auth.profile.updatingTitle');
+all(home.render(), 'QuickActionButton').find((entry) => entry.props.accessibilityLabel === 'home.action.profile').props.onPress();
+assert.equal(home.alerts.length, 2);
+assert.equal(home.alerts.at(-1)[1], 'auth.profile.updatingBody');
+assert.equal(selected(), 'home.action.pantry');
 home.params.section = 'invalid';
 home.render();
 assert.equal(selected(), 'home.action.pantry', 'invalid target must not change selection');

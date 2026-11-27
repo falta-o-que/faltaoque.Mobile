@@ -1,4 +1,6 @@
 const ptBR = {
+    'auth.profile.updatingTitle': 'Atualização em andamento',
+    'auth.profile.updatingBody': 'A edição de perfil está sendo atualizada e estará disponível em breve.',
     'auth.register.sessionFailed': 'Sua conta foi criada, mas não foi possível iniciar a sessão automaticamente. Entre com seu e-mail e senha.',
     'auth.login.subtitle': 'Sua casa abastecida na hora certa.',
     'auth.login.email': 'Email',
@@ -84,6 +86,8 @@ const ptBR = {
 };
 
 const en = {
+    'auth.profile.updatingTitle': 'Update in progress',
+    'auth.profile.updatingBody': 'Profile editing is being updated and will be available soon.',
     'auth.register.sessionFailed': 'Your account was created, but automatic sign-in failed. Sign in with your email and password.',
     'auth.validation.invalidCredentials': 'Check your email and password and try again. If you don’t have an account yet, create one to get started.',
     'auth.login.checkCredentials': 'Check details',
@@ -169,6 +173,8 @@ const en = {
 };
 
 const es = {
+    'auth.profile.updatingTitle': 'Actualización en curso',
+    'auth.profile.updatingBody': 'La edición del perfil se está actualizando y estará disponible pronto.',
     'auth.register.sessionFailed': 'Tu cuenta fue creada, pero no se pudo iniciar sesión automáticamente. Entra con tu correo y contraseña.',
     'auth.validation.invalidCredentials': 'Revisa tu correo y contraseña e inténtalo de nuevo. Si aún no tienes una cuenta, crea una para empezar.',
     'auth.login.checkCredentials': 'Revisar datos',

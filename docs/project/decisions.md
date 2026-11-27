@@ -1,5 +1,21 @@
 # Decisões do projeto
 
+## 2026-11-27 — Cor do avatar conforme a API
+
+Por solicitação do usuário, o ID de avatar retornado pela API determina a cor exibida no login e na restauração da sessão, por consulta ao catálogo de cores. A paleta do app usa os mesmos códigos do backend, inclusive `#00DD00`; a conversão anterior para `#168A62` foi revertida. Para despensas locais existentes, o verde anteriormente salvo como `#168A62` é exibido como `#00DD00`, preservando o registro. A marca e os demais elementos verdes do tema não foram alterados.
+
+## 2026-11-27 — Cor selecionada no cadastro pela API
+
+O cadastro consulta o catálogo público de cores da API e envia o ID cujo código hexadecimal corresponde à cor escolhida. Não presume IDs nem envia um avatar padrão. Se a rota falhar ou a cor não tiver correspondência única, o cadastro não é enviado. A decisão posterior determina a cor exibida conforme o ID da API e reverte a conversão do verde.
+
+## 2026-11-27 — Sessão em armazenamento seguro
+
+Após conhecer a diferença entre AsyncStorage e SecureStore, o usuário solicitou guardar a sessão no SecureStore. Sessões previamente gravadas no AsyncStorage são migradas para o SecureStore e removidas da chave anterior. A preferência local da cor continua separada da sessão.
+
+## 2026-11-27 — Autenticação pela API e descarte do banco local antigo
+
+Login e cadastro passam a usar a API. O token da sessão fica no armazenamento local do aparelho, sem colocá-lo no `.env`; a decisão posterior determina o uso de SecureStore. A URL provisória é configuração de ambiente. A cor escolhida continua local por conta, com a paleta existente; a decisão posterior substitui o avatar provisório fixo pela consulta ao catálogo. O usuário autorizou descartar os dados locais antigos ao retirar as contas do banco local. O esquema 12 não contém `users`; dados das outras funcionalidades continuam locais e usam o ID remoto da conta. O HTTP informado destina-se a testes na rede local.
+
 ## 2026-11-13 — Valor do saldo em estoque
 
 O campo “Preço do lote” no detalhe do produto mostra o preço unitário da compra multiplicado pelo saldo atual do lote. O valor varia com os controles de quantidade e é arredondado para centavos na apresentação. O valor originalmente pago permanece no histórico. Quando houver compras agrupadas, o detalhe continua mostrando o lote selecionado pelo fluxo existente.

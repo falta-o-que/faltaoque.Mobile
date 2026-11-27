@@ -1,5 +1,13 @@
 # SDD — integração e fluxos definidos até 10 de outubro de 2026
 
+## Atualização de 27 de novembro — autenticação pela API
+
+- Cadastro usa `POST /auth/sign-up`, com nome, e-mail, senha e o ID obtido em `GET /colors` para a cor selecionada; não envia o cadastro sem correspondência única. A paleta usa os mesmos códigos do catálogo, inclusive `#00DD00`. No login e na restauração, a cor exibida corresponde ao ID retornado pela API.
+- Login usa `POST /auth/login`; o token retornado é mantido na sessão local em SecureStore por solicitação posterior do usuário. Sessões anteriores no AsyncStorage são transferidas ao armazenamento seguro e removidas da chave anterior. A sessão é restaurada consultando `GET /users/{id}` com Bearer token e não é restaurada quando o token expira ou é rejeitado.
+- A tabela local `users` foi retirada. O usuário autorizou descartar os dados locais antigos na mudança para o esquema 12; as outras funcionalidades continuam locais usando o ID da conta da API. Não há sincronização ou migração de dados antigos.
+- O contrato de atualização de usuário exige senha mesmo quando o usuário deseja alterá-la. A edição de perfil fica indisponível até definir esse fluxo, que deve preservar a possibilidade de mudar outros campos sem trocar a senha.
+- A URL HTTP fornecida é provisória para testes locais. A configuração de acesso fica no ambiente; senhas e tokens não são variáveis de ambiente. Uma build Android de desenvolvimento precisa incorporar a permissão de HTTP; uso real requer HTTPS.
+
 Status: especificação funcional atualizada até 10 de outubro de 2026. Não confirma API implementada nem migração
 aplicada no banco hospedado.
 

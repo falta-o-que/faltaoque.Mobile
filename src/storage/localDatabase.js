@@ -4,7 +4,7 @@ import * as Crypto from 'expo-crypto';
 const DATABASE_KEY = '@faltaoque/database';
 const VERSION_KEY = '@faltaoque/database-schema-version';
 const PENDING_WRITE_KEY = '@faltaoque/database-pending-write';
-const CURRENT_SCHEMA_VERSION = 11;
+const CURRENT_SCHEMA_VERSION = 12;
 
 export const CATEGORY_NAMES = ['bebidas', 'organicos', 'limpezaHigiene', 'integraisCereais', 'frescos', 'carnes', 'outros'];
 const colorRows = [{id: 1, name: 'Ciano', hex_code: '#00F0FF'}, {
@@ -15,10 +15,9 @@ const colorRows = [{id: 1, name: 'Ciano', hex_code: '#00F0FF'}, {
     id: 8, name: 'Verde', hex_code: '#36B83F'
 }, {id: 9, name: 'Verde claro', hex_code: '#97F7CD'}, {id: 10, name: 'Vermelho', hex_code: '#FF0505'}, {
     id: 11, name: 'Laranja', hex_code: '#FFB405'
-}, {id: 12, name: 'Verde limão', hex_code: '#168A62'},];
+}, {id: 12, name: 'Verde limão', hex_code: '#00DD00'},];
 
 const emptyTables = () => ({
-    users: [],
     colors: colorRows.map((row) => ({...row})),
     pantries: [],
     users_pantries: [],
@@ -32,7 +31,6 @@ const emptyTables = () => ({
 });
 
 const TABLE_FIELDS = {
-    users: ['id', 'name', 'email', 'password', 'avatar_id', 'role', 'is_active'],
     colors: ['id', 'name', 'hex_code'],
     pantries: ['id', 'title', 'location', 'location_name', 'color_id', 'share_invite_id'],
     users_pantries: ['user_id', 'pantry_id'],
@@ -47,7 +45,7 @@ const TABLE_FIELDS = {
 
 const byId = (rows, id) => rows.find((row) => row.id === id);
 const categoryId = (name, categories) => categories.find((row) => row.name === name)?.id ?? categories[categories.length - 1]?.id ?? 1;
-const displayColor = (value) => String(value ?? '').toLowerCase() === '#00dd00' ? '#168A62' : value;
+const displayColor = (value) => String(value ?? '').toLowerCase() === '#168a62' ? '#00DD00' : value;
 const colorId = (value, colors) => colors.find((row) => String(displayColor(row.hex_code)).toLowerCase() === String(displayColor(value)).toLowerCase())?.id ?? colors[0]?.id ?? 1;
 
 function normalizeDatabase(value) {
@@ -62,7 +60,6 @@ function normalizeDatabase(value) {
         }
     }
     const ids = (tableName) => new Set(value[tableName].map((row) => row.id));
-    const userIds = ids('users');
     const colorIds = ids('colors');
     const pantryIds = ids('pantries');
     const inviteIds = ids('pantries_invites');
@@ -70,14 +67,13 @@ function normalizeDatabase(value) {
     const categoryIds = ids('categories');
     const groceryListIds = ids('grocery_lists');
     const marketIds = ids('markets');
-    const emails = value.users.map((row) => row.email);
     const duplicatePrimaryKey = tableNames.some((tableName) => {
         if (tableName === 'users_pantries') return false;
         const keys = value[tableName].map((row) => row.id);
         return new Set(keys).size !== keys.length;
     });
     const memberships = value.users_pantries.map((row) => `${row.user_id}:${row.pantry_id}`);
-    if (duplicatePrimaryKey || new Set(memberships).size !== memberships.length || new Set(emails).size !== emails.length || value.users.some((row) => !colorIds.has(row.avatar_id)) || value.pantries.some((row) => !colorIds.has(row.color_id) || (row.share_invite_id != null && !inviteIds.has(row.share_invite_id)) || (row.location_name != null && typeof row.location_name !== 'string')) || value.markets.some((row) => !/^\d{8}$/.test(String(row.cep ?? '')) || ((row.latitude == null) !== (row.longitude == null)) || (row.latitude != null && (!Number.isFinite(row.latitude) || row.latitude < -90 || row.latitude > 90)) || (row.longitude != null && (!Number.isFinite(row.longitude) || row.longitude < -180 || row.longitude > 180))) || value.users_pantries.some((row) => !userIds.has(row.user_id) || !pantryIds.has(row.pantry_id)) || value.purchases.some((row) => !pantryIds.has(row.pantry_id) || (row.market_id != null && !marketIds.has(row.market_id))) || value.pantry_products.some((row) => !purchaseIds.has(row.purchase_id) || !categoryIds.has(row.category_id)) || value.grocery_lists.some((row) => !pantryIds.has(row.pantry_id) || (row.market_id != null && !marketIds.has(row.market_id))) || value.grocery_list_products.some((row) => !groceryListIds.has(row.grocery_list_id) || !categoryIds.has(row.category_id))) {
+    if (duplicatePrimaryKey || new Set(memberships).size !== memberships.length || value.pantries.some((row) => !colorIds.has(row.color_id) || (row.share_invite_id != null && !inviteIds.has(row.share_invite_id)) || (row.location_name != null && typeof row.location_name !== 'string')) || value.markets.some((row) => !/^\d{8}$/.test(String(row.cep ?? '')) || ((row.latitude == null) !== (row.longitude == null)) || (row.latitude != null && (!Number.isFinite(row.latitude) || row.latitude < -90 || row.latitude > 90)) || (row.longitude != null && (!Number.isFinite(row.longitude) || row.longitude < -180 || row.longitude > 180))) || value.users_pantries.some((row) => !pantryIds.has(row.pantry_id)) || value.purchases.some((row) => !pantryIds.has(row.pantry_id) || (row.market_id != null && !marketIds.has(row.market_id))) || value.pantry_products.some((row) => !purchaseIds.has(row.purchase_id) || !categoryIds.has(row.category_id)) || value.grocery_lists.some((row) => !pantryIds.has(row.pantry_id) || (row.market_id != null && !marketIds.has(row.market_id))) || value.grocery_list_products.some((row) => !groceryListIds.has(row.grocery_list_id) || !categoryIds.has(row.category_id))) {
         throw new Error('Os vínculos locais não correspondem às relações do modelo recebido.');
     }
     return value;
@@ -156,7 +152,7 @@ export async function readDatabase() {
         throw error;
     }
     const hasEnvelope = parsed && typeof parsed === 'object' && (Object.hasOwn(parsed, 'version') || Object.hasOwn(parsed, 'tables'));
-    // Existing version 11 installations stored the version in a separate key.
+    // Current-schema installations may still store the version in a separate key.
     const serializedVersion = hasEnvelope ? parsed.version : await AsyncStorage.getItem(VERSION_KEY);
     const storedVersion = Number(serializedVersion);
     if (serializedVersion === null || serializedVersion === '' || !Number.isInteger(storedVersion) || storedVersion < 1) {

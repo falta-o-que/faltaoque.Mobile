@@ -1,13 +1,16 @@
-import {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 
 import * as authService from '../services/authService';
 import {setNotificationSession} from '../services/notificationService';
+import SessionRestoreError from './SessionRestoreError';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({children}) {
     const [account, setAccount] = useState(null);
     const [isRestoringSession, setIsRestoringSession] = useState(true);
+    const [sessionRestoreError, setSessionRestoreError] = useState(false);
+    const [restoreAttempt, setRestoreAttempt] = useState(0);
 
     useEffect(() => {
         let isMounted = true;
@@ -18,12 +21,12 @@ export function AuthProvider({children}) {
                 if (isMounted) {
                     setNotificationSession(restoredAccount?.id);
                     setAccount(restoredAccount);
+                    setSessionRestoreError(false);
                 }
             })
             .catch(() => {
                 if (isMounted) {
-                    setNotificationSession(null);
-                    setAccount(null);
+                    setSessionRestoreError(true);
                 }
             })
             .finally(() => {
@@ -33,10 +36,16 @@ export function AuthProvider({children}) {
         return () => {
             isMounted = false;
         };
+    }, [restoreAttempt]);
+
+    const retrySessionRestore = useCallback(() => {
+        setSessionRestoreError(false);
+        setIsRestoringSession(true);
+        setRestoreAttempt((attempt) => attempt + 1);
     }, []);
 
     const value = useMemo(() => ({
-        account, isRestoringSession, login: async (credentials) => {
+        account, isRestoringSession, retrySessionRestore, sessionRestoreError, login: async (credentials) => {
             const authenticatedAccount = await authService.login(credentials);
             setNotificationSession(authenticatedAccount.id);
             setAccount(authenticatedAccount);
@@ -54,9 +63,12 @@ export function AuthProvider({children}) {
             setNotificationSession(null);
             setAccount(null);
         },
-    }), [account, isRestoringSession],);
+    }), [account, isRestoringSession, retrySessionRestore, sessionRestoreError],);
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return (<AuthContext.Provider value={value}>
+        {sessionRestoreError && !isRestoringSession ?
+            <SessionRestoreError onRetry={retrySessionRestore}/> : children}
+    </AuthContext.Provider>);
 }
 
 export function useAuth() {

@@ -9,20 +9,36 @@ const preferenceKey = (accountId, pantryId) => {
     return `@faltaoque/pantry-brand-view/${encodeURIComponent(accountId)}/${encodeURIComponent(pantryId)}`;
 };
 
-export async function getPantryProductViewPreferences(accountId, pantryId) {
-    try {
-        const storedValue = await AsyncStorage.getItem(preferenceKey(accountId, pantryId));
-        const parsed = storedValue ? JSON.parse(storedValue) : null;
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-            return {brandGroupingByPresentation: {}, promptedDuplicateCounts: {}};
-        }
-        return {
-            brandGroupingByPresentation: parsed.brandGroupingByPresentation && typeof parsed.brandGroupingByPresentation === 'object' ? parsed.brandGroupingByPresentation : {},
-            promptedDuplicateCounts: parsed.promptedDuplicateCounts && typeof parsed.promptedDuplicateCounts === 'object' ? parsed.promptedDuplicateCounts : {},
-        };
-    } catch {
-        return {brandGroupingByPresentation: {}, promptedDuplicateCounts: {}};
+const emptyPreferences = () => ({brandGroupingByPresentation: {}, promptedDuplicateCounts: {}});
+
+const isRecord = (value) => value != null && typeof value === 'object' && !Array.isArray(value);
+
+const isValidBrandGrouping = (value) => Object.values(PANTRY_BRAND_GROUPING).includes(value);
+
+function parsePreferences(storedValue) {
+    if (storedValue === null) return emptyPreferences();
+
+    const parsed = JSON.parse(storedValue);
+    if (!isRecord(parsed)) throw new Error('INVALID_PANTRY_PRODUCT_VIEW_PREFERENCES');
+
+    const brandGroupingByPresentation = Object.prototype.hasOwnProperty.call(parsed, 'brandGroupingByPresentation')
+        ? parsed.brandGroupingByPresentation : {};
+    const promptedDuplicateCounts = Object.prototype.hasOwnProperty.call(parsed, 'promptedDuplicateCounts')
+        ? parsed.promptedDuplicateCounts : {};
+    const hasValidBrandGroupings = isRecord(brandGroupingByPresentation)
+        && Object.values(brandGroupingByPresentation).every(isValidBrandGrouping);
+    const hasValidDuplicateCounts = isRecord(promptedDuplicateCounts)
+        && Object.values(promptedDuplicateCounts).every((count) => Number.isSafeInteger(count) && count >= 0);
+    if (!hasValidBrandGroupings || !hasValidDuplicateCounts) {
+        throw new Error('INVALID_PANTRY_PRODUCT_VIEW_PREFERENCES');
     }
+
+    return {brandGroupingByPresentation, promptedDuplicateCounts};
+}
+
+export async function getPantryProductViewPreferences(accountId, pantryId) {
+    const storedValue = await AsyncStorage.getItem(preferenceKey(accountId, pantryId));
+    return parsePreferences(storedValue);
 }
 
 export async function savePantryProductBrandGrouping(accountId, pantryId, presentationKey, value) {

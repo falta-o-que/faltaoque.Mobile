@@ -51,7 +51,7 @@ export function LoginScreen({navigation}) {
                     text: t('auth.login.checkCredentials'), style: 'cancel'
                 }, {text: t('auth.login.createAccount'), onPress: () => navigation.navigate(PUBLIC_ROUTES.REGISTER)},]);
             } else if (error?.message === 'INVALID_CREDENTIALS') {
-                Alert.alert(t('auth.login.incorrectPasswordTitle'), t('auth.login.incorrectPasswordMessage'), [{text: t('auth.common.ok')}]);
+                Alert.alert(t('auth.errors.loginTitle'), t('auth.validation.invalidCredentials'), [{text: t('auth.common.ok')}]);
             } else {
                 showUserErrorAlert(error, {
                     title: t('auth.errors.loginTitle'),

@@ -1,5 +1,10 @@
 // Approved domain messages are mapped to stable keys before reaching the UI.
 const entries = [
+    ['LOGIN_ENDPOINT_UNAVAILABLE', 'O serviço de login não está disponível neste endereço. Confira a configuração da API.', 'The sign-in service is not available at this address. Check the API configuration.', 'El servicio de inicio de sesión no está disponible en esta dirección. Comprueba la configuración de la API.'],
+    ['COLOR_CATALOG_UNAVAILABLE', 'Não foi possível consultar as cores para criar a conta. Tente novamente.', 'Could not load colors to create your account. Try again.', 'No se pudieron consultar los colores para crear la cuenta. Inténtalo de nuevo.'],
+    ['AVATAR_COLOR_UNAVAILABLE', 'A cor escolhida não está disponível no servidor. Escolha outra cor ou tente novamente mais tarde.', 'The selected color is not available on the server. Choose another color or try again later.', 'El color elegido no está disponible en el servidor. Elige otro color o inténtalo de nuevo más tarde.'],
+    ['API_NOT_CONFIGURED', 'Configure o endereço da API e reinicie o aplicativo.', 'Configure the API address and restart the app.', 'Configura la dirección de la API y reinicia la aplicación.'],
+    ['PROFILE_API_UNAVAILABLE', 'A edição do perfil ainda não está disponível com a API.', 'Profile editing is not yet available with the API.', 'La edición del perfil aún no está disponible con la API.'],
     ['CHECKOUT_DATE_INVALID', 'Informe uma data de compra válida, de hoje ou anterior.', 'Enter a valid purchase date that is today or earlier.', 'Introduce una fecha de compra válida, de hoy o anterior.'],
     ['CHECKOUT_ITEM_IDENTITY_INVALID', 'Revise o nome e a marca dos produtos selecionados.', 'Review the names and brands of the selected products.', 'Revisa el nombre y la marca de los productos seleccionados.'],
     ['CHECKOUT_ITEM_QUANTITY_INVALID', 'Informe uma quantidade inteira maior que zero para os produtos.', 'Enter a whole quantity greater than zero for the products.', 'Introduce una cantidad entera mayor que cero para los productos.'],

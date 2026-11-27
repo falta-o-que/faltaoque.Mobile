@@ -1,5 +1,22 @@
 # Estado atual
 
+## Correções de sessão e preferências — 27 de novembro de 2026
+
+- A sessão só é removida por expiração ou rejeição da consulta autenticada do usuário; falhas de `/colors` preservam o token. Falhas transitórias de restauração oferecem nova tentativa sem exigir reiniciar o app. O token é salvo no SecureStore; a chave antiga no AsyncStorage serve apenas para migração e limpeza e é removida antes de salvar uma nova sessão.
+- Resposta HTTP 404 no login informa indisponibilidade da rota, em vez de culpar as credenciais. B41 foi corrigido: erro de leitura ou preferências inválidas interrompem a operação e não sobrescrevem os dados. A falha de restauração C03 foi tratada com nova tentativa. Validação física no Android e iOS permanece pendente.
+
+## Integração inicial de autenticação — 27 de novembro de 2026
+
+- A cor do avatar no login e na restauração agora vem do ID da conta consultado no catálogo `/colors`, sem priorizar preferência antiga do aparelho. A paleta usa `#00DD00` como no backend; despensas locais que registraram `#168A62` são exibidas com `#00DD00` sem apagar seus dados. Falta validação física do fluxo.
+
+- Após relato de cadastro criado sem login, corrigida a interpretação da validade retornada pela API: o backend usa `dd/MM/yyyy HH:mm:ss` no fuso GMT-03:00, enquanto o mobile esperava ISO. O app agora normaliza esse formato para UTC e continua rejeitando datas inválidas ou expiradas. Testes locais passaram; falta o usuário confirmar login manual e automático no aparelho contra o servidor implantado.
+
+- Login e cadastro usam `POST /auth/login` e `POST /auth/sign-up` do Swagger disponibilizado na rede local. O endereço é configurado em `EXPO_PUBLIC_API_URL` no `.env.local`. O cadastro consulta `GET /colors` e envia o ID correspondente ao código hexadecimal selecionado; se não houver correspondência única, não envia o cadastro. A rota pública respondeu HTTP 200 em 27 de novembro e retornou as 12 cores, incluindo o verde `#00DD00` atualmente usado no app. O cadastro completo ainda requer validação real. Não colocar senhas ou tokens no `.env`.
+- O token e a sessão ativa ficam no SecureStore, conforme solicitação posterior do usuário. Uma sessão anteriormente salva no AsyncStorage é transferida ao armazenamento seguro e removida do armazenamento antigo. A restauração consulta o usuário com Bearer token; expiração ou rejeição da sessão exige novo login. A cor do avatar é resolvida pelo ID retornado pela API e pelo catálogo de cores.
+- A tabela local `users` foi removida. O esquema local é versão 12 e, conforme autorizado pelo usuário, bancos anteriores são descartados quando o banco local for aberto. Despensas e demais dados ainda usam adaptadores locais e seus vínculos usam o ID da conta da API. Não há migração nem sincronização dos dados anteriores.
+- Edição de perfil fica temporariamente indisponível; ao selecionar Perfil, o app informa que a atualização está em andamento. O contrato `PUT /users/{id}` exige senha mesmo para outras alterações, enquanto o fluxo atual permite manter a senha sem informá-la. Cadastro e login reais no aparelho ainda precisam de validação com o backend; iOS não foi testado fisicamente.
+- O servidor HTTP é provisório para desenvolvimento na rede local. Uma build Android de desenvolvimento nova é necessária para aplicar a configuração nativa de HTTP; builds de produção não habilitam tráfego HTTP pela configuração adicionada. Antes de uso real é necessário HTTPS.
+
 ## Pendências de desempenho nas listas de compras — 16 de novembro de 2026
 
 Na branch `feature/MockData`, o usuário relatou lentidão intensa ao abrir a tela de uma despensa com lista de compras populada e, separadamente, ao abrir as sugestões de mercado. O histórico demonstrativo tinha 24 compras e 384 ocorrências de produtos. Os gargalos identificados estão em código compartilhado e também podem afetar dados reais na `develop` quando o histórico cresce. **As correções abaixo ainda precisam ser aplicadas e verificadas na `develop`.**
@@ -9,7 +26,7 @@ Na branch `feature/MockData`, o usuário relatou lentidão intensa ao abrir a te
 
 Referência: commit `7b00682` da `feature/MockData`, em particular os serviços e a tela citados, e `tests/grocery-market-suggestions.cjs`. O commit também contém alterações específicas dos dados demonstrativos; revisar e portar somente o que for adequado à `develop`, sem reintroduzir a fixture removida. Os testes de lista, estimativa, inicialização demo e sugestões passaram na branch de demonstração, assim como o bundle Android; a melhora não foi medida nem validada fisicamente no aparelho. Na `develop`, testar equivalência dos resultados, isolamento e falhas de persistência, resposta lenta/falha do Geocoding e atualizações tardias; gerar o bundle e verificar a abertura e as sugestões no Android com histórico volumoso. iOS não foi testado fisicamente.
 
-## Compatibilidade da cor verde — 15 de novembro de 2026
+## Compatibilidade da cor verde — 15 de novembro de 2026, substituída em 27 de novembro
 
 - Bancos locais existentes que guardam a cor antiga `#00DD00` passam a exibi-la como `#168A62`; ao escolher o novo verde, a gravação reutiliza o identificador da cor existente sem substituir dados. Verificados os cenários de banco antigo e cadastro em harness, além dos scripts de versão do banco e sessão de cadastro. Validação física pendente.
 
