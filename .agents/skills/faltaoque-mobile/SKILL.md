@@ -83,7 +83,8 @@ Inspect the working tree before editing and preserve unrelated human changes. Tr
 
 Always run the relevant automated tests after implementation; when no test script is provided, discover and run the
 repository's local test harnesses. Do not use ADB to run tests. Persistence and domain work should exercise failure
-paths and account isolation. A UI slice should at least bundle successfully and be checked against its Figma reference.
+paths and account isolation. The user handles Expo build verification; do not run Expo to verify builds unless the user
+asks. Check UI slices against the Figma reference when applicable and report when a bundle was not verified by the agent.
 Camera, NFC-e, and lifecycle behavior require an Android physical-device validation note; explicitly report when iOS was
 not physically tested.
 
